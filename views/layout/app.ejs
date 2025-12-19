@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+  <%- include("../partials/head", { title, pageCss }) %>
+</head>
+
+<body
+  class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+  <%- include("../partials/sidebar", { user, active }) %>
+
+    <main class="flex-1 lg:ms-64 flex flex-col app-content">
+      <%- include("../partials/header") %>
+
+        <div class="content lg:px-4 flex-grow relative">
+          <%- include(view) %>
+        </div>
+
+        <%- include("../partials/footer") %>
+    </main>
+
+    <!-- Scripts globais -->
+    <script src="/js/theme.js"></script>
+
+    <% if (typeof pageScripts !=="undefined" && pageScripts) { %>
+      <%- pageScripts %>
+        <% } %>
+</body>
+
+</html>

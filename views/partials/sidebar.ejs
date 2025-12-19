@@ -1,0 +1,76 @@
+<aside
+  class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
+
+  <div class="shrink-0 h-16 px-5 flex items-center">
+    <div class="relative flex items-center justify-between w-full">
+      <a href="/dashboard" class="flex items-center relative z-[1]">
+        <span class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl from-primary via-primary-deep to-primary-deep text-white shrink-0 font-normal">
+          <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor">
+            <path d="m400-240-51 123q-6 15-21.5 21.5T297-95q-15-6-21.5-21.5T275-147l43-104q-106-28-172-114T80-560v-160q0-66 47-113t113-47q22 0 42 7.5t40 15.5l191 78q13 5 12.5 18.5T512-742l-112 42v60l426 271q7 5 11 11.5t6 14.5l28 140q3 17-7.5 30T836-160h-14q-11 0-19-5.5T790-180l-30-60H560v120q0 17-11.5 28.5T520-80q-17 0-28.5-11.5T480-120v-120h-80ZM240-680q-17 0-28.5-11.5T200-720q0-17 11.5-28.5T240-760q17 0 28.5 11.5T280-720q0 17-11.5 28.5T240-680Zm160 320Zm0 40h353l-63-40H400q-36 0-67.5-14.5T279-415q-13-14-25-38.5T242-498q0-17 11.5-28.5T282-538q15 0 26 10t14 24q5 28 27 46t51 18h165L320-596v-124q0-33-23.5-56.5T240-800q-33 0-56.5 23.5T160-720v160q0 100 70 170t170 70Z"/>
+          </svg>
+        </span>
+        <h5 class="text-2xl ms-3 logo-text font-display">Raven</h5>
+      </a>
+
+      <button id="isSidebarMini"
+        class="btn-sidebar-min hidden lg:flex size-7 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-w-resize">
+        <span class="icon-[lucide--sidebar] rtl:rotate-180"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col h-full overflow-y-auto" data-simplebar>
+    <div class="flex flex-col py-3 px-3">
+      <nav class="flex flex-col space-y-0.5" id="SidebarCollapseGroup">
+        <span class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">
+          Visão geral
+        </span>
+
+        <a href="/dashboard" class="sidebar-link <%= active === 'dashboard' ? 'active' : '' %>">
+          <span class="sidebar-icon"><span class="icon-[lucide--file-chart-column]"></span></span>
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+
+        <div class="static">
+          <a href="/clientes" class="sidebar-link <%= active === 'clientes' ? 'active' : '' %>">
+            <span class="sidebar-icon"><span class="icon-[lucide--users]"></span></span>
+            <span class="sidebar-text">Clientes</span>
+          </a>
+          
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <div class="py-3 px-5 flex flex-col shrink-0">
+    <div class="static">
+      <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport"
+        data-bs-toggle="dropdown" href="#" class="block">
+        <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
+          <img src="/images/avatars/thumb-1.jpg" class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
+          <div class="flex-grow shrink-0 flex items-center justify-between">
+            <h6 class="!text-current user-text"><%= (user && user.email) ? user.email : 'Usuário' %></h6>
+          </div>
+        </div>
+      </a>
+
+      <div class="dropdown-menu w-54 z-50">
+        <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+          <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full" alt="">
+          <div class="flex-grow">
+            <p class="text-sm text-muted">Logado como</p>
+            <p class="text-sm"><%= (user && user.email) ? user.email : '-' %></p>
+          </div>
+          <span class="shrink-0 pl-2">
+            <span class="icon-[solar--verified-check-bold] text-green-500"></span>
+          </span>
+        </div>
+
+        <a href="/logout" class="dropdown-item">
+          <span class="dropdown-icon"><span class="icon-[lucide--log-out]"></span></span>
+          Sair
+        </a>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sesi sst - login</title>
+  <link rel="icon" href="/images/favicon.png" type="image/png">
+
+  <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <style>
+    /* “algo ao redor” sem depender do CSS do template */
+    .auth-bg {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(99, 109, 255, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 80% 90%, rgba(4, 151, 114, 0.14), transparent 60%),
+        linear-gradient(180deg, rgba(250, 250, 250, 1) 0%, rgba(245, 245, 245, 1) 100%);
+    }
+
+    .auth-bg::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(24, 24, 27, 0.06) 1px, transparent 0);
+      background-size: 18px 18px;
+      pointer-events: none;
+      opacity: .55;
+    }
+
+    .auth-card {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(24, 24, 27, 0.08);
+      box-shadow:
+        0 20px 60px rgba(24, 24, 27, 0.12),
+        0 1px 0 rgba(255, 255, 255, 0.4) inset;
+      border-radius: 16px;
+    }
+
+    .dark .auth-bg {
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(99, 109, 255, 0.20), transparent 60%),
+        radial-gradient(900px 500px at 80% 90%, rgba(4, 151, 114, 0.16), transparent 60%),
+        linear-gradient(180deg, rgba(9, 9, 11, 1) 0%, rgba(12, 12, 14, 1) 100%);
+    }
+
+    .dark .auth-bg::before {
+      background-image:
+        radial-gradient(circle at 1px 1px, rgba(244, 244, 245, 0.08) 1px, transparent 0);
+      opacity: .35;
+    }
+
+    .dark .auth-card {
+      background: rgba(24, 24, 27, 0.55);
+      border: 1px solid rgba(244, 244, 245, 0.08);
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.45),
+        0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    }
+  </style>
+</head>
+
+<body class="font-theme h-full text-base font-normal bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
+
+  <main class="auth-bg flex items-center justify-center px-4 py-10">
+    <div class="w-full max-w-md relative z-10">
+      <!-- Badge/topo -->
+      <div class="flex items-center justify-center mb-6">
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold
+                     bg-white/70 dark:bg-zinc-900/40 border border-zinc-200/70 dark:border-zinc-800/70">
+          <span class="size-2 rounded-full bg-primary"></span>
+          Segurança do Trabalho • Admin
+        </span>
+      </div>
+
+      <!-- Card -->
+      <div class="auth-card p-6 sm:p-7">
+        <div class="mb-6">
+          <a href="/" class="flex items-center gap-3 mb-4">
+            <span
+              class="flex w-11 h-11 items-center justify-center rounded-xl bg-gradient-to-tl from-primary via-primary-deep to-primary-deep text-white shrink-0 font-normal shadow">
+              <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"
+                fill="currentColor">
+                <path
+                  d="m400-240-51 123q-6 15-21.5 21.5T297-95q-15-6-21.5-21.5T275-147l43-104q-106-28-172-114T80-560v-160q0-66 47-113t113-47q22 0 42 7.5t40 15.5l191 78q13 5 12.5 18.5T512-742l-112 42v60l426 271q7 5 11 11.5t6 14.5l28 140q3 17-7.5 30T836-160h-14q-11 0-19-5.5T790-180l-30-60H560v120q0 17-11.5 28.5T520-80q-17 0-28.5-11.5T480-120v-120h-80ZM240-680q-17 0-28.5-11.5T200-720q0-17 11.5-28.5T240-760q17 0 28.5 11.5T280-720q0 17-11.5 28.5T240-680Zm160 320Zm0 40h353l-63-40H400q-36 0-67.5-14.5T279-415q-13-14-25-38.5T242-498q0-17 11.5-28.5T282-538q15 0 26 10t14 24q5 28 27 46t51 18h165L320-596v-124q0-33-23.5-56.5T240-800q-33 0-56.5 23.5T160-720v160q0 100 70 170t170 70Z" />
+              </svg>
+            </span>
+
+            <div class="leading-tight">
+              <div class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Painel Administrativo</div>
+              <div class="text-xs text-zinc-500 dark:text-zinc-400">Acesso restrito</div>
+            </div>
+          </a>
+
+          <h3 class="text-2xl font-semibold text-zinc-900 dark:text-zinc-100 leading-none mb-2">
+            Bem-vindo de volta
+          </h3>
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            Entre com seu e-mail e senha para continuar.
+          </p>
+        </div>
+
+        <!-- FORM -->
+        <!-- Se você já tiver rota POST, troque para: action="/admin/login" method="POST" -->
+        <form id="form_login" action="/login" method="POST" autocomplete="off" novalidate="novalidate">
+          <div class="flex flex-col gap-1 mb-4">
+            <label class="block mb-0.5 text-muted" for="userEmail">E-mail</label>
+            <input id="userEmail" name="email" class="input" placeholder="email@fiero.com" type="text" value="">
+          </div>
+
+          <div class="flex flex-col gap-1 mb-2">
+            <label class="block mb-0.5 text-muted" for="userPassword">Senha</label>
+            <input id="userPassword" name="password" class="input" placeholder="••••••••" type="password" value="">
+          </div>
+
+          <div class="flex items-center justify-between mt-3 mb-5">
+            <label
+              class="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
+              <input type="checkbox" class="input-switch" />
+              Manter conectado
+            </label>
+
+            <a href="/forgot-password"
+              class="text-sm border-b border-dashed leading-[1] text-zinc-500 hover:text-primary">
+              Esqueceu a senha?
+            </a>
+          </div>
+
+          <button type="submit" class="btn bg-primary text-white hover:bg-primary-deep w-full text-center">
+            Entrar
+          </button>
+
+          <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-400 text-center">
+            Ao continuar, você concorda com as políticas internas de uso.
+          </p>
+        </form>
+      </div>
+
+      <!-- Rodapé fora do card -->
+      <div class="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400 relative z-10">
+        <span>Problemas para acessar?</span>
+        <a href="/suporte" class="underline hover:text-primary ml-1">Fale com o suporte</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+  <script src="/vendor/js/just-validate.production.min.js"></script>
+  <script>
+    const validation = new JustValidate('#form_login');
+    validation
+      .addField('#userEmail', [
+        { rule: 'required', errorMessage: 'Email é obrigatório' },
+        { rule: 'email', errorMessage: 'Digite um e-mail válido' },
+      ])
+      .addField('#userPassword', [
+        { rule: 'required', errorMessage: 'Senha é obrigatória' },
+        { rule: 'minLength', value: 6, errorMessage: 'A senha deve ter no mínimo 6 caracteres' },
+      ])
+      .onSuccess((event) => {
+        // deixa o JustValidate validar, e depois envia o form para o backend
+        event.target.submit();
+      });
+  </script>
+</body>
+
+</html>
