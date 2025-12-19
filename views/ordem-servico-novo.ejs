@@ -2,712 +2,691 @@
 <html lang="pt-BR" class="h-full">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- DataTables -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
 
-  <!-- TomSelect (se você quiser usar em algum select depois) -->
-  <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <!-- TomSelect -->
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 
-  <title>Raven - Ordem de serviço</title>
-  <link rel="icon" href="/images/favicon.png" type="image/png">
+    <title>Raven - Ordem de serviço</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
 
-  <!-- Simplebar -->
-  <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com/">
-  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
-    rel="stylesheet">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
 
-  <!-- Main Style -->
-  <link rel="stylesheet" href="/css/style.css" />
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
 
 <body
-  class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
-  <!-- Sidebar -->
-  <aside
-    class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
+    <!-- Sidebar -->
+    <aside
+        class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
 
-    <div class="shrink-0 h-16 px-5 flex items-center">
-      <div class="relative flex items-center justify-between w-full">
-        <a href="/dashboard" class="flex items-center relative z-[1]">
-          <span
-            class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl from-primary via-primary-deep to-primary-deep text-white shrink-0 font-normal">
-            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"
-              fill="currentColor">
-              <path
-                d="m400-240-51 123q-6 15-21.5 21.5T297-95q-15-6-21.5-21.5T275-147l43-104q-106-28-172-114T80-560v-160q0-66 47-113t113-47q22 0 42 7.5t40 15.5l191 78q13 5 12.5 18.5T512-742l-112 42v60l426 271q7 5 11 11.5t6 14.5l28 140q3 17-7.5 30T836-160h-14q-11 0-19-5.5T790-180l-30-60H560v120q0 17-11.5 28.5T520-80q-17 0-28.5-11.5T480-120v-120h-80ZM240-680q-17 0-28.5-11.5T200-720q0-17 11.5-28.5T240-760q17 0 28.5 11.5T280-720q0 17-11.5 28.5T240-680Zm160 320Zm0 40h353l-63-40H400q-36 0-67.5-14.5T279-415q-13-14-25-38.5T242-498q0-17 11.5-28.5T282-538q15 0 26 10t14 24q5 28 27 46t51 18h165L320-596v-124q0-33-23.5-56.5T240-800q-33 0-56.5 23.5T160-720v160q0 100 70 170t170 70Z" />
-            </svg>
-          </span>
-          <h5 class="text-2xl ms-3 logo-text font-display">Raven</h5>
-        </a>
+        <div class="shrink-0 h-16 px-5 flex items-center">
+            <div class="relative flex items-center justify-between w-full">
+                <a href="/dashboard" class="flex items-center relative z-[1]">
+                    <span
+                        class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl from-primary via-primary-deep to-primary-deep text-white shrink-0 font-normal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"
+                            fill="currentColor">
+                            <path
+                                d="m400-240-51 123q-6 15-21.5 21.5T297-95q-15-6-21.5-21.5T275-147l43-104q-106-28-172-114T80-560v-160q0-66 47-113t113-47q22 0 42 7.5t40 15.5l191 78q13 5 12.5 18.5T512-742l-112 42v60l426 271q7 5 11 11.5t6 14.5l28 140q3 17-7.5 30T836-160h-14q-11 0-19-5.5T790-180l-30-60H560v120q0 17-11.5 28.5T520-80q-17 0-28.5-11.5T480-120v-120h-80ZM240-680q-17 0-28.5-11.5T200-720q0-17 11.5-28.5T240-760q17 0 28.5 11.5T280-720q0 17-11.5 28.5T240-680Zm160 320Zm0 40h353l-63-40H400q-36 0-67.5-14.5T279-415q-13-14-25-38.5T242-498q0-17 11.5-28.5T282-538q15 0 26 10t14 24q5 28 27 46t51 18h165L320-596v-124q0-33-23.5-56.5T240-800q-33 0-56.5 23.5T160-720v160q0 100 70 170t170 70Z" />
+                        </svg>
+                    </span>
+                    <h5 class="text-2xl ms-3 logo-text font-display">Raven</h5>
+                </a>
 
-        <button id="isSidebarMini"
-          class="btn-sidebar-min hidden lg:flex size-7 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-w-resize">
-          <span class="icon-[lucide--sidebar] rtl:rotate-180"></span>
-        </button>
-      </div>
-    </div>
-
-    <div class="flex flex-col h-full overflow-y-auto" data-simplebar>
-      <div class="flex flex-col py-3 px-3">
-        <nav class="flex flex-col space-y-0.5" id="SidebarCollapseGroup">
-          <span class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">
-            Visão geral
-          </span>
-
-          <a href="/dashboard" class="sidebar-link">
-            <span class="sidebar-icon">
-              <span class="icon-[lucide--file-chart-column]"></span>
-            </span>
-            <span class="sidebar-text">Dashboard</span>
-          </a>
-
-          <a href="/clientes" class="sidebar-link">
-            <span class="sidebar-icon">
-              <span class="icon-[lucide--users]"></span>
-            </span>
-            <span class="sidebar-text">Clientes</span>
-          </a>
-
-          <a href="/servicos" class="sidebar-link">
-            <span class="sidebar-icon">
-              <span class="icon-[lucide--baggage-claim]"></span>
-            </span>
-            <span class="sidebar-text">Serviços</span>
-          </a>
-
-          <a href="/ordemservicos" class="sidebar-link active">
-            <span class="sidebar-icon">
-              <span class="icon-[lucide--briefcase-business]"></span>
-            </span>
-            <span class="sidebar-text">Ordem de serviço</span>
-          </a>
-
-          <a href="/relatorios" class="sidebar-link">
-            <span class="sidebar-icon">
-              <span class="icon-[lucide--file-chart-line]"></span>
-            </span>
-            <span class="sidebar-text">Relatórios</span>
-          </a>
-        </nav>
-      </div>
-    </div>
-
-    <div class="py-3 px-5 flex flex-col shrink-0">
-      <div class="static">
-        <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport" data-bs-toggle="dropdown"
-          href="#" class="block">
-          <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
-            <img src="/images/avatars/thumb-1.jpg" class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
-            <div class="flex-grow shrink-0 flex items-center justify-between">
-              <h6 class="!text-current user-text">
-                <%= (user && (user.nome || user.email)) ? (user.nome || user.email) : "Usuário" %>
-              </h6>
+                <button id="isSidebarMini"
+                    class="btn-sidebar-min hidden lg:flex size-7 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-w-resize">
+                    <span class="icon-[lucide--sidebar] rtl:rotate-180"></span>
+                </button>
             </div>
-          </div>
-        </a>
-
-        <div class="dropdown-menu w-54 z-50">
-          <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-            <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full shrink-0" alt="">
-            <div class="flex-grow">
-              <p class="text-sm text-muted">Logado como</p>
-              <p class="text-sm">
-                <%= (user && user.email) ? user.email : "-" %>
-              </p>
-            </div>
-            <span class="shrink-0 pl-2">
-              <span class="icon-[solar--verified-check-bold] text-green-500"></span>
-            </span>
-          </div>
-
-          <hr class="border-zinc-100 dark:border-zinc-800 my-2">
-
-          <a href="/logout" class="dropdown-item">
-            <span class="dropdown-icon">
-              <span class="icon-[lucide--log-out]"></span>
-            </span>
-            Sair
-          </a>
         </div>
-      </div>
-    </div>
-  </aside>
 
-  <!-- Main -->
-  <main class="flex-1 lg:ms-64 flex flex-col app-content">
+        <div class="flex flex-col h-full overflow-y-auto" data-simplebar>
+            <div class="flex flex-col py-3 px-3">
+                <nav class="flex flex-col space-y-0.5" id="SidebarCollapseGroup">
+                    <span
+                        class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">
+                        Visão geral
+                    </span>
 
-    <!-- Header -->
-    <div
-      class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header">
-      <div class="shrink-0 flex items-center space-x-1">
-        <button type="button" data-toggle="app_sidebar"
-          class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
-          <span class="icon-[iconoir--menu] text-lg"></span>
-        </button>
+                    <a href="/dashboard" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--file-chart-column]"></span>
+                        </span>
+                        <span class="sidebar-text">Dashboard</span>
+                    </a>
 
-        <button data-bs-target="#modal_search" data-bs-toggle="modal"
-          class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
-          <span class="icon-[lucide--search] text-lg lg:text-base"></span>
-          <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
-            Buscar
-            <span class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
-          </span>
-        </button>
-      </div>
+                    <a href="/clientes" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--users]"></span>
+                        </span>
+                        <span class="sidebar-text">Clientes</span>
+                    </a>
 
-      <div class="flex items-center space-x-1">
-        <div class="relative">
-          <button type="button"
-            class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
-            data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
-            <span class="icon-[lucide--settings] text-lg"></span>
-          </button>
+                    <a href="/servicos" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--baggage-claim]"></span>
+                        </span>
+                        <span class="sidebar-text">Serviços</span>
+                    </a>
 
-          <div class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
-            <div class="mb-3 px-3 pt-2">
-              <h5>Tema</h5>
+                    <a href="/ordemservicos" class="sidebar-link active">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--briefcase-business]"></span>
+                        </span>
+                        <span class="sidebar-text">Ordem de serviço</span>
+                    </a>
+
+                    <a href="/relatorios" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--file-chart-line]"></span>
+                        </span>
+                        <span class="sidebar-text">Relatórios</span>
+                    </a>
+                </nav>
             </div>
-
-            <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
-              <label class="flex items-center cursor-pointer dropdown-item">
-                <span class="icon-[lucide--sun-moon] me-1"></span>
-                <span class="flex-grow text-sm me-2">Modo escuro</span>
-                <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox" value="1">
-              </label>
-            </div>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Search Modal -->
-    <div id="modal_search" role="dialog" class="modal fade fixed w-full h-full left-0 top-0 z-[60]" tabindex="-1">
-      <div class="modal-dialog relative m-4 pointer-events-none">
+        <div class="py-3 px-5 flex flex-col shrink-0">
+            <div class="static">
+                <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport"
+                    data-bs-toggle="dropdown" href="#" class="block">
+                    <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
+                        <img src="/images/avatars/thumb-1.jpg"
+                            class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
+                        <div class="flex-grow shrink-0 flex items-center justify-between">
+                            <h6 class="!text-current user-text">
+                                <%= (user && (user.nome || user.email)) ? (user.nome || user.email) : "Usuário" %>
+                            </h6>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="dropdown-menu w-54 z-50">
+                    <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                        <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full shrink-0" alt="">
+                        <div class="flex-grow">
+                            <p class="text-sm text-muted">Logado como</p>
+                            <p class="text-sm">
+                                <%= (user && user.email) ? user.email : "-" %>
+                            </p>
+                        </div>
+                        <span class="shrink-0 pl-2">
+                            <span class="icon-[solar--verified-check-bold] text-green-500"></span>
+                        </span>
+                    </div>
+
+                    <hr class="border-zinc-100 dark:border-zinc-800 my-2">
+
+                    <a href="/logout" class="dropdown-item">
+                        <span class="dropdown-icon">
+                            <span class="icon-[lucide--log-out]"></span>
+                        </span>
+                        Sair
+                    </a>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+        <!-- Header -->
         <div
-          class="modal-content max-w-[30rem] mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
-          <div class="relative">
-            <span
-              class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
+            class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header">
+
+            <div class="shrink-0 flex items-center space-x-1">
+                <button type="button" data-toggle="app_sidebar"
+                    class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
+                    <span class="icon-[iconoir--menu] text-lg"></span>
+                </button>
+
+                <button data-bs-target="#modal_search" data-bs-toggle="modal"
+                    class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
+                    <span class="icon-[lucide--search] text-lg lg:text-base"></span>
+                    <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
+                        Buscar
+                        <span
+                            class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-1">
+                <div class="relative">
+                    <button type="button"
+                        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
+                        data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
+                        <span class="icon-[lucide--settings] text-lg"></span>
+                    </button>
+
+                    <div
+                        class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
+                        <div class="mb-3 px-3 pt-2">
+                            <h5>Tema</h5>
+                        </div>
+
+                        <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+                            <label class="flex items-center cursor-pointer dropdown-item">
+                                <span class="icon-[lucide--sun-moon] me-1"></span>
+                                <span class="flex-grow text-sm me-2">Modo escuro</span>
+                                <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox"
+                                    value="1">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Modal (template) -->
+        <div id="modal_search" role="dialog" class="modal fade fixed inset-0 z-[60]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[30rem] bg-white dark:bg-zinc-900 rounded-xl">
+                    <div class="relative">
+                        <span
+                            class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
+                            <span class="icon-[lucide--search] text-lg"></span>
+                        </span>
+                        <button type="button"
+                            class="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 w-8 text-center me-3 cursor-pointer text-sm text-muted"
+                            data-bs-dismiss="modal">Esc</button>
+                        <input name="search" type="text"
+                            class="w-full pl-4 !pl-9 !pr-10 py-3 h-14 focus:outline-0 rounded-t-xl border-0"
+                            placeholder="Buscar..." autofocus />
+                    </div>
+                    <div class="border-t border-zinc-200 dark:border-zinc-800 max-h-[340px]" data-simplebar>
+                        <div class="px-4 py-4 text-sm text-muted">Digite para pesquisar…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page header -->
+        <div class="px-4 lg:px-10 py-6">
+            <h2 class="text-2xl mb-2">Cadastrar ordem de serviço</h2>
+
+            <ol class="flex gap-1 items-center text-sm">
+                <li class="flex items-center">
+                    <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                </li>
+                <li class="flex items-center opacity-30 leading-none">
+                    <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                </li>
+                <li class="flex items-center">
+                    <a href="/ordemservicos" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Ordem de
+                        serviço</a>
+                </li>
+                <li class="flex items-center opacity-30 leading-none">
+                    <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                </li>
+                <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+            </ol>
+        </div>
+
+        <!-- Page content -->
+        <div class="content flex-grow px-4 lg:px-10 pb-10">
+            <form action="/ordemservicos/novo" method="post" class="w-full" id="osForm">
+
+                <div class="content flex flex-col flex-grow px-4 lg:px-8">
+                    <div class="md:col-span-12 space-y-6">
+
+                        <!-- Card: Dados da OS -->
+                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <h5 class="text-xl">Dados da ordem de serviço</h5>
+                            </div>
+
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="mb-2 block">CONTRATO Nº</label>
+                                    <input name="contrato_numero" type="text" class="input h-10 w-full"
+                                        placeholder="Ex.: 001/2025" required>
+                                </div>
+
+                                <div>
+                                    <label class="mb-2 block">PROPOSTA COMERCIAL Nº</label>
+                                    <input name="proposta_numero" type="text" class="input h-10 w-full"
+                                        placeholder="Ex.: PC-023/2025" required>
+                                </div>
+
+                                <!-- Empresa contratante -->
+                                <div class="md:col-span-2">
+                                    <label class="mb-2 block">EMPRESA CONTRATANTE</label>
+
+                                    <div class="relative w-full">
+                                        <input type="hidden" name="contratante_id" id="contratante_id" value="">
+
+                                        <input id="contratante_nome" name="contratante_nome" type="text"
+                                            class="input h-10 w-full !pe-11 bg-white dark:bg-zinc-900 cursor-pointer"
+                                            placeholder="Selecione uma empresa..." readonly required
+                                            data-bs-toggle="modal" data-bs-target="#modal_contratante">
+
+                                        <button id="btnBuscarContratante" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#modal_contratante"
+                                            class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                                            title="Buscar empresa" aria-label="Buscar empresa">
+                                            <span class="icon-[lucide--search] text-lg"></span>
+                                        </button>
+                                    </div>
+
+                                    <p class="text-sm text-zinc-400 mt-2">Clique no campo ou na lupa para pesquisar a
+                                        empresa
+                                        contratante.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card: Escopo -->
+                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div
+                                class="p-6 border-b border-zinc-500/10 dark:border-zinc-800 flex items-center justify-between gap-3">
+                                <h5 class="text-xl">Escopo</h5>
+
+                                <button id="btnAddLinha" type="button"
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
+                                    <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
+                                    Adicionar linha
+                                </button>
+                            </div>
+
+                            <div class="p-6">
+                                <table id="table_escopo" class="table-default whitespace-nowrap w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Serviços</div>
+                                            </th>
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Quantidade</div>
+                                            </th>
+                                            <th class="text-nowrap" data-orderable="false">
+                                                <div class="flex items-center justify-end">Ações</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+
+                                <p class="text-sm text-zinc-400 mt-3">
+                                    Dica: você pode adicionar quantas linhas precisar. Em “Serviços”, clique no campo ou
+                                    na lupa para
+                                    pesquisar e selecionar.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                            <a href="/ordemservicos"
+                                class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center">
+                                <span class="icon-[lucide--x] text-lg me-1 leading-none"></span>
+                                Cancelar
+                            </a>
+
+                            <button type="submit" class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
+                                <span class="icon-[lucide--save] text-lg me-1 leading-none"></span>
+                                Salvar
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Modal: Empresa Contratante (MENOR + CENTRALIZADO) -->
+    <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+        <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+            <div class="modal-content pointer-events-auto w-full max-w-[32rem] bg-white dark:bg-zinc-900 rounded-xl">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                    <h5 class="text-lg">Pesquisar empresa contratante</h5>
+                    <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                        <span class="icon-[lucide--x] text-lg"></span>
+                    </button>
+                </div>
+
+                <div class="p-4">
+                    <div class="relative mb-3">
+                        <input id="contratanteSearch" type="search" class="input !ps-9 w-full"
+                            placeholder="Buscar empresa...">
+                        <span
+                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                    </div>
+
+                    <div class="max-h-[360px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                        <table class="table-default w-full">
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th class="text-right">Selecionar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="contratanteList">
+                                <tr data-id="1" data-nome="Empresa Exemplo LTDA">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Empresa Exemplo LTDA</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-id="2" data-nome="Cliente ABC S/A">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Cliente ABC S/A</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 mt-3">
+                        Depois você pode substituir essa lista por dados vindos do banco (EJS/rotas).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Serviço (MENOR + CENTRALIZADO) -->
+    <div id="modal_servico" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+        <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+            <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                    <h5 class="text-lg">Pesquisar serviço</h5>
+                    <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                        <span class="icon-[lucide--x] text-lg"></span>
+                    </button>
+                </div>
+
+                <div class="p-4">
+                    <div class="relative mb-3">
+                        <input id="servicoSearch" type="search" class="input !ps-9 w-full"
+                            placeholder="Buscar serviço...">
+                        <span
+                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                    </div>
+
+                    <div class="max-h-[420px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                        <table class="table-default w-full">
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th class="text-right">Selecionar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="servicoList">
+                                <tr data-id="10" data-nome="Elaboração de PGR">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Elaboração de PGR</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-id="11" data-nome="PCMSO">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">PCMSO</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-id="12" data-nome="LTCAT">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">LTCAT</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 mt-3">
+                        Quando clicar em “Selecionar”, o serviço será preenchido na linha ativa do escopo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/theme.js"></script>
+
+    <!-- jQuery -->
+    <script src="/vendor/js/jquery.min.js"></script>
+
+    <!-- DataTables -->
+    <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+
+    <!-- TomSelect -->
+    <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+    <script>
+        (function () {
+            // ==========================================================
+            // 1) Pesquisa e seleção de EMPRESA (modal_contratante)
+            // ==========================================================
+            const contratanteSearch = document.getElementById('contratanteSearch');
+            const contratanteList = document.getElementById('contratanteList');
+            const contratanteId = document.getElementById('contratante_id');
+            const contratanteNome = document.getElementById('contratante_nome');
+
+            contratanteSearch?.addEventListener('input', () => {
+                const q = (contratanteSearch.value || '').toLowerCase();
+                contratanteList?.querySelectorAll('tr').forEach(tr => {
+                    const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
+                    tr.style.display = nome.includes(q) ? '' : 'none';
+                });
+            });
+
+            contratanteList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btnPickContratante');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                const id = tr?.getAttribute('data-id') || '';
+                const nome = tr?.getAttribute('data-nome') || '';
+
+                if (contratanteId) contratanteId.value = id;
+                if (contratanteNome) contratanteNome.value = nome;
+
+                const modalEl = document.getElementById('modal_contratante');
+                if (window.bootstrap && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                }
+            });
+
+            // ==========================================================
+            // 2) Modal de serviços + DataTable Escopo
+            // ==========================================================
+            const servicoSearch = document.getElementById('servicoSearch');
+            const servicoList = document.getElementById('servicoList');
+
+            let currentRowIndex = null;
+
+            servicoSearch?.addEventListener('input', () => {
+                const q = (servicoSearch.value || '').toLowerCase();
+                servicoList?.querySelectorAll('tr').forEach(tr => {
+                    const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
+                    tr.style.display = nome.includes(q) ? '' : 'none';
+                });
+            });
+
+            const dt = new DataTable('#table_escopo', {
+                paging: true,
+                pageLength: 9,
+                lengthChange: false,
+                scrollX: true,
+                dom: 'lrtip',
+                order: [],
+                columnDefs: [{ orderable: false, targets: 2 }],
+            });
+
+            let nextIndex = 0;
+
+            function rowHtmlServico(index) {
+                return `
+          <div class="flex items-center gap-2">
+            <input type="hidden" name="escopo[${index}][servico_id]" value="">
+
+            <!-- INPUT também abre o modal -->
+            <input
+              type="text"
+              name="escopo[${index}][servico_nome]"
+              class="input h-10 w-full min-w-[280px] !pe-11 cursor-pointer"
+              placeholder="Selecione um serviço..."
+              readonly
+              required
+              data-open-servico="1"
+              title="Clique para pesquisar um serviço"
+            />
+
+            <button
+              type="button"
+              class="btn !p-2 js-pick-servico"
+              title="Pesquisar serviço"
+              aria-label="Pesquisar serviço"
+            >
               <span class="icon-[lucide--search] text-lg"></span>
-            </span>
-            <button type="button"
-              class="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 w-8 text-center me-3 cursor-pointer text-sm text-muted"
-              data-bs-dismiss="modal">Esc</button>
-            <input name="search" type="text"
-              class="w-full pl-4 !pl-9 !pr-10 py-3 h-14 focus:outline-0 rounded-t-xl border-0"
-              placeholder="Buscar..." autofocus />
+            </button>
           </div>
-          <div class="border-t border-zinc-200 dark:border-zinc-800 max-h-[340px]" data-simplebar>
-            <div class="px-4 py-4 text-sm text-muted">Digite para pesquisar…</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Page header -->
-    <div class="px-4 lg:px-10 py-6">
-      <h2 class="text-2xl mb-2">Cadastrar ordem de serviço</h2>
-
-      <ol class="flex gap-1 items-center text-sm">
-        <li class="flex items-center">
-          <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
-        </li>
-        <li class="flex items-center opacity-30 leading-none">
-          <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-        </li>
-        <li class="flex items-center">
-          <a href="/ordemservicos" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Ordem de serviço</a>
-        </li>
-        <li class="flex items-center opacity-30 leading-none">
-          <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-        </li>
-        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
-      </ol>
-    </div>
-
-    <!-- Page content -->
-    <div class="content flex-grow px-4 lg:px-10 pb-10">
-      <form action="/ordemservicos/novo" method="post" class="w-full" id="osForm">
-
-        <div class="content flex flex-col flex-grow px-4 lg:px-8">
-
-          <!-- Coluna principal -->
-          <div class="md:col-span-12 space-y-6">
-
-            <!-- Card: Dados da OS -->
-            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-              <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                <h5 class="text-xl">Dados da ordem de serviço</h5>
-              </div>
-
-              <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="mb-2 block">CONTRATO Nº</label>
-                  <input name="contrato_numero" type="text" class="input h-10 w-full" placeholder="Ex.: 001/2025"
-                    required>
-                </div>
-
-                <div>
-                  <label class="mb-2 block">PROPOSTA COMERCIAL Nº</label>
-                  <input name="proposta_numero" type="text" class="input h-10 w-full" placeholder="Ex.: PC-023/2025"
-                    required>
-                </div>
-
-                <!-- Empresa contratante com lupa + modal -->
-                <div class="md:col-span-2">
-                  <label class="mb-2 block">EMPRESA CONTRATANTE</label>
-
-                  <div class="relative w-full">
-                    <!-- guardo o id do cliente selecionado aqui -->
-                    <input type="hidden" name="contratante_id" id="contratante_id" value="">
-
-                    <input id="contratante_nome" name="contratante_nome" type="text"
-                      class="input h-10 w-full !pe-11 bg-white dark:bg-zinc-900" placeholder="Selecione uma empresa..."
-                      readonly required>
-
-                    <button id="btnBuscarContratante" type="button"
-                      class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                      title="Buscar empresa" aria-label="Buscar empresa">
-                      <span class="icon-[lucide--search] text-lg"></span>
-                    </button>
-                  </div>
-
-                  <p class="text-sm text-zinc-400 mt-2">Clique na lupa para pesquisar a empresa contratante.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card: Escopo (DataTables) -->
-            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-              <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800 flex items-center justify-between">
-                <h5 class="text-xl">Escopo</h5>
-
-                <button id="btnAddLinha" type="button"
-                  class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
-                  <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
-                  Adicionar linha
-                </button>
-              </div>
-
-              <div class="p-6">
-                <table id="table_escopo" class="table-default whitespace-nowrap w-full">
-                  <thead>
-                    <tr>
-                      <th class="text-nowrap">
-                        <div class="flex items-center">Serviços</div>
-                      </th>
-                      <th class="text-nowrap">
-                        <div class="flex items-center">Quantidade</div>
-                      </th>
-                      <th class="text-nowrap" data-orderable="false">
-                        <div class="flex items-center justify-end">Ações</div>
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    <!-- Linhas serão adicionadas via JS -->
-                  </tbody>
-                </table>
-
-                <p class="text-sm text-zinc-400 mt-3">
-                  Dica: você pode adicionar quantas linhas precisar. Em “Serviços”, clique na lupa para pesquisar e
-                  selecionar.
-                </p>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-              <a href="/ordemservicos"
-                class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center">
-                <span class="icon-[lucide--x] text-lg me-1 leading-none"></span>
-                Cancelar
-              </a>
-
-              <button type="submit" class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                <span class="icon-[lucide--save] text-lg me-1 leading-none"></span>
-                Salvar
-              </button>
-            </div>
-
-          </div>
-        </div>
-      </form>
-    </div>
-  </main>
-
-  <!-- Modal: Buscar Empresa Contratante -->
-  <div id="modal_contratante" class="fixed inset-0 z-[70] hidden" aria-hidden="true">
-    <div class="absolute inset-0 bg-black/40"></div>
-
-    <div class="relative mx-auto mt-16 w-[95%] max-w-2xl">
-      <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden">
-        <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h5 class="text-lg">Pesquisar empresa contratante</h5>
-          <button type="button" class="btn !p-2" id="btnFecharModalContratante" aria-label="Fechar">
-            <span class="icon-[lucide--x] text-lg"></span>
-          </button>
-        </div>
-
-        <div class="p-4">
-          <div class="relative mb-3">
-            <input id="contratanteSearch" type="search" class="input !ps-9 w-full" placeholder="Buscar empresa...">
-            <span
-              class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
-          </div>
-
-          <div class="max-h-[360px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
-            <table class="table-default w-full">
-              <thead>
-                <tr>
-                  <th>Empresa</th>
-                  <th class="text-right" data-orderable="false">Selecionar</th>
-                </tr>
-              </thead>
-              <tbody id="contratanteList">
-                <!-- Exemplo (substitua por loop EJS depois) -->
-                <tr data-id="1" data-nome="Empresa Exemplo LTDA">
-                  <td class="font-semibold text-zinc-900 dark:text-white">Empresa Exemplo LTDA</td>
-                  <td class="text-right">
-                    <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
-                      Selecionar
-                    </button>
-                  </td>
-                </tr>
-                <tr data-id="2" data-nome="Cliente ABC S/A">
-                  <td class="font-semibold text-zinc-900 dark:text-white">Cliente ABC S/A</td>
-                  <td class="text-right">
-                    <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
-                      Selecionar
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p class="text-sm text-zinc-400 mt-3">
-            Depois você pode substituir essa lista por dados vindos do banco (EJS/rotas).
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Buscar Serviço (para cada linha do escopo) -->
-  <div id="modal_servico" class="fixed inset-0 z-[70] hidden" aria-hidden="true">
-    <div class="absolute inset-0 bg-black/40"></div>
-
-    <div class="relative mx-auto mt-16 w-[95%] max-w-3xl">
-      <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden">
-        <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-          <h5 class="text-lg">Pesquisar serviço</h5>
-          <button type="button" class="btn !p-2" id="btnFecharModalServico" aria-label="Fechar">
-            <span class="icon-[lucide--x] text-lg"></span>
-          </button>
-        </div>
-
-        <div class="p-4">
-          <div class="relative mb-3">
-            <input id="servicoSearch" type="search" class="input !ps-9 w-full" placeholder="Buscar serviço...">
-            <span
-              class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
-          </div>
-
-          <div class="max-h-[420px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
-            <table class="table-default w-full">
-              <thead>
-                <tr>
-                  <th>Serviço</th>
-                  <th class="text-right" data-orderable="false">Selecionar</th>
-                </tr>
-              </thead>
-              <tbody id="servicoList">
-                <!-- Exemplo (substitua por loop EJS depois) -->
-                <tr data-id="10" data-nome="Elaboração de PGR">
-                  <td class="font-semibold text-zinc-900 dark:text-white">Elaboração de PGR</td>
-                  <td class="text-right">
-                    <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
-                      Selecionar
-                    </button>
-                  </td>
-                </tr>
-                <tr data-id="11" data-nome="PCMSO">
-                  <td class="font-semibold text-zinc-900 dark:text-white">PCMSO</td>
-                  <td class="text-right">
-                    <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
-                      Selecionar
-                    </button>
-                  </td>
-                </tr>
-                <tr data-id="12" data-nome="LTCAT">
-                  <td class="font-semibold text-zinc-900 dark:text-white">LTCAT</td>
-                  <td class="text-right">
-                    <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
-                      Selecionar
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <p class="text-sm text-zinc-400 mt-3">
-            Quando clicar em “Selecionar”, o serviço será preenchido na linha ativa do escopo.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="/js/theme.js"></script>
-
-  <!-- jQuery (já existe no seu template) -->
-  <script src="/vendor/js/jquery.min.js"></script>
-
-  <!-- DataTables -->
-  <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-
-  <!-- TomSelect (mantido por padrão do template) -->
-  <script src="/vendor/js/tom-select.complete.min.js"></script>
-
-  <script>
-    (function () {
-      // =========================
-      // Helpers modal (simples)
-      // =========================
-      function openModal(el) {
-        if (!el) return;
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-      }
-
-      function closeModal(el) {
-        if (!el) return;
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-      }
-
-      // =========================
-      // Modal Contratante
-      // =========================
-      const modalContratante = document.getElementById('modal_contratante');
-      const btnBuscarContratante = document.getElementById('btnBuscarContratante');
-      const btnFecharModalContratante = document.getElementById('btnFecharModalContratante');
-      const contratanteSearch = document.getElementById('contratanteSearch');
-      const contratanteList = document.getElementById('contratanteList');
-
-      const contratanteId = document.getElementById('contratante_id');
-      const contratanteNome = document.getElementById('contratante_nome');
-
-      btnBuscarContratante?.addEventListener('click', () => openModal(modalContratante));
-      btnFecharModalContratante?.addEventListener('click', () => closeModal(modalContratante));
-
-      modalContratante?.addEventListener('click', (e) => {
-        if (e.target === modalContratante || e.target.classList.contains('bg-black/40')) {
-          closeModal(modalContratante);
-        }
-      });
-
-      contratanteSearch?.addEventListener('input', () => {
-        const q = (contratanteSearch.value || '').toLowerCase();
-        contratanteList?.querySelectorAll('tr').forEach(tr => {
-          const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
-          tr.style.display = nome.includes(q) ? '' : 'none';
-        });
-      });
-
-      contratanteList?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btnPickContratante');
-        if (!btn) return;
-
-        const tr = btn.closest('tr');
-        const id = tr.getAttribute('data-id') || '';
-        const nome = tr.getAttribute('data-nome') || '';
-
-        if (contratanteId) contratanteId.value = id;
-        if (contratanteNome) contratanteNome.value = nome;
-
-        closeModal(modalContratante);
-      });
-
-      // =========================
-      // Modal Serviço (linhas escopo)
-      // =========================
-      const modalServico = document.getElementById('modal_servico');
-      const btnFecharModalServico = document.getElementById('btnFecharModalServico');
-      const servicoSearch = document.getElementById('servicoSearch');
-      const servicoList = document.getElementById('servicoList');
-
-      let currentRowIndex = null; // índice da linha do escopo que está selecionando serviço
-
-      btnFecharModalServico?.addEventListener('click', () => closeModal(modalServico));
-
-      modalServico?.addEventListener('click', (e) => {
-        if (e.target === modalServico || e.target.classList.contains('bg-black/40')) {
-          closeModal(modalServico);
-        }
-      });
-
-      servicoSearch?.addEventListener('input', () => {
-        const q = (servicoSearch.value || '').toLowerCase();
-        servicoList?.querySelectorAll('tr').forEach(tr => {
-          const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
-          tr.style.display = nome.includes(q) ? '' : 'none';
-        });
-      });
-
-      servicoList?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btnPickServico');
-        if (!btn) return;
-
-        const tr = btn.closest('tr');
-        const id = tr.getAttribute('data-id') || '';
-        const nome = tr.getAttribute('data-nome') || '';
-
-        if (currentRowIndex === null) return;
-
-        // Preenche inputs hidden/text na linha selecionada
-        const idInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_id]"]`);
-        const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_nome]"]`);
-
-        if (idInput) idInput.value = id;
-        if (nomeInput) nomeInput.value = nome;
-
-        closeModal(modalServico);
-      });
-
-      // =========================
-      // DataTable: Escopo
-      // =========================
-      const tbody = document.querySelector('#table_escopo tbody');
-      const btnAddLinha = document.getElementById('btnAddLinha');
-
-      let nextIndex = 0;
-
-      function makeRow(index) {
-        // Serviço: input readonly + lupa (abre modal)
-        // Quantidade: input number (somente números)
-        return `
-          <tr data-row-index="${index}">
-            <td>
-              <div class="flex items-center gap-2">
-                <input type="hidden" name="escopo[${index}][servico_id]" value="">
-                <input
-                  type="text"
-                  name="escopo[${index}][servico_nome]"
-                  class="input h-10 w-full min-w-[280px] !pe-11"
-                  placeholder="Selecione um serviço..."
-                  readonly
-                  required
-                />
-                <button
-                  type="button"
-                  class="btn !p-2 js-pick-servico"
-                  title="Pesquisar serviço"
-                  aria-label="Pesquisar serviço"
-                >
-                  <span class="icon-[lucide--search] text-lg"></span>
-                </button>
-              </div>
-            </td>
-
-            <td>
-              <input
-                type="number"
-                name="escopo[${index}][quantidade]"
-                class="input h-10 w-full min-w-[140px]"
-                placeholder="0"
-                min="0"
-                step="1"
-                inputmode="numeric"
-                required
-              />
-            </td>
-
-            <td>
-              <div class="flex items-center justify-end gap-2">
-                <button type="button" class="btn !p-2 js-remove-row" title="Remover linha" aria-label="Remover linha">
-                  <span class="icon-[lucide--trash] text-lg"></span>
-                </button>
-              </div>
-            </td>
-          </tr>
         `;
-      }
+            }
 
-      function addRow() {
-        if (!tbody) return;
-        tbody.insertAdjacentHTML('beforeend', makeRow(nextIndex));
-        nextIndex++;
-        // força redesenho do DataTable se já estiver inicializado
-        if (window.__escopoDt) window.__escopoDt.rows().invalidate().draw(false);
-      }
+            function rowHtmlQtd(index) {
+                return `
+          <input
+            type="number"
+            name="escopo[${index}][quantidade]"
+            class="input h-10 w-full min-w-[140px]"
+            placeholder="0"
+            min="0"
+            step="1"
+            inputmode="numeric"
+            required
+          />
+        `;
+            }
 
-      // Inicializa DataTable (mantém visual parecido com seu exemplo: scroll + paginação)
-      const dt = new DataTable('#table_escopo', {
-        paging: true,
-        pageLength: 9,
-        lengthChange: false,
-        scrollX: true,
-        dom: 'lrtip',
-        order: [],
-        columnDefs: [
-          { orderable: false, targets: 2 }
-        ],
-      });
-      window.__escopoDt = dt;
+            function rowHtmlAcoes() {
+                return `
+          <div class="flex items-center justify-end gap-2">
+            <button type="button" class="btn !p-2 js-remove-row" title="Remover linha" aria-label="Remover linha">
+              <span class="icon-[lucide--trash] text-lg"></span>
+            </button>
+          </div>
+        `;
+            }
 
-      // Começa com 1 linha por padrão
-      addRow();
+            function addRow() {
+                const index = nextIndex;
+                nextIndex++;
 
-      btnAddLinha?.addEventListener('click', () => addRow());
+                dt.row.add([
+                    rowHtmlServico(index),
+                    rowHtmlQtd(index),
+                    rowHtmlAcoes(),
+                ]).draw(false);
 
-      // Delegação: clique na lupa dentro da linha
-      document.getElementById('table_escopo')?.addEventListener('click', (e) => {
-        const pickBtn = e.target.closest('.js-pick-servico');
-        if (pickBtn) {
-          const tr = pickBtn.closest('tr');
-          currentRowIndex = tr ? Number(tr.getAttribute('data-row-index')) : null;
-          // limpa busca do modal
-          if (servicoSearch) servicoSearch.value = '';
-          servicoList?.querySelectorAll('tr').forEach(r => r.style.display = '');
-          openModal(modalServico);
-          return;
-        }
+                const lastRow = dt.row(':last').node();
+                if (lastRow) lastRow.setAttribute('data-row-index', String(index));
+            }
 
-        const removeBtn = e.target.closest('.js-remove-row');
-        if (removeBtn) {
-          const tr = removeBtn.closest('tr');
-          if (!tr) return;
+            addRow();
 
-          // remove via DataTable para manter paginação/scroll ok
-          dt.row(tr).remove().draw(false);
-          return;
-        }
-      });
+            document.getElementById('btnAddLinha')?.addEventListener('click', () => addRow());
 
-      // Submit: valida se existe ao menos 1 linha no escopo
-      document.getElementById('osForm')?.addEventListener('submit', (e) => {
-        const rowCount = dt.rows().count();
-        if (rowCount < 1) {
-          e.preventDefault();
-          alert('Adicione pelo menos 1 item no escopo.');
-        }
-      });
-    })();
-  </script>
+            // Clique dentro da tabela: abre modal no clique do INPUT ou da LUPA + remove linha
+            document.getElementById('table_escopo')?.addEventListener('click', (e) => {
+                const pickBtn = e.target.closest('.js-pick-servico');
+                const inputServico = e.target.closest('input[data-open-servico="1"]');
+
+                if (pickBtn || inputServico) {
+                    const tr = e.target.closest('tr');
+                    currentRowIndex = tr ? Number(tr.getAttribute('data-row-index')) : null;
+
+                    if (servicoSearch) servicoSearch.value = '';
+                    servicoList?.querySelectorAll('tr').forEach(r => r.style.display = '');
+
+                    const modalEl = document.getElementById('modal_servico');
+                    if (window.bootstrap && modalEl) {
+                        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    }
+                    return;
+                }
+
+                const removeBtn = e.target.closest('.js-remove-row');
+                if (removeBtn) {
+                    const tr = removeBtn.closest('tr');
+                    if (!tr) return;
+                    dt.row(tr).remove().draw(false);
+                    return;
+                }
+            });
+
+            // Selecionar serviço no modal
+            servicoList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btnPickServico');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                const id = tr?.getAttribute('data-id') || '';
+                const nome = tr?.getAttribute('data-nome') || '';
+
+                if (currentRowIndex === null) return;
+
+                const idInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_id]"]`);
+                const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_nome]"]`);
+
+                if (idInput) idInput.value = id;
+                if (nomeInput) nomeInput.value = nome;
+
+                const modalEl = document.getElementById('modal_servico');
+                if (window.bootstrap && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                }
+            });
+
+            document.getElementById('osForm')?.addEventListener('submit', (e) => {
+                const rowCount = dt.rows().count();
+                if (rowCount < 1) {
+                    e.preventDefault();
+                    alert('Adicione pelo menos 1 item no escopo.');
+                }
+            });
+        })();
+    </script>
 
 </body>
 
