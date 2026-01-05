@@ -1,16 +1,29 @@
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= title || "Raven - Admin Dashboard" %></title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="/images/favicon.png" type="image/png">
-<link rel="stylesheet" href="/vendor/css/simplebar.css">
+  <title>
+    <%= title ? title : "Raven" %>
+  </title>
+  <link rel="icon" href="/images/favicon.png" type="image/png">
 
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+  <!-- Simplebar -->
+  <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-<link rel="stylesheet" href="/css/style.css" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+    rel="stylesheet">
 
-<% if (typeof pageCss !== "undefined" && pageCss) { %>
-  <%- pageCss %>
-<% } %>
+  <!-- Main Style -->
+  <link rel="stylesheet" href="/css/style.css" />
+
+  <!-- CSS extra da página -->
+  <% if (Array.isArray(extraCss)) { %>
+    <% extraCss.forEach(function(href){ %>
+      <link rel="stylesheet" href="<%= href %>">
+      <% }) %>
+        <% } %>
+</head>

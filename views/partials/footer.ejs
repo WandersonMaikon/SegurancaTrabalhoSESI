@@ -1,18 +1,11 @@
-<footer class="footer px-4 lg:px-8 py-4">
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
-    <div class="md:col-span-5 order-last md:order-1">
-      <span class="text-sm text-muted text-center md:text-start block">
-        &copy; <%= new Date().getFullYear() %>. <strong>Raven</strong> — todos os direitos reservados.
-      </span>
-    </div>
-    <div class="md:col-span-7 md:order-last order-1">
-      <ul class="flex flex-wrap w-full items-center gap-1.5 text-sm md:justify-end justify-center">
-        <li><a href="/suporte" class="text-muted hover:!text-primary">Suporte</a></li>
-        <li class="size-1 bg-current rounded-full mx-1 opacity-30"></li>
-        <li><a href="/privacidade" class="text-muted hover:!text-primary">Política de privacidade</a></li>
-        <li class="size-1 bg-current rounded-full mx-1 opacity-30"></li>
-        <li><a href="/termos" class="text-muted hover:!text-primary">Termos</a></li>
-      </ul>
-    </div>
-  </div>
-</footer>
+<!-- Scripts comuns -->
+<script src="/js/theme.js"></script>
+<script src="/vendor/js/jquery.min.js"></script>
+
+<!-- JS extra da página -->
+<% if (Array.isArray(extraJs)) { %>
+  <% extraJs.forEach(function(src){ %>
+    <script src="<%= src %>"></script>
+  <% }) %>
+<% } %>
+

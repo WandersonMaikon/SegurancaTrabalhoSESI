@@ -245,7 +245,7 @@
         <div class="content flex-grow px-4 lg:px-10 pb-10">
             <form action="/ordemservicos/novo" method="post" class="w-full" id="osForm">
 
-                <div class="content flex flex-col flex-grow px-4 lg:px-8">
+                <div class="grid grid-cols-1 gap-6">
                     <div class="md:col-span-12 space-y-6">
 
                         <!-- Card: Dados da OS -->
@@ -353,10 +353,10 @@
         </div>
     </main>
 
-    <!-- Modal: Empresa Contratante (MENOR + CENTRALIZADO) -->
+    <!-- Modal: Empresa Contratante -->
     <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
         <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
-            <div class="modal-content pointer-events-auto w-full max-w-[32rem] bg-white dark:bg-zinc-900 rounded-xl">
+            <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
                 <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                     <h5 class="text-lg">Pesquisar empresa contratante</h5>
                     <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
@@ -412,7 +412,7 @@
         </div>
     </div>
 
-    <!-- Modal: Serviço (MENOR + CENTRALIZADO) -->
+    <!-- Modal: Serviço  -->
     <div id="modal_servico" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
         <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
             <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
@@ -441,8 +441,9 @@
                             </thead>
 
                             <tbody id="servicoList">
-                                <tr data-id="10" data-nome="Elaboração de PGR">
-                                    <td class="font-semibold text-zinc-900 dark:text-white">Elaboração de PGR</td>
+                                <tr data-id="10" data-nome="PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">PGR - PROGRAMA DE
+                                        GERENCIAMENTO DE RISCOS</td>
                                     <td class="text-right">
                                         <button type="button"
                                             class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
@@ -450,8 +451,9 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr data-id="11" data-nome="PCMSO">
-                                    <td class="font-semibold text-zinc-900 dark:text-white">PCMSO</td>
+                                <tr data-id="11" data-nome="PCMSO - PROGRAMA DE CONTROLE MÉDICO DE SAÚDE OCUPACIONAL">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">PCMSO - PROGRAMA DE CONTROLE
+                                        MÉDICO DE SAÚDE OCUPACIONAL </td>
                                     <td class="text-right">
                                         <button type="button"
                                             class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
@@ -459,8 +461,9 @@
                                         </button>
                                     </td>
                                 </tr>
-                                <tr data-id="12" data-nome="LTCAT">
-                                    <td class="font-semibold text-zinc-900 dark:text-white">LTCAT</td>
+                                <tr data-id="12" data-nome="LTCAT - LAUDO TÉCNICO DE CONDIÇÕES AMBIENTAIS DO TRABALHO ">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">LTCAT - LAUDO TÉCNICO DE
+                                        CONDIÇÕES AMBIENTAIS DO TRABALHO </td>
                                     <td class="text-right">
                                         <button type="button"
                                             class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">
@@ -495,7 +498,7 @@
     <script>
         (function () {
             // ==========================================================
-            // 1) Pesquisa e seleção de EMPRESA (modal_contratante)
+            // Pesquisa e seleção de EMPRESA 
             // ==========================================================
             const contratanteSearch = document.getElementById('contratanteSearch');
             const contratanteList = document.getElementById('contratanteList');
@@ -528,7 +531,7 @@
             });
 
             // ==========================================================
-            // 2) Modal de serviços + DataTable Escopo
+            // Modal de serviços + DataTable Escopo
             // ==========================================================
             const servicoSearch = document.getElementById('servicoSearch');
             const servicoList = document.getElementById('servicoList');

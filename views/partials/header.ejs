@@ -1,74 +1,66 @@
-<div class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 shrink-0 px-4 lg:px-8 z-50 sticky top-0 app-header">
-  <div class="relative py-4 lg:py-0 flex flex-wrap items-center justify-center">
-    <div class="shrink-0 flex items-center space-x-1">
-      <button type="button" data-toggle="app_sidebar"
-        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
-        <span class="icon-[iconoir--menu] text-lg"></span>
+<!-- Header -->
+<div
+  class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header">
+
+  <div class="shrink-0 flex items-center space-x-1">
+    <button type="button" data-toggle="app_sidebar"
+      class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
+      <span class="icon-[iconoir--menu] text-lg"></span>
+    </button>
+
+    <button data-bs-target="#modal_search" data-bs-toggle="modal"
+      class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
+      <span class="icon-[lucide--search] text-lg lg:text-base"></span>
+      <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
+        Buscar
+        <span class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
+      </span>
+    </button>
+  </div>
+
+  <div class="flex items-center space-x-1">
+    <div class="relative">
+      <button type="button"
+        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
+        data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
+        <span class="icon-[lucide--settings] text-lg"></span>
       </button>
 
-      <button data-bs-target="#modal_search" data-bs-toggle="modal"
-        class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
-        <span class="icon-[lucide--search] text-lg lg:text-base"></span>
-        <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
-          Buscar
-          <span class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
-        </span>
-      </button>
-    </div>
-
-    <div class="flex items-center space-x-1 shrink-0 ms-auto lg:order-last">
-      <div class="relative">
-        <button type="button"
-          class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
-          data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
-          <span class="icon-[lucide--settings] text-lg"></span>
-        </button>
-
-        <!-- Mantive o menu, mas você pode simplificar depois -->
-        <div class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
-          <div class="mb-3 px-3 pt-2">
-            <h5>Tema</h5>
-          </div>
-
-          <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
-            <label class="flex items-center cursor-pointer dropdown-item">
-              <span class="icon-[lucide--sun-moon] me-1"></span>
-              <span class="flex-grow text-sm me-2">Modo escuro</span>
-              <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox" value="1">
-            </label>
-          </div>
+      <div class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
+        <div class="mb-3 px-3 pt-2">
+          <h5>Tema</h5>
         </div>
-      </div>
-    </div>
 
-    <div class="collapse lg:ms-8 navbar-collapse w-full lg:flex-grow lg:w-auto lg:visible flex flex-wrap lg:justify-end items-center !visible lg:!flex lg:basis-auto basis-full lg:pt-0 lg:!bg-transparent"
-      id="appNavbar">
-      <div class="navbar-nav p-4 lg:p-0 relative mt-2 lg:mt-0 flex flex-col lg:gap-4 gap-0.5 lg:flex-row lg:items-center bg-white dark:bg-zinc-950 lg:!bg-transparent w-full overflow-y-auto lg:overflow-visible lg:h-auto max-h-[80vh]">
-        <a href="#!" class="navbar-link">Configurações</a>
+        <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+          <label class="flex items-center cursor-pointer dropdown-item">
+            <span class="icon-[lucide--sun-moon] me-1"></span>
+            <span class="flex-grow text-sm me-2">Modo escuro</span>
+            <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox" value="1">
+          </label>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal de busca (você pode manter/editar depois) -->
-<div id="modal_search" role="dialog" class="modal fade fixed w-full h-full left-0 top-0 z-[60]" tabindex="-1">
-  <div class="modal-dialog relative m-4 pointer-events-none">
-    <div class="modal-content max-w-[30rem] mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
+<!-- Search Modal -->
+<div id="modal_search" role="dialog" class="modal fade fixed inset-0 z-[60]" tabindex="-1">
+  <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+    <div class="modal-content pointer-events-auto w-full max-w-[30rem] bg-white dark:bg-zinc-900 rounded-xl">
       <div class="relative">
-        <span class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
+        <span
+          class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
           <span class="icon-[lucide--search] text-lg"></span>
         </span>
         <button type="button"
           class="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 w-8 text-center me-3 cursor-pointer text-sm text-muted"
           data-bs-dismiss="modal">Esc</button>
         <input name="search" type="text"
-          class="w-full pl-4 !pl-9 !pr-10 py-2 h-12 focus:outline-0 rounded-t-xl border-0"
+          class="w-full pl-4 !pl-9 !pr-10 py-3 h-14 focus:outline-0 rounded-t-xl border-0"
           placeholder="Buscar..." autofocus />
       </div>
       <div class="border-t border-zinc-200 dark:border-zinc-800 max-h-[340px]" data-simplebar>
-        <div class="px-4 py-4 text-sm text-muted">
-          Digite para pesquisar…
-        </div>
+        <div class="px-4 py-4 text-sm text-muted">Digite para pesquisar…</div>
       </div>
     </div>
   </div>
