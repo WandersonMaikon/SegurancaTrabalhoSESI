@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Quadro Scrum</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <!-- Sidebar -->
+    <aside
+        class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
+
+        <div class="shrink-0 h-16 px-5 flex items-center">
+            <div class="relative flex items-center justify-between w-full">
+                <a href="/dashboard" class="flex items-center relative z-[1]">
+                    <span
+                        class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl from-primary via-primary-deep to-primary-deep text-white shrink-0 font-normal">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"
+                            fill="currentColor">
+                            <path
+                                d="m400-240-51 123q-6 15-21.5 21.5T297-95q-15-6-21.5-21.5T275-147l43-104q-106-28-172-114T80-560v-160q0-66 47-113t113-47q22 0 42 7.5t40 15.5l191 78q13 5 12.5 18.5T512-742l-112 42v60l426 271q7 5 11 11.5t6 14.5l28 140q3 17-7.5 30T836-160h-14q-11 0-19-5.5T790-180l-30-60H560v120q0 17-11.5 28.5T520-80q-17 0-28.5-11.5T480-120v-120h-80ZM240-680q-17 0-28.5-11.5T200-720q0-17 11.5-28.5T240-760q17 0 28.5 11.5T280-720q0 17-11.5 28.5T240-680Zm160 320Zm0 40h353l-63-40H400q-36 0-67.5-14.5T279-415q-13-14-25-38.5T242-498q0-17 11.5-28.5T282-538q15 0 26 10t14 24q5 28 27 46t51 18h165L320-596v-124q0-33-23.5-56.5T240-800q-33 0-56.5 23.5T160-720v160q0 100 70 170t170 70Z" />
+                        </svg>
+                    </span>
+                    <h5 class="text-2xl ms-3 logo-text font-display">Raven</h5>
+                </a>
+
+                <button id="isSidebarMini"
+                    class="btn-sidebar-min hidden lg:flex size-7 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-w-resize">
+                    <span class="icon-[lucide--sidebar] rtl:rotate-180"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="flex flex-col h-full overflow-y-auto" data-simplebar>
+            <div class="flex flex-col py-3 px-3">
+                <nav class="flex flex-col space-y-0.5" id="SidebarCollapseGroup">
+                    <span
+                        class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">Visão
+                        geral</span>
+
+                    <a href="/dashboard" class="sidebar-link">
+                        <span class="sidebar-icon">
+                            <span class="icon-[lucide--file-chart-column]"></span>
+                        </span>
+                        <span class="sidebar-text">Dashboard</span>
+                    </a>
+
+                    <div class="static">
+                        <a href="/clientes" class="sidebar-link">
+                            <span class="sidebar-icon">
+                                <span class="icon-[lucide--users]"></span>
+                            </span>
+                            <span class="sidebar-text">Clientes</span>
+                        </a>
+                        <a href="/servicos" class="sidebar-link">
+                            <span class="sidebar-icon">
+                                <span class="icon-[lucide--baggage-claim]"></span>
+                            </span>
+                            <span class="sidebar-text">Serviços</span>
+                        </a>
+                        <a href="/relatorios" class="sidebar-link">
+                            <span class="sidebar-icon">
+                                <span class="icon-[lucide--file-chart-line]"></span>
+                            </span>
+                            <span class="sidebar-text">Relatórios</span>
+                        </a>
+                        <a href="/scrum-board" class="sidebar-link active">
+                            <span class="sidebar-icon">
+                                <span class="icon-[lucide--folder-open]"></span>
+                            </span>
+                            <span class="sidebar-text">Scrum Board</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="py-3 px-5 flex flex-col shrink-0">
+            <div class="static">
+                <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport"
+                    data-bs-toggle="dropdown" href="#" class="block">
+                    <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
+                        <img src="/images/avatars/thumb-1.jpg"
+                            class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
+                        <div class="flex-grow shrink-0 flex items-center justify-between">
+                            <h6 class="!text-current user-text">Usuário</h6>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="dropdown-menu w-54 z-50">
+                    <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+                        <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full" alt="">
+                        <div class="flex-grow">
+                            <p class="text-sm text-muted">Logado como</p>
+                            <p class="text-sm">usuario@email.com</p>
+                        </div>
+                        <span class="shrink-0 pl-2">
+                            <span class="icon-[solar--verified-check-bold] text-green-500"></span>
+                        </span>
+                    </div>
+
+                    <hr class="border-zinc-100 dark:border-zinc-800 my-2">
+
+                    <a href="/logout" class="dropdown-item">
+                        <span class="dropdown-icon">
+                            <span class="icon-[lucide--log-out]"></span>
+                        </span>
+                        Sair
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+        <!-- Header -->
+        <div
+            class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header">
+            <div class="shrink-0 flex items-center space-x-1">
+                <button type="button" data-toggle="app_sidebar"
+                    class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
+                    <span class="icon-[iconoir--menu] text-lg"></span>
+                </button>
+
+                <button data-bs-target="#modal_search" data-bs-toggle="modal"
+                    class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
+                    <span class="icon-[lucide--search] text-lg lg:text-base"></span>
+                    <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
+                        Buscar
+                        <span
+                            class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
+                    </span>
+                </button>
+            </div>
+
+            <div class="flex items-center space-x-1">
+                <div class="relative">
+                    <button type="button"
+                        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
+                        data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
+                        <span class="icon-[lucide--settings] text-lg"></span>
+                    </button>
+
+                    <div
+                        class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
+                        <div class="mb-3 px-3 pt-2">
+                            <h5>Tema</h5>
+                        </div>
+
+                        <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+                            <label class="flex items-center cursor-pointer dropdown-item">
+                                <span class="icon-[lucide--sun-moon] me-1"></span>
+                                <span class="flex-grow text-sm me-2">Modo escuro</span>
+                                <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox"
+                                    value="1">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Modal -->
+        <div id="modal_search" role="dialog" class="modal fade fixed w-full h-full left-0 top-0 z-[60]" tabindex="-1">
+            <div class="modal-dialog relative m-4 pointer-events-none">
+                <div
+                    class="modal-content max-w-[30rem] mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
+                    <div class="relative">
+                        <span
+                            class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
+                            <span class="icon-[lucide--search] text-lg"></span>
+                        </span>
+                        <button type="button"
+                            class="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 w-8 text-center me-3 cursor-pointer text-sm text-muted"
+                            data-bs-dismiss="modal">Esc</button>
+                        <input name="search" type="text"
+                            class="w-full pl-4 !pl-9 !pr-10 py-2 h-12 focus:outline-0 rounded-t-xl border-0"
+                            placeholder="Buscar..." autofocus />
+                    </div>
+
+                    <div class="border-t border-zinc-200 dark:border-zinc-800 max-h-[340px]" data-simplebar>
+                        <h5 class="mb-2 px-4 pt-4 text-muted">Recentes</h5>
+                        <ul class="flex flex-col pb-2">
+                            <li
+                                class="flex items-center gap-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 px-4 py-2">
+                                <span class="bg-zinc-500 opacity-25 block size-1.5 me-1 rounded-full"></span>
+                                <span>Dashboard</span>
+                            </li>
+                            <li
+                                class="flex items-center gap-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 px-4 py-2">
+                                <span class="bg-zinc-500 opacity-25 block size-1.5 me-1 rounded-full"></span>
+                                <span>Clientes</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page content -->
+        <div class="content lg:px-4 flex-grow flex flex-col pt-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 mb-4 gap-4 px-4">
+                <div class="md:col-span-5">
+                    <h4 class="text-xl">Quadro de Tarefas</h4>
+                    <p class="text-muted">Gerenciamento de projetos</p>
+                </div>
+                <div class="md:col-span-7">
+                    <div class="flex flex-col gap-3.5 md:flex-row md:justify-end md:items-center">
+                        <div class="flex items-center -space-x-3 shrink-0">
+                            <img data-bs-toggle="tooltip" data-bs-title="Emily" src="/images/avatars/thumb-1.jpg"
+                                class="size-8 border-2 border-zinc-100 dark:border-zinc-950 rounded-full relative">
+                            <img data-bs-toggle="tooltip" data-bs-title="Nikkita" src="/images/avatars/thumb-2.jpg"
+                                class="size-8 border-2 border-zinc-100 dark:border-zinc-950 rounded-full relative">
+                            <img data-bs-toggle="tooltip" data-bs-title="John" src="/images/avatars/thumb-9.jpg"
+                                class="size-8 border-2 border-zinc-100 dark:border-zinc-950 rounded-full relative">
+                            <span data-bs-toggle="tooltip" data-bs-title="3 mais membros"
+                                class="size-8 flex items-center justify-center bg-zinc-500 text-white border-2 border-zinc-100 dark:border-zinc-950 rounded-full relative text-xs">+3</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-default">
+                                <span class="icon-[lucide--user-plus] text-lg"></span>
+                            </button>
+                            <button data-bs-toggle="modal" data-bs-target="#modalNewScrumBoard" type="button"
+                                class="btn btn-sm btn-default">
+                                <span class="icon-[lucide--plus] text-lg me-1"></span> Novo Quadro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrum Board -->
+            <div class="flex w-full flex-grow p-px space-x-4 flex-nowrap overflow-x-auto px-4 overflow-y-hidden mb-4"
+                id="scrum-board">
+                <!-- Coluna: A Fazer -->
+                <div
+                    class="w-[300px] min-w-[300px] me-4 drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-lg">A Fazer</h3>
+                        <div class="relative">
+                            <button
+                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                            </button>
+                            <div class="dropdown-menu z-50 absolute min-w-32 top-full !end-0 !start-auto">
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                    Renomear
+                                </a>
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                    Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="child-list min-h-full flex flex-col space-y-2 p-4">
+                        <li
+                            class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
+                            <h5 class="mb-2 text-lg">PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS </h5>
+                            <span class="badge bg-sky-500/10 text-sky-500">Baixa prioridade</span>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="flex items-center shrink-0">
+                                    <img src="/images/avatars/thumb-1.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative">
+                                    <img src="/images/avatars/thumb-2.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative -ms-3">
+                                </div>
+                                <div class="inline-flex text-sm items-center text-muted">
+                                    <span class="icon-[lucide--calendar-days] me-1"></span>
+                                    <span>18 Jun</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li
+                            class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
+                            <h5 class="mb-2 text-lg">PCMSO - PROGRAMA DE CONTROLE MÉDICO DE SAÚDE OCUPACIONAL</h5>
+                            <span class="badge bg-red-500/10 text-red-500">Alta prioridade</span>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="flex items-center shrink-0">
+                                    <img src="/images/avatars/thumb-7.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative">
+                                    <img src="/images/avatars/thumb-8.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative -ms-3">
+                                </div>
+                                <div class="inline-flex text-sm items-center text-muted">
+                                    <span class="icon-[lucide--calendar-days] me-1"></span>
+                                    <span>20 Jun</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coluna: Em Progresso -->
+                <div
+                    class="w-[300px] min-w-[300px] drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-lg">Em Progresso</h3>
+                        <div class="relative">
+                            <button
+                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                            </button>
+                            <div class="dropdown-menu z-50 absolute min-w-32 top-full !end-0 !start-auto">
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                    Renomear
+                                </a>
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                    Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="child-list min-h-full flex flex-col space-y-2 p-4">
+                        <li
+                            class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
+                            <h5 class="mb-2 text-lg">NR 06 - EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL</h5>
+                            <span class="badge bg-amber-500/10 text-amber-500">Média prioridade</span>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="flex items-center shrink-0">
+                                    <img src="/images/avatars/thumb-4.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative">
+                                    <img src="/images/avatars/thumb-5.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative -ms-3">
+                                </div>
+                                <div class="inline-flex text-sm items-center text-muted">
+                                    <span class="icon-[lucide--calendar-days] me-1"></span>
+                                    <span>22 Jun</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coluna: Em Revisão -->
+                <div
+                    class="w-[300px] min-w-[300px] drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-lg">Em Revisão</h3>
+                        <div class="relative">
+                            <button
+                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                            </button>
+                            <div class="dropdown-menu z-50 absolute min-w-32 top-full !end-0 !start-auto">
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                    Renomear
+                                </a>
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                    Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="child-list min-h-full flex flex-col space-y-2 p-4">
+                        <li
+                            class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
+                            <h5 class="mb-2 text-lg">PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS </h5>
+                            <span class="badge bg-sky-500/10 text-sky-500">Baixa prioridade</span>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="flex items-center shrink-0">
+                                    <img src="/images/avatars/thumb-1.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative">
+                                </div>
+                                <div class="inline-flex text-sm items-center text-muted">
+                                    <span class="icon-[lucide--calendar-days] me-1"></span>
+                                    <span>25 Jun</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Coluna: Concluído -->
+                <div
+                    class="w-[300px] min-w-[300px] drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                    <div class="flex items-center justify-between px-4 pt-4">
+                        <h3 class="text-lg">Concluído</h3>
+                        <div class="relative">
+                            <button
+                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                            </button>
+                            <div class="dropdown-menu z-50 absolute min-w-32 top-full !end-0 !start-auto">
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                    Renomear
+                                </a>
+                                <a href="#!" class="dropdown-item">
+                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                    Excluir
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="child-list min-h-full flex flex-col space-y-2 p-4">
+                        <li
+                            class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
+                            <h5 class="mb-2 text-lg">PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS      </h5>
+                            <span class="badge bg-green-500/10 text-green-500">Concluído</span>
+                            <div class="pt-4 flex items-center justify-between">
+                                <div class="flex items-center shrink-0">
+                                    <img src="/images/avatars/thumb-7.jpg"
+                                        class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative">
+                                </div>
+                                <div class="inline-flex text-sm items-center text-muted">
+                                    <span class="icon-[lucide--calendar-days] me-1"></span>
+                                    <span>15 Jun</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer px-4 lg:px-8 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-2">
+                <div class="md:col-span-5 order-last md:order-1">
+                    <span class="text-sm text-muted text-center md:text-start block">
+                        &copy; 2026. <strong>Raven</strong> — todos os direitos reservados
+                    </span>
+                </div>
+                <div class="md:col-span-7 md:order-last order-1">
+                    <ul class="flex flex-wrap w-full items-center gap-1.5 text-sm md:justify-end justify-center">
+                        <li><a href="/suporte" class="text-muted hover:!text-primary">Suporte</a></li>
+                        <li class="size-1 bg-current rounded-full mx-1 opacity-30"></li>
+                        <li><a href="/privacidade" class="text-muted hover:!text-primary">Política de privacidade</a>
+                        </li>
+                        <li class="size-1 bg-current rounded-full mx-1 opacity-30"></li>
+                        <li><a href="/termos" class="text-muted hover:!text-primary">Termos</a></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Modal Novo Quadro -->
+    <div id="modalNewScrumBoard" role="dialog" class="modal fade fixed w-full h-full left-0 top-0 z-[60]" tabindex="-1">
+        <div class="modal-dialog relative m-4 min-h-[calc(100%-2rem)] pointer-events-none">
+            <div
+                class="modal-content max-w-[25rem] mx-auto bg-white relative dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
+                <button type="button" class="absolute end-2 top-2 btn btn-default !size-8 !p-0 !rounded-full"
+                    data-bs-dismiss="modal">
+                    <span class="icon-[lucide--x] text-lg"></span>
+                </button>
+                <div class="p-4 lg:p-6">
+                    <div class="mb-4">
+                        <h5 class="text-lg mb-1">Adicionar Novo Quadro</h5>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input name="addBoard" type="text" class="w-full input input-lg" placeholder="Título do Quadro"
+                            autofocus />
+                        <button type="button"
+                            class="btn btn-lg bg-primary hover:bg-primary-deep text-white">Adicionar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script>
+        // Ordenação de colunas
+        Sortable.create(document.getElementById('scrum-board'), {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            draggable: '.parent-task',
+        });
+
+        // Ordenação de tarefas dentro das colunas
+        document.querySelectorAll('.child-list').forEach(childList => {
+            Sortable.create(childList, {
+                group: 'nested-tasks',
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                draggable: '.child-task',
+            });
+        });
+    </script>
+
+</body>
+
+</html>

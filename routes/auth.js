@@ -52,6 +52,10 @@ router.get("/ordem-servico/novo", verificarAutenticacao, (req, res) => {
     res.render("ordem-servico-novo", { user: req.session.user });
 });
 
+router.get("/scrum-board", verificarAutenticacao, (req, res) => {
+    res.render("scrum-board", { user: req.session.user });
+});
+
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));
 });
