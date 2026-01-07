@@ -222,6 +222,7 @@
 
         <!-- Page content -->
         <div class="content lg:px-4 flex-grow flex flex-col pt-4">
+
             <div class="grid grid-cols-1 md:grid-cols-12 mb-4 gap-4 px-4">
                 <div class="md:col-span-5">
                     <h4 class="text-xl">Quadro de Tarefas</h4>
@@ -252,9 +253,89 @@
                 </div>
             </div>
 
-            <!-- Scrum Board -->
+            <!-- ====================================================== -->
+            <!-- NOVO: Filtros (obrigatórios para mostrar o quadro)      -->
+            <!-- ====================================================== -->
+            <div class="px-4 mb-4">
+                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+                        <!-- Empresa contratante -->
+                        <div class="md:col-span-6">
+                            <label class="mb-2 block">Empresa contratante</label>
+
+                            <div class="relative w-full">
+                                <input type="hidden" id="contratante_id" value="">
+
+                                <input id="contratante_nome" type="text"
+                                    class="input h-10 w-full !pe-11 bg-white dark:bg-zinc-900 cursor-pointer"
+                                    placeholder="Selecione uma empresa..." readonly data-bs-toggle="modal"
+                                    data-bs-target="#modal_contratante">
+
+                                <button id="btnBuscarContratante" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modal_contratante"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                                    title="Buscar empresa" aria-label="Buscar empresa">
+                                    <span class="icon-[lucide--search] text-lg"></span>
+                                </button>
+                            </div>
+
+                            <p class="text-sm text-zinc-400 mt-2">
+                                Obrigatório para visualizar o quadro.
+                            </p>
+                        </div>
+
+                        <!-- Contrato Nº -->
+                        <div class="md:col-span-6">
+                            <label class="mb-2 block">CONTRATO Nº</label>
+
+                            <div class="relative w-full">
+                                <input type="hidden" id="contrato_id" value="">
+
+                                <input id="contrato_numero" type="text"
+                                    class="input h-10 w-full !pe-11 bg-white dark:bg-zinc-900 cursor-pointer"
+                                    placeholder="Selecione um contrato..." readonly data-bs-toggle="modal"
+                                    data-bs-target="#modal_contrato">
+
+                                <button id="btnBuscarContrato" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#modal_contrato"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                                    title="Buscar contrato" aria-label="Buscar contrato">
+                                    <span class="icon-[lucide--search] text-lg"></span>
+                                </button>
+                            </div>
+
+                            <p class="text-sm text-zinc-400 mt-2">
+                                Obrigatório para visualizar o quadro.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-12 flex items-center justify-end gap-2">
+                            <button id="btnLimparFiltros" type="button"
+                                class="btn border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 h-10 px-4">
+                                Limpar filtros
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensagem quando não selecionou os 2 filtros -->
+            <div id="boardGateMessage" class="px-4 mb-4">
+                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                    <h5 class="text-lg mb-2">Selecione a empresa e o contrato</h5>
+                    <p class="text-muted">
+                        Para visualizar o Scrum Board, informe a <strong>Empresa contratante</strong> e o
+                        <strong>CONTRATO Nº</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Scrum Board (começa oculto até selecionar os dois) -->
             <div class="flex w-full flex-grow p-px space-x-4 flex-nowrap overflow-x-auto px-4 overflow-y-hidden mb-4"
-                id="scrum-board">
+                id="scrum-board" style="display:none;">
+
                 <!-- Coluna: A Fazer -->
                 <div
                     class="w-[300px] min-w-[300px] me-4 drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
@@ -432,7 +513,7 @@
                     <ul class="child-list min-h-full flex flex-col space-y-2 p-4">
                         <li
                             class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab">
-                            <h5 class="mb-2 text-lg">PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS      </h5>
+                            <h5 class="mb-2 text-lg">PGR - PROGRAMA DE GERENCIAMENTO DE RISCOS </h5>
                             <span class="badge bg-green-500/10 text-green-500">Concluído</span>
                             <div class="pt-4 flex items-center justify-between">
                                 <div class="flex items-center shrink-0">
@@ -447,6 +528,7 @@
                         </li>
                     </ul>
                 </div>
+
             </div>
         </div>
 
@@ -497,9 +579,132 @@
         </div>
     </div>
 
+    <!-- ====================================================== -->
+    <!-- NOVOS MODAIS: Empresa Contratante + Contrato Nº         -->
+    <!-- ====================================================== -->
+
+    <!-- Modal: Empresa Contratante -->
+    <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+        <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+            <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                    <h5 class="text-lg">Pesquisar empresa contratante</h5>
+                    <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                        <span class="icon-[lucide--x] text-lg"></span>
+                    </button>
+                </div>
+
+                <div class="p-4">
+                    <div class="relative mb-3">
+                        <input id="contratanteSearch" type="search" class="input !ps-9 w-full"
+                            placeholder="Buscar empresa...">
+                        <span
+                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                    </div>
+
+                    <div class="max-h-[360px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                        <table class="table-default w-full">
+                            <thead>
+                                <tr>
+                                    <th>Empresa</th>
+                                    <th class="text-right">Selecionar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="contratanteList">
+                                <tr data-id="1" data-nome="Empresa Exemplo LTDA">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Empresa Exemplo LTDA</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-id="2" data-nome="Cliente ABC S/A">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Cliente ABC S/A</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 mt-3">
+                        Depois você pode substituir essa lista por dados vindos do banco (EJS/rotas).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Contrato Nº -->
+    <div id="modal_contrato" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+        <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+            <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                    <h5 class="text-lg">Pesquisar contrato</h5>
+                    <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                        <span class="icon-[lucide--x] text-lg"></span>
+                    </button>
+                </div>
+
+                <div class="p-4">
+                    <div class="relative mb-3">
+                        <input id="contratoSearch" type="search" class="input !ps-9 w-full"
+                            placeholder="Buscar contrato...">
+                        <span
+                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                    </div>
+
+                    <div class="max-h-[360px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                        <table class="table-default w-full">
+                            <thead>
+                                <tr>
+                                    <th>Contrato Nº</th>
+                                    <th class="text-right">Selecionar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="contratoList">
+                                <tr data-id="9001" data-numero="CTR-2026-0001">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">CTR-2026-0001</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContrato">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr data-id="9002" data-numero="CTR-2026-0002">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">CTR-2026-0002</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickContrato">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 mt-3">
+                        Depois você pode substituir essa lista por dados vindos do banco (EJS/rotas).
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/theme.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
     <script>
         // Ordenação de colunas
         Sortable.create(document.getElementById('scrum-board'), {
@@ -519,6 +724,125 @@
                 draggable: '.child-task',
             });
         });
+    </script>
+
+    <script>
+        (function () {
+            // ==========================================================
+            // Gate: só mostrar board se Empresa e Contrato estiverem ok
+            // ==========================================================
+            const boardEl = document.getElementById('scrum-board');
+            const gateMsgEl = document.getElementById('boardGateMessage');
+
+            const contratanteIdEl = document.getElementById('contratante_id');
+            const contratanteNomeEl = document.getElementById('contratante_nome');
+
+            const contratoIdEl = document.getElementById('contrato_id');
+            const contratoNumeroEl = document.getElementById('contrato_numero');
+
+            const btnLimpar = document.getElementById('btnLimparFiltros');
+
+            function isFilled(el) {
+                return !!(el && String(el.value || '').trim());
+            }
+
+            function updateBoardGate() {
+                const okEmpresa = isFilled(contratanteIdEl) && isFilled(contratanteNomeEl);
+                const okContrato = isFilled(contratoIdEl) && isFilled(contratoNumeroEl);
+
+                const canShow = okEmpresa && okContrato;
+
+                if (boardEl) boardEl.style.display = canShow ? '' : 'none';
+                if (gateMsgEl) gateMsgEl.style.display = canShow ? 'none' : '';
+            }
+
+            // Inicialmente oculto até selecionar os dois
+            updateBoardGate();
+
+            // ==========================================================
+            // Modal: Empresa Contratante (buscar + selecionar)
+            // ==========================================================
+            const contratanteSearch = document.getElementById('contratanteSearch');
+            const contratanteList = document.getElementById('contratanteList');
+
+            contratanteSearch?.addEventListener('input', () => {
+                const q = (contratanteSearch.value || '').toLowerCase();
+                contratanteList?.querySelectorAll('tr').forEach(tr => {
+                    const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
+                    tr.style.display = nome.includes(q) ? '' : 'none';
+                });
+            });
+
+            contratanteList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btnPickContratante');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                const id = tr?.getAttribute('data-id') || '';
+                const nome = tr?.getAttribute('data-nome') || '';
+
+                if (contratanteIdEl) contratanteIdEl.value = id;
+                if (contratanteNomeEl) contratanteNomeEl.value = nome;
+
+                const modalEl = document.getElementById('modal_contratante');
+                if (window.bootstrap && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                }
+
+                updateBoardGate();
+            });
+
+            // ==========================================================
+            // Modal: Contrato Nº (buscar + selecionar)
+            // ==========================================================
+            const contratoSearch = document.getElementById('contratoSearch');
+            const contratoList = document.getElementById('contratoList');
+
+            contratoSearch?.addEventListener('input', () => {
+                const q = (contratoSearch.value || '').toLowerCase();
+                contratoList?.querySelectorAll('tr').forEach(tr => {
+                    const numero = (tr.getAttribute('data-numero') || '').toLowerCase();
+                    tr.style.display = numero.includes(q) ? '' : 'none';
+                });
+            });
+
+            contratoList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btnPickContrato');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                const id = tr?.getAttribute('data-id') || '';
+                const numero = tr?.getAttribute('data-numero') || '';
+
+                if (contratoIdEl) contratoIdEl.value = id;
+                if (contratoNumeroEl) contratoNumeroEl.value = numero;
+
+                const modalEl = document.getElementById('modal_contrato');
+                if (window.bootstrap && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                }
+
+                updateBoardGate();
+            });
+
+            // ==========================================================
+            // Botão: limpar filtros
+            // ==========================================================
+            btnLimpar?.addEventListener('click', () => {
+                if (contratanteIdEl) contratanteIdEl.value = '';
+                if (contratanteNomeEl) contratanteNomeEl.value = '';
+                if (contratoIdEl) contratoIdEl.value = '';
+                if (contratoNumeroEl) contratoNumeroEl.value = '';
+
+                if (contratanteSearch) contratanteSearch.value = '';
+                contratanteList?.querySelectorAll('tr').forEach(tr => tr.style.display = '');
+
+                if (contratoSearch) contratoSearch.value = '';
+                contratoList?.querySelectorAll('tr').forEach(tr => tr.style.display = '');
+
+                updateBoardGate();
+            });
+        })();
     </script>
 
 </body>
