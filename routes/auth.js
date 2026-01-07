@@ -25,35 +25,59 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/dashboard", verificarAutenticacao, (req, res) => {
-    res.render("dashboard", { user: req.session.user });
+    res.render("dashboard", {
+        user: req.session.user,
+        currentPage: 'dashboard'
+    });
 });
 
 router.get("/clientes", verificarAutenticacao, (req, res) => {
-    res.render("clientes", { user: req.session.user });
+    res.render("clientes", {
+        user: req.session.user,
+        currentPage: 'clientes'
+    });
 });
 
 router.get("/clientes/novo", verificarAutenticacao, (req, res) => {
-    res.render("cliente-novo", { user: req.session.user });
+    res.render("cliente-novo", {
+        user: req.session.user,
+        currentPage: 'clientes'
+    });
 });
 
 router.get("/servicos", verificarAutenticacao, (req, res) => {
-    res.render("servicos", { user: req.session.user });
+    res.render("servicos", {
+        user: req.session.user,
+        currentPage: 'servicos'
+    });
 });
 
 router.get("/servicos/novo", verificarAutenticacao, (req, res) => {
-    res.render("servico-novo", { user: req.session.user });
+    res.render("servico-novo", {
+        user: req.session.user,
+        currentPage: 'servicos'
+    });
 });
 
 router.get("/ordem-servico", verificarAutenticacao, (req, res) => {
-    res.render("ordem-servico", { user: req.session.user });
+    res.render("ordem-servico", {
+        user: req.session.user,
+        currentPage: 'ordemservicos'
+    });
 });
 
 router.get("/ordem-servico/novo", verificarAutenticacao, (req, res) => {
-    res.render("ordem-servico-novo", { user: req.session.user });
+    res.render("ordem-servico-novo", {
+        user: req.session.user,
+        currentPage: 'ordemservicos'
+    });
 });
 
 router.get("/scrum-board", verificarAutenticacao, (req, res) => {
-    res.render("scrum-board", { user: req.session.user });
+    res.render("scrum-board", {
+        user: req.session.user,
+        currentPage: 'scrum-board'
+    });
 });
 
 router.get("/logout", (req, res) => {

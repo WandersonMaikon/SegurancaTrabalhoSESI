@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+
 // ---- Views (EJS) ----
 // Como você quer algo simples: vamos usar UMA pasta de views.
 // Coloque o login em: ./views/login.ejs
