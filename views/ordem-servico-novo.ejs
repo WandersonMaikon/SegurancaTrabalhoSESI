@@ -317,6 +317,12 @@
                                             <th class="text-nowrap">
                                                 <div class="flex items-center">Quantidade</div>
                                             </th>
+
+                                            <!-- NOVO: Responsável -->
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Responsável</div>
+                                            </th>
+
                                             <th class="text-nowrap" data-orderable="false">
                                                 <div class="flex items-center justify-end">Ações</div>
                                             </th>
@@ -328,7 +334,7 @@
                                 <p class="text-sm text-zinc-400 mt-3">
                                     Dica: você pode adicionar quantas linhas precisar. Em “Serviços”, clique no campo ou
                                     na lupa para
-                                    pesquisar e selecionar.
+                                    pesquisar e selecionar. Em “Responsável”, faça o mesmo para escolher quem executará.
                                 </p>
                             </div>
                         </div>
@@ -483,6 +489,67 @@
         </div>
     </div>
 
+    <!-- NOVO Modal: Responsável -->
+    <div id="modal_responsavel" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+        <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+            <div class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                    <h5 class="text-lg">Pesquisar responsável</h5>
+                    <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                        <span class="icon-[lucide--x] text-lg"></span>
+                    </button>
+                </div>
+
+                <div class="p-4">
+                    <div class="relative mb-3">
+                        <input id="responsavelSearch" type="search" class="input !ps-9 w-full"
+                            placeholder="Buscar responsável...">
+                        <span
+                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                    </div>
+
+                    <div class="max-h-[420px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
+                        <table class="table-default w-full">
+                            <thead>
+                                <tr>
+                                    <th>Responsável</th>
+                                    <th class="text-right">Selecionar</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="responsavelList">
+                                <!-- Exemplo estático (substituir por dados do banco depois) -->
+                                <tr data-id="101" data-nome="João Silva">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">João Silva</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickResponsavel">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr data-id="102" data-nome="Maria Souza">
+                                    <td class="font-semibold text-zinc-900 dark:text-white">Maria Souza</td>
+                                    <td class="text-right">
+                                        <button type="button"
+                                            class="btn bg-primary text-white hover:bg-primary-deep btnPickResponsavel">
+                                            Selecionar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-sm text-zinc-400 mt-3">
+                        Quando clicar em “Selecionar”, o responsável será preenchido na linha ativa do escopo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="/js/theme.js"></script>
 
@@ -536,11 +603,26 @@
             const servicoSearch = document.getElementById('servicoSearch');
             const servicoList = document.getElementById('servicoList');
 
-            let currentRowIndex = null;
+            // ==========================================================
+            // NOVO: Modal de responsáveis
+            // ==========================================================
+            const responsavelSearch = document.getElementById('responsavelSearch');
+            const responsavelList = document.getElementById('responsavelList');
+
+            let currentRowIndexServico = null;
+            let currentRowIndexResponsavel = null;
 
             servicoSearch?.addEventListener('input', () => {
                 const q = (servicoSearch.value || '').toLowerCase();
                 servicoList?.querySelectorAll('tr').forEach(tr => {
+                    const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
+                    tr.style.display = nome.includes(q) ? '' : 'none';
+                });
+            });
+
+            responsavelSearch?.addEventListener('input', () => {
+                const q = (responsavelSearch.value || '').toLowerCase();
+                responsavelList?.querySelectorAll('tr').forEach(tr => {
                     const nome = (tr.getAttribute('data-nome') || '').toLowerCase();
                     tr.style.display = nome.includes(q) ? '' : 'none';
                 });
@@ -553,7 +635,8 @@
                 scrollX: true,
                 dom: 'lrtip',
                 order: [],
-                columnDefs: [{ orderable: false, targets: 2 }],
+                // Ações agora é a 4ª coluna (índice 3)
+                columnDefs: [{ orderable: false, targets: 3 }],
             });
 
             let nextIndex = 0;
@@ -602,6 +685,35 @@
         `;
             }
 
+            // NOVO: coluna Responsável (input + lupa + modal)
+            function rowHtmlResponsavel(index) {
+                return `
+          <div class="flex items-center gap-2">
+            <input type="hidden" name="escopo[${index}][responsavel_id]" value="">
+
+            <input
+              type="text"
+              name="escopo[${index}][responsavel_nome]"
+              class="input h-10 w-full min-w-[220px] !pe-11 cursor-pointer"
+              placeholder="Selecione um responsável..."
+              readonly
+              required
+              data-open-responsavel="1"
+              title="Clique para pesquisar um responsável"
+            />
+
+            <button
+              type="button"
+              class="btn !p-2 js-pick-responsavel"
+              title="Pesquisar responsável"
+              aria-label="Pesquisar responsável"
+            >
+              <span class="icon-[lucide--search] text-lg"></span>
+            </button>
+          </div>
+        `;
+            }
+
             function rowHtmlAcoes() {
                 return `
           <div class="flex items-center justify-end gap-2">
@@ -616,9 +728,11 @@
                 const index = nextIndex;
                 nextIndex++;
 
+                // Agora são 4 colunas
                 dt.row.add([
                     rowHtmlServico(index),
                     rowHtmlQtd(index),
+                    rowHtmlResponsavel(index),
                     rowHtmlAcoes(),
                 ]).draw(false);
 
@@ -626,23 +740,44 @@
                 if (lastRow) lastRow.setAttribute('data-row-index', String(index));
             }
 
+            // Começa com 1 linha
             addRow();
 
             document.getElementById('btnAddLinha')?.addEventListener('click', () => addRow());
 
-            // Clique dentro da tabela: abre modal no clique do INPUT ou da LUPA + remove linha
+            // Clique dentro da tabela:
+            // - abre modal de serviço no clique do INPUT ou da LUPA
+            // - abre modal de responsável no clique do INPUT ou da LUPA
+            // - remove linha
             document.getElementById('table_escopo')?.addEventListener('click', (e) => {
-                const pickBtn = e.target.closest('.js-pick-servico');
+                const pickBtnServico = e.target.closest('.js-pick-servico');
                 const inputServico = e.target.closest('input[data-open-servico="1"]');
 
-                if (pickBtn || inputServico) {
+                if (pickBtnServico || inputServico) {
                     const tr = e.target.closest('tr');
-                    currentRowIndex = tr ? Number(tr.getAttribute('data-row-index')) : null;
+                    currentRowIndexServico = tr ? Number(tr.getAttribute('data-row-index')) : null;
 
                     if (servicoSearch) servicoSearch.value = '';
                     servicoList?.querySelectorAll('tr').forEach(r => r.style.display = '');
 
                     const modalEl = document.getElementById('modal_servico');
+                    if (window.bootstrap && modalEl) {
+                        window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    }
+                    return;
+                }
+
+                const pickBtnResp = e.target.closest('.js-pick-responsavel');
+                const inputResp = e.target.closest('input[data-open-responsavel="1"]');
+
+                if (pickBtnResp || inputResp) {
+                    const tr = e.target.closest('tr');
+                    currentRowIndexResponsavel = tr ? Number(tr.getAttribute('data-row-index')) : null;
+
+                    if (responsavelSearch) responsavelSearch.value = '';
+                    responsavelList?.querySelectorAll('tr').forEach(r => r.style.display = '');
+
+                    const modalEl = document.getElementById('modal_responsavel');
                     if (window.bootstrap && modalEl) {
                         window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
                     }
@@ -667,15 +802,38 @@
                 const id = tr?.getAttribute('data-id') || '';
                 const nome = tr?.getAttribute('data-nome') || '';
 
-                if (currentRowIndex === null) return;
+                if (currentRowIndexServico === null) return;
 
-                const idInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_id]"]`);
-                const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_nome]"]`);
+                const idInput = document.querySelector(`input[name="escopo[${currentRowIndexServico}][servico_id]"]`);
+                const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndexServico}][servico_nome]"]`);
 
                 if (idInput) idInput.value = id;
                 if (nomeInput) nomeInput.value = nome;
 
                 const modalEl = document.getElementById('modal_servico');
+                if (window.bootstrap && modalEl) {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                }
+            });
+
+            // NOVO: Selecionar responsável no modal
+            responsavelList?.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btnPickResponsavel');
+                if (!btn) return;
+
+                const tr = btn.closest('tr');
+                const id = tr?.getAttribute('data-id') || '';
+                const nome = tr?.getAttribute('data-nome') || '';
+
+                if (currentRowIndexResponsavel === null) return;
+
+                const idInput = document.querySelector(`input[name="escopo[${currentRowIndexResponsavel}][responsavel_id]"]`);
+                const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndexResponsavel}][responsavel_nome]"]`);
+
+                if (idInput) idInput.value = id;
+                if (nomeInput) nomeInput.value = nome;
+
+                const modalEl = document.getElementById('modal_responsavel');
                 if (window.bootstrap && modalEl) {
                     window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
                 }
@@ -693,4 +851,4 @@
 
 </body>
 
-</html>
+</html> 
