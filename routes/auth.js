@@ -73,6 +73,13 @@ router.get("/ordem-servico/novo", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/relatorio", verificarAutenticacao, (req, res) => {
+    res.render("relatorio", {
+        user: req.session.user,
+        currentPage: 'relatorio'
+    });
+});
+
 router.get("/scrum-board", verificarAutenticacao, (req, res) => {
     res.render("scrum-board", {
         user: req.session.user,

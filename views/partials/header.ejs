@@ -1,86 +1,234 @@
-<!-- Header -->
-<div class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 shrink-0 px-4 lg:px-8 z-50 sticky top-0 app-header">
-    <div class="relative py-4 lg:py-0 flex flex-wrap items-center justify-center">
-        <div class="shrink-0 flex items-center space-x-1">
-            <button type="button" data-toggle="app_sidebar"
-                class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
-                <span class="icon-[iconoir--menu] text-lg"></span>
-            </button>
+<div
+  class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header !shadow-glass">
+  <div class="shrink-0 flex items-center space-x-1">
+    <!--:Sidebar toggler:-->
+    <button type="button" data-toggle="app_sidebar"
+      class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
+      <span class="icon-[iconoir--menu] text-lg"></span>
+    </button>
+    <!--:Search:-->
+    
+  </div>
+  <div class="flex items-center space-x-1">
+    <!--:TLang:-->
+    <!--:Theme Lang switcher:-->
+    <div class="relative">
+      <div class="dropdown-menu absolute min-w-36 abslute ltr:right-0 rtl:left-0 top-full z-50 mt-4.5">
+        <a href="#!" class="dropdown-item active group gap-2.5">
+          <img src="images/countries/US.png" class="size-5 rounded-full" alt=""> English
+          <span class="icon-[lucide--check] ml-auto hidden group-[.active]:block"></span>
+        </a>
+        <a href="#!" class="dropdown-item group gap-2.5">
+          <img src="images/countries/ES.png" class="size-5 rounded-full" alt=""> Espanol
+          <span class="icon-[lucide--check] ml-auto hidden group-[.active]:block"></span>
+        </a>
+        <a href="#!" class="dropdown-item group gap-2.5">
+          <img src="images/countries/JP.png" class="size-5 rounded-full" alt=""> Japanese
+          <span class="icon-[lucide--check] ml-auto hidden group-[.active]:block"></span>
+        </a>
+      </div>
+    </div>
 
-            <button data-bs-target="#modal_search" data-bs-toggle="modal"
-                class="cursor-pointer relative flex items-center justify-center w-8 h-8 lg:w-auto lg:ps-3 lg:pe-2 lg:bg-white dark:lg:bg-zinc-800 lg:rounded-md rounded-lg hover:bg-zinc-200 lg:hover:bg-white lg:dark:hover:bg-zinc-800 dark:hover:text-white dark:hover:bg-zinc-800 relative">
-                <span class="icon-[lucide--search] text-lg lg:text-base"></span>
-                <span class="text-muted ms-2 hidden lg:flex items-center gap-2">
-                    Buscar
-                    <span
-                        class="border border-zinc-200 dark:border-zinc-600 block px-1.5 rounded-sm text-sm">Ctrl+k</span>
-                </span>
-            </button>
+    <!--:Notifications:-->
+    <div class="sm:relative">
+      <button data-bs-auto-close="outside" type="button"
+        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
+        data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+        <span class="icon-[lucide--bell] text-lg"></span>
+        <!--:Notification badge with animation:-->
+        <span class="absolute right-1 top-1 flex size-2">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
+          <span class="relative inline-flex size-2 rounded-full bg-orange-500"></span>
+        </span>
+      </button>
+      <div
+        class="dropdown-menu absolute w-[94%] left-[3%] sm:w-96 abslute rtl:sm:left-0 ltr:sm:right-0 sm:left-auto top-full z-50 !p-0 mt-0.5 lg:mt-4.5 overflow-hidden">
+        <div class="px-3 pt-3 flex justify-between items-center">
+          <h5 class="text-lg">Notifications</h5>
+          <button type="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Mark all as read"
+            class="hover:text-primary cursor-pointer">
+            <span class="icon-[lucide--mail-open]"></span>
+          </button>
         </div>
+        <div class="p-3 space-y-0.5 max-h-96 overflow-y-auto" data-simplebar="init">
+          <div class="simplebar-wrapper" style="margin: -12px;">
+            <div class="simplebar-height-auto-observer-wrapper">
+              <div class="simplebar-height-auto-observer"></div>
+            </div>
+            <div class="simplebar-mask">
+              <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content"
+                  style="height: auto; overflow: hidden;">
+                  <div class="simplebar-content" style="padding: 12px;">
+                    <!--:Notification item:-->
+                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
+                      <span class="size-8 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
+                        <span class="icon-[lucide--database] text-lg"></span>
+                      </span>
+                      <div class="flex-grow">
+                        <div class="leading-normal"><span class="h5">Critical alert:</span> Server crash detected</div>
+                        <small class="text-muted">Just now</small>
+                      </div>
+                    </a>
+                    <!--:Notification item:-->
+                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
+                      <span class="size-8 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
+                        <img alt="" src="images/avatars/thumb-2.jpg" class="size-8 shrink-0 rounded-full">
+                      </span>
+                      <div class="flex-grow">
+                        <div class="leading-normal"><span class="h5">Emiliya</span> mentioned in you a comment</div>
+                        <small class="text-muted">1h</small>
+                      </div>
+                    </a>
+                    <!--:Notification item:-->
+                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
+                      <span
+                        class="size-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0">
+                        <span class="icon-[lucide--check] text-lg"></span>
+                      </span>
+                      <div class="flex-grow">
+                        <div class="leading-normal">Backup completed successfully</div>
+                        <small class="text-muted">2h</small>
+                      </div>
+                    </a>
+                    <!--:Notification item:-->
+                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
+                      <span
+                        class="size-8 rounded-full bg-cyan-500 text-white flex items-center justify-center shrink-0">
+                        <span class="icon-[lucide--user] text-lg"></span>
+                      </span>
+                      <div class="flex-grow">
+                        <div class="leading-normal">Profile updated successfully</div>
+                        <small class="text-muted">3h</small>
+                      </div>
+                    </a>
+                    <!--:Notification item:-->
+                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
+                      <span
+                        class="size-8 rounded-full bg-yellow-500 text-white flex items-center justify-center shrink-0">
+                        <img alt="" src="images/avatars/thumb-3.jpg" class="size-8 shrink-0 rounded-full">
+                      </span>
+                      <div class="flex-grow">
+                        <div class="leading-normal mb-1"><span class="h5">Nikita</span> sent you a friend request</div>
+                        <div><span
+                            class="btn relative z-[1] cursor-pointer btn-sm !text-xs !py-1 bg-green-500 hover:bg-green-600 text-white">Accept</span>
+                        </div>
+                        <small class="text-muted">2d</small>
+                      </div>
+                    </a>
+                    <!--:Notification item:-->
 
-        <div class="flex items-center space-x-1 shrink-0 ms-auto lg:order-last">
-            <div class="relative">
-                <button type="button"
-                    class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
-                    data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
-                    <span class="icon-[lucide--settings] text-lg"></span>
-                </button>
-
-                <div
-                    class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
-                    <div class="mb-3 px-3 pt-2">
-                        <h5>Tema</h5>
-                    </div>
-
-                    <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
-                        <label class="flex items-center cursor-pointer dropdown-item">
-                            <span class="icon-[lucide--sun-moon] me-1"></span>
-                            <span class="flex-grow text-sm me-2">Modo escuro</span>
-                            <input class="input-switch" data-theme-switch="dark" name="check_theme"
-                                type="checkbox" value="1">
-                        </label>
-                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
+            <div class="simplebar-placeholder" style="width: 0px; height: 0px;"></div>
+          </div>
+          <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+            <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+          </div>
+          <div class="simplebar-track simplebar-vertical" style="visibility: hidden;">
+            <div class="simplebar-scrollbar" style="height: 0px; display: none; transform: translate3d(0px, 0px, 0px);">
+            </div>
+          </div>
+          <div class="simplebar-track simplebar-horizontal">
+            <div class="simplebar-scrollbar"></div>
+          </div>
+          <div class="simplebar-track simplebar-vertical">
+            <div class="simplebar-scrollbar"></div>
+          </div>
+        </div>
+        <div class="px-4 py-2.5 text-center border-t border-zinc-100 dark:border-zinc-800">
+          <a href="#!"
+            class="inline-block border-b border-dashed text-primary font-semibold hover:text-primary-deep text-sm">View
+            All</a>
+        </div>
+      </div>
+    </div>
+
+    <!--:Theme color switcher:-->
+    <div class="relative">
+      <button type="button"
+        class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
+        data-bs-toggle="dropdown" data-bs-display="static" data-bs-auto-close="outside">
+        <span class="icon-[lucide--settings] text-lg"></span>
+      </button>
+      <div class="dropdown-menu absolute min-w-56 abslute ltr:right-0 rtl:left-0 top-full z-50 !p-2 mt-4.5">
+        <div class="mb-3 px-3 pt-2">
+          <h5>Theme</h5>
         </div>
 
-    </div>
-</div>
+        <div class="flex flex-wrap px-3 pb-2 gap-2">
+          <button id="indigoTheme" class="theme-switcher cursor-pointer active">
+            <span class="flex items-center justify-center size-7 rounded-full text-white"
+              style="background-color: #636DFF;">
+              <span class="icon-[lucide--check] theme-check text-lg"></span>
+            </span>
+          </button>
+          <button id="navyTheme" class="theme-switcher cursor-pointer">
+            <span class="flex items-center justify-center size-7 rounded-full text-white"
+              style="background-color: #0E6DD9;">
+              <span class="icon-[lucide--check] theme-check text-lg"></span>
+            </span>
+          </button>
+          <button id="emeraldTheme" class="theme-switcher cursor-pointer">
+            <span class="flex items-center justify-center size-7 rounded-full text-white"
+              style="background-color: #049772;">
+              <span class="icon-[lucide--check] theme-check text-lg"></span>
+            </span>
+          </button>
+          <button id="purpleTheme" class="theme-switcher cursor-pointer">
+            <span class="flex items-center justify-center size-7 rounded-full text-white"
+              style="background-color: #D300C5;">
+              <span class="icon-[lucide--check] theme-check text-lg"></span>
+            </span>
+          </button>
+        </div>
+        <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+          <label class="flex items-center cursor-pointer dropdown-item">
+            <span class="icon-[lucide--sun-moon] me-1"></span>
+            <span class="flex-grow text-sm me-2">Dark mode</span>
+            <input class="input-switch" data-theme-switch="dark" name="check_theme" type="checkbox" value="1">
+          </label>
+        </div>
+        <div class="pt-2 mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+          <label for="toggleRTL" class="flex items-center justify-between cursor-pointer dropdown-item">
+            <span class="text-sm">Enable RTL</span>
+            <input type="checkbox" class="input-switch" id="toggleRTL">
+          </label>
 
-<!-- Search Modal -->
-<div id="modal_search" role="dialog" class="modal fade fixed w-full h-full left-0 top-0 z-[60]" tabindex="-1">
-    <div class="modal-dialog relative m-4 pointer-events-none">
-        <div
-            class="modal-content max-w-[30rem] mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
-            <div class="relative">
+        </div>
+        <div class="pt-2 dark:hidden mt-2 border-t border-dashed border-zinc-200 dark:border-zinc-700">
+          <h5 class="px-3 mb-2">Sidebar</h5>
+          <div class="radio-group flex items-center">
+            <div class="radio-option flex-grow">
+              <input class="appearance-none hidden" type="radio" id="sidebarLight" name="sidebarTheme" value="light"
+                checked="">
+              <label for="sidebarLight" class="block text-center cursor-pointer sidebar-label">
                 <span
-                    class="pointer-events-none text-base absolute rtl:right-3 ltr:left-3 top-1/2 -translate-y-1/2 opacity-50 leading-none">
-                    <span class="icon-[lucide--search] text-lg"></span>
+                  class="w-24 h-16 mb-2 overflow-hidden flex mx-auto p-1 rounded-sm bg-zinc-100 dark:bg-zinc-950 border border-dashed border-zinc-200">
+                  <span class="w-6 h-full bg-white rounded-sm"></span>
                 </span>
-                <button type="button"
-                    class="absolute rtl:left-0 ltr:right-0 top-1/2 -translate-y-1/2 w-8 text-center me-3 cursor-pointer text-sm text-muted"
-                    data-bs-dismiss="modal">Esc</button>
-                <input name="search" type="text"
-                    class="w-full pl-4 !pl-9 !pr-10 py-2 h-12 focus:outline-0 rounded-t-xl border-0"
-                    placeholder="Buscar..." autofocus />
+                <span class="block text-sm text-zinc-400">
+                  Light
+                </span>
+              </label>
             </div>
-
-            <div class="border-t border-zinc-200 dark:border-zinc-800 max-h-[340px]" data-simplebar>
-                <h5 class="mb-2 px-4 pt-4 text-muted">Recentes</h5>
-                <ul class="flex flex-col pb-2">
-                    <li
-                        class="flex items-center gap-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 px-4 py-2">
-                        <span class="bg-zinc-500 opacity-25 block size-1.5 me-1 rounded-full"></span>
-                        <span>Dashboard</span>
-                    </li>
-                    <li
-                        class="flex items-center gap-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800 px-4 py-2">
-                        <span class="bg-zinc-500 opacity-25 block size-1.5 me-1 rounded-full"></span>
-                        <span>Clientes</span>
-                    </li>
-                </ul>
+            <div class="radio-option flex-grow">
+              <input class="appearance-none hidden" type="radio" id="sidebarDark" name="sidebarTheme" value="dark">
+              <label for="sidebarDark" class="block text-center cursor-pointer sidebar-label">
+                <span
+                  class="w-24 h-16 mb-2 overflow-hidden flex mx-auto p-1 rounded-sm bg-zinc-100 dark:bg-zinc-950 border border-dashed border-zinc-200">
+                  <span class="w-6 h-full bg-zinc-900 rounded-sm"></span>
+                </span>
+                <span class="block text-sm text-zinc-400">
+                  Dark
+                </span>
+              </label>
             </div>
-
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
