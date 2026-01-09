@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raven - Adicionar usuário</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <!-- Main -->
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <!-- Page header -->
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Adicionar usuário</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/usuarios"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Usuários</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+
+                        <li class="flex items-center"><span class="pointer-events-none">Adicionar</span></li>
+                    </ol>
+                </div>
+
+                <!-- Page content -->
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form id="form_add_user" action="#" method="post" class="w-full">
+
+                        <div class="grid grid-cols-1 gap-6">
+
+                            <!-- Coluna principal (mesmo espaçamento da página de clientes) -->
+                            <div class="md:col-span-8 space-y-6">
+
+                                <!-- Card: Dados do usuário -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do usuário</h5>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div>
+                                            <label class="mb-2 block" for="userName">Nome</label>
+                                            <input id="userName" name="nome" type="text"
+                                                class="input h-10 w-full max-w-2xl" placeholder="Nome completo">
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-2 block" for="userEmail">E-mail</label>
+                                            <input id="userEmail" name="email" type="email"
+                                                class="input h-10 w-full max-w-2xl" placeholder="email@exemplo.com">
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-2 block" for="userRole">Perfil</label>
+                                            <div class="relative w-full max-w-2xl">
+                                                <select id="userRole" name="perfil" class="js-select"
+                                                    placeholder="Selecione um perfil">
+                                                    <option value="" selected disabled>Selecione um perfil</option>
+                                                    <option value="admin">Administrador</option>
+                                                    <option value="gestor">Gestor</option>
+                                                    <option value="usuario">Usuário</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Page footer (ações do form) - igual ao de clientes -->
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <button type="reset"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
+                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
+                                        Descartar
+                                    </button>
+
+                                    <button onclick="saveUser(event)" type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
+                                        <span class="icon-[lucide--user-plus] text-lg me-1 leading-none"></span>
+                                        Salvar
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+
+        <!-- Page scripts -->
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    maxItems: 1,
+                    create: false,
+                    searchField: [],
+                    controlInput: null
+                });
+            });
+        </script>
+
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script>
+            function saveUser(e) {
+                // Se você já tiver rota de POST, remova o preventDefault para enviar de verdade.
+                e.preventDefault();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Usuário adicionado com sucesso!',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    showCloseButton: true,
+                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>'
+                });
+            }
+        </script>
+</body>
+
+</html>
