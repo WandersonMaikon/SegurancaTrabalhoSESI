@@ -86,6 +86,12 @@ router.get("/scrum-board", verificarAutenticacao, (req, res) => {
         currentPage: 'scrum-board'
     });
 });
+router.get("/usuario", verificarAutenticacao, (req, res) => {
+    res.render("usuario", {
+        user: req.session.user,
+        currentPage: 'usuario'
+    });
+});
 
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));

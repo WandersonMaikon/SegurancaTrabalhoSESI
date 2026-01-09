@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../../../cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="../../../../cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+    <title>Raven - Contas (Perfis & Permissões)</title>
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <!--Simplebar-->
+    <link rel="stylesheet" href="vendor/css/simplebar.css">
+    <!--:Fonts:-->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <!--:Main Style:-->
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <!-- SIDEBAR -->
+    <%- include('partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <!-- HEADER / TOPBAR -->
+            <%- include('partials/header') %>
+
+                <!--:Page Header:-->
+                <div class="px-4 lg:px-8 pt-4 pb-4 flex items-center justify-between">
+                    <h2 class="text-lg">Perfis & Permissões</h2>
+                    <a href="/perfis/novo" class="btn btn-sm bg-primary text-white hover:bg-primary-deep">
+                        Criar perfil
+                    </a>
+                </div>
+
+                <!--:Page content:-->
+                <div class="content flex flex-col flex-grow px-4 lg:px-8">
+
+                    <!-- CARDS (como o original) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                        <!--:Card:-->
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="icon-[lucide--crown] text-lg text-primary"></span>
+                                    <h5 class="text-lg">Admin</h5>
+                                </div>
+                                <p class="mb-4">
+                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center -space-x-2 shrink-0">
+                                        <img alt="" src="images/avatars/thumb-1.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-2.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-6.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                    </div>
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
+                                            class="btn btn-sm btn-default gap-1">
+                                            <span class="icon-[lucide--edit]"></span> Editar perfil
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--:Card:-->
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="icon-[lucide--user-check] text-lg text-blue-500"></span>
+                                    <h5 class="text-lg">Supervisor</h5>
+                                </div>
+                                <p class="mb-4">
+                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center -space-x-2 shrink-0">
+                                        <img alt="" src="images/avatars/thumb-3.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-5.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-7.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                    </div>
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
+                                            class="btn btn-sm btn-default gap-1">
+                                            <span class="icon-[lucide--edit]"></span> Editar perfil
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--:Card:-->
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="icon-[lucide--headset] text-lg text-red-500"></span>
+                                    <h5 class="text-lg">Suporte</h5>
+                                </div>
+                                <p class="mb-4">
+                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center -space-x-2 shrink-0">
+                                        <img alt="" src="images/avatars/thumb-3.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-4.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-8.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                    </div>
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
+                                            class="btn btn-sm btn-default gap-1">
+                                            <span class="icon-[lucide--edit]"></span> Editar perfil
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--:Card:-->
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                            <div class="p-4">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="icon-[lucide--scan-face] text-lg"></span>
+                                    <h5 class="text-lg">Visitante</h5>
+                                </div>
+                                <p class="mb-4">
+                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center -space-x-2 shrink-0">
+                                        <img alt="" src="images/avatars/thumb-2.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-4.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                        <img alt="" src="images/avatars/thumb-10.jpg"
+                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
+                                    </div>
+                                    <div>
+                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
+                                            class="btn btn-sm btn-default gap-1">
+                                            <span class="icon-[lucide--edit]"></span> Editar perfil
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="py-4 flex items-center justify-between">
+                        <h5 class="text-lg">Todos os usuários</h5>
+                    </div>
+
+                    <!--:Tabela:-->
+                    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                        <div
+                            class="flex flex-wrap gap-2 items-center px-4 pt-4 pb-2 border-b border-zinc-500/10 dark:border-zinc-800">
+                            <div class="flex-grow relative">
+                                <input type="search" class="input !ps-9" name="memberSearch" id="memberSearch"
+                                    placeholder="Filtrar por nome, perfil, plano e status">
+                                <span
+                                    class="text-sm absolute start-0 top-0 flex items-center justify-center h-full w-9">
+                                    <span class="icon-[lucide--sliders-horizontal]"></span>
+                                </span>
+                            </div>
+
+                            <div class="flex items-center flex-wrap justify-end gap-2">
+                                <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
+                                    style="display: none;">Excluir</button>
+
+                                <div class="flex items-center gap-2">
+                                    <div class="relative">
+                                        <button data-bs-toggle="dropdown" type="button"
+                                            class="btn bg-sky-500 text-white hover:bg-sky-600">
+                                            <span class="icon-[lucide--download] text-lg me-1"></span>
+                                            Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
+                                        </button>
+                                        <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
+                                            <a href="#!" class="dropdown-item">
+                                                <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/excel.svg" class="h-4 me-2" alt=""> Baixar Excel
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/pdf.svg" class="h-4 w-auto me-2" alt=""> Baixar
+                                                PDF
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <a href="/contas/novo"
+                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                        <span class="icon-[lucide--user-plus] text-lg me-1"></span>
+                                        Adicionar usuário
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <table id="table_members" class="table-default">
+                            <thead>
+                                <tr>
+                                    <th data-orderable="false"></th>
+                                    <th>
+                                        <div class="flex items-center gap-2">ID</div>
+                                    </th>
+                                    <th>
+                                        <div class="flex items-center gap-2">Usuário</div>
+                                    </th>
+                                    <th>
+                                        <div class="flex items-center gap-2">Status</div>
+                                    </th>
+                                    <th>
+                                        <div class="flex items-center gap-2">Perfil</div>
+                                    </th>
+                                    <th>
+                                        <div class="flex items-center gap-2">Plano</div>
+                                    </th>
+                                    <th data-orderable="false"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td>#USR292811</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="flex flex-nowrap items-center gap-2.5">
+                                                <img alt="" src="images/avatars/thumb-4.jpg"
+                                                    class="size-6 rounded-full shrink-0">
+                                                <div class="flex-grow">
+                                                    <h6>Caleb Michael Stone</h6>
+                                                    <p class="text-muted text-sm">caleb.michael@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <span class="icon-[lucide--crown] text-lg text-primary me-2"></span> Admin
+                                        </div>
+                                    </td>
+                                    <td>Enterprise</td>
+                                    <td>
+                                        <div>
+                                            <button
+                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                                            </button>
+                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
+                                                <a href="/contas/detalhes/USR292811" class="dropdown-item">
+                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
+                                                    Detalhes
+                                                </a>
+                                                <a href="/contas/editar/USR292811" class="dropdown-item">
+                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                                    Editar
+                                                </a>
+                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                                    Excluir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td></td>
+                                    <td>#USR872843</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="flex flex-nowrap items-center gap-2.5">
+                                                <img alt="" src="images/avatars/thumb-7.jpg"
+                                                    class="size-6 rounded-full shrink-0">
+                                                <div class="flex-grow">
+                                                    <h6>Elias Matthew Carter</h6>
+                                                    <p class="text-muted text-sm">elias.matthew@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <span class="icon-[lucide--user-check] text-lg me-2 text-blue-500"></span>
+                                            Supervisor
+                                        </div>
+                                    </td>
+                                    <td>Team</td>
+                                    <td>
+                                        <div>
+                                            <button
+                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                                            </button>
+                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
+                                                <a href="/contas/detalhes/USR872843" class="dropdown-item">
+                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
+                                                    Detalhes
+                                                </a>
+                                                <a href="/contas/editar/USR872843" class="dropdown-item">
+                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                                    Editar
+                                                </a>
+                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                                    Excluir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td></td>
+                                    <td>#USR364829</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="flex flex-nowrap items-center gap-2.5">
+                                                <img alt="" src="images/avatars/thumb-8.jpg"
+                                                    class="size-6 rounded-full shrink-0">
+                                                <div class="flex-grow">
+                                                    <h6>Gabriel Thomas</h6>
+                                                    <p class="text-muted text-sm">gabriel.thomas@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-zinc-300/10 text-muted">Inativo</span></td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <span class="icon-[lucide--headset] me-2 text-lg text-red-500"></span>
+                                            Suporte
+                                        </div>
+                                    </td>
+                                    <td>Team</td>
+                                    <td>
+                                        <div>
+                                            <button
+                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                                            </button>
+                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
+                                                <a href="/contas/detalhes/USR364829" class="dropdown-item">
+                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
+                                                    Detalhes
+                                                </a>
+                                                <a href="/contas/editar/USR364829" class="dropdown-item">
+                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                                    Editar
+                                                </a>
+                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                                    Excluir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td></td>
+                                    <td>#USR200987</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="flex flex-nowrap items-center gap-2.5">
+                                                <img alt="" src="images/avatars/thumb-1.jpg"
+                                                    class="size-6 rounded-full shrink-0">
+                                                <div class="flex-grow">
+                                                    <h6>Elizabeth Wilson</h6>
+                                                    <p class="text-muted text-sm">elizabeth.wilson@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-orange-500/10 text-orange-500">Pendente</span></td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <span class="icon-[lucide--scan-face] text-lg me-2"></span>
+                                            Visitante
+                                        </div>
+                                    </td>
+                                    <td>Team</td>
+                                    <td>
+                                        <div>
+                                            <button
+                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                                            </button>
+                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
+                                                <a href="/contas/detalhes/USR200987" class="dropdown-item">
+                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
+                                                    Detalhes
+                                                </a>
+                                                <a href="/contas/editar/USR200987" class="dropdown-item">
+                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                                    Editar
+                                                </a>
+                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                                    Excluir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td></td>
+                                    <td>#USR765434</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="flex flex-nowrap items-center gap-2.5">
+                                                <img alt="" src="images/avatars/thumb-9.jpg"
+                                                    class="size-6 rounded-full shrink-0">
+                                                <div class="flex-grow">
+                                                    <h6>Andrew Noel</h6>
+                                                    <p class="text-muted text-sm">andrew.noel@gmail.com</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-zinc-300/10 text-muted">Inativo</span></td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <span class="icon-[lucide--headset] me-2 text-lg text-red-500"></span>
+                                            Suporte
+                                        </div>
+                                    </td>
+                                    <td>Basic</td>
+                                    <td>
+                                        <div>
+                                            <button
+                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
+                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
+                                            </button>
+                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
+                                                <a href="/contas/detalhes/USR765434" class="dropdown-item">
+                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
+                                                    Detalhes
+                                                </a>
+                                                <a href="/contas/editar/USR765434" class="dropdown-item">
+                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
+                                                    Editar
+                                                </a>
+                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
+                                                    Excluir
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <%- include('partials/footer') %>
+                </div>
+
+        </main>
+
+        <!--:Modal Editar Perfil (mantido e traduzido):-->
+        <div id="modalEditRole" role="dialog"
+            class="modal fade fixed w-full h-full left-0 top-0 z-[60] hidden [&.show]:flex overflow-y-auto"
+            tabindex="-1">
+            <div class="modal-dialog relative m-4 min-h-[calc(100%-2rem)] pointer-events-none">
+                <div
+                    class="modal-content max-w-4xl mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
+                    <div class="flex items-center justify-between px-4 py-4">
+                        <div class="flex-grow">
+                            <h5 class="text-lg mb-2">Admin</h5>
+                            <p class="text-muted">Edite as permissões do perfil Admin</p>
+                        </div>
+                        <button type="button" class="size-8 rounded-full btn btn-default !p-0" data-bs-dismiss="modal">
+                            <span class="icon-[lucide--x] text-lg"></span>
+                        </button>
+                    </div>
+
+                    <ul class="flex flex-col divide-y divide-zinc-500/10 dark:divide-zinc-800">
+                        <!--:Permissão:-->
+                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
+                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
+                                <div
+                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
+                                    <span class="icon-[lucide--user-check] text-xl"></span>
+                                </div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div>
+                                        <h5 class="truncate mb-1">Gerenciamento de usuários</h5>
+                                        <p class="truncate text-sm">Controle de acesso para gestão de usuários</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Ler
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Escrever
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!--:Permissão:-->
+                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
+                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
+                                <div
+                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
+                                    <span class="icon-[lucide--file-chart-line] text-xl"></span>
+                                </div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div>
+                                        <h5 class="truncate mb-1">Relatórios</h5>
+                                        <p class="truncate text-sm">Controle de acesso para gerar relatórios</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Ler
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Escrever
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!--:Permissão:-->
+                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
+                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
+                                <div
+                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
+                                    <span class="icon-[lucide--database-backup] text-xl"></span>
+                                </div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div>
+                                        <h5 class="truncate mb-1">Configurações do sistema</h5>
+                                        <p class="truncate text-sm">Controle de acesso para configurações do sistema</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Ler
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Escrever
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+
+                        <!--:Permissão:-->
+                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
+                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
+                                <div
+                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
+                                    <span class="icon-[lucide--folder-git-2] text-xl"></span>
+                                </div>
+                                <div class="flex-grow overflow-hidden">
+                                    <div>
+                                        <h5 class="truncate mb-1">Gerenciamento de arquivos</h5>
+                                        <p class="truncate text-sm">Controle de acesso para gerenciamento de arquivos
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 active group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Ler
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Escrever
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button" data-bs-toggle="button"
+                                        class="btn btn-sm btn-default !py-0 h-8 group">
+                                        <span
+                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
+                                        Excluir
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="px-4 py-4 flex items-center justify-end gap-2">
+                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn bg-zinc-700 text-white hover:bg-zinc-800">Atualizar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--:Scripts:-->
+        <script src="js/theme.js"></script>
+
+        <script src="vendor/js/jquery.min.js"></script>
+        <script src="../../../../cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="../../../../cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="../../../../cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const table = new DataTable('#table_members', {
+                    lengthChange: false,
+                    pageLength: 9,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    columnDefs: [{
+                        orderable: false,
+                        searchable: false,
+                        render: DataTable.render.select(),
+                        targets: 0,
+                    }],
+                    select: {
+                        style: 'os',
+                        selector: 'td:first-child',
+                        headerCheckbox: false
+                    },
+                    order: [
+                        [1, 'asc']
+                    ],
+                });
+
+                const searchInput = document.getElementById('memberSearch');
+                searchInput.addEventListener('input', (e) => {
+                    table.search(e.target.value).draw();
+                });
+
+                const deleteBtn = document.getElementById("deleteBtn");
+                table.on('select deselect', function () {
+                    const selectedRows = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = selectedRows > 0 ? "inline-block" : "none";
+                });
+
+                deleteBtn.addEventListener('click', () => {
+                    table.rows({ selected: true }).remove().draw();
+                    deleteBtn.style.display = 'none';
+                });
+            });
+        </script>
+
+</body>
+
+</html>
