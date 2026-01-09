@@ -59,50 +59,70 @@
             </span>
             <span class="sidebar-text">Clientes</span>
           </a>
+
           <a href="/servicos" class="sidebar-link <%= currentPage === 'servicos' ? 'active' : '' %>">
             <span class="sidebar-icon">
               <span class="icon-[lucide--baggage-claim]"></span>
             </span>
             <span class="sidebar-text">Serviços</span>
           </a>
+
           <a href="/ordem-servico" class="sidebar-link <%= currentPage === 'ordemservicos' ? 'active' : '' %>">
             <span class="sidebar-icon">
               <span class="icon-[lucide--briefcase-business]"></span>
             </span>
             <span class="sidebar-text">Ordem de serviço</span>
           </a>
+
           <a href="/relatorios" class="sidebar-link <%= currentPage === 'relatorios' ? 'active' : '' %>">
             <span class="sidebar-icon">
               <span class="icon-[lucide--file-chart-line]"></span>
             </span>
             <span class="sidebar-text">Relatórios</span>
           </a>
+
           <a href="/scrum-board" class="sidebar-link <%= currentPage === 'scrum-board' ? 'active' : '' %>">
             <span class="sidebar-icon">
               <span class="icon-[lucide--folder-open]"></span>
             </span>
             <span class="sidebar-text">Scrum Board</span>
           </a>
-          <div class="static">
-            <a data-bs-toggle="collapse" href="#cAccount" class="sidebar-link ">
-              <span class="sidebar-icon">
-                <span class="icon-[lucide--circle-user-round]"></span>
-              </span>
-              <span class="sidebar-text">Usuário</span>
-              <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
-            </a>
-            <div data-bs-parent="#SidebarCollapseGroup" id="cAccount" class="collapse sidebar-collapse w-48 z-50 ">
-              <div class="py-1">
-                <a href="/usuario" class="sidebar-collapse-item @@account_settings">Configurações</a>
-                <a href="account-activity-log.html" class="sidebar-collapse-item @@account_activty">Acitivity
-                  log</a>
-                <a href="account-roles-permissions.html" class="sidebar-collapse-item @@account_roles">Roles
-                  &amp;
-                  permissions</a>
-                <a href="account-pricing.html" class="sidebar-collapse-item @@account_pricing">Pricing</a>
+
+          <% const usuariosPages=['usuario', 'account_activty' , 'account_roles' , 'account_pricing' ]; const
+            isUsuariosSection=usuariosPages.includes(currentPage); %>
+
+            <div class="static">
+              <a data-bs-toggle="collapse" href="#cAccount"
+                class="sidebar-link <%= isUsuariosSection ? 'active' : '' %>">
+                <span class="sidebar-icon">
+                  <span class="icon-[lucide--circle-user-round]"></span>
+                </span>
+                <span class="sidebar-text">Usuários</span>
+                <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+              </a>
+
+              <div data-bs-parent="#SidebarCollapseGroup" id="cAccount"
+                class="collapse sidebar-collapse w-48 z-50 <%= isUsuariosSection ? 'show' : '' %>">
+                <div class="py-1">
+                  <a href="/usuario" class="sidebar-collapse-item <%= currentPage === 'usuario' ? 'active' : '' %>">
+                    Lista de usuários
+                  </a>
+
+                  <a href="account-activity-log.html"
+                    class="sidebar-collapse-item <%= currentPage === 'account_activty' ? 'active' : '' %>">
+                    Registro de atividades
+                  </a>
+
+                  <a href="account-roles-permissions.html"
+                    class="sidebar-collapse-item <%= currentPage === 'account_roles' ? 'active' : '' %>">
+                    Perfis & Permissões
+                  </a>
+
+
+                </div>
               </div>
             </div>
-          </div>
+
         </div>
       </nav>
     </div>
