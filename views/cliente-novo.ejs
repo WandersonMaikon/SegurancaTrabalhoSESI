@@ -68,10 +68,21 @@
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div>
-                                            <label class="mb-2 block">Nome empresa</label>
-                                            <input name="nome" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="Empresa">
+
+                                        <!-- AJUSTE: checkbox bem próximo ao input (sem ficar distante) -->
+                                        <div class="flex items-end gap-3 w-full max-w-2xl">
+                                            <div class="flex-1 min-w-0">
+                                                <label class="mb-2 block">Nome empresa</label>
+                                                <input name="nome" type="text" class="input h-10 w-full"
+                                                    placeholder="Empresa">
+                                            </div>
+
+                                            <label for="empresaIndustria"
+                                                class="inline-flex items-center gap-2 mb-1 whitespace-nowrap">
+                                                <input type="checkbox" class="input-checkbox" id="empresaIndustria"
+                                                    name="empresa_industria" value="1">
+                                                <span>É indústria?</span>
+                                            </label>
                                         </div>
 
                                         <div>

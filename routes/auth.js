@@ -69,7 +69,7 @@ router.get("/ordem-servico", verificarAutenticacao, (req, res) => {
 router.get("/ordem-servico/novo", verificarAutenticacao, (req, res) => {
     res.render("ordem-servico-novo", {
         user: req.session.user,
-        currentPage: 'ordemservicos'
+        currentPage: 'ordem-servicos-novo'
     });
 });
 
@@ -90,6 +90,13 @@ router.get("/usuario", verificarAutenticacao, (req, res) => {
     res.render("usuario", {
         user: req.session.user,
         currentPage: 'usuario'
+    });
+});
+
+router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
+    res.render("usuario-novo", {
+        user: req.session.user,
+        currentPage: 'usuario-novo'
     });
 });
 
