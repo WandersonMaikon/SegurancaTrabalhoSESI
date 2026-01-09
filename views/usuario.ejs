@@ -32,134 +32,12 @@
             <%- include('partials/header') %>
 
                 <!--:Page Header:-->
-                <div class="px-4 lg:px-8 pt-4 pb-4 flex items-center justify-between">
-                    <h2 class="text-lg">Perfis & Permissões</h2>
-                    <a href="/perfis/novo" class="btn btn-sm bg-primary text-white hover:bg-primary-deep">
-                        Criar perfil
-                    </a>
-                </div>
+                
 
                 <!--:Page content:-->
                 <div class="content flex flex-col flex-grow px-4 lg:px-8">
 
-                    <!-- CARDS (como o original) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <!--:Card:-->
-                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="icon-[lucide--crown] text-lg text-primary"></span>
-                                    <h5 class="text-lg">Admin</h5>
-                                </div>
-                                <p class="mb-4">
-                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center -space-x-2 shrink-0">
-                                        <img alt="" src="images/avatars/thumb-1.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-2.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-6.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                    </div>
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
-                                            class="btn btn-sm btn-default gap-1">
-                                            <span class="icon-[lucide--edit]"></span> Editar perfil
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!--:Card:-->
-                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="icon-[lucide--user-check] text-lg text-blue-500"></span>
-                                    <h5 class="text-lg">Supervisor</h5>
-                                </div>
-                                <p class="mb-4">
-                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center -space-x-2 shrink-0">
-                                        <img alt="" src="images/avatars/thumb-3.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-5.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-7.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                    </div>
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
-                                            class="btn btn-sm btn-default gap-1">
-                                            <span class="icon-[lucide--edit]"></span> Editar perfil
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!--:Card:-->
-                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="icon-[lucide--headset] text-lg text-red-500"></span>
-                                    <h5 class="text-lg">Suporte</h5>
-                                </div>
-                                <p class="mb-4">
-                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center -space-x-2 shrink-0">
-                                        <img alt="" src="images/avatars/thumb-3.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-4.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-8.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                    </div>
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
-                                            class="btn btn-sm btn-default gap-1">
-                                            <span class="icon-[lucide--edit]"></span> Editar perfil
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!--:Card:-->
-                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card">
-                            <div class="p-4">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="icon-[lucide--scan-face] text-lg"></span>
-                                    <h5 class="text-lg">Visitante</h5>
-                                </div>
-                                <p class="mb-4">
-                                    Texto de preenchimento comumente usado em layouts de design, impressão e publicação.
-                                </p>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center -space-x-2 shrink-0">
-                                        <img alt="" src="images/avatars/thumb-2.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-4.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                        <img alt="" src="images/avatars/thumb-10.jpg"
-                                            class="size-6 border border-zinc-50 dark:border-zinc-950 rounded-full relative">
-                                    </div>
-                                    <div>
-                                        <button data-bs-toggle="modal" data-bs-target="#modalEditRole"
-                                            class="btn btn-sm btn-default gap-1">
-                                            <span class="icon-[lucide--edit]"></span> Editar perfil
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    
 
                     <div class="py-4 flex items-center justify-between">
                         <h5 class="text-lg">Todos os usuários</h5>
@@ -224,9 +102,6 @@
                                 <tr>
                                     <th data-orderable="false"></th>
                                     <th>
-                                        <div class="flex items-center gap-2">ID</div>
-                                    </th>
-                                    <th>
                                         <div class="flex items-center gap-2">Usuário</div>
                                     </th>
                                     <th>
@@ -235,16 +110,13 @@
                                     <th>
                                         <div class="flex items-center gap-2">Perfil</div>
                                     </th>
-                                    <th>
-                                        <div class="flex items-center gap-2">Plano</div>
-                                    </th>
+                                    
                                     <th data-orderable="false"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td></td>
-                                    <td>#USR292811</td>
                                     <td>
                                         <div class="flex items-center">
                                             <div class="flex flex-nowrap items-center gap-2.5">
@@ -263,7 +135,7 @@
                                             <span class="icon-[lucide--crown] text-lg text-primary me-2"></span> Admin
                                         </div>
                                     </td>
-                                    <td>Enterprise</td>
+                                    
                                     <td>
                                         <div>
                                             <button
@@ -292,7 +164,7 @@
 
                                 <tr>
                                     <td></td>
-                                    <td>#USR872843</td>
+                                    
                                     <td>
                                         <div class="flex items-center">
                                             <div class="flex flex-nowrap items-center gap-2.5">
@@ -312,7 +184,7 @@
                                             Supervisor
                                         </div>
                                     </td>
-                                    <td>Team</td>
+                                    
                                     <td>
                                         <div>
                                             <button
@@ -341,7 +213,7 @@
 
                                 <tr>
                                     <td></td>
-                                    <td>#USR364829</td>
+                                    
                                     <td>
                                         <div class="flex items-center">
                                             <div class="flex flex-nowrap items-center gap-2.5">
@@ -361,7 +233,7 @@
                                             Suporte
                                         </div>
                                     </td>
-                                    <td>Team</td>
+                                    
                                     <td>
                                         <div>
                                             <button
@@ -390,7 +262,7 @@
 
                                 <tr>
                                     <td></td>
-                                    <td>#USR200987</td>
+                                    
                                     <td>
                                         <div class="flex items-center">
                                             <div class="flex flex-nowrap items-center gap-2.5">
@@ -410,7 +282,7 @@
                                             Visitante
                                         </div>
                                     </td>
-                                    <td>Team</td>
+                                    
                                     <td>
                                         <div>
                                             <button
@@ -439,7 +311,7 @@
 
                                 <tr>
                                     <td></td>
-                                    <td>#USR765434</td>
+                                    
                                     <td>
                                         <div class="flex items-center">
                                             <div class="flex flex-nowrap items-center gap-2.5">
@@ -459,7 +331,7 @@
                                             Suporte
                                         </div>
                                     </td>
-                                    <td>Basic</td>
+                                    
                                     <td>
                                         <div>
                                             <button
