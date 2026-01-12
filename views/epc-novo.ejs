@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raven - EPC</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <!-- Main -->
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <!-- Page header -->
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Cadastrar EPC</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/epc" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">EPC</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+                    </ol>
+                </div>
+
+                <!-- Page content -->
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form action="/epc/novo" method="post" class="w-full">
+
+                        <div class="grid grid-cols-1 gap-6">
+
+                            <!-- Coluna principal -->
+                            <div class="md:col-span-8 space-y-6">
+
+                                <!-- Card: EPC -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do EPC</h5>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Nome</label>
+                                            <input id="epc_nome" name="nome" type="text" class="input h-10 w-full"
+                                                placeholder="Ex.: Exaustão localizada / Guarda-corpo" required
+                                                maxlength="120">
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Observações</label>
+                                            <textarea id="epc_obs" name="obs" class="input w-full min-h-28"
+                                                placeholder="Descreva detalhes, recomendações de uso, manutenção, etc. (opcional)"></textarea>
+                                            <p class="text-sm text-zinc-400 mt-2">
+                                                Campo opcional.
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Page footer (ações do form) -->
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <button type="reset"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
+                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
+                                        Descartar
+                                    </button>
+
+                                    <button type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
+                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
+                                        Salvar
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+
+        <!-- Page scripts -->
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            // Mantido por compatibilidade com o template (mesmo que esta tela não tenha select)
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: true });
+            });
+        </script>
+
+</body>
+
+</html>

@@ -114,6 +114,20 @@ router.get("/risco/novo", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/epc", verificarAutenticacao, (req, res) => {
+    res.render("epc", {
+        user: req.session.user,
+        currentPage: 'epc'
+    });
+});
+
+router.get("/epc/novo", verificarAutenticacao, (req, res) => {
+    res.render("epc-novo", {
+        user: req.session.user,
+        currentPage: 'epc-novo'
+    });
+});
+
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));
 });
