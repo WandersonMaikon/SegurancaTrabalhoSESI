@@ -117,12 +117,40 @@
                     class="sidebar-collapse-item <%= currentPage === 'account_roles' ? 'active' : '' %>">
                     Perfis & Permissões
                   </a>
-
-
                 </div>
               </div>
             </div>
 
+            <% const cadastrosPages=['risco', 'epi' , 'epc' ]; const
+              isCadastrosSection=cadastrosPages.includes(currentPage); %>
+
+              <div class="static">
+                <a data-bs-toggle="collapse" href="#cCadastros"
+                  class="sidebar-link <%= isCadastrosSection ? 'active' : '' %>">
+                  <span class="sidebar-icon">
+                    <span class="icon-[lucide--file-edit]"></span>
+                  </span>
+                  <span class="sidebar-text">Cadastros</span>
+                  <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+                </a>
+
+                <div data-bs-parent="#SidebarCollapseGroup" id="cCadastros"
+                  class="collapse sidebar-collapse w-48 z-50 <%= isCadastrosSection ? 'show' : '' %>">
+                  <div class="py-1">
+                    <a href="/risco" class="sidebar-collapse-item <%= currentPage === 'risco' ? 'active' : '' %>">
+                      Riscos
+                    </a>
+
+                    <a href="/epi" class="sidebar-collapse-item <%= currentPage === 'epi' ? 'active' : '' %>">
+                      EPIs
+                    </a>
+
+                    <a href="/epc" class="sidebar-collapse-item <%= currentPage === 'epc' ? 'active' : '' %>">
+                      EPC
+                    </a>
+                  </div>
+                </div>
+              </div>
         </div>
       </nav>
     </div>
