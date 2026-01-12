@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raven - Riscos</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <!-- Main -->
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <!-- Page header -->
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Cadastrar risco</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/risco" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Riscos</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+                    </ol>
+                </div>
+
+                <!-- Page content -->
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form action="/risco/novo" method="post" class="w-full">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Coluna principal -->
+                            <div class="md:col-span-8 space-y-6">
+
+                                <!-- Card: Risco -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do risco</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">
+                                            Informe o tipo, o nome do risco e o código eSocial.
+                                        </p>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Tipo de risco</label>
+                                            <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required>
+                                                <option value="" selected disabled>Selecione...</option>
+                                                <option value="Físico">Físico</option>
+                                                <option value="Químico">Químico</option>
+                                                <option value="Biológico">Biológico</option>
+                                                <option value="Ergonômico">Ergonômico</option>
+                                                <option value="Mecânico">Mecânico</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Nome do risco</label>
+                                            <input id="nome_risco" name="nome_risco" type="text"
+                                                class="input h-10 w-full" placeholder="Ex.: Ruído contínuo/intermitente"
+                                                required maxlength="120">
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Código eSocial</label>
+                                            <input id="codigo_esocial" name="codigo_esocial" type="text"
+                                                class="input h-10 w-full" placeholder="Ex.: 01.01.001"
+                                                inputmode="numeric" autocomplete="off" required>
+                                            <p id="codigoMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Page footer (ações do form) -->
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <a href="/risco"
+                                        class="btn border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 text-center">
+                                        <span class="icon-[lucide--arrow-left] text-lg me-1 leading-none"></span>
+                                        Voltar
+                                    </a>
+
+                                    <button type="reset"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
+                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
+                                        Descartar
+                                    </button>
+
+                                    <button type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
+                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
+                                        Salvar
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+
+        <!-- Page scripts -->
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            // TomSelect
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true
+                });
+            });
+        </script>
+
+        <script>
+            (function () {
+                const $ = (id) => document.getElementById(id);
+
+                function onlyAllowedEsocial(value) {
+                    // Mantém somente dígitos e pontos
+                    return (value || "").replace(/[^\d.]/g, "");
+                }
+
+                function formatEsocialCode(value) {
+                    // Formato sugerido: 99.99.999 (não valida regra oficial, só apresentação)
+                    const digits = (value || "").replace(/\D/g, "").slice(0, 7); // 2 + 2 + 3 = 7
+                    if (digits.length <= 2) return digits;
+                    if (digits.length <= 4) return digits.slice(0, 2) + "." + digits.slice(2);
+                    return digits.slice(0, 2) + "." + digits.slice(2, 4) + "." + digits.slice(4);
+                }
+
+                const codigo = $("codigo_esocial");
+                const msg = $("codigoMsg");
+
+                if (!codigo || !msg) return;
+
+                codigo.addEventListener("input", () => {
+                    const cleaned = onlyAllowedEsocial(codigo.value);
+                    const formatted = formatEsocialCode(cleaned);
+
+                    if (codigo.value !== formatted) codigo.value = formatted;
+
+                    msg.classList.add("hidden");
+                    msg.textContent = "";
+                    codigo.removeAttribute("aria-invalid");
+                });
+
+                codigo.addEventListener("blur", () => {
+                    if (!codigo.value) return;
+
+                    // Checagem simples: precisa bater com 99.99.999
+                    const ok = /^\d{2}\.\d{2}\.\d{3}$/.test(codigo.value);
+
+                    msg.classList.remove("hidden", "text-red-500", "text-green-600", "text-zinc-400");
+                    if (!ok) {
+                        msg.classList.add("text-red-500");
+                        msg.textContent = "Formato esperado: 99.99.999";
+                        codigo.setAttribute("aria-invalid", "true");
+                    } else {
+                        msg.classList.add("text-green-600");
+                        msg.textContent = "Formato do código OK.";
+                        codigo.removeAttribute("aria-invalid");
+                    }
+                });
+            })();
+        </script>
+
+</body>
+
+</html>

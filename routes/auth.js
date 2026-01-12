@@ -100,6 +100,20 @@ router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/risco", verificarAutenticacao, (req, res) => {
+    res.render("risco", {
+        user: req.session.user,
+        currentPage: 'risco'
+    });
+});
+
+router.get("/risco/novo", verificarAutenticacao, (req, res) => {
+    res.render("risco-novo", {
+        user: req.session.user,
+        currentPage: 'risco-novo'
+    });
+});
+
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));
 });

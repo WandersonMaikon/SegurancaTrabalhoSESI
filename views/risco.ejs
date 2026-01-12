@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Riscos</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page css -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+
+    <%- include('partials/sidebar') %>
+
+        <!-- Main -->
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <!-- Page Header -->
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">Riscos</h2>
+
+                    <!-- Breadcrumbs -->
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">
+                                Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Cadastros</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Riscos</span></li>
+                    </ol>
+                </div>
+
+                <!-- Page Content -->
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <!-- Search -->
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9" name="riscoSearch" id="riscoSearch"
+                                            placeholder="Buscar risco (nome, tipo ou código eSocial)">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center flex-wrap justify-end gap-2">
+                                    <button id="deleteBtnRiscos" class="btn bg-red-500 text-white hover:bg-red-600"
+                                        style="display:none;">
+                                        Excluir
+                                    </button>
+
+                                    <div class="flex-grow w-56 sm:w-auto">
+                                        <select id="tipoFilter" class="js-select w-full sm:w-56">
+                                            <option value="" selected>Todos os tipos</option>
+                                            <option value="Físico">Físico</option>
+                                            <option value="Químico">Químico</option>
+                                            <option value="Biológico">Biológico</option>
+                                            <option value="Ergonômico">Ergonômico</option>
+                                            <option value="Mecânico">Mecânico</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative">
+                                            <button data-bs-toggle="dropdown" type="button"
+                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
+                                                <span class="icon-[lucide--download] text-lg me-1"></span>
+                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
+                                            </button>
+                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
+                                                </a>
+                                                <a href="#!" class="dropdown-item">
+                                                    <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
+                                                </a>
+                                                <a href="#!" class="dropdown-item">
+                                                    <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar
+                                                    Excel
+                                                </a>
+                                                <a href="#!" class="dropdown-item">
+                                                    <img src="/images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
+                                                </a>
+                                                <a href="#!" class="dropdown-item">
+                                                    <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt="">
+                                                    Baixar PDF
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <a href="/risco/novo"
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            <span class="icon-[lucide--plus] text-lg me-1"></span>
+                                            Criar Novo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <table id="table_riscos" class="table-default">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Tipo</div>
+                                        </th>
+
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Nome do risco</div>
+                                        </th>
+
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Código eSocial</div>
+                                        </th>
+
+                                        <th class="text-nowrap" data-orderable="false"></th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td class="whitespace-nowrap">
+                                            <span class="badge bg-sky-500/10 text-sky-500">Físico</span>
+                                        </td>
+                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                                            Ruído contínuo/intermitente
+                                        </td>
+                                        <td class="whitespace-nowrap">01.01.001</td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                                <a href="/risco/editar/1" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Editar">
+                                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                                </a>
+                                                <a href="/risco/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Detalhes">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td></td>
+                                        <td class="whitespace-nowrap">
+                                            <span class="badge bg-amber-500/10 text-amber-500">Químico</span>
+                                        </td>
+                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                                            Poeiras minerais
+                                        </td>
+                                        <td class="whitespace-nowrap">02.01.003</td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                                <a href="/risco/editar/2" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Editar">
+                                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                                </a>
+                                                <a href="/risco/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Detalhes">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td></td>
+                                        <td class="whitespace-nowrap">
+                                            <span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>
+                                        </td>
+                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                                            Vírus e bactérias
+                                        </td>
+                                        <td class="whitespace-nowrap">03.02.001</td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                                <a href="/risco/editar/3" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Editar">
+                                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                                </a>
+                                                <a href="/risco/detalhes/3" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Detalhes">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('partials/footer') %>
+
+        </main>
+
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+
+        <!-- Page scripts -->
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const table = new DataTable('#table_riscos', {
+                    lengthChange: false,
+                    pageLength: 9,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            searchable: false,
+                            render: DataTable.render.select(),
+                            targets: 0,
+                        }
+                    ],
+                    select: {
+                        style: 'os',
+                        selector: 'td:first-child',
+                        headerCheckbox: false
+                    },
+                    order: [[2, 'asc']], // Nome do risco
+                });
+
+                const searchInput = document.getElementById('riscoSearch');
+                searchInput.addEventListener('input', e => {
+                    table.search(e.target.value).draw();
+                });
+
+                table.on('draw', () => {
+                    const rowCount = table.rows({ search: 'applied' }).count();
+                    if (rowCount === 0) {
+                        searchInput.setAttribute('disabled', 'disabled');
+                    } else {
+                        searchInput.removeAttribute('disabled');
+                    }
+                });
+
+                const deleteBtn = document.getElementById('deleteBtnRiscos');
+                table.on('select deselect', function () {
+                    const selectedRows = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
+                });
+
+                deleteBtn.addEventListener('click', () => {
+                    table.rows({ selected: true }).remove().draw();
+                    deleteBtn.style.display = 'none';
+                });
+
+                // Filtro por tipo (coluna 1)
+                document.getElementById('tipoFilter').addEventListener('change', function () {
+                    table.columns(1).search(this.value).draw();
+                });
+            });
+        </script>
+
+        <!-- Select -->
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true
+                });
+            });
+        </script>
+
+</body>
+
+</html>
