@@ -128,6 +128,21 @@ router.get("/epc/novo", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/epi", verificarAutenticacao, (req, res) => {
+    res.render("epis", {
+        user: req.session.user,
+        currentPage: 'epis'
+    });
+});
+
+router.get("/epi/novo", verificarAutenticacao, (req, res) => {
+    res.render("epis-novo", {
+        user: req.session.user,
+        currentPage: 'epis-novo'
+    });
+});
+
+
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));
 });

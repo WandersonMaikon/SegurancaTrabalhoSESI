@@ -46,9 +46,11 @@ app.use((req, res, next) => {
 });
 
 // ---- Routes ----
-// Simples, do jeito que você descreveu: 1 arquivo auth.js com rotas /admin/...
 const authRoutes = require("./routes/auth");
 app.use(authRoutes);
+
+const epiCaApiRoutes = require("./routes/epiCaApi");
+app.use(epiCaApiRoutes);
 
 // ---- Home (opcional) ----
 // Se quiser, você pode mandar / cair no login direto:

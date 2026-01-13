@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - EPI</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Cadastrar EPI</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/epi" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">EPI</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form action="/epi/novo" method="post" class="w-full">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6">
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do EPI</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">
+                                            Preencha o <strong>CA</strong> para consultar a <strong>validade</strong>
+                                            automaticamente.
+                                        </p>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nome do Equipamento</label>
+                                            <input id="epi_nome" name="nome" type="text" class="input h-11 w-full"
+                                                placeholder="Ex.: Respirador PFF2 / Protetor auricular" required
+                                                maxlength="120">
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Certificado de Aprovação (CA)</label>
+                                            <div class="relative">
+                                                <input id="epi_ca" name="ca" type="text"
+                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 44938"
+                                                    inputmode="numeric" autocomplete="off" required>
+
+                                                <button id="btnConsultarCa" type="button"
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
+                                                    <span class="icon-[lucide--search] text-lg me-2"></span>
+                                                    Consultar
+                                                </button>
+                                            </div>
+                                            <p id="caMsg" class="text-sm mt-2 hidden"></p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium text-zinc-500">Validade Oficial
+                                                (MTE)</label>
+                                            <div class="relative">
+                                                <input id="epi_validade_display" type="text"
+                                                    class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 text-zinc-500 cursor-not-allowed border-dashed"
+                                                    placeholder="Aguardando consulta do CA..." readonly>
+
+                                                <input type="hidden" id="epi_validade_hidden" name="validade">
+                                            </div>
+                                            <p class="text-xs text-zinc-400 mt-2 flex items-center gap-1">
+                                                <span class="icon-[lucide--info] text-sm"></span>
+                                                Dados sincronizados com a API oficial.
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4">
+                                    <button type="reset" id="btnReset"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6">
+                                        Limpar
+                                    </button>
+
+                                    <button id="btnSalvar" type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8 opacity-50 cursor-not-allowed"
+                                        disabled>
+                                        <span class="icon-[lucide--save] text-lg me-2"></span>
+                                        Salvar Equipamento
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+
+        <script>
+            (function () {
+                const $ = (id) => document.getElementById(id);
+
+                // Elementos do DOM
+                const caInput = $("epi_ca");
+                const displayValidade = $("epi_validade_display");
+                const hiddenValidade = $("epi_validade_hidden");
+                const btnConsultar = $("btnConsultarCa");
+                const caMsg = $("caMsg");
+                const btnSalvar = $("btnSalvar");
+
+                // Função para exibir mensagens de status
+                function setMsg(type, text) {
+                    if (!caMsg) return;
+                    caMsg.className = "text-sm mt-2 font-medium transition-all";
+                    caMsg.classList.remove("hidden");
+
+                    if (type === "clear") caMsg.classList.add("hidden");
+                    else if (type === "error") caMsg.classList.add("text-red-500");
+                    else if (type === "success") caMsg.classList.add("text-green-600");
+                    else caMsg.classList.add("text-sky-500");
+
+                    caMsg.textContent = text;
+                }
+
+                // Função principal de consulta
+                async function runConsulta() {
+                    const ca = caInput.value.replace(/\D/g, "");
+
+                    if (!ca) {
+                        setMsg("error", "Informe o número do CA.");
+                        return;
+                    }
+
+                    // Inicia carregamento
+                    btnConsultar.disabled = true;
+                    btnConsultar.textContent = "Buscando...";
+                    displayValidade.value = "";
+                    hiddenValidade.value = "";
+                    setMsg("info", "Conectando ao sistema...");
+
+                    try {
+                        // Faz a chamada para a sua rota do Node.js
+                        const response = await fetch(`/api/epi/ca/${ca}`);
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || "Erro na consulta");
+                        }
+
+                        const data = await response.json();
+
+                        // Preenche os campos com a validade retornada
+                        // 'data.validade' vem do seu backend mapeado do 'DataValidade'
+                        if (data.validade) {
+                            displayValidade.value = data.validade;
+                            hiddenValidade.value = data.validade;
+
+                            setMsg("success", `✓ Validade ${data.validade} carregada.`);
+
+                            // Habilita o botão Salvar
+                            btnSalvar.disabled = false;
+                            btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
+                        } else {
+                            throw new Error("Data de validade não encontrada.");
+                        }
+
+                    } catch (e) {
+                        console.error("Erro:", e.message);
+                        setMsg("error", "CA não encontrado ou sistema offline.");
+                        displayValidade.value = "";
+                        hiddenValidade.value = "";
+                    } finally {
+                        btnConsultar.disabled = false;
+                        btnConsultar.innerHTML = `<span class="icon-[lucide--search] text-lg me-2"></span> Consultar`;
+                    }
+                }
+
+                // Listeners de eventos
+                btnConsultar.addEventListener("click", runConsulta);
+
+                caInput.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        runConsulta();
+                    }
+                });
+
+                // Reseta estado se o usuário alterar o número do CA
+                caInput.addEventListener("input", () => {
+                    displayValidade.value = "";
+                    hiddenValidade.value = "";
+                    btnSalvar.disabled = true;
+                    btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                    setMsg("clear");
+                });
+
+                // Botão limpar
+                $("btnReset").addEventListener("click", () => {
+                    setMsg("clear");
+                    btnSalvar.disabled = true;
+                    btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                });
+
+            })();
+        </script>
+</body>
+
+</html>
