@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Raven - Serviços</title>
+    <title>Raven - Cadastrar Serviço</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
     <!-- Simplebar -->
@@ -14,8 +14,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet">
 
     <!-- Main Style -->
@@ -60,22 +59,36 @@
 
                 <!-- Page content -->
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form action="/servicos/novo" method="post" class="w-full">
+                    <form id="form_add_servico" action="/servicos/novo" method="post" class="w-full">
+
                         <div class="grid grid-cols-1 gap-6">
-                            <div class="space-y-6 w-full">
+                            <div class="md:col-span-8 space-y-6 w-full">
 
                                 <!-- Card: Dados do serviço -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do serviço</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">Preencha as informações básicas do
+                                            serviço.</p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div>
-                                            <label class="mb-2 block">Nome do serviço</label>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="nome_servico">Nome do
+                                                serviço</label>
                                             <input id="nome_servico" name="nome_servico" type="text"
-                                                class="input h-10 w-full max-w-2xl"
-                                                placeholder="Insira o nome do serviço" required>
+                                                class="input h-10 w-full" placeholder="Insira o nome do serviço"
+                                                required>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="servico_perfil">Responsável pelo serviço</label>
+                                            <select id="servico_perfil" name="responsavel" class="js-select w-full" required>
+                                                <option value="" selected disabled>Selecione um responsável...</option>
+                                                <option value="usuario">Vania</option>
+                                                <option value="usuario">Luiz</option>
+                                                <option value="usuario">Renata</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -84,15 +97,15 @@
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
                                     <a href="/servicos"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center">
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center transition-all">
                                         <span class="icon-[lucide--x] text-lg me-1 leading-none"></span>
                                         Cancelar
                                     </a>
 
-                                    <button type="submit"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--save] text-lg me-1 leading-none"></span>
-                                        Salvar
+                                    <button onclick="saveServico(event)" type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8 transition-all">
+                                        <span class="icon-[lucide--save] text-lg me-1"></span>
+                                        Salvar Serviço
                                     </button>
                                 </div>
 
@@ -113,7 +126,12 @@
             document.querySelectorAll('.js-select').forEach(select => {
                 new TomSelect(select, {
                     create: false,
-                    allowEmptyOption: false
+                    allowEmptyOption: true,
+                    render: {
+                        no_results: function (data, escape) {
+                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
+                        }
+                    }
                 });
             });
         </script>
