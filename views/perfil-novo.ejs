@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Novo Perfil de Acesso</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <style>
+        /* Estilos customizados para Checkbox */
+        .checkbox-custom,
+        .master-checker {
+            appearance: none;
+            background-color: transparent;
+            margin: 0;
+            font: inherit;
+            color: currentColor;
+            width: 1.15em;
+            height: 1.15em;
+            border: 1px solid #e4e4e7;
+            border-radius: 0.25rem;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .dark .checkbox-custom {
+            border-color: #3f3f46;
+            background-color: #18181b;
+        }
+
+        .checkbox-custom:hover,
+        .master-checker:hover {
+            border-color: var(--primary-color, #0AA34A);
+        }
+
+        .checkbox-custom::before,
+        .master-checker::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--primary-color, #0AA34A);
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        .checkbox-custom:checked::before,
+        .master-checker:checked::before {
+            transform: scale(1);
+        }
+
+        .master-checker {
+            border-color: rgba(10, 163, 74, 0.5);
+        }
+
+        /* Ajuste fino para alinhar ícones e texto */
+        td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2 text-zinc-800 dark:text-white font-bold">Novo Perfil de Acesso</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center text-zinc-400">Dashboard</li>
+                        <li class="flex items-center opacity-30"><span class="icon-[lucide--chevron-right]"></span></li>
+                        <li class="flex items-center text-zinc-400">Configurações</li>
+                        <li class="flex items-center opacity-30"><span class="icon-[lucide--chevron-right]"></span></li>
+                        <li class="flex items-center">Novo Perfil</li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-8 px-4 pb-8">
+                    <form id="form-novo-perfil">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <!-- Card de Informações Básicas -->
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do
+                                            Perfil</label>
+                                        <input type="text" id="perfilNome"
+                                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-4 py-2.5 outline-none focus:border-primary focus:ring-1 focus:ring-primary dark:border-zinc-700 dark:bg-zinc-800/50"
+                                            placeholder="Ex: Administrador">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Código
+                                            (Slug)</label>
+                                        <input type="text" id="perfilSlug"
+                                            class="w-full rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-500 px-4 py-2.5 outline-none cursor-not-allowed dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-500"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card da Tabela de Permissões -->
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <!-- USAR table-default e table-hover como no exemplo do Raven -->
+                                    <table class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                                        <thead>
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                                                <th
+                                                    class="py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Módulo do Sistema</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Ver</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Criar</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Editar</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Excluir</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-primary uppercase tracking-wider bg-primary/5">
+                                                    Tudo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-zinc-50 dark:divide-zinc-800/50">
+
+                                            <!-- ================= ITENS PRINCIPAIS ================= -->
+
+                                            <!-- Dashboard -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span
+                                                            class="icon-[lucide--file-chart-column] text-zinc-400"></span>
+                                                        Dashboard
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Clientes -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span class="icon-[lucide--users] text-zinc-400"></span>
+                                                        Clientes
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Serviços -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span class="icon-[lucide--baggage-claim] text-zinc-400"></span>
+                                                        Serviços
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Ordem de Serviço -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span
+                                                            class="icon-[lucide--briefcase-business] text-zinc-400"></span>
+                                                        Ordem de Serviço
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Relatórios -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span
+                                                            class="icon-[lucide--file-chart-line] text-zinc-400"></span>
+                                                        Relatórios
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Scrum Board -->
+                                            <tr>
+                                                <td class="pl-8 py-4">
+                                                    <div
+                                                        class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                        <span class="icon-[lucide--folder-open] text-zinc-400"></span>
+                                                        Scrum Board
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- ================= SEÇÃO USUÁRIOS ================= -->
+                                            <!-- Título da Seção (Sem checkboxes) -->
+                                            <tr class="bg-white dark:bg-zinc-900">
+                                                <td colspan="6" class="pl-8 py-6">
+                                                    <div
+                                                        class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+                                                        <span class="icon-[lucide--circle-user-round] text-lg"></span>
+                                                        Usuários
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Lista de Usuários -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    Lista de Usuários
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Registro de Atividades -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    Registro de Atividades
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center text-zinc-300">-</td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- Perfis & Permissões -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    Perfis & Permissões
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- ================= SEÇÃO CADASTROS ================= -->
+                                            <!-- Título da Seção -->
+                                            <tr class="bg-white dark:bg-zinc-900">
+                                                <td colspan="6" class="pl-8 py-6">
+                                                    <div
+                                                        class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-widest">
+                                                        <span class="icon-[lucide--file-edit] text-lg"></span>
+                                                        Cadastros
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Riscos -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    Riscos
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- EPIs -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    EPIs
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                            <!-- EPC -->
+                                            <tr>
+                                                <td class="pl-8 py-4 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    EPC
+                                                </td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center"><input type="checkbox"
+                                                        class="checkbox-custom"></td>
+                                                <td class="px-4 py-4 text-center bg-primary/5"><input type="checkbox"
+                                                        class="master-checker"></td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div
+                                    class="p-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3 bg-zinc-50/50 dark:bg-zinc-900">
+                                    <button type="button"
+                                        class="btn px-5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-sm font-medium">Cancelar</button>
+                                    <button type="submit"
+                                        class="btn px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary-deep transition-colors shadow-lg shadow-primary/20 text-sm font-medium">Salvar
+                                        Perfil</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script>
+            // Lógica de Seleção Mestre
+            document.querySelectorAll('.master-checker').forEach(master => {
+                master.addEventListener('change', function () {
+                    const checkboxes = this.closest('tr').querySelectorAll('.checkbox-custom');
+                    checkboxes.forEach(cb => cb.checked = this.checked);
+                });
+            });
+
+            // Slug Automático
+            const nomeInp = document.getElementById('perfilNome');
+            const slugInp = document.getElementById('perfilSlug');
+            nomeInp.addEventListener('input', () => {
+                slugInp.value = nomeInp.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\w ]+/g, '').replace(/ +/g, '-');
+            });
+        </script>
+</body>
+
+</html>
