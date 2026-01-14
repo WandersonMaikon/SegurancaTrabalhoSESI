@@ -93,6 +93,20 @@ router.get("/usuario", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/perfil", verificarAutenticacao, (req, res) => {
+    res.render("perfil", {
+        user: req.session.user,
+        currentPage: 'perfil'
+    });
+});
+
+router.get("/perfil/novo", verificarAutenticacao, (req, res) => {
+    res.render("perfil-novo", {
+        user: req.session.user,
+        currentPage: 'perfil-novo'
+    });
+});
+
 router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
     res.render("usuario-novo", {
         user: req.session.user,

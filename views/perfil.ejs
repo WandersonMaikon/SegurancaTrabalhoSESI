@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Perfis de Acesso</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">Perfis de Acesso</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Configurações</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Perfis</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9" name="perfilSearch" id="perfilSearch"
+                                            placeholder="Buscar perfil (nome ou código)">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center flex-wrap justify-end gap-2">
+                                    <button id="deleteBtnPerfil" class="btn bg-red-500 text-white hover:bg-red-600"
+                                        style="display:none;">
+                                        Excluir
+                                    </button>
+
+                                    <a href="/perfis/novo"
+                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                        <span class="icon-[lucide--plus] text-lg me-1"></span>
+                                        Novo Perfil
+                                    </a>
+                                </div>
+                            </div>
+
+                            <table id="table_perfis" class="table-default">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-nowrap">Nome do Perfil</th>
+                                        <th class="text-nowrap">Código (Slug)</th>
+                                        <th class="text-nowrap">Usuários Ativos</th>
+                                        <th class="text-nowrap" data-orderable="false">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td class="font-semibold text-zinc-900 dark:text-white">Administrador</td>
+                                        <td><span
+                                                class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">admin</span>
+                                        </td>
+                                        <td>5</td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1">
+                                                <a href="/perfis/editar/1" class="btn !p-1.5 hover:!text-primary"
+                                                    title="Editar Permissões">
+                                                    <span class="icon-[lucide--shield-check] text-lg"></span>
+                                                </a>
+                                                <a href="/perfis/detalhes/1" class="btn !p-1.5 hover:!text-primary"
+                                                    title="Ver Detalhes">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td class="font-semibold text-zinc-900 dark:text-white">Gestor de Operações</td>
+                                        <td><span
+                                                class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">gestor</span>
+                                        </td>
+                                        <td>12</td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1">
+                                                <a href="/perfis/editar/2" class="btn !p-1.5 hover:!text-primary">
+                                                    <span class="icon-[lucide--shield-check] text-lg"></span>
+                                                </a>
+                                                <a href="/perfis/detalhes/2" class="btn !p-1.5 hover:!text-primary">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('partials/footer') %>
+
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const table = new DataTable('#table_perfis', {
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            render: DataTable.render.select(),
+                            targets: 0,
+                        }
+                    ],
+                    select: {
+                        style: 'os',
+                        selector: 'td:first-child',
+                        headerCheckbox: false
+                    },
+                    order: [[1, 'asc']],
+                });
+
+                // Busca personalizada
+                const searchInput = document.getElementById('perfilSearch');
+                searchInput.addEventListener('input', e => {
+                    table.search(e.target.value).draw();
+                });
+
+                // Lógica do botão excluir (Apenas visual neste exemplo)
+                const deleteBtn = document.getElementById('deleteBtnPerfil');
+                table.on('select deselect', function () {
+                    const selectedRows = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
+                });
+            });
+        </script>
+</body>
+
+</html>
