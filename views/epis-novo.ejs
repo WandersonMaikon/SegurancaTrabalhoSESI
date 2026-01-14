@@ -85,21 +85,27 @@
                                             <p id="caMsg" class="text-sm mt-2 hidden"></p>
                                         </div>
 
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium text-zinc-500">Validade Oficial
-                                                (MTE)</label>
-                                            <div class="relative">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                                            <div>
+                                                <label class="mb-2 block font-medium text-zinc-500">Validade MTE</label>
                                                 <input id="epi_validade_display" type="text"
                                                     class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 text-zinc-500 cursor-not-allowed border-dashed"
-                                                    placeholder="Aguardando consulta do CA..." readonly>
-
+                                                    placeholder="Aguardando..." readonly>
                                                 <input type="hidden" id="epi_validade_hidden" name="validade">
                                             </div>
-                                            <p class="text-xs text-zinc-400 mt-2 flex items-center gap-1">
-                                                <span class="icon-[lucide--info] text-sm"></span>
-                                                Dados sincronizados com a API oficial.
-                                            </p>
+
+                                            <div>
+                                                <label class="mb-2 block font-medium text-zinc-500">Situação</label>
+                                                <input id="epi_situacao_display" type="text"
+                                                    class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed"
+                                                    placeholder="Aguardando..." readonly>
+                                            </div>
                                         </div>
+
+                                        <p class="text-xs text-zinc-400 mt-2 flex items-center gap-1">
+                                            <span class="icon-[lucide--info] text-sm"></span>
+                                            Dados sincronizados com a API oficial por extenso.
+                                        </p>
 
                                     </div>
                                 </div>
@@ -133,15 +139,14 @@
             (function () {
                 const $ = (id) => document.getElementById(id);
 
-                // Elementos do DOM
                 const caInput = $("epi_ca");
                 const displayValidade = $("epi_validade_display");
+                const displaySituacao = $("epi_situacao_display"); // Novo campo
                 const hiddenValidade = $("epi_validade_hidden");
                 const btnConsultar = $("btnConsultarCa");
                 const caMsg = $("caMsg");
                 const btnSalvar = $("btnSalvar");
 
-                // Função para exibir mensagens de status
                 function setMsg(type, text) {
                     if (!caMsg) return;
                     caMsg.className = "text-sm mt-2 font-medium transition-all";
@@ -155,7 +160,6 @@
                     caMsg.textContent = text;
                 }
 
-                // Função principal de consulta
                 async function runConsulta() {
                     const ca = caInput.value.replace(/\D/g, "");
 
@@ -164,15 +168,18 @@
                         return;
                     }
 
-                    // Inicia carregamento
                     btnConsultar.disabled = true;
                     btnConsultar.textContent = "Buscando...";
+
+                    // Limpa campos
                     displayValidade.value = "";
+                    displaySituacao.value = "";
+                    displaySituacao.className = "input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed";
                     hiddenValidade.value = "";
+
                     setMsg("info", "Conectando ao sistema...");
 
                     try {
-                        // Faz a chamada para a sua rota do Node.js
                         const response = await fetch(`/api/epi/ca/${ca}`);
 
                         if (!response.ok) {
@@ -182,33 +189,38 @@
 
                         const data = await response.json();
 
-                        // Preenche os campos com a validade retornada
-                        // 'data.validade' vem do seu backend mapeado do 'DataValidade'
                         if (data.validade) {
                             displayValidade.value = data.validade;
                             hiddenValidade.value = data.validade;
 
-                            setMsg("success", `✓ Validade ${data.validade} carregada.`);
+                            // Trata a Situação por extenso e cor
+                            const situacao = data.situacao || "Não Informado";
+                            displaySituacao.value = situacao.toUpperCase();
 
-                            // Habilita o botão Salvar
+                            // Lógica de cores para o campo Situação
+                            if (situacao.toLowerCase().includes("val")) {
+                                displaySituacao.classList.add("text-green-600", "dark:text-green-400");
+                            } else if (situacao.toLowerCase().includes("venc")) {
+                                displaySituacao.classList.add("text-red-600", "dark:text-red-400");
+                            }
+
+                            setMsg("success", `✓ Dados do CA ${ca} carregados.`);
+
                             btnSalvar.disabled = false;
                             btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
                         } else {
-                            throw new Error("Data de validade não encontrada.");
+                            throw new Error("Informações não encontradas.");
                         }
 
                     } catch (e) {
                         console.error("Erro:", e.message);
-                        setMsg("error", "CA não encontrado ou sistema offline.");
-                        displayValidade.value = "";
-                        hiddenValidade.value = "";
+                        setMsg("error", e.message || "Erro ao buscar CA.");
                     } finally {
                         btnConsultar.disabled = false;
                         btnConsultar.innerHTML = `<span class="icon-[lucide--search] text-lg me-2"></span> Consultar`;
                     }
                 }
 
-                // Listeners de eventos
                 btnConsultar.addEventListener("click", runConsulta);
 
                 caInput.addEventListener("keydown", (e) => {
@@ -218,18 +230,18 @@
                     }
                 });
 
-                // Reseta estado se o usuário alterar o número do CA
                 caInput.addEventListener("input", () => {
                     displayValidade.value = "";
+                    displaySituacao.value = "";
                     hiddenValidade.value = "";
                     btnSalvar.disabled = true;
                     btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
                     setMsg("clear");
                 });
 
-                // Botão limpar
                 $("btnReset").addEventListener("click", () => {
                     setMsg("clear");
+                    displaySituacao.value = "";
                     btnSalvar.disabled = true;
                     btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
                 });
