@@ -5,23 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Raven - Adicionar usuário</title>
+    <title>Raven - Adicionar Usuário</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page styles -->
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 </head>
@@ -31,12 +27,10 @@
 
     <%- include('partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Adicionar usuário</h2>
 
@@ -48,77 +42,65 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-
                         <li class="flex items-center"><span class="pointer-events-none">Adicionar</span></li>
                     </ol>
                 </div>
 
-                <!-- Page content -->
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form id="form_add_user" action="#" method="post" class="w-full">
+                    <form id="form_add_user" action="/usuarios/novo" method="post" class="w-full">
 
                         <div class="grid grid-cols-1 gap-6">
-
-                            <!-- Coluna principal (mesmo espaçamento da página de clientes) -->
                             <div class="md:col-span-8 space-y-6">
 
-                                <!-- Card: Dados do usuário -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do usuário</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">Preencha as informações básicas de acesso.
+                                        </p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-
-                                        <div>
-                                            <label class="mb-2 block" for="userName">Nome</label>
-                                            <input id="userName" name="nome" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Nome completo">
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userName">Nome Completo</label>
+                                            <input id="userName" name="nome" type="text" class="input h-10 w-full"
+                                                placeholder="Ex: João Silva" required>
                                         </div>
 
-                                        <div>
-                                            <label class="mb-2 block" for="userEmail">E-mail</label>
-                                            <input id="userEmail" name="email" type="email"
-                                                class="input h-10 w-full max-w-2xl" placeholder="email@exemplo.com">
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
+                                            <input id="userEmail" name="email" type="email" class="input h-10 w-full"
+                                                placeholder="email@exemplo.com" required>
                                         </div>
 
-                                        <!-- PERFIL (Tom Select do jeito correto: só o select "limpo" dentro do relative) -->
-                                        <div>
-                                            <label class="mb-2 block" for="userRole">Perfil</label>
-
-                                            <div class="relative w-full max-w-2xl">
-                                                <select id="userRole" name="perfil" class="js-select"
-                                                    placeholder="Selecione um perfil">
-                                                    <option value="" selected>Selecione um perfil</option>
-                                                    <option value="admin">Administrador</option>
-                                                    <option value="gestor">Gestor</option>
-                                                    <option value="mercado">Mercado</option>
-                                                    <option value="usuario">Usuário</option>
-                                                </select>
-                                            </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Perfil de Acesso</label>
+                                            <select id="user_perfil" name="perfil" class="js-select w-full" required>
+                                                <option value="" selected disabled>Selecione um perfil...</option>
+                                                <option value="admin">Administrador</option>
+                                                <option value="gestor">Gestor</option>
+                                                <option value="usuario">Usuário Comum</option>
+                                                <option value="mecanico">Mecânico</option>
+                                            </select>
                                         </div>
-
                                     </div>
                                 </div>
 
-                                <!-- Page footer (ações do form) - igual ao de clientes -->
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
                                     <button type="reset"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
-                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 transition-all">
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span>
                                         Descartar
                                     </button>
 
                                     <button onclick="saveUser(event)" type="submit"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--user-plus] text-lg me-1 leading-none"></span>
-                                        Salvar
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
+                                        <span class="icon-[lucide--user-plus] text-lg me-1"></span>
+                                        Salvar Usuário
                                     </button>
                                 </div>
 
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -126,18 +108,21 @@
                 <%- include('partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
 
-        <!-- Page scripts -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script>
+            // Inicialização idêntica à de Riscos, que é a mais estável
             document.querySelectorAll('.js-select').forEach(select => {
                 new TomSelect(select, {
-                    maxItems: 1,
                     create: false,
-                    searchField: [],
-                    controlInput: null
+                    allowEmptyOption: true,
+                    // Mantemos a busca ativa para facilitar encontrar o perfil
+                    render: {
+                        no_results: function (data, escape) {
+                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
+                        }
+                    }
                 });
             });
         </script>
@@ -145,20 +130,29 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script>
             function saveUser(e) {
-                // Se você já tiver rota de POST, remova o preventDefault para enviar de verdade.
-                e.preventDefault();
+                const form = document.getElementById('form_add_user');
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Usuário adicionado com sucesso!',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true,
-                    showCloseButton: true,
-                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>'
-                });
+                // Só mostra o alerta se o formulário HTML5 for válido (campos preenchidos)
+                if (form.checkValidity()) {
+                    e.preventDefault(); // Evita o envio imediato para mostrar o SweetAlert
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Usuário cadastrado!',
+                        text: 'Os dados foram salvos com sucesso.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        // Após o alerta sumir, envia o formulário de verdade para o servidor
+                        form.submit();
+                    });
+                } else {
+                    // Se faltar algo, o navegador mostra o erro padrão (ex: "Preencha este campo")
+                    form.reportValidity();
+                }
             }
         </script>
 </body>
