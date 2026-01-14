@@ -93,6 +93,20 @@ router.get("/usuario", verificarAutenticacao, (req, res) => {
     });
 });
 
+router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
+    res.render("usuario-novo", {
+        user: req.session.user,
+        currentPage: 'usuario-novo'
+    });
+});
+
+router.get("/atividades", verificarAutenticacao, (req, res) => {
+    res.render("atividades", {
+        user: req.session.user,
+        currentPage: 'atividades'
+    });
+});
+
 router.get("/perfil", verificarAutenticacao, (req, res) => {
     res.render("perfil", {
         user: req.session.user,
@@ -107,12 +121,7 @@ router.get("/perfil/novo", verificarAutenticacao, (req, res) => {
     });
 });
 
-router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
-    res.render("usuario-novo", {
-        user: req.session.user,
-        currentPage: 'usuario-novo'
-    });
-});
+
 
 router.get("/risco", verificarAutenticacao, (req, res) => {
     res.render("risco", {
