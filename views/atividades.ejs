@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raven - Atividade do Usuário</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Atividade do Usuário</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/usuarios"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Usuários</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Atividade</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                        <div class="p-4 md:p-6 max-w-3xl mx-auto">
+                            <div class="mb-7 flex items-center justify-between">
+
+                                <label class="flex items-center text-sm gap-2 cursor-pointer">
+                                    <span class="flex-grow">Atualização automática</span>
+                                    <input class="input-switch" name="activityRefresh" type="checkbox" value="1">
+                                </label>
+                                <div class="relative">
+                                    <button data-bs-auto-close="outside" data-bs-toggle="dropdown" type="button"
+                                        class="btn btn-default gap-2">
+                                        <span class="icon-[lucide--sliders-horizontal]"></span> Filtro
+                                    </button>
+                                    <div class="dropdown-menu absolute !end-0 !start-auto top-full min-w-44 !p-4 !mt-1">
+                                        <div class="flex flex-col space-y-3">
+
+                                            <label for="project_in_progress"
+                                                class="flex items-center cursor-pointer gap-2">
+                                                <input type="checkbox" class="input-checkbox" id="project_in_progress">
+                                                <span>Atribuir Tarefa</span>
+                                            </label>
+
+                                            <label for="project_not_started"
+                                                class="flex items-center cursor-pointer gap-2">
+                                                <input type="checkbox" class="input-checkbox" id="project_not_started">
+                                                <span>Apenas menções</span>
+                                            </label>
+                                            <label for="project_pending" class="flex items-center cursor-pointer gap-2">
+                                                <input type="checkbox" class="input-checkbox" id="project_pending">
+                                                <span>Respostas</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <span class="font-semibold block mb-2 text-muted">Hoje</span>
+                            <!--:Timeline:-->
+                            <ul class="timeline">
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <img alt="" src="images/avatars/thumb-3.jpg"
+                                                    class="rounded-full size-7">
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Angelina
+                                                        Gotelli</span><span> alterou </span><span
+                                                        class="font-semibold">#ts-212</span><span>
+                                                        para </span><span
+                                                        class="font-semibold text-green-500">Concluído</span>
+                                                    <span class="block mt-1 text-xs text-muted">10:15
+                                                        AM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!--:Timeline item:-->
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <img alt="" src="images/avatars/thumb-6.jpg"
+                                                    class="rounded-full size-7">
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Max Alexander</span>
+                                                    comentou na sua postagem
+                                                    <a href="#!"
+                                                        class="font-semibold text-primary hover:text-primary-deep">Top
+                                                        10 Tendências Tech</a>
+                                                    <span class="text-xs mt-1 text-muted block">11:50
+                                                        AM</span>
+                                                </p>
+                                                <div class="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                                    <p class="mb-2">
+                                                        Lorem ipsum is text commonly used in the print, and
+                                                        publishing industries for previewing layouts and visual
+                                                        mockups
+                                                    </p>
+                                                    <a href="#!"
+                                                        class="hover:text-primary border-b text-sm font-semibold border-dashed">
+                                                        <span class="icon-[lucide--reply]"></span>
+                                                        Responder</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!--:Timeline item:-->
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <span
+                                                    class="size-7 flex items-center justify-center rounded-full bg-primary text-white">
+                                                    <span class="icon-[lucide--hash]"></span>
+                                                </span>
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Eugene
+                                                        Stewart</span><span> adicionou tags </span>
+                                                    <span class="badge bg-sky-500/10 text-sky-500">Tailwindcss</span>
+                                                    <span class="badge bg-red-500/10 text-red-500">Gulp</span>
+
+                                                    <span class="block text-xs mt-1 text-muted">12:50
+                                                        PM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="my-5"></div>
+                            <span class="font-semibold block mb-2 text-muted">Ontem</span>
+                            <!--:Timeline:-->
+                            <ul class="timeline">
+
+                                <!--:Timeline item:-->
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <span
+                                                    class="size-7 flex items-center justify-center rounded-full bg-blue-500 text-white">
+                                                    <span class="icon-[lucide--message-circle-more]"></span>
+                                                </span>
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Nikki
+                                                        Stewart</span><span> mencionou você em um comentário </span>
+                                                    <span class="block text-xs mt-1 text-muted">12:50
+                                                        PM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <img alt="" src="images/avatars/thumb-4.jpg"
+                                                    class="rounded-full size-7">
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Emelia</span><span> alterou
+                                                    </span><span class="font-semibold">#ts-212</span><span>
+                                                        para </span><span
+                                                        class="font-semibold text-yellow-500">Pendente</span>
+                                                    <span class="block mt-1 text-xs text-muted">10:15
+                                                        AM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="my-5"></div>
+                            <span class="font-semibold block mb-2 text-muted">20 de Junho, 2025</span>
+                            <!--:Timeline:-->
+                            <ul class="timeline">
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <img alt="" src="images/avatars/thumb-3.jpg"
+                                                    class="rounded-full size-7">
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Angelina
+                                                        Gotelli</span><span> alterou </span><span
+                                                        class="font-semibold">#ts-212</span><span>
+                                                        para </span><span
+                                                        class="font-semibold text-green-500">Concluído</span>
+                                                    <span class="block mt-1 text-xs text-muted">10:15
+                                                        AM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!--:Timeline item:-->
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <img alt="" src="images/avatars/thumb-8.jpg"
+                                                    class="rounded-full size-7">
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">John Doe</span>
+                                                    comentou na sua postagem
+                                                    <a href="#!"
+                                                        class="font-semibold text-primary hover:text-primary-deep">Utilidades
+                                                        do
+                                                        TailwindCss</a>
+                                                    <span class="text-xs mt-1 text-muted block">11:50
+                                                        AM</span>
+                                                </p>
+                                                <div class="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                                    <p class="mb-2">
+                                                        Lorem ipsum is text commonly used in the print, and
+                                                        publishing industries for previewing layouts and visual
+                                                        mockups
+                                                    </p>
+                                                    <a href="#!"
+                                                        class="hover:text-primary border-b text-sm font-semibold border-dashed">
+                                                        <span class="icon-[lucide--reply]"></span>
+                                                        Responder</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <!--:Timeline item:-->
+                                <li class="timeline-item">
+                                    <div class="timeline-item-wrapper">
+                                        <div class="timeline-item-media shrink-0">
+                                            <div class="timeline-item-media-content">
+                                                <!--:Avatar:-->
+                                                <span
+                                                    class="size-7 flex items-center justify-center rounded-full bg-primary text-white">
+                                                    <span class="icon-[lucide--hash]"></span>
+                                                </span>
+                                            </div>
+                                            <div class="timeline-connect"></div>
+                                        </div>
+                                        <div class="timeline-item-content">
+                                            <div class="mt-1">
+                                                <p class="mb-1"><span class="h6">Eugene
+                                                        Stewart</span><span> adicionou tags </span>
+                                                    <span class="badge bg-amber-500/10 text-amber-500">Problema</span>
+                                                    <span class="block text-xs mt-1 text-muted">12:50
+                                                        PM</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <div class="mt-7">
+                                <button class="btn bg-primary hover:bg-primary-deep text-white">
+                                    Carregar mais
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            // Inicialização do TomSelect, se necessário (embora não haja selects nesta página)
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    render: {
+                        no_results: function (data, escape) {
+                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
+                        }
+                    }
+                });
+            });
+        </script>
+
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+</body>
+
+</html>
