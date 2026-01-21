@@ -76,6 +76,26 @@
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
+                                        <!-- 1) Código eSocial primeiro -->
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Código eSocial tabela 24</label>
+                                            <input id="codigo_esocial" name="codigo_esocial" type="text"
+                                                class="input h-10 w-full" placeholder="Ex.: 02.01.2001"
+                                                inputmode="numeric" autocomplete="off" required>
+                                            <p id="codigoMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                        </div>
+
+                                        <!-- 2) Nome do risco depois (auto-completa, mas editável) -->
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block">Nome do risco</label>
+                                            <input id="nome_risco" name="nome_risco" type="text"
+                                                class="input h-10 w-full"
+                                                placeholder="Será sugerido pela Tabela 24 (editável)" required
+                                                maxlength="120">
+                                            <p id="nomeMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                        </div>
+
+                                        <!-- 3) Tipo por último (select como estava) -->
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block">Tipo de risco</label>
                                             <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required>
@@ -86,21 +106,6 @@
                                                 <option value="Ergonômico">Ergonômico</option>
                                                 <option value="Mecânico">Mecânico</option>
                                             </select>
-                                        </div>
-
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Nome do risco</label>
-                                            <input id="nome_risco" name="nome_risco" type="text"
-                                                class="input h-10 w-full" placeholder="Ex.: Ruído contínuo/intermitente"
-                                                required maxlength="120">
-                                        </div>
-
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Código eSocial tabela 24</label>
-                                            <input id="codigo_esocial" name="codigo_esocial" type="text"
-                                                class="input h-10 w-full" placeholder="Ex.: 01.01.001"
-                                                inputmode="numeric" autocomplete="off" required>
-                                            <p id="codigoMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
                                         </div>
 
                                     </div>
@@ -143,7 +148,7 @@
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
         <script>
-            // TomSelect
+            // TomSelect (mantém igual)
             document.querySelectorAll('.js-select').forEach(select => {
                 new TomSelect(select, {
                     create: false,
@@ -156,50 +161,98 @@
             (function () {
                 const $ = (id) => document.getElementById(id);
 
+                /*
+                  TABELA 24 (código -> descrição)
+                  Você precisa preencher essa lista (ou renderizar via EJS, ou carregar via endpoint).
+                  Formato esperado:
+                    { code: "02.01.2001", description: "Ruído" }
+          
+                  Exemplo (descomente/adicione itens):
+                */
+                const TABELA_24 = [
+                    // { code: "02.01.2001", description: "Ruído" },
+                    // { code: "01.02.2001", description: "Asbestos (ou amianto)" },
+                ];
+
+                const tabela24Map = new Map(
+                    (TABELA_24 || []).map(item => [
+                        String(item.code || "").trim(),
+                        String(item.description || "").trim()
+                    ])
+                );
+
                 function onlyAllowedEsocial(value) {
                     // Mantém somente dígitos e pontos
                     return (value || "").replace(/[^\d.]/g, "");
                 }
 
                 function formatEsocialCode(value) {
-                    // Formato sugerido: 99.99.999 (não valida regra oficial, só apresentação)
-                    const digits = (value || "").replace(/\D/g, "").slice(0, 7); // 2 + 2 + 3 = 7
+                    /*
+                      Ajustado para: 99.99.9999 (2 + 2 + 4 dígitos)
+                      Ex.: 02.01.2001
+                    */
+                    const digits = (value || "").replace(/\D/g, "").slice(0, 8);
                     if (digits.length <= 2) return digits;
                     if (digits.length <= 4) return digits.slice(0, 2) + "." + digits.slice(2);
                     return digits.slice(0, 2) + "." + digits.slice(2, 4) + "." + digits.slice(4);
                 }
 
                 const codigo = $("codigo_esocial");
-                const msg = $("codigoMsg");
+                const nome = $("nome_risco");
+                const msgCodigo = $("codigoMsg");
+                const msgNome = $("nomeMsg");
 
-                if (!codigo || !msg) return;
+                if (!codigo || !nome || !msgCodigo) return;
 
+                // Formata enquanto digita
                 codigo.addEventListener("input", () => {
                     const cleaned = onlyAllowedEsocial(codigo.value);
                     const formatted = formatEsocialCode(cleaned);
 
                     if (codigo.value !== formatted) codigo.value = formatted;
 
-                    msg.classList.add("hidden");
-                    msg.textContent = "";
+                    msgCodigo.classList.add("hidden");
+                    msgCodigo.textContent = "";
                     codigo.removeAttribute("aria-invalid");
                 });
 
+                // Ao sair do campo código: valida formato e tenta sugerir nome
                 codigo.addEventListener("blur", () => {
                     if (!codigo.value) return;
 
-                    // Checagem simples: precisa bater com 99.99.999
-                    const ok = /^\d{2}\.\d{2}\.\d{3}$/.test(codigo.value);
+                    // Checagem simples: precisa bater com 99.99.9999
+                    const ok = /^\d{2}\.\d{2}\.\d{4}$/.test(codigo.value);
 
-                    msg.classList.remove("hidden", "text-red-500", "text-green-600", "text-zinc-400");
+                    msgCodigo.classList.remove("hidden", "text-red-500", "text-green-600", "text-zinc-400");
                     if (!ok) {
-                        msg.classList.add("text-red-500");
-                        msg.textContent = "Formato esperado: 99.99.999";
+                        msgCodigo.classList.add("text-red-500");
+                        msgCodigo.textContent = "Formato esperado: 99.99.9999";
                         codigo.setAttribute("aria-invalid", "true");
+                        return;
                     } else {
-                        msg.classList.add("text-green-600");
-                        msg.textContent = "Formato do código OK.";
+                        msgCodigo.classList.add("text-green-600");
+                        msgCodigo.textContent = "Formato do código OK.";
                         codigo.removeAttribute("aria-invalid");
+                    }
+
+                    // Auto-preenchimento do nome (mantém editável)
+                    const desc = tabela24Map.get(codigo.value);
+
+                    if (desc) {
+                        // Só preenche automaticamente se o campo estiver vazio
+                        if (!nome.value || nome.value.trim().length === 0) {
+                            nome.value = desc;
+                        }
+
+                        if (msgNome) {
+                            msgNome.classList.remove("hidden");
+                            msgNome.textContent = "Nome sugerido pela Tabela 24 (editável).";
+                        }
+                    } else {
+                        if (msgNome) {
+                            msgNome.classList.remove("hidden");
+                            msgNome.textContent = "Código não encontrado na Tabela 24 (preencha o nome manualmente).";
+                        }
                     }
                 });
             })();
