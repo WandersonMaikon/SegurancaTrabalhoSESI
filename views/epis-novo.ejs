@@ -61,7 +61,6 @@
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
-                                        <!-- 1. CA (Topo) -->
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium">Certificado de Aprovação (CA)</label>
                                             <div class="relative">
@@ -78,7 +77,6 @@
                                             <p id="caMsg" class="text-sm mt-2 hidden"></p>
                                         </div>
 
-                                        <!-- 2. Nome do Equipamento (Abaixo do CA) -->
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium">Nome do Equipamento</label>
                                             <input id="epi_nome" name="nome" type="text" class="input h-11 w-full"
@@ -86,7 +84,6 @@
                                                 maxlength="120">
                                         </div>
 
-                                        <!-- 3. Validade e Situação -->
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
                                             <div>
                                                 <label class="mb-2 block font-medium text-zinc-500">Validade MTE</label>
@@ -97,13 +94,16 @@
 
                                             <div>
                                                 <label class="mb-2 block font-medium text-zinc-500">Situação</label>
-                                                <input id="epi_situacao_display" type="text"
-                                                    class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed"
-                                                    placeholder="Aguardando..." readonly>
+                                                <div class="relative flex items-center w-full">
+                                                    <input id="epi_situacao_display" type="text"
+                                                        class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed !pe-12"
+                                                        placeholder="Aguardando..." readonly>
+                                                    <div id="situacao_icon"
+                                                        class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-
-                                        <!-- 4. Novos Campos: Aprovado e Observação -->
 
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium text-zinc-500">Aprovado p/
@@ -122,7 +122,6 @@
                                                 class="input mb-3 bg-zinc-50 dark:bg-zinc-950/50 text-zinc-500 cursor-not-allowed border-dashed"
                                                 readonly></textarea>
                                         </div>
-
 
                                         <p class="text-xs text-zinc-400 mt-2 flex items-center gap-1">
                                             <span class="icon-[lucide--info] text-sm"></span>
@@ -163,12 +162,11 @@
 
                 const caInput = $("epi_ca");
                 const nomeInput = $("epi_nome");
-
                 const validadeInput = $("epi_validade");
                 const situacaoDisplay = $("epi_situacao_display");
+                const situacaoIcon = $("situacao_icon");
                 const aprovadoInput = $("epi_aprovado");
                 const observacaoInput = $("epi_observacao");
-
                 const btnConsultar = $("btnConsultarCa");
                 const caMsg = $("caMsg");
                 const btnSalvar = $("btnSalvar");
@@ -186,6 +184,15 @@
                     caMsg.textContent = text;
                 }
 
+                function resetCampos() {
+                    validadeInput.value = "";
+                    situacaoDisplay.value = "";
+                    situacaoIcon.innerHTML = "";
+                    situacaoDisplay.className = "input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed !pe-12";
+                    aprovadoInput.value = "";
+                    observacaoInput.value = "";
+                }
+
                 async function runConsulta() {
                     const ca = caInput.value.replace(/\D/g, "");
 
@@ -197,14 +204,7 @@
                     btnConsultar.disabled = true;
                     btnConsultar.textContent = "Buscando...";
 
-                    // Limpa campos
-                    validadeInput.value = "";
-                    situacaoDisplay.value = "";
-                    aprovadoInput.value = "";
-                    observacaoInput.value = "";
-
-                    situacaoDisplay.className = "input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed";
-
+                    resetCampos();
                     setMsg("info", "Conectando ao sistema...");
 
                     try {
@@ -218,28 +218,31 @@
                         const data = await response.json();
 
                         if (data.validade) {
-                            // Preenche campos
                             validadeInput.value = data.validade;
                             aprovadoInput.value = data.aprovadoParaLaudo || "";
                             observacaoInput.value = data.observacaoAnaliseLaudo || "";
 
-                            // Lógica do Nome: Se o campo estiver vazio, preenche.
                             if (data.equipamento && nomeInput.value.trim() === "") {
                                 nomeInput.value = data.equipamento;
                             }
 
-                            // Trata a Situação
-                            const situacao = data.situacao || "Não Informado";
-                            situacaoDisplay.value = situacao.toUpperCase();
+                            // Lógica baseada no seu back-end (Válido ou Vencido)
+                            const status = data.situacao;
+                            situacaoDisplay.value = status.toUpperCase();
 
-                            if (situacao.toLowerCase().includes("val")) {
+                            if (status === "Válido") {
                                 situacaoDisplay.classList.add("text-green-600", "dark:text-green-400");
-                            } else if (situacao.toLowerCase().includes("venc")) {
+                                // Ícone de Check Verde
+                                situacaoIcon.innerHTML = '<span class="icon-[lucide--check-circle-2] text-green-600 dark:text-green-400 text-xl"></span>';
+                            } else if (status === "Vencido") {
                                 situacaoDisplay.classList.add("text-red-600", "dark:text-red-400");
+                                // Ícone de X/Alerta Vermelho
+                                situacaoIcon.innerHTML = '<span class="icon-[lucide--x-circle] text-red-600 dark:text-red-400 text-xl"></span>';
+                            } else {
+                                situacaoIcon.innerHTML = '<span class="icon-[lucide--help-circle] text-zinc-400 text-xl"></span>';
                             }
 
                             setMsg("success", `✓ Dados do CA ${ca} carregados.`);
-
                             btnSalvar.disabled = false;
                             btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
                         } else {
@@ -265,12 +268,7 @@
                 });
 
                 caInput.addEventListener("input", () => {
-                    // Ao mudar o CA, reseta validações mas mantém o nome se já estiver preenchido
-                    validadeInput.value = "";
-                    situacaoDisplay.value = "";
-                    aprovadoInput.value = "";
-                    observacaoInput.value = "";
-
+                    resetCampos();
                     btnSalvar.disabled = true;
                     btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
                     setMsg("clear");
@@ -278,7 +276,7 @@
 
                 $("btnReset").addEventListener("click", () => {
                     setMsg("clear");
-                    situacaoDisplay.value = "";
+                    resetCampos();
                     btnSalvar.disabled = true;
                     btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
                 });
