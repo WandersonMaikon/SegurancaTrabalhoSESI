@@ -19,12 +19,17 @@ router.get("/api/epi/ca/:ca", async (req, res) => {
     if (Array.isArray(listaEpi) && listaEpi.length > 0) {
       const primeiroEpi = listaEpi[0];
 
-      // 1. Pegamos a data e a situação bruta
+      // 1. Pegamos os dados brutos
       const validadeBruta = primeiroEpi.DataValidade;
-      let situacaoBruta = primeiroEpi.Situacao || "";
+      const situacaoBruta = primeiroEpi.Situacao || "";
+
+      // CORREÇÃO AQUI: O nome do campo na API é "NomeEquipamento"
+      const equipamentoNome = primeiroEpi.NomeEquipamento || "";
+
+      const aprovadoParaLaudo = primeiroEpi.AprovadoParaLaudo || "";
+      const observacaoAnaliseLaudo = primeiroEpi.ObservacaoAnaliseLaudo || "";
 
       // 2. Tratamento por extenso da Situação
-      // Aqui garantimos que se vier "V", vira "Válido", se vier "A", "Ativo", etc.
       let situacaoFormatada = "Situação Indisponível";
 
       if (situacaoBruta.toLowerCase().includes("val")) {
@@ -32,13 +37,16 @@ router.get("/api/epi/ca/:ca", async (req, res) => {
       } else if (situacaoBruta.toLowerCase().includes("venc")) {
         situacaoFormatada = "Vencido";
       } else {
-        situacaoFormatada = situacaoBruta; // Mantém o que veio se não identificar
+        situacaoFormatada = situacaoBruta;
       }
 
       if (validadeBruta) {
         return res.json({
           validade: validadeBruta,
-          situacao: situacaoFormatada
+          situacao: situacaoFormatada,
+          equipamento: equipamentoNome, // Agora enviará o nome correto
+          aprovadoParaLaudo: aprovadoParaLaudo,
+          observacaoAnaliseLaudo: observacaoAnaliseLaudo
         });
       }
     }
