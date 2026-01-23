@@ -16,7 +16,7 @@ router.post("/login", async (req, res) => {
 
     try {
         // 1. Busca usuário no banco
-        const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
+        const [rows] = await db.query("SELECT * FROM usuario WHERE email = ?", [email]);
         const usuario = rows[0];
 
         // 2. Verifica se existe e se a senha bate
