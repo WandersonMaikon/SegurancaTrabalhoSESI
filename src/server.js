@@ -49,7 +49,10 @@ const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const servicosRoutes = require('./routes/servicos.routes');
+const osRoutes = require('./routes/os.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
+const atividadesRoutes = require('./routes/atividades.routes');
+const perfilRoutes = require('./routes/perfil.routes');
 const estoqueRoutes = require('./routes/estoque.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
 
@@ -57,7 +60,10 @@ app.use('/', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/clientes', clientesRoutes);
 app.use('/servicos', servicosRoutes);
-app.use('/usuarios', usuariosRoutes); // Atenção: rotas internas viram /usuarios/novo, etc.
+app.use('/ordem-servico', osRoutes); 
+app.use('/usuario', usuariosRoutes);
+app.use('/atividades', atividadesRoutes);
+app.use('/perfil', perfilRoutes);
 app.use('/estoque', estoqueRoutes);
 
 

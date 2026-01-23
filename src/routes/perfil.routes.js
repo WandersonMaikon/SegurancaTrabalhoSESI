@@ -2,18 +2,18 @@ const express = require("express");
 const router = express.Router();
 const verificarAutenticacao = require("../middlewares/auth.middleware");
 
-// Lista Usuários
+// -- Perfil --
 router.get("/", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/usuario-lista", {
+    res.render("usuarios/perfil-lista", {
         user: req.session.user,
-        currentPage: 'usuario'
+        currentPage: 'perfil'
     });
 });
 
 router.get("/novo", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/usuario-form", {
+    res.render("usuarios/perfil-form", {
         user: req.session.user,
-        currentPage: 'usuario-novo'
+        currentPage: 'perfil-novo'
     });
 });
 
