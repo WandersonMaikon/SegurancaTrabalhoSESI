@@ -1,173 +1,50 @@
 const express = require("express");
 const router = express.Router();
+const db = require("../database/db"); // Sua conexão com o banco
+const bcrypt = require("bcryptjs");   // Para verificar senha
 
-const verificarAutenticacao = (req, res, next) => {
-    if (!req.session.user) return res.redirect("/login");
-    next();
-};
-
+// Tela de Login
 router.get("/login", (req, res) => {
     const message = req.session.message || "";
     req.session.message = "";
     res.render("auth/auth-login", { message });
 });
 
-router.post("/login", (req, res) => {
+// Processar Login (POST)
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
-    if (email === "admin@admin.com" && password === "123456") {
-        req.session.user = { email };
+    try {
+        // 1. Busca usuário no banco
+        const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
+        const usuario = rows[0];
+
+        // 2. Verifica se existe e se a senha bate
+        // OBS: Se suas senhas no banco NÃO são criptografadas (texto puro), use: 
+        // if (!usuario || usuario.senha !== password) {
+        if (!usuario || !bcrypt.compareSync(password, usuario.senha)) {
+            req.session.message = "Usuário ou senha inválidos";
+            return res.redirect("/login");
+        }
+
+        // 3. Login com sucesso
+        req.session.user = {
+            id: usuario.id,
+            nome: usuario.nome,
+            email: usuario.email,
+            perfil: usuario.perfil
+        };
+
         return res.redirect("/dashboard");
+
+    } catch (error) {
+        console.error("Erro no login:", error);
+        req.session.message = "Erro no servidor. Tente novamente.";
+        return res.redirect("/login");
     }
-
-    req.session.message = "Usuário ou senha inválidos";
-    return res.redirect("/login");
 });
 
-router.get("/dashboard", verificarAutenticacao, (req, res) => {
-    res.render("dashboard/index", {
-        user: req.session.user,
-        currentPage: 'dashboard'
-    });
-});
-
-router.get("/clientes", verificarAutenticacao, (req, res) => {
-    res.render("clientes/cliente-lista", {
-        user: req.session.user,
-        currentPage: 'clientes'
-    });
-});
-
-router.get("/clientes/novo", verificarAutenticacao, (req, res) => {
-    res.render("clientes/cliente-form", {
-        user: req.session.user,
-        currentPage: 'clientes'
-    });
-});
-
-router.get("/servicos", verificarAutenticacao, (req, res) => {
-    res.render("servicos/servico-lista", {
-        user: req.session.user,
-        currentPage: 'servicos'
-    });
-});
-
-router.get("/servicos/novo", verificarAutenticacao, (req, res) => {
-    res.render("servicos/servico-form", {
-        user: req.session.user,
-        currentPage: 'servicos'
-    });
-});
-
-router.get("/ordem-servico", verificarAutenticacao, (req, res) => {
-    res.render("servicos/os-lista", {
-        user: req.session.user,
-        currentPage: 'ordemservicos'
-    });
-});
-
-router.get("/ordem-servico/novo", verificarAutenticacao, (req, res) => {
-    res.render("servicos/os-form", {
-        user: req.session.user,
-        currentPage: 'ordem-servicos-novo'
-    });
-});
-
-router.get("/relatorio", verificarAutenticacao, (req, res) => {
-    res.render("relatorio", {
-        user: req.session.user,
-        currentPage: 'relatorio'
-    });
-});
-
-router.get("/scrum-board", verificarAutenticacao, (req, res) => {
-    res.render("scrum-board", {
-        user: req.session.user,
-        currentPage: 'scrum-board'
-    });
-});
-router.get("/usuario", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/usuario-lista", {
-        user: req.session.user,
-        currentPage: 'usuario'
-    });
-});
-
-router.get("/usuario/novo", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/usuario-form", {
-        user: req.session.user,
-        currentPage: 'usuario-novo'
-    });
-});
-
-router.get("/atividades", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/atividades", {
-        user: req.session.user,
-        currentPage: 'atividades'
-    });
-});
-
-router.get("/perfil", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/perfil-lista", {
-        user: req.session.user,
-        currentPage: 'perfil'
-    });
-});
-
-router.get("/perfil/novo", verificarAutenticacao, (req, res) => {
-    res.render("usuarios/perfil-form", {
-        user: req.session.user,
-        currentPage: 'perfil-novo'
-    });
-});
-
-
-
-router.get("/risco", verificarAutenticacao, (req, res) => {
-    res.render("estoque/risco-lista", {
-        user: req.session.user,
-        currentPage: 'risco'
-    });
-});
-
-router.get("/risco/novo", verificarAutenticacao, (req, res) => {
-    res.render("estoque/risco-form", {
-        user: req.session.user,
-        currentPage: 'risco-novo'
-    });
-});
-
-router.get("/epi", verificarAutenticacao, (req, res) => {
-    res.render("estoque/epis-lista", {
-        user: req.session.user,
-        currentPage: 'epis'
-    });
-});
-
-router.get("/epi/novo", verificarAutenticacao, (req, res) => {
-    res.render("estoque/epis-form", {
-        user: req.session.user,
-        currentPage: 'epis-novo'
-    });
-});
-
-router.get("/epc", verificarAutenticacao, (req, res) => {
-    res.render("estoque/epc-lista", {
-        user: req.session.user,
-        currentPage: 'epc'
-    });
-});
-
-router.get("/epc/novo", verificarAutenticacao, (req, res) => {
-    res.render("estoque/epc-form", {
-        user: req.session.user,
-        currentPage: 'epc-novo'
-    });
-});
-
-
-
-
+// Logout
 router.get("/logout", (req, res) => {
     req.session.destroy(() => res.redirect("/login"));
 });

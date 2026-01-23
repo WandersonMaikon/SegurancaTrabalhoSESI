@@ -1,4 +1,3 @@
-// server.js
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
@@ -7,67 +6,84 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ---- Parsers (forms + json) ----
+// ---- Parsers (Para ler dados de formulários e JSON) ----
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
 // ---- Views (EJS) ----
-// Como você quer algo simples: vamos usar UMA pasta de views.
-// Coloque o login em: ./views/login.ejs
+// Como estamos dentro da pasta 'src', voltamos um nível (..) para achar a pasta 'views'
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "../views"));
 
-// ---- Static files ----
-// Tudo que estiver em /public vira acessível via: /css, /js, /vendor, /images, etc.
-app.use(express.static(path.join(__dirname, "public")));
+// ---- Static files (CSS, JS, Imagens) ----
+// Mesma lógica: voltamos um nível para achar a pasta 'public'
+app.use(express.static(path.join(__dirname, "../public")));
 
-// ---- Session ----
+// ---- Session (Configuração da Sessão de Login) ----
 const PROD = process.env.NODE_ENV === "production";
 app.use(
     session({
-        secret: process.env.SESSION_SECRET || "dev_secret_change_me",
+        secret: process.env.SESSION_SECRET || "segredo_super_secreto",
         name: "sid",
         resave: false,
         saveUninitialized: false,
         cookie: {
             httpOnly: true,
-            sameSite: "lax",
-            secure: PROD, // true somente se HTTPS estiver terminando no Node
-            maxAge: 1000 * 60 * 60 * 6, // 6h
+            secure: PROD, // true apenas se estiver usando HTTPS
+            maxAge: 1000 * 60 * 60 * 6, // Sessão dura 6 horas
         },
     })
 );
 
-// ---- Locals (opcional) ----
+// ---- Middleware Global ----
+// Disponibiliza a variável 'user' para todos os arquivos .ejs (para mostrar nome, foto, etc.)
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     next();
 });
 
-// ---- Routes ----
+// ============================================================
+// ---- ROTAS DO SISTEMA ----
+// ============================================================
 const authRoutes = require('./routes/auth.routes');
-app.use(authRoutes);
+const dashboardRoutes = require('./routes/dashboard.routes');
+const clientesRoutes = require('./routes/clientes.routes');
+const servicosRoutes = require('./routes/servicos.routes');
+const usuariosRoutes = require('./routes/usuarios.routes');
+const estoqueRoutes = require('./routes/estoque.routes');
+const verificarAutenticacao = require("./middlewares/auth.middleware");
 
-const epiCaApiRoutes = require("./routes/epiCaApi");
-app.use(epiCaApiRoutes);
+app.use('/', authRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/clientes', clientesRoutes);
+app.use('/servicos', servicosRoutes);
+app.use('/usuarios', usuariosRoutes); // Atenção: rotas internas viram /usuarios/novo, etc.
+app.use('/estoque', estoqueRoutes);
 
-// ---- Home (opcional) ----
-// Se quiser, você pode mandar / cair no login direto:
-app.get("/", (req, res) => {
-    return res.redirect("/login");
+
+app.get("/relatorio", verificarAutenticacao, (req, res) => {
+    res.render("relatorio", { currentPage: 'relatorio' });
 });
 
-// ---- 404 ----
+app.get("/scrum-board", verificarAutenticacao, (req, res) => {
+    res.render("scrum-board", { currentPage: 'scrum-board' });
+});
+
+
+// ============================================================
+// ---- TRATAMENTO DE ERROS (404) ----
+// ============================================================
+
 app.use((req, res) => {
-    // se você tiver views/404.ejs, renderiza. se não, manda texto.
+    // Tenta renderizar a página 404 personalizada
     try {
-        return res.status(404).render("404", { url: req.url });
+        res.status(404).render("auth/auth-404");
     } catch (e) {
-        return res.status(404).send("404 - Not Found");
+        res.status(404).send("Página não encontrada (404)");
     }
 });
 
+// ---- INICIALIZAÇÃO DO SERVIDOR ----
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+    console.log(`🚀 Servidor rodando em http://localhost:${PORT}`);
 });
