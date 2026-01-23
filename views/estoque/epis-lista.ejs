@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raven - EPC</title>
+    <title>Raven - EPI</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
@@ -30,16 +30,16 @@
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
 
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
         <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
-            <%- include('partials/header') %>
+            <%- include('../partials/header') %>
 
                 <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
-                    <h2 class="text-xl mb-2">EPC</h2>
+                    <h2 class="text-xl mb-2">EPI</h2>
 
                     <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
@@ -56,7 +56,7 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-                        <li class="flex items-center"><span class="pointer-events-none">EPC</span></li>
+                        <li class="flex items-center"><span class="pointer-events-none">EPI</span></li>
                     </ol>
                 </div>
 
@@ -70,15 +70,15 @@
                                 <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
-                                        <input type="search" class="input !ps-9" name="epcSearch" id="epcSearch"
-                                            placeholder="Buscar EPC (nome ou observação)">
+                                        <input type="search" class="input !ps-9" name="epiSearch" id="epiSearch"
+                                            placeholder="Buscar EPI (nome ou CA)">
                                         <span
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtnEpc" class="btn bg-red-500 text-white hover:bg-red-600"
+                                    <button id="deleteBtnEpi" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display:none;">
                                         Excluir
                                     </button>
@@ -111,7 +111,7 @@
                                             </div>
                                         </div>
 
-                                        <a href="/epc/novo"
+                                        <a href="/epi/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--plus] text-lg me-1"></span>
                                             Criar Novo
@@ -121,7 +121,7 @@
                             </div>
 
                             <!-- Table -->
-                            <table id="table_epc" class="table-default">
+                            <table id="table_epi" class="table-default">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -131,7 +131,11 @@
                                         </th>
 
                                         <th class="text-nowrap">
-                                            <div class="flex items-center">Observações</div>
+                                            <div class="flex items-center">CA</div>
+                                        </th>
+
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Validade (API)</div>
                                         </th>
 
                                         <th class="text-nowrap" data-orderable="false"></th>
@@ -139,22 +143,36 @@
                                 </thead>
 
                                 <tbody>
-                                    <tr>
+                                    <!-- Exemplo estático (substitua pelos seus dados reais) -->
+                                    <tr data-ca="12345">
                                         <td></td>
                                         <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Exaustão localizada
+                                            Protetor auricular tipo plug
                                         </td>
                                         <td class="whitespace-nowrap">
-                                            Instalar próximo à fonte geradora. Manutenção preventiva trimestral.
+                                            <div class="flex items-center gap-2">
+                                                <span class="ca-value">12345</span>
+
+                                                <button type="button"
+                                                    class="btn !p-1.5 hover:!text-primary btn-consultar-ca"
+                                                    data-ca="12345" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-title="Consultar validade no CA (API)">
+                                                    <span class="icon-[lucide--refresh-cw] text-lg"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="whitespace-nowrap">
+                                            <span class="validade-status text-zinc-400">Não consultado</span>
                                         </td>
                                         <td>
                                             <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/epc/editar/1" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epi/editar/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Editar">
                                                     <span class="icon-[lucide--edit] text-lg"></span>
                                                 </a>
-                                                <a href="/epc/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epi/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Detalhes">
                                                     <span class="icon-[lucide--eye] text-lg"></span>
@@ -163,22 +181,35 @@
                                         </td>
                                     </tr>
 
-                                    <tr>
+                                    <tr data-ca="67890">
                                         <td></td>
                                         <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Guarda-corpo
+                                            Respirador PFF2
                                         </td>
                                         <td class="whitespace-nowrap">
-                                            Aplicável para áreas elevadas. Conferir fixação e integridade semanalmente.
+                                            <div class="flex items-center gap-2">
+                                                <span class="ca-value">67890</span>
+
+                                                <button type="button"
+                                                    class="btn !p-1.5 hover:!text-primary btn-consultar-ca"
+                                                    data-ca="67890" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    data-bs-title="Consultar validade no CA (API)">
+                                                    <span class="icon-[lucide--refresh-cw] text-lg"></span>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="whitespace-nowrap">
+                                            <span class="validade-status text-zinc-400">Não consultado</span>
                                         </td>
                                         <td>
                                             <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/epc/editar/2" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epi/editar/2" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Editar">
                                                     <span class="icon-[lucide--edit] text-lg"></span>
                                                 </a>
-                                                <a href="/epc/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epi/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Detalhes">
                                                     <span class="icon-[lucide--eye] text-lg"></span>
@@ -189,11 +220,20 @@
                                 </tbody>
                             </table>
 
+                            <div class="p-4 text-sm text-zinc-400">
+                                Fonte de consulta do CA:
+                                <a class="text-sky-600 hover:text-sky-700"
+                                    href="https://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx" target="_blank"
+                                    rel="noopener">
+                                    Consulta CA Internet (MTE)
+                                </a>
+                            </div>
+
                         </div>
                     </div>
                 </div>
 
-                <%- include('partials/footer') %>
+                <%- include('../partials/footer') %>
 
         </main>
 
@@ -208,7 +248,7 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const table = new DataTable('#table_epc', {
+                const table = new DataTable('#table_epi', {
                     lengthChange: false,
                     pageLength: 9,
                     scrollX: true,
@@ -229,7 +269,7 @@
                     order: [[1, 'asc']], // Nome
                 });
 
-                const searchInput = document.getElementById('epcSearch');
+                const searchInput = document.getElementById('epiSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
@@ -243,7 +283,7 @@
                     }
                 });
 
-                const deleteBtn = document.getElementById('deleteBtnEpc');
+                const deleteBtn = document.getElementById('deleteBtnEpi');
                 table.on('select deselect', function () {
                     const selectedRows = table.rows({ selected: true }).count();
                     deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
@@ -252,6 +292,69 @@
                 deleteBtn.addEventListener('click', () => {
                     table.rows({ selected: true }).remove().draw();
                     deleteBtn.style.display = 'none';
+                });
+            });
+        </script>
+
+        <!-- Consulta de CA (via backend) -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const buttons = document.querySelectorAll('.btn-consultar-ca');
+
+                function setStatus(rowEl, text, kind) {
+                    const el = rowEl.querySelector('.validade-status');
+                    if (!el) return;
+
+                    el.classList.remove('text-zinc-400', 'text-green-600', 'text-red-500', 'text-amber-500');
+                    if (kind === 'success') el.classList.add('text-green-600');
+                    else if (kind === 'error') el.classList.add('text-red-500');
+                    else if (kind === 'warn') el.classList.add('text-amber-500');
+                    else el.classList.add('text-zinc-400');
+
+                    el.textContent = text;
+                }
+
+                async function consultarCA(ca) {
+                    // Ajuste este endpoint para o seu backend.
+                    // Esperado (exemplo):
+                    // GET /api/epi/ca/12345 -> { "ca":"12345", "validade":"2027-03-10", "status":"Válido" }
+                    const res = await fetch(`/api/epi/ca/${encodeURIComponent(ca)}`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error('Falha ao consultar CA');
+                    }
+                    return await res.json();
+                }
+
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const ca = btn.getAttribute('data-ca');
+                        const row = btn.closest('tr');
+                        if (!ca || !row) return;
+
+                        btn.disabled = true;
+                        btn.classList.add('opacity-60', 'cursor-not-allowed');
+                        setStatus(row, 'Consultando...', 'info');
+
+                        try {
+                            const data = await consultarCA(ca);
+
+                            // Aceita "validade" em ISO (YYYY-MM-DD) ou texto vindo do backend
+                            const validadeTxt = data?.validade ? String(data.validade) : 'Não informado';
+                            const statusTxt = data?.status ? ` (${data.status})` : '';
+
+                            setStatus(row, `Validade: ${validadeTxt}${statusTxt}`, 'success');
+                        } catch (e) {
+                            console.error(e);
+                            setStatus(row, 'Não foi possível consultar. Tente novamente.', 'error');
+                        } finally {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-60', 'cursor-not-allowed');
+                        }
+                    });
                 });
             });
         </script>

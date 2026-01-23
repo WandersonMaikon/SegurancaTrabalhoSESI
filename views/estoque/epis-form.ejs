@@ -19,12 +19,11 @@
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
-            <%- include('partials/header') %>
-
+            <%- include('../partials/header') %>
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar EPI</h2>
                     <ol class="flex gap-1 items-center text-sm">
@@ -62,10 +61,10 @@
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Certificado de Aprovação (CA)</label>
+                                            <label class="mb-2 block font-medium">Nº do CA</label>
                                             <div class="relative">
                                                 <input id="epi_ca" name="ca" type="text"
-                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 44938"
+                                                    class="input h-11 w-full !pe-32" placeholder="Informe o número do CA"
                                                     inputmode="numeric" autocomplete="off" required>
 
                                                 <button id="btnConsultarCa" type="button"
@@ -151,7 +150,7 @@
                     </form>
                 </div>
 
-                <%- include('partials/footer') %>
+                <%- include('../partials/footer') %>
         </main>
 
         <script src="/js/theme.js"></script>

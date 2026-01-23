@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raven - Riscos</title>
+    <title>Raven - Clientes</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
@@ -30,17 +30,16 @@
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
 
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
         <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
-            <%- include('partials/header') %>
+            <%- include('../partials/header') %>
 
                 <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
-                    <h2 class="text-xl mb-2">Riscos</h2>
-
+                    <h2 class="text-xl mb-2">Clientes</h2>
                     <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
@@ -50,13 +49,7 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-                        <li class="flex items-center">
-                            <span class="text-zinc-400">Cadastros</span>
-                        </li>
-                        <li class="flex items-center opacity-30 leading-none">
-                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-                        </li>
-                        <li class="flex items-center"><span class="pointer-events-none">Riscos</span></li>
+                        <li class="flex items-center"><span class="pointer-events-none">Clientes</span></li>
                     </ol>
                 </div>
 
@@ -64,36 +57,31 @@
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
-
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
                                 <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
-                                        <input type="search" class="input !ps-9" name="riscoSearch" id="riscoSearch"
-                                            placeholder="Buscar risco (nome, tipo ou código eSocial)">
+                                        <input type="search" class="input !ps-9" name="customerSearch"
+                                            id="customerSearch" placeholder="Buscar cliente">
                                         <span
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
-
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtnRiscos" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display:none;">
+                                    <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
+                                        style="display: none;">
                                         Excluir
                                     </button>
-
                                     <div class="flex-grow w-56 sm:w-auto">
-                                        <select id="tipoFilter" class="js-select w-full sm:w-56">
-                                            <option value="" selected>Todos os tipos</option>
-                                            <option value="Físico">Físico</option>
-                                            <option value="Químico">Químico</option>
-                                            <option value="Biológico">Biológico</option>
-                                            <option value="Ergonômico">Ergonômico</option>
-                                            <option value="Mecânico">Mecânico</option>
+                                        <select id="statusFilter" class="js-select w-full sm:w-56">
+                                            <option value="" selected>Todos</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Suspenso">Suspenso</option>
+                                            <option value="Pendente">Pendente</option>
+                                            <option value="Bloqueado">Bloqueado</option>
                                         </select>
                                     </div>
-
                                     <div class="flex items-center gap-2">
                                         <div class="relative">
                                             <button data-bs-toggle="dropdown" type="button"
@@ -121,10 +109,9 @@
                                                 </a>
                                             </div>
                                         </div>
-
-                                        <a href="/risco/novo"
+                                        <a href="/clientes/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                            <span class="icon-[lucide--plus] text-lg me-1"></span>
+                                            <span class="icon-[lucide--user-plus] text-lg me-1"></span>
                                             Criar Novo
                                         </a>
                                     </div>
@@ -132,70 +119,46 @@
                             </div>
 
                             <!-- Table -->
-                            <table id="table_riscos" class="table-default">
+                            <table id="table_customers" class="table-default">
                                 <thead>
                                     <tr>
                                         <th></th>
-
                                         <th class="text-nowrap">
-                                            <div class="flex items-center">Tipo</div>
+                                            <div class="flex items-center">Nome</div>
                                         </th>
-
                                         <th class="text-nowrap">
-                                            <div class="flex items-center">Nome do risco</div>
+                                            <div class="flex items-center">E-mail</div>
                                         </th>
-
                                         <th class="text-nowrap">
-                                            <div class="flex items-center">Código eSocial</div>
+                                            <div class="flex items-center">Localização</div>
+                                        </th>
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Status</div>
                                         </th>
 
                                         <th class="text-nowrap" data-orderable="false"></th>
                                     </tr>
                                 </thead>
-
                                 <tbody>
                                     <tr>
                                         <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-sky-500/10 text-sky-500">Físico</span>
-                                        </td>
                                         <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Ruído contínuo/intermitente
-                                        </td>
-                                        <td class="whitespace-nowrap">01.01.001</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/risco/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
+                                            <div class="flex flex-nowrap items-center">
+                                                <h6>Caleb Michael Stone</h6>
                                             </div>
                                         </td>
-                                    </tr>
+                                        <td class="whitespace-nowrap">caleb.stone@gmail.com</td>
+                                        <td class="whitespace-nowrap">Edinburgh, Scotland</td>
+                                        <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
 
-                                    <tr>
-                                        <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-amber-500/10 text-amber-500">Químico</span>
-                                        </td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Poeiras minerais
-                                        </td>
-                                        <td class="whitespace-nowrap">02.01.003</td>
                                         <td>
                                             <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/2" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/clientes/editar/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Editar">
                                                     <span class="icon-[lucide--edit] text-lg"></span>
                                                 </a>
-                                                <a href="/risco/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/clientes/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Detalhes">
                                                     <span class="icon-[lucide--eye] text-lg"></span>
@@ -203,39 +166,14 @@
                                             </div>
                                         </td>
                                     </tr>
-
-                                    <tr>
-                                        <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>
-                                        </td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Vírus e bactérias
-                                        </td>
-                                        <td class="whitespace-nowrap">03.02.001</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/3" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/risco/detalhes/3" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <!-- Adicione mais linhas conforme necessário -->
                                 </tbody>
                             </table>
-
                         </div>
                     </div>
                 </div>
 
-                <%- include('partials/footer') %>
+                <%- include('../partials/footer') %>
 
         </main>
 
@@ -247,10 +185,9 @@
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
-
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const table = new DataTable('#table_riscos', {
+                const table = new DataTable('#table_customers', {
                     lengthChange: false,
                     pageLength: 9,
                     scrollX: true,
@@ -268,10 +205,10 @@
                         selector: 'td:first-child',
                         headerCheckbox: false
                     },
-                    order: [[2, 'asc']], // Nome do risco
+                    order: [[1, 'asc']],
                 });
 
-                const searchInput = document.getElementById('riscoSearch');
+                const searchInput = document.getElementById('customerSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
@@ -285,10 +222,14 @@
                     }
                 });
 
-                const deleteBtn = document.getElementById('deleteBtnRiscos');
+                const deleteBtn = document.getElementById("deleteBtn");
                 table.on('select deselect', function () {
                     const selectedRows = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
+                    if (selectedRows > 0) {
+                        deleteBtn.style.display = "inline-block";
+                    } else {
+                        deleteBtn.style.display = "none";
+                    }
                 });
 
                 deleteBtn.addEventListener('click', () => {
@@ -296,9 +237,8 @@
                     deleteBtn.style.display = 'none';
                 });
 
-                // Filtro por tipo (coluna 1)
-                document.getElementById('tipoFilter').addEventListener('change', function () {
-                    table.columns(1).search(this.value).draw();
+                document.getElementById('statusFilter').addEventListener('change', function () {
+                    table.columns(4).search(this.value).draw();
                 });
             });
         </script>
@@ -313,7 +253,6 @@
                 });
             });
         </script>
-
 </body>
 
 </html>

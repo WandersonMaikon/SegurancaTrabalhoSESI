@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raven - Clientes</title>
+    <title>Raven - EPC</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
@@ -30,16 +30,17 @@
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
 
-    <%- include('partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
         <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
-            <%- include('partials/header') %>
+            <%- include('../partials/header') %>
 
                 <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
-                    <h2 class="text-xl mb-2">Clientes</h2>
+                    <h2 class="text-xl mb-2">EPC</h2>
+
                     <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
@@ -49,7 +50,13 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-                        <li class="flex items-center"><span class="pointer-events-none">Clientes</span></li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Cadastros</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">EPC</span></li>
                     </ol>
                 </div>
 
@@ -57,31 +64,25 @@
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
                                 <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
-                                        <input type="search" class="input !ps-9" name="customerSearch"
-                                            id="customerSearch" placeholder="Buscar cliente">
+                                        <input type="search" class="input !ps-9" name="epcSearch" id="epcSearch"
+                                            placeholder="Buscar EPC (nome ou observação)">
                                         <span
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
+
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display: none;">
+                                    <button id="deleteBtnEpc" class="btn bg-red-500 text-white hover:bg-red-600"
+                                        style="display:none;">
                                         Excluir
                                     </button>
-                                    <div class="flex-grow w-56 sm:w-auto">
-                                        <select id="statusFilter" class="js-select w-full sm:w-56">
-                                            <option value="" selected>Todos</option>
-                                            <option value="Ativo">Ativo</option>
-                                            <option value="Suspenso">Suspenso</option>
-                                            <option value="Pendente">Pendente</option>
-                                            <option value="Bloqueado">Bloqueado</option>
-                                        </select>
-                                    </div>
+
                                     <div class="flex items-center gap-2">
                                         <div class="relative">
                                             <button data-bs-toggle="dropdown" type="button"
@@ -109,9 +110,10 @@
                                                 </a>
                                             </div>
                                         </div>
-                                        <a href="/clientes/novo"
+
+                                        <a href="/epc/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                            <span class="icon-[lucide--user-plus] text-lg me-1"></span>
+                                            <span class="icon-[lucide--plus] text-lg me-1"></span>
                                             Criar Novo
                                         </a>
                                     </div>
@@ -119,46 +121,40 @@
                             </div>
 
                             <!-- Table -->
-                            <table id="table_customers" class="table-default">
+                            <table id="table_epc" class="table-default">
                                 <thead>
                                     <tr>
                                         <th></th>
+
                                         <th class="text-nowrap">
                                             <div class="flex items-center">Nome</div>
                                         </th>
+
                                         <th class="text-nowrap">
-                                            <div class="flex items-center">E-mail</div>
-                                        </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Localização</div>
-                                        </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Status</div>
+                                            <div class="flex items-center">Observações</div>
                                         </th>
 
                                         <th class="text-nowrap" data-orderable="false"></th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
                                     <tr>
                                         <td></td>
                                         <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            <div class="flex flex-nowrap items-center">
-                                                <h6>Caleb Michael Stone</h6>
-                                            </div>
+                                            Exaustão localizada
                                         </td>
-                                        <td class="whitespace-nowrap">caleb.stone@gmail.com</td>
-                                        <td class="whitespace-nowrap">Edinburgh, Scotland</td>
-                                        <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
-
+                                        <td class="whitespace-nowrap">
+                                            Instalar próximo à fonte geradora. Manutenção preventiva trimestral.
+                                        </td>
                                         <td>
                                             <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/clientes/editar/1" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epc/editar/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Editar">
                                                     <span class="icon-[lucide--edit] text-lg"></span>
                                                 </a>
-                                                <a href="/clientes/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
+                                                <a href="/epc/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
                                                     data-bs-title="Detalhes">
                                                     <span class="icon-[lucide--eye] text-lg"></span>
@@ -166,14 +162,38 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <!-- Adicione mais linhas conforme necessário -->
+
+                                    <tr>
+                                        <td></td>
+                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                                            Guarda-corpo
+                                        </td>
+                                        <td class="whitespace-nowrap">
+                                            Aplicável para áreas elevadas. Conferir fixação e integridade semanalmente.
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                                <a href="/epc/editar/2" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Editar">
+                                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                                </a>
+                                                <a href="/epc/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
+                                                    data-bs-title="Detalhes">
+                                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
 
-                <%- include('partials/footer') %>
+                <%- include('../partials/footer') %>
 
         </main>
 
@@ -185,9 +205,10 @@
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const table = new DataTable('#table_customers', {
+                const table = new DataTable('#table_epc', {
                     lengthChange: false,
                     pageLength: 9,
                     scrollX: true,
@@ -205,10 +226,10 @@
                         selector: 'td:first-child',
                         headerCheckbox: false
                     },
-                    order: [[1, 'asc']],
+                    order: [[1, 'asc']], // Nome
                 });
 
-                const searchInput = document.getElementById('customerSearch');
+                const searchInput = document.getElementById('epcSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
@@ -222,28 +243,20 @@
                     }
                 });
 
-                const deleteBtn = document.getElementById("deleteBtn");
+                const deleteBtn = document.getElementById('deleteBtnEpc');
                 table.on('select deselect', function () {
                     const selectedRows = table.rows({ selected: true }).count();
-                    if (selectedRows > 0) {
-                        deleteBtn.style.display = "inline-block";
-                    } else {
-                        deleteBtn.style.display = "none";
-                    }
+                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
                 });
 
                 deleteBtn.addEventListener('click', () => {
                     table.rows({ selected: true }).remove().draw();
                     deleteBtn.style.display = 'none';
                 });
-
-                document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(4).search(this.value).draw();
-                });
             });
         </script>
 
-        <!-- Select -->
+        <!-- Select (mantido por compatibilidade com o template) -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script>
             document.querySelectorAll('.js-select').forEach(select => {
@@ -253,6 +266,7 @@
                 });
             });
         </script>
+
 </body>
 
 </html>
