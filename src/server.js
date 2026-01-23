@@ -46,7 +46,7 @@ app.use((req, res, next) => {
 });
 
 // ---- Routes ----
-const authRoutes = require("./routes/auth");
+const authRoutes = require('./routes/auth.routes');
 app.use(authRoutes);
 
 const epiCaApiRoutes = require("./routes/epiCaApi");
