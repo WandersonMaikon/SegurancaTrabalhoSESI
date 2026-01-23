@@ -16,23 +16,35 @@ router.post("/login", async (req, res) => {
 
     try {
         // 1. Busca usuário no banco
+        // ATENÇÃO: O nome da tabela é 'usuario' (singular) no seu script SQL
         const [rows] = await db.query("SELECT * FROM usuario WHERE email = ?", [email]);
         const usuario = rows[0];
 
-        // 2. Verifica se existe e se a senha bate
-        // OBS: Se suas senhas no banco NÃO são criptografadas (texto puro), use: 
-        // if (!usuario || usuario.senha !== password) {
-        if (!usuario || !bcrypt.compareSync(password, usuario.senha)) {
-            req.session.message = "Usuário ou senha inválidos";
+        // Debug: Se quiser ver o que veio do banco, descomente a linha abaixo
+        // console.log("Usuário encontrado:", usuario);
+
+        // 2. Verifica se o usuário existe
+        if (!usuario) {
+            req.session.message = "Usuário não encontrado";
             return res.redirect("/login");
         }
 
-        // 3. Login com sucesso
+        // 3. Verifica a senha
+        // CORREÇÃO AQUI: No seu banco a coluna é 'senha_hash', não 'senha'
+        const senhaCorreta = bcrypt.compareSync(password, usuario.senha_hash);
+
+        if (!senhaCorreta) {
+            req.session.message = "Senha incorreta";
+            return res.redirect("/login");
+        }
+
+        // 4. Login com sucesso
         req.session.user = {
-            id: usuario.id,
-            nome: usuario.nome,
+            id: usuario.id_usuario,      // UUID do usuário
+            nome: usuario.nome_completo, // Nome completo
             email: usuario.email,
-            perfil: usuario.perfil
+            id_unidade: usuario.id_unidade, // Importante para o sistema multi-unidade
+            id_perfil: usuario.id_perfil    // Importante para permissões
         };
 
         return res.redirect("/dashboard");
