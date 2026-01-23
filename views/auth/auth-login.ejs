@@ -44,47 +44,68 @@
             </p>
           </div>
 
-          <form id="form_login" action="/login" method="POST" autocomplete="off" novalidate="novalidate">
-            <div class="flex flex-col gap-1 mb-4">
-              <label class="block mb-0.5 text-muted" for="userEmail">
-                E-mail <span class="text-red-500">*</span>
-              </label>
-              <input id="userEmail" name="email" class="input" placeholder="email@fiero.com" type="text" value="">
+          <!-- ============================================================ -->
+          <!-- BLOCO DE MENSAGEM DE ERRO (ADICIONADO) -->
+          <!-- ============================================================ -->
+          <% if (message && message.length> 0) { %>
+            <div
+              class="flex items-center p-4 mb-6 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800"
+              role="alert">
+              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+              </svg>
+              <div>
+                <span class="font-medium">Atenção!</span>
+                <%= message %>
+              </div>
             </div>
+            <% } %>
+              <!-- ============================================================ -->
 
-            <div class="flex flex-col gap-1 mb-2">
-              <label class="block mb-0.5 text-muted" for="userPassword">
-                Senha <span class="text-red-500">*</span>
-              </label>
-              <input id="userPassword" name="password" class="input" placeholder="••••••••" type="password" value="">
-            </div>
+              <form id="form_login" action="/login" method="POST" autocomplete="off" novalidate="novalidate">
+                <div class="flex flex-col gap-1 mb-4">
+                  <label class="block mb-0.5 text-muted" for="userEmail">
+                    E-mail <span class="text-red-500">*</span>
+                  </label>
+                  <input id="userEmail" name="email" class="input" placeholder="email@fiero.com" type="text" value="">
+                </div>
 
-            <div class="flex items-center justify-between mt-3 mb-5">
-              <label
-                class="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
-                <input type="checkbox" class="input-switch" name="remember" value="1" />
-                Manter conectado
-              </label>
+                <div class="flex flex-col gap-1 mb-2">
+                  <label class="block mb-0.5 text-muted" for="userPassword">
+                    Senha <span class="text-red-500">*</span>
+                  </label>
+                  <input id="userPassword" name="password" class="input" placeholder="••••••••" type="password"
+                    value="">
+                </div>
 
-              <a href="auth-forgot-password-side.html"
-                class="text-sm border-b border-dashed leading-[1] text-zinc-500 hover:text-primary">
-                Esqueceu a senha?
-              </a>
-            </div>
+                <div class="flex items-center justify-between mt-3 mb-5">
+                  <label
+                    class="inline-flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 cursor-pointer select-none">
+                    <input type="checkbox" class="input-switch" name="remember" value="1" />
+                    Manter conectado
+                  </label>
 
-            <button type="submit" class="btn bg-primary text-white hover:bg-primary-deep w-full text-center">
-              Entrar
-            </button>
+                  <a href="auth-forgot-password-side.html"
+                    class="text-sm border-b border-dashed leading-[1] text-zinc-500 hover:text-primary">
+                    Esqueceu a senha?
+                  </a>
+                </div>
 
-            <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-400 text-center">
-              Ao continuar, você concorda com as políticas internas de uso.
-            </p>
-          </form>
+                <button type="submit" class="btn bg-primary text-white hover:bg-primary-deep w-full text-center">
+                  Entrar
+                </button>
 
-          <div class="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
-            <span>Problemas para acessar?</span>
-            <a href="" class="underline hover:text-primary ml-1">Fale com o suporte</a>
-          </div>
+                <p class="mt-4 text-xs text-zinc-500 dark:text-zinc-400 text-center">
+                  Ao continuar, você concorda com as políticas internas de uso.
+                </p>
+              </form>
+
+              <div class="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                <span>Problemas para acessar?</span>
+                <a href="" class="underline hover:text-primary ml-1">Fale com o suporte</a>
+              </div>
         </div>
       </div>
 
