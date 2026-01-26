@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Raven - Nova Unidade</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <!-- Sweet Alert CSS (Adicionado) -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <!-- Main Style -->
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <!-- Main -->
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <!-- Page header -->
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Cadastrar Unidade</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/unidade"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Unidades</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+
+                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+                    </ol>
+                </div>
+                <!-- Page content -->
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+
+                    <!-- ID adicionado para o JavaScript pegar -->
+                    <form id="formUnidade" class="w-full">
+
+                        <div class="grid grid-cols-1 gap-6">
+
+                            <!-- Coluna principal -->
+                            <div class="md:col-span-8 space-y-6">
+
+                                <!-- Card: Dados Principais -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados da Unidade</h5>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div>
+                                            <label class="mb-2 block">Nome Fantasia <span
+                                                    class="text-red-500">*</span></label>
+                                            <input id="nome_fantasia" name="nome_fantasia" type="text"
+                                                class="input h-10 w-full" placeholder="Ex: Matriz São Paulo">
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-2 block">Razão Social</label>
+                                            <input name="razao_social" type="text" class="input h-10 w-full"
+                                                placeholder="Razão Social da Empresa">
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-2 block">CNPJ <span class="text-red-500">*</span></label>
+                                            <input id="cnpj" name="cnpj" type="text" class="input h-10 w-full max-w-2xl"
+                                                placeholder="00.000.000/0000-00">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Card: Localização -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Localização</h5>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div>
+                                            <label class="mb-2 block">CEP</label>
+
+                                            <div class="relative w-full max-w-2xl">
+                                                <input id="cep" name="cep" type="text" class="input h-10 w-full !pe-11"
+                                                    placeholder="00000-000">
+
+                                                <button id="btnBuscarCep" type="button"
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
+                                                    title="Buscar CEP" aria-label="Buscar CEP">
+                                                    <span class="icon-[lucide--search] text-lg"></span>
+                                                </button>
+                                            </div>
+
+                                            <p id="cepMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label class="mb-2 block">Cidade</label>
+                                                <input id="cidade" name="cidade" type="text" class="input h-10 w-full"
+                                                    placeholder="Cidade">
+                                            </div>
+
+                                            <div>
+                                                <label class="mb-2 block">Estado (UF)</label>
+                                                <input id="estado" name="estado" type="text" class="input h-10 w-full"
+                                                    placeholder="UF" maxlength="2">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label class="mb-2 block">Logradouro (Opcional)</label>
+                                            <input id="logradouro" type="text" class="input h-10 w-full"
+                                                placeholder="Rua, avenida...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Page footer (ações do form) -->
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <a href="/unidade"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 flex items-center justify-center">
+                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
+                                        Cancelar
+                                    </a>
+
+                                    <button type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
+                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
+                                        Salvar Unidade
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <!-- Sweet Alert JS (Adicionado) -->
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <!-- Script de Máscaras e CEP (Mantido) -->
+        <script>
+            (function () {
+                const $ = (id) => document.getElementById(id);
+                const onlyDigits = (v) => (v || "").replace(/\D/g, "");
+
+                function formatCep(value) {
+                    const d = onlyDigits(value).slice(0, 8);
+                    if (d.length <= 5) return d;
+                    return d.slice(0, 5) + "-" + d.slice(5);
+                }
+
+                function formatCnpj(value) {
+                    const d = onlyDigits(value).slice(0, 14);
+                    if (d.length <= 2) return d;
+                    if (d.length <= 5) return d.slice(0, 2) + "." + d.slice(2);
+                    if (d.length <= 8) return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5);
+                    if (d.length <= 12) return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5, 8) + "/" + d.slice(8);
+                    return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5, 8) + "/" + d.slice(8, 12) + "-" + d.slice(12);
+                }
+
+                function applyMask(inputEl, formatter) {
+                    if (!inputEl) return;
+                    inputEl.addEventListener("input", () => {
+                        const formatted = formatter(inputEl.value);
+                        if (inputEl.value !== formatted) inputEl.value = formatted;
+                    });
+                }
+
+                const cepInput = $("cep");
+                const btnBuscarCep = $("btnBuscarCep");
+                const cepMsg = $("cepMsg");
+                const logradouro = $("logradouro");
+                const cidade = $("cidade");
+                const estado = $("estado");
+
+                async function buscarCep() {
+                    if (!cepInput || !btnBuscarCep || !cepMsg) return;
+                    const cep = onlyDigits(cepInput.value);
+                    if (cep.length !== 8) {
+                        cepMsg.classList.remove("hidden");
+                        cepMsg.className = "text-sm mt-2 text-red-500";
+                        cepMsg.textContent = "Informe um CEP válido (8 dígitos).";
+                        return;
+                    }
+                    btnBuscarCep.disabled = true;
+                    btnBuscarCep.classList.add("opacity-60", "cursor-not-allowed");
+                    cepMsg.classList.remove("hidden");
+                    cepMsg.className = "text-sm mt-2 text-zinc-400";
+                    cepMsg.textContent = "Buscando CEP...";
+
+                    try {
+                        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { method: "GET" });
+                        if (!res.ok) throw new Error("Falha na consulta do CEP.");
+                        const data = await res.json();
+                        if (data.erro) {
+                            cepMsg.className = "text-sm mt-2 text-red-500";
+                            cepMsg.textContent = "CEP não encontrado.";
+                            return;
+                        }
+                        if (logradouro) logradouro.value = data.logradouro || "";
+                        if (cidade) cidade.value = data.localidade || "";
+                        if (estado) estado.value = data.uf || "";
+                        cepMsg.className = "text-sm mt-2 text-green-600";
+                        cepMsg.textContent = "Endereço preenchido com sucesso.";
+                    } catch (e) {
+                        console.error(e);
+                        cepMsg.className = "text-sm mt-2 text-red-500";
+                        cepMsg.textContent = "Não foi possível buscar o CEP. Tente novamente.";
+                    } finally {
+                        btnBuscarCep.disabled = false;
+                        btnBuscarCep.classList.remove("opacity-60", "cursor-not-allowed");
+                    }
+                }
+
+                applyMask(cepInput, formatCep);
+                applyMask($("cnpj"), formatCnpj);
+                btnBuscarCep?.addEventListener("click", buscarCep);
+                cepInput?.addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") { e.preventDefault(); buscarCep(); }
+                });
+            })();
+        </script>
+
+        <!-- Script de Submissão com SweetAlert (NOVO) -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.getElementById('formUnidade');
+
+                // Opções base do SweetAlert conforme seu template
+                const baseOptions = {
+                    showConfirmButton: true,
+                    showCloseButton: true,
+                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>',
+                    customClass: {
+                        closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1',
+                        confirmButton: 'btn bg-primary text-white hover:bg-primary-deep px-6 py-2 rounded-lg'
+                    },
+                    buttonsStyling: false // Importante para usar suas classes CSS no botão
+                };
+
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault(); // Impede o recarregamento da página
+
+                    const nomeFantasia = document.getElementById('nome_fantasia').value;
+                    const cnpj = document.getElementById('cnpj').value;
+
+                    // 1. Validação Front-end (Alerta Amarelo)
+                    if (!nomeFantasia || !cnpj) {
+                        Swal.fire({
+                            ...baseOptions,
+                            icon: "warning",
+                            title: "Atenção!",
+                            text: "Por favor, preencha os campos obrigatórios (Nome Fantasia e CNPJ)."
+                        });
+                        return;
+                    }
+
+                    // Prepara os dados
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    try {
+                        // Envia para o servidor
+                        const response = await fetch('/unidade/salvar', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok) {
+                            // 2. Sucesso (Alerta Verde)
+                            Swal.fire({
+                                ...baseOptions,
+                                icon: "success",
+                                title: "Sucesso!",
+                                text: "Unidade cadastrada com sucesso.",
+                                confirmButtonText: "OK"
+                            }).then((result) => {
+                                // Redireciona após clicar em OK
+                                if (result.isConfirmed || result.isDismissed) {
+                                    window.location.href = '/unidade';
+                                }
+                            });
+                        } else {
+                            // 3. Erro do Servidor (Alerta Vermelho)
+                            Swal.fire({
+                                ...baseOptions,
+                                icon: "error",
+                                title: "Erro!",
+                                text: result.message || "Ocorreu um erro ao salvar."
+                            });
+                        }
+
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            ...baseOptions,
+                            icon: "error",
+                            title: "Erro de Conexão",
+                            text: "Não foi possível conectar ao servidor."
+                        });
+                    }
+                });
+            });
+        </script>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 const mysql = require('mysql2');
 require('dotenv').config();
 
-// Cria um "pool" de conexões (mais eficiente que criar uma por uma)
+// conexões 
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
@@ -12,5 +12,5 @@ const pool = mysql.createPool({
     queueLimit: 0
 });
 
-// Exporta com suporte a Promises (permite usar await)
+// Exporta a Promises (permite usar await)
 module.exports = pool.promise();

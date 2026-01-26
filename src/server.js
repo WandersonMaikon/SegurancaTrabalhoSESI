@@ -11,12 +11,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // ---- Views (EJS) ----
-// Como estamos dentro da pasta 'src', voltamos um nível (..) para achar a pasta 'views'
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 
-// ---- Static files (CSS, JS, Imagens) ----
-// Mesma lógica: voltamos um nível para achar a pasta 'public'
+// ---- (CSS, JS, Imagens) ----
 app.use(express.static(path.join(__dirname, "../public")));
 
 // ---- Session (Configuração da Sessão de Login) ----
@@ -36,7 +34,6 @@ app.use(
 );
 
 // ---- Middleware Global ----
-// Disponibiliza a variável 'user' para todos os arquivos .ejs (para mostrar nome, foto, etc.)
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
     next();
@@ -56,6 +53,7 @@ const perfilRoutes = require('./routes/perfil.routes');
 const riscoRoutes = require('./routes/risco.routes');
 const epiRoutes = require('./routes/epi.routes');
 const epcRoutes = require('./routes/epc.routes');
+const unidadeRoutes = require('./routes/unidade.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
 
 app.use('/', authRoutes);
@@ -69,9 +67,7 @@ app.use('/perfil', perfilRoutes);
 app.use('/risco', riscoRoutes);
 app.use('/epi', epiRoutes);
 app.use('/epc', epcRoutes);
-
-// Rotas adicionais diretamente no server.js
-
+app.use('/unidade', unidadeRoutes);
 
 app.get("/relatorio", verificarAutenticacao, (req, res) => {
     res.render("relatorio", { currentPage: 'relatorio' });
