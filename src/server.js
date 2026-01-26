@@ -53,7 +53,9 @@ const osRoutes = require('./routes/os.routes');
 const usuariosRoutes = require('./routes/usuarios.routes');
 const atividadesRoutes = require('./routes/atividades.routes');
 const perfilRoutes = require('./routes/perfil.routes');
-const estoqueRoutes = require('./routes/estoque.routes');
+const riscoRoutes = require('./routes/risco.routes');
+const epiRoutes = require('./routes/epi.routes');
+const epcRoutes = require('./routes/epc.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
 
 app.use('/', authRoutes);
@@ -64,7 +66,11 @@ app.use('/ordem-servico', osRoutes);
 app.use('/usuario', usuariosRoutes);
 app.use('/atividades', atividadesRoutes);
 app.use('/perfil', perfilRoutes);
-app.use('/estoque', estoqueRoutes);
+app.use('/risco', riscoRoutes);
+app.use('/epi', epiRoutes);
+app.use('/epc', epcRoutes);
+
+// Rotas adicionais diretamente no server.js
 
 
 app.get("/relatorio", verificarAutenticacao, (req, res) => {
