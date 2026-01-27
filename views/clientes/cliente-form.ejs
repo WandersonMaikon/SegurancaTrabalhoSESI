@@ -4,24 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Raven - Clientes</title>
+    <title>Raven - Cadastrar Cliente</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-    <!-- Fonts -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page styles -->
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -30,15 +22,12 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar cliente</h2>
-
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/clientes"
@@ -47,18 +36,40 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-
                         <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
                     </ol>
                 </div>
-                <!-- Page content -->
+
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form action="#" method="post" enctype="multipart/form-data" class="w-full">
+                    <!-- ID adicionado ao form para o JS capturar -->
+                    <form id="formCliente" action="/clientes/salvar" method="post" class="w-full">
 
                         <div class="grid grid-cols-1 gap-6">
-
-                            <!-- Coluna principal -->
                             <div class="md:col-span-8 space-y-6">
+
+                                <!-- Card: Vínculo (NOVO) -->
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Vínculo</h5>
+                                    </div>
+                                    <div class="p-6">
+                                        <label class="mb-2 block">Unidade Responsável <span
+                                                class="text-red-500">*</span></label>
+                                        <select name="id_unidade" class="js-select w-full" required>
+                                            <option value="">Selecione uma unidade...</option>
+                                            <% if (typeof unidades !=='undefined' && unidades.length> 0) { %>
+                                                <% unidades.forEach(function(unidade) { %>
+                                                    <option value="<​%= unidade.id_unidade %>">
+                                                        <%= unidade.nome_fantasia %>
+                                                    </option>
+                                                    <% }); %>
+                                                        <% } else { %>
+                                                            <option value="" disabled>Nenhuma unidade ativa encontrada
+                                                            </option>
+                                                            <% } %>
+                                        </select>
+                                    </div>
+                                </div>
 
                                 <!-- Card: Empresa -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
@@ -67,17 +78,15 @@
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-
-                                        <!-- AJUSTE: checkbox bem próximo ao input (sem ficar distante) -->
                                         <div class="flex items-end gap-3 w-full max-w-2xl">
                                             <div class="flex-1 min-w-0">
-                                                <label class="mb-2 block">Nome empresa</label>
+                                                <label class="mb-2 block">Nome empresa <span
+                                                        class="text-red-500">*</span></label>
                                                 <input name="nome" type="text" class="input h-10 w-full"
-                                                    placeholder="Empresa">
+                                                    placeholder="Empresa" required>
                                             </div>
-
                                             <label for="empresaIndustria"
-                                                class="inline-flex items-center gap-2 mb-1 whitespace-nowrap">
+                                                class="inline-flex items-center gap-2 mb-1 whitespace-nowrap cursor-pointer">
                                                 <input type="checkbox" class="input-checkbox" id="empresaIndustria"
                                                     name="empresa_industria" value="1">
                                                 <span>É indústria?</span>
@@ -85,9 +94,9 @@
                                         </div>
 
                                         <div>
-                                            <label class="mb-2 block">CNPJ</label>
+                                            <label class="mb-2 block">CNPJ <span class="text-red-500">*</span></label>
                                             <input id="cnpj" name="cnpj" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="00.000.000/0000-00">
+                                                placeholder="00.000.000/0000-00" required>
                                         </div>
 
                                         <div>
@@ -110,26 +119,22 @@
                                     </div>
                                 </div>
 
-                                <!-- Card: Representante da empresa -->
+                                <!-- Card: Representante -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Sobre o representante</h5>
                                     </div>
-
                                     <div class="p-6 grid grid-cols-1 gap-6">
                                         <div>
-                                            <label class="mb-2 block">Nome do representante da empresa</label>
+                                            <label class="mb-2 block">Nome do representante</label>
                                             <input name="representante_nome" type="text"
-                                                class="input h-10 w-full max-w-2xl"
-                                                placeholder="Insira o nome do representante da empresa">
+                                                class="input h-10 w-full max-w-2xl" placeholder="Nome completo">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">CPF/MF</label>
                                             <input id="cpf" name="cpf" type="text" class="input h-10 w-full max-w-2xl"
                                                 placeholder="000.000.000-00">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">RG/CI</label>
                                             <input name="rg" type="text" class="input h-10 w-full max-w-2xl"
@@ -143,56 +148,45 @@
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Endereço</h5>
                                     </div>
-
                                     <div class="p-6 grid grid-cols-1 gap-6">
                                         <div>
                                             <label class="mb-2 block">CEP</label>
-
                                             <div class="relative w-full max-w-2xl">
                                                 <input id="cep" name="cep" type="text" class="input h-10 w-full !pe-11"
                                                     placeholder="00000-000">
-
                                                 <button id="btnBuscarCep" type="button"
-                                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                                                    title="Buscar CEP" aria-label="Buscar CEP">
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
                                                     <span class="icon-[lucide--search] text-lg"></span>
                                                 </button>
                                             </div>
-
                                             <p id="cepMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">País</label>
                                             <input id="pais" name="pais" type="text"
                                                 class="input h-10 w-full max-w-2xl bg-zinc-100 dark:bg-zinc-800/60 cursor-not-allowed"
                                                 value="Brasil" disabled>
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">Logradouro</label>
                                             <input id="logradouro" name="endereco" type="text"
                                                 class="input h-10 w-full max-w-2xl" placeholder="Rua, avenida...">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">Número</label>
                                             <input id="numero" name="numero" type="text"
                                                 class="input h-10 w-full max-w-2xl" placeholder="Número">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">Bairro</label>
                                             <input id="bairro" name="bairro" type="text"
                                                 class="input h-10 w-full max-w-2xl" placeholder="Bairro">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">Cidade</label>
                                             <input id="cidade" name="cidade" type="text"
                                                 class="input h-10 w-full max-w-2xl" placeholder="Cidade">
                                         </div>
-
                                         <div>
                                             <label class="mb-2 block">Estado (UF)</label>
                                             <input id="estado" name="estado" type="text"
@@ -201,24 +195,21 @@
                                     </div>
                                 </div>
 
-                                <!-- Page footer (ações do form) -->
+                                <!-- Footer Actions -->
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <button type="reset"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
+                                    <a href="/clientes"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 flex items-center justify-center">
                                         <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
-                                        Descartar
-                                    </button>
-
-                                    <button type="submit"
+                                        Cancelar
+                                    </a>
+                                    <button type="submit" id="btnSalvar"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
                                         <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
                                         Salvar
                                     </button>
                                 </div>
-
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -226,12 +217,11 @@
                 <%- include('../partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
-
-        <!-- Page scripts -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
+        <!-- Script de Máscaras e CEP (Mantido e Otimizado) -->
         <script>
             (function () {
                 const $ = (id) => document.getElementById(id);
@@ -263,18 +253,10 @@
                 function formatTelefone(value) {
                     const d = onlyDigits(value).slice(0, 11);
                     if (d.length <= 2) return d;
-
                     const ddd = d.slice(0, 2);
                     const rest = d.slice(2);
-
-                    if (d.length >= 11) {
-                        return "(" + ddd + ") " + rest.slice(0, 5) + "-" + rest.slice(5, 9);
-                    }
-
-                    if (d.length >= 7) {
-                        return "(" + ddd + ") " + rest.slice(0, 4) + "-" + rest.slice(4, 8);
-                    }
-
+                    if (d.length >= 11) return "(" + ddd + ") " + rest.slice(0, 5) + "-" + rest.slice(5, 9);
+                    if (d.length >= 7) return "(" + ddd + ") " + rest.slice(0, 4) + "-" + rest.slice(4, 8);
                     return "(" + ddd + ") " + rest;
                 }
 
@@ -286,61 +268,9 @@
                     });
                 }
 
-                function isValidCpf(cpfDigits) {
-                    const cpf = onlyDigits(cpfDigits);
-                    if (cpf.length !== 11) return false;
-                    if (/^(\d)\1{10}$/.test(cpf)) return false;
-
-                    const calcCheck = (base, factor) => {
-                        let total = 0;
-                        for (let i = 0; i < base.length; i++) total += Number(base[i]) * (factor - i);
-                        const mod = (total * 10) % 11;
-                        return (mod === 10) ? 0 : mod;
-                    };
-
-                    const d1 = calcCheck(cpf.slice(0, 9), 10);
-                    const d2 = calcCheck(cpf.slice(0, 10), 11);
-                    return d1 === Number(cpf[9]) && d2 === Number(cpf[10]);
-                }
-
-                function ensureMsgEl(afterInputEl, id) {
-                    let el = $(id);
-                    if (el) return el;
-
-                    el = document.createElement("p");
-                    el.id = id;
-                    el.className = "text-sm mt-2 hidden";
-                    afterInputEl.insertAdjacentElement("afterend", el);
-                    return el;
-                }
-
-                function setFieldState(inputEl, msgEl, text, type) {
-                    msgEl.classList.remove("hidden", "text-red-500", "text-green-600", "text-zinc-400");
-
-                    if (type === "clear") {
-                        msgEl.classList.add("hidden");
-                        msgEl.textContent = "";
-                        inputEl.removeAttribute("aria-invalid");
-                        return;
-                    }
-
-                    msgEl.textContent = text;
-                    if (type === "error") {
-                        msgEl.classList.add("text-red-500");
-                        inputEl.setAttribute("aria-invalid", "true");
-                    } else if (type === "success") {
-                        msgEl.classList.add("text-green-600");
-                        inputEl.removeAttribute("aria-invalid");
-                    } else {
-                        msgEl.classList.add("text-zinc-400");
-                        inputEl.removeAttribute("aria-invalid");
-                    }
-                }
-
                 const cepInput = $("cep");
                 const btnBuscarCep = $("btnBuscarCep");
                 const cepMsg = $("cepMsg");
-
                 const logradouro = $("logradouro");
                 const bairro = $("bairro");
                 const cidade = $("cidade");
@@ -349,7 +279,6 @@
 
                 async function buscarCep() {
                     if (!cepInput || !btnBuscarCep || !cepMsg) return;
-
                     const cep = onlyDigits(cepInput.value);
                     if (cep.length !== 8) {
                         cepMsg.classList.remove("hidden");
@@ -357,41 +286,32 @@
                         cepMsg.textContent = "Informe um CEP válido (8 dígitos).";
                         return;
                     }
-
                     btnBuscarCep.disabled = true;
-                    btnBuscarCep.classList.add("opacity-60", "cursor-not-allowed");
-
                     cepMsg.classList.remove("hidden");
                     cepMsg.className = "text-sm mt-2 text-zinc-400";
                     cepMsg.textContent = "Buscando CEP...";
 
                     try {
                         const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { method: "GET" });
-                        if (!res.ok) throw new Error("Falha na consulta do CEP.");
+                        if (!res.ok) throw new Error("Falha");
                         const data = await res.json();
-
                         if (data.erro) {
                             cepMsg.className = "text-sm mt-2 text-red-500";
                             cepMsg.textContent = "CEP não encontrado.";
                             return;
                         }
-
                         if (logradouro) logradouro.value = data.logradouro || "";
                         if (bairro) bairro.value = data.bairro || "";
                         if (cidade) cidade.value = data.localidade || "";
                         if (estado) estado.value = data.uf || "";
-
                         cepMsg.className = "text-sm mt-2 text-green-600";
-                        cepMsg.textContent = "Endereço preenchido com sucesso.";
-
+                        cepMsg.textContent = "Endereço preenchido.";
                         if (numero) numero.focus();
                     } catch (e) {
-                        console.error(e);
                         cepMsg.className = "text-sm mt-2 text-red-500";
-                        cepMsg.textContent = "Não foi possível buscar o CEP. Tente novamente.";
+                        cepMsg.textContent = "Erro ao buscar CEP.";
                     } finally {
                         btnBuscarCep.disabled = false;
-                        btnBuscarCep.classList.remove("opacity-60", "cursor-not-allowed");
                     }
                 }
 
@@ -402,56 +322,77 @@
 
                 btnBuscarCep?.addEventListener("click", buscarCep);
                 cepInput?.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") {
-                        e.preventDefault();
-                        buscarCep();
-                    }
+                    if (e.key === "Enter") { e.preventDefault(); buscarCep(); }
                 });
-
-                const cpfInput = $("cpf");
-                if (cpfInput) {
-                    const cpfMsg = ensureMsgEl(cpfInput, "cpfMsg");
-
-                    cpfInput.addEventListener("input", () => {
-                        setFieldState(cpfInput, cpfMsg, "", "clear");
-                    });
-
-                    cpfInput.addEventListener("blur", () => {
-                        const cpf = onlyDigits(cpfInput.value);
-                        if (!cpf) {
-                            setFieldState(cpfInput, cpfMsg, "", "clear");
-                            return;
-                        }
-                        if (!isValidCpf(cpf)) {
-                            setFieldState(cpfInput, cpfMsg, "CPF inválido. Verifique e tente novamente.", "error");
-                        } else {
-                            setFieldState(cpfInput, cpfMsg, "CPF válido.", "success");
-                        }
-                    });
-
-                    const form = cpfInput.closest("form");
-                    form?.addEventListener("submit", (e) => {
-                        const cpf = onlyDigits(cpfInput.value);
-                        if (cpf && !isValidCpf(cpf)) {
-                            e.preventDefault();
-                            setFieldState(cpfInput, cpfMsg, "CPF inválido. Corrija para salvar.", "error");
-                            cpfInput.focus();
-                        }
-                    });
-                }
             })();
         </script>
 
+        <!-- Script de Envio do Formulário (AJAX + SweetAlert) -->
         <script>
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: true });
-            });
+            document.addEventListener('DOMContentLoaded', () => {
+                // Inicializa TomSelect
+                document.querySelectorAll('.js-select').forEach(select => {
+                    new TomSelect(select, { create: false, allowEmptyOption: true });
+                });
 
-            const btnLabel = document.querySelector('label[for="upload_profile"] button');
-            const inputFile = document.getElementById('upload_profile');
-            if (btnLabel && inputFile) {
-                btnLabel.addEventListener('click', () => inputFile.click());
-            }
+                const form = document.getElementById('formCliente');
+                const btnSalvar = document.getElementById('btnSalvar');
+
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    // Feedback visual no botão
+                    const originalText = btnSalvar.innerHTML;
+                    btnSalvar.disabled = true;
+                    btnSalvar.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-[2px] border-current border-t-transparent text-white rounded-full mr-2"></span> Salvando...';
+
+                    // Coleta dados
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+
+                    // Checkbox manual (se não estiver marcado, não vem no FormData, então forçamos)
+                    data.empresa_industria = document.getElementById('empresaIndustria').checked ? 1 : 0;
+
+                    try {
+                        const response = await fetch('/clientes/salvar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Sucesso!',
+                                text: result.message,
+                                confirmButtonText: 'OK',
+                                customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
+                                buttonsStyling: false
+                            }).then(() => {
+                                window.location.href = '/clientes';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro',
+                                text: result.message || 'Erro desconhecido.'
+                            });
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro de Conexão',
+                            text: 'Não foi possível conectar ao servidor.'
+                        });
+                    } finally {
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = originalText;
+                    }
+                });
+            });
         </script>
 </body>
 

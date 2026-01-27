@@ -5,23 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - Clientes</title>
-
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-    <!-- Fonts -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -32,19 +24,16 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Clientes</h2>
-                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
-                            <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">
-                                Dashboard</a>
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
                         </li>
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
@@ -53,13 +42,12 @@
                     </ol>
                 </div>
 
-                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-                                <!-- Search -->
+
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="customerSearch"
@@ -68,47 +56,23 @@
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
+
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display: none;">
-                                        Excluir
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span>
+                                        Excluir Selecionados
                                     </button>
+
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
                                             <option value="" selected>Todos</option>
                                             <option value="Ativo">Ativo</option>
-                                            <option value="Suspenso">Suspenso</option>
-                                            <option value="Pendente">Pendente</option>
-                                            <option value="Bloqueado">Bloqueado</option>
+                                            <!-- Como estamos filtrando deleted_at IS NULL no back, todos virão como Ativos por enquanto -->
                                         </select>
                                     </div>
+
                                     <div class="flex items-center gap-2">
-                                        <div class="relative">
-                                            <button data-bs-toggle="dropdown" type="button"
-                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
-                                                <span class="icon-[lucide--download] text-lg me-1"></span>
-                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                                            </button>
-                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar
-                                                    Excel
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt="">
-                                                    Baixar PDF
-                                                </a>
-                                            </div>
-                                        </div>
                                         <a href="/clientes/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--user-plus] text-lg me-1"></span>
@@ -118,56 +82,19 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
                             <table id="table_customers" class="table-default">
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Nome</div>
-                                        </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">E-mail</div>
-                                        </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Localização</div>
-                                        </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Status</div>
-                                        </th>
-
-                                        <th class="text-nowrap" data-orderable="false"></th>
+                                        <th class="text-nowrap">Nome da Empresa</th>
+                                        <th class="text-nowrap">E-mail</th>
+                                        <th class="text-nowrap">Localização</th>
+                                        <th class="text-nowrap">Status</th>
+                                        <th class="text-nowrap" data-orderable="false">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            <div class="flex flex-nowrap items-center">
-                                                <h6>Caleb Michael Stone</h6>
-                                            </div>
-                                        </td>
-                                        <td class="whitespace-nowrap">caleb.stone@gmail.com</td>
-                                        <td class="whitespace-nowrap">Edinburgh, Scotland</td>
-                                        <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
-
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/clientes/editar/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/clientes/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <!-- Adicione mais linhas conforme necessário -->
-                                </tbody>
+                                <!-- BODY VAZIO: O JS VAI PREENCHER -->
+                                <tbody id="tableBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -177,35 +104,97 @@
 
         </main>
 
-        <!-- Scripts -->
-        <script src="/js/theme.js"></script>
+        <!-- ELEMENTO OCULTO: O COFRE DOS DADOS -->
+        <div id="dados-clientes-json" style="display: none;">
+            <%= clientesJson %>
+        </div>
 
-        <!-- Page scripts -->
+        <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // 1. LER OS DADOS DO ELEMENTO OCULTO
+                let listaClientes = [];
+                try {
+                    const divJson = document.getElementById('dados-clientes-json');
+                    if (divJson) {
+                        const rawJson = divJson.innerText;
+                        if (rawJson) {
+                            listaClientes = JSON.parse(rawJson);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Erro ao processar JSON de clientes:", e);
+                }
+
+                console.log("Clientes carregados:", listaClientes);
+
+                // 2. GERAR O HTML DA TABELA
+                const tbody = document.getElementById('tableBody');
+
+                if (listaClientes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum cliente encontrado.</td></tr>';
+                } else {
+                    listaClientes.forEach((cliente, index) => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-index', index);
+
+                        // Como filtramos deleted_at IS NULL, todos aqui são ativos
+                        const statusHtml = '<span class="badge bg-green-500/10 text-green-500">Ativo</span>';
+
+                        const localizacao = (cliente.cidade && cliente.estado)
+                            ? `${cliente.cidade} - ${cliente.estado}`
+                            : (cliente.cidade || '-');
+
+                        tr.innerHTML = `
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                            ${cliente.nome_empresa || 'Sem Nome'}
+                        </td>
+                        <td class="whitespace-nowrap">${cliente.email || '-'}</td>
+                        <td class="whitespace-nowrap">${localizacao}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // 3. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_customers', {
                     lengthChange: false,
-                    pageLength: 9,
+                    pageLength: 10,
                     scrollX: true,
                     dom: 'lrtip',
-                    columnDefs: [
-                        {
-                            orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(),
-                            targets: 0,
-                        }
-                    ],
-                    select: {
-                        style: 'os',
-                        selector: 'td:first-child',
-                        headerCheckbox: false
+                    language: {
+                        emptyTable: "Nenhum cliente encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
+                        select: { rows: "" }
                     },
-                    order: [[1, 'asc']],
+                    columnDefs: [{
+                        orderable: false,
+                        className: 'select-checkbox',
+                        targets: 0,
+                    }],
+                    select: {
+                        style: 'multi',
+                        selector: 'td:first-child',
+                        headerCheckbox: true
+                    },
+                    order: [[1, 'asc']]
                 });
 
                 const searchInput = document.getElementById('customerSearch');
@@ -213,44 +202,94 @@
                     table.search(e.target.value).draw();
                 });
 
-                table.on('draw', () => {
-                    const rowCount = table.rows({ search: 'applied' }).count();
-                    if (rowCount === 0) {
-                        searchInput.setAttribute('disabled', 'disabled');
-                    } else {
-                        searchInput.removeAttribute('disabled');
-                    }
-                });
-
                 const deleteBtn = document.getElementById("deleteBtn");
-                table.on('select deselect', function () {
-                    const selectedRows = table.rows({ selected: true }).count();
-                    if (selectedRows > 0) {
-                        deleteBtn.style.display = "inline-block";
-                    } else {
-                        deleteBtn.style.display = "none";
-                    }
-                });
 
-                deleteBtn.addEventListener('click', () => {
-                    table.rows({ selected: true }).remove().draw();
-                    deleteBtn.style.display = 'none';
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = count > 0 ? "inline-flex" : "none";
+                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Excluir (${count})`;
                 });
 
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(4).search(this.value).draw();
                 });
-            });
-        </script>
 
-        <!-- Select -->
-        <script src="/vendor/js/tom-select.complete.min.js"></script>
-        <script>
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true
+                // 4. AÇÃO DE EXCLUIR
+                deleteBtn.addEventListener('click', function () {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+                        if (index !== null && listaClientes[index]) {
+                            const cliente = listaClientes[index];
+                            if (cliente && cliente.id_cliente) {
+                                selectedIds.push(cliente.id_cliente);
+                            }
+                        }
+                    });
+
+                    if (selectedIds.length === 0) {
+                        Swal.fire('Erro', 'Nenhum cliente selecionado.', 'error');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: `Você vai excluir ${selectedIds.length} cliente(s). Eles não aparecerão mais nesta lista.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim, excluir',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            confirmButton: 'btn bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg',
+                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
+                        },
+                        buttonsStyling: false
+                    }).then(async (result) => {
+                        if (!result.isConfirmed) return;
+
+                        try {
+                            const response = await fetch('/clientes/excluir-multiplos', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ids: selectedIds })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok && data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso!',
+                                    text: data.message,
+                                    confirmButtonText: 'OK',
+                                    customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
+                                    buttonsStyling: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro',
+                                    text: data.message
+                                });
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Falha na comunicação com o servidor.'
+                            });
+                        }
+                    });
                 });
+            });
+
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: false, allowEmptyOption: true });
             });
         </script>
 </body>
