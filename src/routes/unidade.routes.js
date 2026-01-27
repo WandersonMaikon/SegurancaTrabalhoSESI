@@ -28,8 +28,6 @@ router.post("/inativar-multiplas", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;
 
-        console.log("IDs recebidos para inativação:", ids);
-
         if (!ids || !Array.isArray(ids) || ids.length === 0) {
             return res.status(400).json({ success: false, message: "Nenhum ID recebido." });
         }

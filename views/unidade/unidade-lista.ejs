@@ -60,8 +60,7 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
                                         style="display: none;">
-                                        <span class="icon-[lucide--ban] text-lg me-1"></span>
-                                        Inativar Selecionados
+                                        Inativar Selecionada
                                     </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
@@ -135,7 +134,7 @@
 
                 console.log("Unidades carregadas no JS:", listaUnidades);
 
-                // 2. GERAR O HTML DA TABELA VIA JAVASCRIPT (Adeus EJS!)
+                // 2. GERAR O HTML DA TABELA VIA JAVASCRIPT
                 const tbody = document.getElementById('tableBody');
 
                 if (listaUnidades.length === 0) {
@@ -143,10 +142,8 @@
                 } else {
                     listaUnidades.forEach((unidade, index) => {
                         const tr = document.createElement('tr');
-                        // Aqui garantimos que o índice é um número limpo
                         tr.setAttribute('data-index', index);
 
-                        // Define o HTML do Status
                         const statusHtml = unidade.ativo
                             ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
                             : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
@@ -170,7 +167,7 @@
                     });
                 }
 
-                // 3. INICIALIZAR DATATABLE (Só depois de criar as linhas)
+                // 3. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_unidades', {
                     lengthChange: false,
                     pageLength: 10,
@@ -205,40 +202,57 @@
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
                     inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    inativarBtn.innerHTML = `<span class="icon-[lucide--ban] text-lg me-1"></span> Inativar (${count})`;
+                    inativarBtn.innerHTML = `<span ></span> Inativar (${count})`;
                 });
 
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(5).search(this.value).draw();
                 });
 
-                // 4. AÇÃO DE INATIVAR
+                // 4. AÇÃO DE INATIVAR (COM VERIFICAÇÃO DE STATUS)
                 inativarBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
+                    const unidadesJaInativas = []; // Lista para guardar os nomes dos "teimosos"
 
                     selectedRows.each(function (row) {
-                        // Agora temos certeza que o atributo existe e é limpo
                         const index = row.getAttribute('data-index');
 
                         if (index !== null && listaUnidades[index]) {
                             const unidade = listaUnidades[index];
-                            if (unidade && unidade.id_unidade) {
-                                selectedIds.push(unidade.id_unidade);
+
+                            // VERIFICAÇÃO: Se já for 0 (Inativo), adiciona na lista de erro
+                            if (unidade.ativo === 0) {
+                                unidadesJaInativas.push(unidade.nome_fantasia);
+                            } else {
+                                // Se for 1 (Ativo), adiciona na lista para enviar
+                                if (unidade && unidade.id_unidade) {
+                                    selectedIds.push(unidade.id_unidade);
+                                }
                             }
                         }
                     });
 
+                    // SE TIVER ALGUÉM JÁ INATIVO, PARA TUDO E AVISA
+                    if (unidadesJaInativas.length > 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Ação Bloqueada',
+                            html: `A seguinte unidade <b>já está inativada</b>:<br><br><b>${unidadesJaInativas.join('<br>')}</b><br><br>Por favor, desmarque essas opções para continuar.`
+                        });
+                        return; // O return aqui impede que o código continue
+                    }
+
                     console.log("IDs capturados:", selectedIds);
 
                     if (selectedIds.length === 0) {
-                        Swal.fire('Erro', 'Não foi possível identificar os IDs. Verifique o console.', 'error');
+                        Swal.fire('Erro', 'Nenhuma unidade válida selecionada.', 'error');
                         return;
                     }
 
                     Swal.fire({
                         title: 'Tem certeza?',
-                        text: `Você está prestes a inativar ${selectedIds.length} unidade(s). Esta ação pode ser revertida posteriormente.`,
+                        text: `Você está prestes a inativar ${selectedIds.length} unidade(s).`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Sim, inativar',
