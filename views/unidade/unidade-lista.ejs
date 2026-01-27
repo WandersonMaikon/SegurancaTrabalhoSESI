@@ -5,23 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - Gestão de Unidades</title>
-
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-    <!-- Fonts -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -32,15 +24,12 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Gestão de Unidades</h2>
-                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/dashboard"
@@ -53,14 +42,12 @@
                     </ol>
                 </div>
 
-                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
 
-                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="unidadeSearch" id="unidadeSearch"
@@ -73,6 +60,7 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
                                         style="display: none;">
+                                        <span class="icon-[lucide--ban] text-lg me-1"></span>
                                         Inativar Selecionados
                                     </button>
 
@@ -85,27 +73,6 @@
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        <div class="relative">
-                                            <button data-bs-toggle="dropdown" type="button"
-                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
-                                                <span class="icon-[lucide--download] text-lg me-1"></span>
-                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                                            </button>
-                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar
-                                                    Excel
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt="">
-                                                    Baixar PDF
-                                                </a>
-                                            </div>
-                                        </div>
-
                                         <a href="/unidade/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--plus] text-lg me-1"></span>
@@ -115,7 +82,6 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
                             <table id="table_unidades" class="table-default">
                                 <thead>
                                     <tr>
@@ -128,48 +94,8 @@
                                         <th class="text-nowrap" data-orderable="false">Ações</th>
                                     </tr>
                                 </thead>
-
-                                <tbody>
-                                    <% if (unidades && unidades.length> 0) { %>
-                                        <% unidades.forEach(function(unidade) { %>
-                                            <tr>
-                                                <td></td>
-                                                <td
-                                                    class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                                    <%= unidade.nome_fantasia %>
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    <%= unidade.razao_social || '-' %>
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    <%= unidade.cnpj %>
-                                                </td>
-                                                <td class="whitespace-nowrap">
-                                                    <%= unidade.cidade %> - <%= unidade.estado %>
-                                                </td>
-                                                <td>
-                                                    <% if (unidade.ativo) { %>
-                                                        <span class="badge bg-green-500/10 text-green-500">Ativo</span>
-                                                        <% } else { %>
-                                                            <span
-                                                                class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>
-                                                            <% } %>
-                                                </td>
-                                                <td>
-                                                    <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                        <a href="/unidade/editar/<%= unidade.id_unidade %>"
-                                                            role="tooltip" data-bs-toggle="tooltip"
-                                                            data-bs-placement="top"
-                                                            class="btn !p-1.5 hover:!text-primary"
-                                                            data-bs-title="Editar">
-                                                            <span class="icon-[lucide--edit] text-lg"></span>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } %>
-                                </tbody>
+                                <!-- O CORPO DA TABELA ESTÁ VAZIO. O JAVASCRIPT VAI PREENCHER. -->
+                                <tbody id="tableBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -179,17 +105,72 @@
 
         </main>
 
-        <!-- Scripts -->
-        <script src="/js/theme.js"></script>
+        <!-- ELEMENTO OCULTO: Guarda o JSON puro. -->
+        <div id="dados-unidades-json" style="display: none;">
+            <%= unidadesJson %>
+        </div>
 
-        <!-- Page scripts -->
+        <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // 1. LER OS DADOS DO ELEMENTO OCULTO
+                let listaUnidades = [];
+                try {
+                    const divJson = document.getElementById('dados-unidades-json');
+                    if (divJson) {
+                        const rawJson = divJson.innerText;
+                        if (rawJson) {
+                            listaUnidades = JSON.parse(rawJson);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Erro ao processar JSON:", e);
+                }
+
+                console.log("Unidades carregadas no JS:", listaUnidades);
+
+                // 2. GERAR O HTML DA TABELA VIA JAVASCRIPT (Adeus EJS!)
+                const tbody = document.getElementById('tableBody');
+
+                if (listaUnidades.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Nenhuma unidade encontrada.</td></tr>';
+                } else {
+                    listaUnidades.forEach((unidade, index) => {
+                        const tr = document.createElement('tr');
+                        // Aqui garantimos que o índice é um número limpo
+                        tr.setAttribute('data-index', index);
+
+                        // Define o HTML do Status
+                        const statusHtml = unidade.ativo
+                            ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
+                            : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
+
+                        tr.innerHTML = `
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${unidade.nome_fantasia || ''}</td>
+                        <td class="whitespace-nowrap">${unidade.razao_social || '-'}</td>
+                        <td class="whitespace-nowrap">${unidade.cnpj || ''}</td>
+                        <td class="whitespace-nowrap">${unidade.cidade || ''} - ${unidade.estado || ''}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                <a href="/unidade/editar/${unidade.id_unidade}" class="btn !p-1.5 hover:!text-primary">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // 3. INICIALIZAR DATATABLE (Só depois de criar as linhas)
                 const table = new DataTable('#table_unidades', {
                     lengthChange: false,
                     pageLength: 10,
@@ -198,27 +179,20 @@
                     language: {
                         emptyTable: "Nenhuma unidade encontrada",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: {
-                            first: "Primeiro",
-                            last: "Último",
-                            next: "Próximo",
-                            previous: "Anterior"
-                        }
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
+                        select: { rows: "" }
                     },
                     columnDefs: [{
                         orderable: false,
-                        searchable: false,
-                        render: DataTable.render.select(),
+                        className: 'select-checkbox',
                         targets: 0,
                     }],
                     select: {
-                        style: 'os',
+                        style: 'multi',
                         selector: 'td:first-child',
-                        headerCheckbox: false
+                        headerCheckbox: true
                     },
-                    order: [
-                        [1, 'asc']
-                    ],
+                    order: [[1, 'asc']]
                 });
 
                 const searchInput = document.getElementById('unidadeSearch');
@@ -227,28 +201,100 @@
                 });
 
                 const inativarBtn = document.getElementById("inativarBtn");
+
                 table.on('select deselect', function () {
-                    const selectedRows = table.rows({
-                        selected: true
-                    }).count();
-                    inativarBtn.style.display = selectedRows > 0 ? "inline-block" : "none";
+                    const count = table.rows({ selected: true }).count();
+                    inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
+                    inativarBtn.innerHTML = `<span class="icon-[lucide--ban] text-lg me-1"></span> Inativar (${count})`;
                 });
 
-                // Filtro de Status (Coluna índice 5)
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(5).search(this.value).draw();
+                });
+
+                // 4. AÇÃO DE INATIVAR
+                inativarBtn.addEventListener('click', function () {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+
+                    selectedRows.each(function (row) {
+                        // Agora temos certeza que o atributo existe e é limpo
+                        const index = row.getAttribute('data-index');
+
+                        if (index !== null && listaUnidades[index]) {
+                            const unidade = listaUnidades[index];
+                            if (unidade && unidade.id_unidade) {
+                                selectedIds.push(unidade.id_unidade);
+                            }
+                        }
+                    });
+
+                    console.log("IDs capturados:", selectedIds);
+
+                    if (selectedIds.length === 0) {
+                        Swal.fire('Erro', 'Não foi possível identificar os IDs. Verifique o console.', 'error');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: `Você está prestes a inativar ${selectedIds.length} unidade(s). Esta ação pode ser revertida posteriormente.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            confirmButton: 'btn bg-amber-500 text-white hover:bg-amber-600 px-6 py-2 rounded-lg',
+                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
+                        },
+                        buttonsStyling: false
+                    }).then(async (result) => {
+                        if (!result.isConfirmed) return;
+
+                        try {
+                            const response = await fetch('/unidade/inativar-multiplas', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ids: selectedIds })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok && data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso!',
+                                    text: data.message,
+                                    confirmButtonText: 'OK',
+                                    customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
+                                    buttonsStyling: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Atenção',
+                                    text: data.message || "Erro desconhecido"
+                                });
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Não foi possível conectar ao servidor.'
+                            });
+                        }
+                    });
                 });
             });
         </script>
 
-        <!-- Select -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script>
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true
-                });
+                new TomSelect(select, { create: false, allowEmptyOption: true });
             });
         </script>
 </body>

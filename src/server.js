@@ -60,7 +60,7 @@ app.use('/', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/clientes', clientesRoutes);
 app.use('/servicos', servicosRoutes);
-app.use('/ordem-servico', osRoutes); 
+app.use('/ordem-servico', osRoutes);
 app.use('/usuario', usuariosRoutes);
 app.use('/atividades', atividadesRoutes);
 app.use('/perfil', perfilRoutes);
@@ -77,13 +77,10 @@ app.get("/scrum-board", verificarAutenticacao, (req, res) => {
     res.render("scrum-board", { currentPage: 'scrum-board' });
 });
 
-
 // ============================================================
 // ---- TRATAMENTO DE ERROS (404) ----
 // ============================================================
-
 app.use((req, res) => {
-    // Tenta renderizar a página 404 personalizada
     try {
         res.status(404).render("auth/auth-404");
     } catch (e) {
