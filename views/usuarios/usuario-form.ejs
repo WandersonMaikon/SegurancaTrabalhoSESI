@@ -4,20 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Raven - Adicionar Usuário</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 </head>
@@ -28,14 +23,13 @@
     <%- include('../partials/sidebar') %>
 
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
-
             <%- include('../partials/header') %>
+
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Adicionar usuário</h2>
-
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
-                            <a href="/usuarios"
+                            <a href="/usuario"
                                 class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Usuários</a>
                         </li>
                         <li class="flex items-center opacity-30 leading-none">
@@ -46,59 +40,75 @@
                 </div>
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form id="form_add_user" action="/usuarios/novo" method="post" class="w-full">
-
+                    <form id="form_add_user" class="w-full" onsubmit="return false;">
                         <div class="grid grid-cols-1 gap-6">
                             <div class="md:col-span-8 space-y-6">
-
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do usuário</h5>
-                                        <p class="text-sm text-zinc-400 mt-1">Preencha as informações básicas de acesso.
-                                        </p>
+                                        <p class="text-sm text-zinc-400 mt-1">Preencha as informações básicas. Senha
+                                            padrão: <b>mudar123</b></p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium" for="userName">Nome Completo</label>
-                                            <input id="userName" name="nome" type="text" class="input h-10 w-full"
-                                                placeholder="Ex: João Silva" required>
-                                        </div>
 
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
-                                            <input id="userEmail" name="email" type="email" class="input h-10 w-full"
-                                                placeholder="email@exemplo.com" required>
-                                        </div>
+                                        <!-- 1. SELECT UNIDADE (NO TOPO) -->
+                                        <!-- Só aparece se o backend mandar a lista de unidades (ou seja, se for Admin) -->
+                                        <% if (unidades && unidades.length> 0) { %>
+                                            <div class="w-full max-w-2xl">
+                                                <label class="mb-2 block font-medium">Unidade Vinculada</label>
+                                                <select id="user_unidade" name="unidade" class="js-select w-full"
+                                                    required>
+                                                    <option value="" selected disabled>Selecione a unidade...</option>
+                                                    <% unidades.forEach(function(u) { %>
+                                                        <option value="<​%= u.id_unidade %>">
+                                                            <%= u.nome_fantasia %> (<%= u.cidade %>)
+                                                        </option>
+                                                        <% }); %>
+                                                </select>
+                                                <p class="text-xs text-zinc-400 mt-1">Selecione a unidade onde este
+                                                    usuário irá atuar.</p>
+                                            </div>
+                                            <% } %>
 
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Perfil de Acesso</label>
-                                            <select id="user_perfil" name="perfil" class="js-select w-full" required>
-                                                <option value="" selected disabled>Selecione um perfil...</option>
-                                                <option value="admin">Administrador</option>
-                                                <option value="gestor">Gestor</option>
-                                                <option value="usuario">Usuário Comum</option>
-                                                <option value="mecanico">Mecânico</option>
-                                            </select>
-                                        </div>
+                                                <!-- 2. NOME -->
+                                                <div class="w-full max-w-2xl">
+                                                    <label class="mb-2 block font-medium" for="userName">Nome
+                                                        Completo</label>
+                                                    <input id="userName" name="nome" type="text"
+                                                        class="input h-10 w-full" placeholder="Ex: João Silva" required>
+                                                </div>
+
+                                                <!-- 3. EMAIL -->
+                                                <div class="w-full max-w-2xl">
+                                                    <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
+                                                    <input id="userEmail" name="email" type="email"
+                                                        class="input h-10 w-full" placeholder="email@exemplo.com"
+                                                        required>
+                                                </div>
+
+                                                <!-- 4. PERFIL -->
+                                                <div class="w-full max-w-2xl">
+                                                    <label class="mb-2 block font-medium">Perfil de Acesso</label>
+                                                    <select id="user_perfil" name="perfil" class="w-full" required>
+                                                        <option value="" selected disabled>Carregando...</option>
+                                                    </select>
+                                                </div>
+
                                     </div>
                                 </div>
 
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <button type="reset"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 transition-all">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span>
-                                        Descartar
-                                    </button>
-
-                                    <button onclick="saveUser(event)" type="submit"
+                                    <a href="/usuario"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 transition-all flex items-center justify-center">
+                                        Cancelar
+                                    </a>
+                                    <button onclick="saveUser(event)" type="button"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
-                                        <span class="icon-[lucide--user-plus] text-lg me-1"></span>
                                         Salvar Usuário
                                     </button>
                                 </div>
-
                             </div>
                         </div>
                     </form>
@@ -108,49 +118,90 @@
         </main>
 
         <script src="/js/theme.js"></script>
-
         <script src="/vendor/js/tom-select.complete.min.js"></script>
-        <script>
-            // Inicialização idêntica à de Riscos, que é a mais estável
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true,
-                    // Mantemos a busca ativa para facilitar encontrar o perfil
-                    render: {
-                        no_results: function (data, escape) {
-                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
-                        }
-                    }
-                });
-            });
-        </script>
-
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
         <script>
-            function saveUser(e) {
+            document.addEventListener('DOMContentLoaded', function () {
+                // --- DADOS DO BACKEND ---
+                const perfis = JSON.parse('<%- JSON.stringify(perfis || []) %>');
+
+                // --- POPULAR PERFIS ---
+                const selectPerfil = document.getElementById('user_perfil');
+                selectPerfil.innerHTML = '<option value="" selected disabled>Selecione um perfil...</option>';
+
+                perfis.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id_perfil;
+                    opt.textContent = p.nome_perfil;
+                    selectPerfil.appendChild(opt);
+                });
+
+                new TomSelect('#user_perfil', { create: false, allowEmptyOption: true });
+
+                // --- INICIALIZAR UNIDADE (SE EXISTIR) ---
+                // O EJS já cuidou de mostrar ou esconder o HTML.
+                // Se o elemento existir na página, inicializamos o TomSelect.
+                if (document.getElementById('user_unidade')) {
+                    new TomSelect('#user_unidade', { create: false, allowEmptyOption: true });
+                }
+            });
+
+            async function saveUser(e) {
+                e.preventDefault();
                 const form = document.getElementById('form_add_user');
 
-                // Só mostra o alerta se o formulário HTML5 for válido (campos preenchidos)
-                if (form.checkValidity()) {
-                    e.preventDefault(); // Evita o envio imediato para mostrar o SweetAlert
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Usuário cadastrado!',
-                        text: 'Os dados foram salvos com sucesso.',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    }).then(() => {
-                        // Após o alerta sumir, envia o formulário de verdade para o servidor
-                        form.submit();
-                    });
-                } else {
-                    // Se faltar algo, o navegador mostra o erro padrão (ex: "Preencha este campo")
+                if (!form.checkValidity()) {
                     form.reportValidity();
+                    return;
+                }
+
+                const nome = document.getElementById('userName').value;
+                const email = document.getElementById('userEmail').value;
+                const perfil = document.getElementById('user_perfil').value;
+
+                let unidade = null;
+                const selectUnidade = document.getElementById('user_unidade');
+
+                // Se o campo existe na tela, pegamos o valor
+                if (selectUnidade) {
+                    unidade = selectUnidade.value;
+                }
+
+                const payload = { nome, email, perfil, unidade };
+
+                try {
+                    const response = await fetch('/usuario/novo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sucesso!',
+                            text: 'Usuário criado com senha padrão: mudar123',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/usuario';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro',
+                            text: result.message
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: 'Erro de conexão com o servidor.'
+                    });
                 }
             }
         </script>

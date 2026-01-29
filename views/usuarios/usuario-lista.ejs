@@ -4,609 +4,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../../../cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="../../../../cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
-    <title>Raven - Contas (Perfis & Permissões)</title>
-    <link rel="icon" href="images/favicon.png" type="image/png">
-    <!--Simplebar-->
-    <link rel="stylesheet" href="vendor/css/simplebar.css">
-    <!--:Fonts:-->
+    <title>Raven - Gestão de Usuários</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-    <!--:Main Style:-->
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- DataTables & Plugins -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
-    <!-- SIDEBAR -->
     <%- include('../partials/sidebar') %>
 
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
-            <!-- HEADER / TOPBAR -->
             <%- include('../partials/header') %>
 
-                <!--:Page content:-->
-                <div class="content flex flex-col flex-grow px-4 lg:px-8">
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">Gestão de Usuários</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Usuários</span></li>
+                    </ol>
+                </div>
 
-                    <div class="py-4 flex items-center justify-between">
-                        <h5 class="text-lg">Todos os usuários</h5>
-                    </div>
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
-                    <!--:Tabela:-->
-                    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+                            <!-- Toolbar -->
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
 
-                        <div
-                            class="flex flex-wrap gap-2 items-center px-4 pt-4 pb-2 border-b border-zinc-500/10 dark:border-zinc-800">
-                            <div class="flex-grow relative">
-                                <input type="search" class="input !ps-9" name="memberSearch" id="memberSearch"
-                                    placeholder="Filtrar por nome, perfil, plano e status">
-                                <span
-                                    class="text-sm absolute start-0 top-0 flex items-center justify-center h-full w-9">
-                                    <span class="icon-[lucide--sliders-horizontal]"></span>
-                                </span>
-                            </div>
-
-                            <div class="flex items-center flex-wrap justify-end gap-2">
-                                <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
-                                    style="display: none;">Excluir</button>
-
-                                <div class="flex items-center gap-2">
+                                <!-- Search -->
+                                <div class="flex-grow">
                                     <div class="relative">
-                                        <button data-bs-toggle="dropdown" type="button"
-                                            class="btn bg-sky-500 text-white hover:bg-sky-600">
-                                            <span class="icon-[lucide--download] text-lg me-1"></span>
-                                            Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                                        </button>
-                                        <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                                            <a href="#!" class="dropdown-item">
-                                                <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                                            </a>
-                                            <a href="#!" class="dropdown-item">
-                                                <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
-                                            </a>
-                                            <a href="#!" class="dropdown-item">
-                                                <img src="images/files/excel.svg" class="h-4 me-2" alt=""> Baixar Excel
-                                            </a>
-                                            <a href="#!" class="dropdown-item">
-                                                <img src="images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
-                                            </a>
-                                            <a href="#!" class="dropdown-item">
-                                                <img src="images/files/pdf.svg" class="h-4 w-auto me-2" alt=""> Baixar
-                                                PDF
-                                            </a>
-                                        </div>
+                                        <input type="search" class="input !ps-9" name="userSearch" id="userSearch"
+                                            placeholder="Buscar por nome ou e-mail...">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center flex-wrap justify-end gap-2">
+                                    <!-- Botão Inativar (Oculto inicialmente) -->
+                                    <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
+                                        style="display: none;">
+                                        Inativar Selecionados
+                                    </button>
+
+                                    <!-- Filtro de Status -->
+                                    <div class="flex-grow w-56 sm:w-auto">
+                                        <select id="statusFilter" class="js-select w-full sm:w-56">
+                                            <option value="" selected>Todos os Status</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Inativo">Inativo</option>
+                                        </select>
                                     </div>
 
-                                    <a href="/usuario/novo"
-                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                        <span class="icon-[lucide--user-plus] text-lg me-1"></span>
-                                        Adicionar usuário
-                                    </a>
+                                    <!-- Botões de Ação -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="relative">
+                                            <button data-bs-toggle="dropdown" type="button"
+                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
+                                                <span class="icon-[lucide--download] text-lg me-1"></span>
+                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
+                                            </button>
+                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
+                                                <a href="#!" class="dropdown-item"><span
+                                                        class="icon-[lucide--copy] dropdown-icon"></span> Copiar
+                                                    JSON</a>
+                                                <a href="#!" class="dropdown-item"><img src="/images/files/excel.svg"
+                                                        class="h-4 me-2" alt=""> Baixar Excel</a>
+                                            </div>
+                                        </div>
+
+                                        <!-- CORRIGIDO: /usuario/novo -->
+                                        <a href="/usuario/novo"
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            <span class="icon-[lucide--user-plus] text-lg me-1"></span>
+                                            Novo Usuário
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
+
+                            <!-- Table -->
+                            <table id="table_usuarios" class="table-default w-full">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Usuário</th>
+                                        <th>Unidade</th>
+                                        <th>Perfil</th>
+                                        <th>Status</th>
+                                        <th data-orderable="false">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
                         </div>
-
-                        <table id="table_members" class="table-default">
-                            <thead>
-                                <tr>
-                                    <th data-orderable="false"></th>
-                                    <th>
-                                        <div class="flex items-center gap-2">Usuário</div>
-                                    </th>
-                                    <th>
-                                        <div class="flex items-center gap-2">Status</div>
-                                    </th>
-                                    <th>
-                                        <div class="flex items-center gap-2">Perfil</div>
-                                    </th>
-
-                                    <th data-orderable="false"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="flex flex-nowrap items-center gap-2.5">
-                                                <img alt="" src="images/avatars/thumb-4.jpg"
-                                                    class="size-6 rounded-full shrink-0">
-                                                <div class="flex-grow">
-                                                    <h6>Caleb Michael Stone</h6>
-                                                    <p class="text-muted text-sm">caleb.michael@gmail.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <span class="text-lg text-primary"></span> Admin
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div>
-                                            <button
-                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
-                                            </button>
-                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
-                                                <a href="/contas/detalhes/USR292811" class="dropdown-item">
-                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
-                                                    Detalhes
-                                                </a>
-                                                <a href="/contas/editar/USR292811" class="dropdown-item">
-                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
-                                                    Editar
-                                                </a>
-                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
-                                                    Excluir
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td></td>
-
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="flex flex-nowrap items-center gap-2.5">
-                                                <img alt="" src="images/avatars/thumb-7.jpg"
-                                                    class="size-6 rounded-full shrink-0">
-                                                <div class="flex-grow">
-                                                    <h6>Elias Matthew Carter</h6>
-                                                    <p class="text-muted text-sm">elias.matthew@gmail.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-green-500/10 text-green-500">Ativo</span></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <span class="text-lg text-blue-500"></span>
-                                            Mercado
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div>
-                                            <button
-                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
-                                            </button>
-                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
-                                                <a href="/contas/detalhes/USR872843" class="dropdown-item">
-                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
-                                                    Detalhes
-                                                </a>
-                                                <a href="/contas/editar/USR872843" class="dropdown-item">
-                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
-                                                    Editar
-                                                </a>
-                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
-                                                    Excluir
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td></td>
-
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="flex flex-nowrap items-center gap-2.5">
-                                                <img alt="" src="images/avatars/thumb-8.jpg"
-                                                    class="size-6 rounded-full shrink-0">
-                                                <div class="flex-grow">
-                                                    <h6>Gabriel Thomas</h6>
-                                                    <p class="text-muted text-sm">gabriel.thomas@gmail.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-zinc-300/10 text-muted">Inativo</span></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <span class=" text-center text-red-500"></span>
-                                            Técnico de segurança
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div>
-                                            <button
-                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
-                                            </button>
-                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
-                                                <a href="/contas/detalhes/USR364829" class="dropdown-item">
-                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
-                                                    Detalhes
-                                                </a>
-                                                <a href="/contas/editar/USR364829" class="dropdown-item">
-                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
-                                                    Editar
-                                                </a>
-                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
-                                                    Excluir
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td></td>
-
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="flex flex-nowrap items-center gap-2.5">
-                                                <img alt="" src="images/avatars/thumb-1.jpg"
-                                                    class="size-6 rounded-full shrink-0">
-                                                <div class="flex-grow">
-                                                    <h6>Elizabeth Wilson</h6>
-                                                    <p class="text-muted text-sm">elizabeth.wilson@gmail.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-orange-500/10 text-orange-500">Pendente</span></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <span class="text-lg"></span>
-                                            Gestor
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div>
-                                            <button
-                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
-                                            </button>
-                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
-                                                <a href="/contas/detalhes/USR200987" class="dropdown-item">
-                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
-                                                    Detalhes
-                                                </a>
-                                                <a href="/contas/editar/USR200987" class="dropdown-item">
-                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
-                                                    Editar
-                                                </a>
-                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
-                                                    Excluir
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td></td>
-
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="flex flex-nowrap items-center gap-2.5">
-                                                <img alt="" src="images/avatars/thumb-9.jpg"
-                                                    class="size-6 rounded-full shrink-0">
-                                                <div class="flex-grow">
-                                                    <h6>Andrew Noel</h6>
-                                                    <p class="text-muted text-sm">andrew.noel@gmail.com</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-zinc-300/10 text-muted">Inativo</span></td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <span class="text-lg"></span>
-                                            Técnico de segurança
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        <div>
-                                            <button
-                                                class="btn text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-primary !p-1.5"
-                                                type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <span class="icon-[lucide--more-vertical] text-lg"></span>
-                                            </button>
-                                            <div class="dropdown-menu z-50 absolute min-w-32 top-full">
-                                                <a href="/contas/detalhes/USR765434" class="dropdown-item">
-                                                    <span class="icon-[lucide--eye] dropdown-icon"></span>
-                                                    Detalhes
-                                                </a>
-                                                <a href="/contas/editar/USR765434" class="dropdown-item">
-                                                    <span class="icon-[lucide--edit] dropdown-icon"></span>
-                                                    Editar
-                                                </a>
-                                                <hr class="border-zinc-100 dark:border-white/10 my-2">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--trash] dropdown-icon"></span>
-                                                    Excluir
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
-
-                    <!-- FOOTER -->
-                    <%- include('../partials/footer') %>
                 </div>
+
+                <%- include('../partials/footer') %>
 
         </main>
 
-        <!--:Modal Editar Perfil (mantido e traduzido):-->
-        <div id="modalEditRole" role="dialog"
-            class="modal fade fixed w-full h-full left-0 top-0 z-[60] hidden [&.show]:flex overflow-y-auto"
-            tabindex="-1">
-            <div class="modal-dialog relative m-4 min-h-[calc(100%-2rem)] pointer-events-none">
-                <div
-                    class="modal-content max-w-4xl mx-auto bg-white dark:bg-zinc-900 rounded-xl w-full pointer-events-auto">
-                    <div class="flex items-center justify-between px-4 py-4">
-                        <div class="flex-grow">
-                            <h5 class="text-lg mb-2">Admin</h5>
-                            <p class="text-muted">Edite as permissões do perfil Admin</p>
-                        </div>
-                        <button type="button" class="size-8 rounded-full btn btn-default !p-0" data-bs-dismiss="modal">
-                            <span class="icon-[lucide--x] text-lg"></span>
-                        </button>
-                    </div>
-
-                    <ul class="flex flex-col divide-y divide-zinc-500/10 dark:divide-zinc-800">
-                        <!--:Permissão:-->
-                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
-                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
-                                <div
-                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
-                                    <span class="icon-[lucide--user-check] text-xl"></span>
-                                </div>
-                                <div class="flex-grow overflow-hidden">
-                                    <div>
-                                        <h5 class="truncate mb-1">Gerenciamento de usuários</h5>
-                                        <p class="truncate text-sm">Controle de acesso para gestão de usuários</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Ler
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Escrever
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-
-                        <!--:Permissão:-->
-                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
-                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
-                                <div
-                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
-                                    <span class="icon-[lucide--file-chart-line] text-xl"></span>
-                                </div>
-                                <div class="flex-grow overflow-hidden">
-                                    <div>
-                                        <h5 class="truncate mb-1">Relatórios</h5>
-                                        <p class="truncate text-sm">Controle de acesso para gerar relatórios</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Ler
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Escrever
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-
-                        <!--:Permissão:-->
-                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
-                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
-                                <div
-                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
-                                    <span class="icon-[lucide--database-backup] text-xl"></span>
-                                </div>
-                                <div class="flex-grow overflow-hidden">
-                                    <div>
-                                        <h5 class="truncate mb-1">Configurações do sistema</h5>
-                                        <p class="truncate text-sm">Controle de acesso para configurações do sistema</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Ler
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Escrever
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-
-                        <!--:Permissão:-->
-                        <li class="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-3.5">
-                            <div class="flex items-center overflow-hidden gap-3.5 flex-grow">
-                                <div
-                                    class="size-10 shrink-0 rounded-lg flex items-center justify-center border border-zinc-200 dark:border-zinc-800 text-primary">
-                                    <span class="icon-[lucide--folder-git-2] text-xl"></span>
-                                </div>
-                                <div class="flex-grow overflow-hidden">
-                                    <div>
-                                        <h5 class="truncate mb-1">Gerenciamento de arquivos</h5>
-                                        <p class="truncate text-sm">Controle de acesso para gerenciamento de arquivos
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center shrink-0 gap-2 sm:justify-end">
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 active group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Ler
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Escrever
-                                    </button>
-                                </div>
-                                <div>
-                                    <button type="button" data-bs-toggle="button"
-                                        class="btn btn-sm btn-default !py-0 h-8 group">
-                                        <span
-                                            class="icon-[lucide--check] text-lg hidden group-[.active]:block me-1"></span>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-
-                    <div class="px-4 py-4 flex items-center justify-end gap-2">
-                        <button type="button" class="btn btn-default" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="button" class="btn bg-zinc-700 text-white hover:bg-zinc-800">Atualizar</button>
-                    </div>
-                </div>
-            </div>
+        <!-- ELEMENTO OCULTO: Guarda o JSON puro vindo do backend -->
+        <div id="dados-usuarios-json" style="display: none;">
+            <%= usuariosJson %>
         </div>
 
-        <!--:Scripts:-->
-        <script src="js/theme.js"></script>
-
-        <script src="vendor/js/jquery.min.js"></script>
-        <script src="../../../../cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="../../../../cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="../../../../cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <!-- Scripts -->
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const table = new DataTable('#table_members', {
+                // 1. LER DADOS
+                let listaUsuarios = [];
+                try {
+                    const divJson = document.getElementById('dados-usuarios-json');
+                    if (divJson && divJson.innerText) {
+                        listaUsuarios = JSON.parse(divJson.innerText);
+                    }
+                } catch (e) {
+                    console.error("Erro ao ler JSON:", e);
+                }
+
+                console.log("Usuários carregados:", listaUsuarios);
+
+                // 2. RENDERIZAR TABELA
+                const tbody = document.getElementById('tableBody');
+                if (listaUsuarios.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum usuário encontrado.</td></tr>';
+                } else {
+                    listaUsuarios.forEach((u, index) => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-index', index);
+
+                        const statusHtml = u.ativo
+                            ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
+                            : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
+
+                        // Avatar placeholder (iniciais)
+                        const iniciais = u.nome_completo.substring(0, 2).toUpperCase();
+
+                        tr.innerHTML = `
+                        <td></td>
+                        <td>
+                            <div class="flex items-center">
+                                <div class="flex flex-nowrap items-center gap-2.5">
+                                    <div class="size-10 rounded-full shrink-0 bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                                        ${iniciais}
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h6 class="font-semibold text-zinc-900 dark:text-zinc-100">${u.nome_completo}</h6>
+                                        <p class="text-muted text-sm">${u.email}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap text-sm">${u.nome_unidade || '-'}</td>
+                        <td>
+                            <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                                ${u.nome_perfil}
+                            </span>
+                        </td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                <!-- CORRIGIDO: /usuario/editar -->
+                                <a href="/usuario/editar/${u.id_usuario}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // 3. INICIALIZAR DATATABLE (Configuração Padrão Raven)
+                const table = new DataTable('#table_usuarios', {
                     lengthChange: false,
-                    pageLength: 9,
+                    pageLength: 10,
                     scrollX: true,
                     dom: 'lrtip',
-                    columnDefs: [{
-                        orderable: false,
-                        searchable: false,
-                        render: DataTable.render.select(),
-                        targets: 0,
-                    }],
+                    language: {
+                        emptyTable: "Nenhum usuário encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
+                        select: { rows: "" }
+                    },
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            searchable: false,
+                            render: DataTable.render.select(),
+                            targets: 0,
+                        }
+                    ],
                     select: {
                         style: 'os',
                         selector: 'td:first-child',
                         headerCheckbox: false
                     },
-                    order: [
-                        [1, 'asc']
-                    ],
+                    order: [[1, 'asc']]
                 });
 
-                const searchInput = document.getElementById('memberSearch');
-                searchInput.addEventListener('input', (e) => {
+                // Busca
+                document.getElementById('userSearch').addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                const deleteBtn = document.getElementById("deleteBtn");
-                table.on('select deselect', function () {
-                    const selectedRows = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = selectedRows > 0 ? "inline-block" : "none";
+                // Filtro Status
+                document.getElementById('statusFilter').addEventListener('change', function () {
+                    table.columns(4).search(this.value).draw();
                 });
 
-                deleteBtn.addEventListener('click', () => {
-                    table.rows({ selected: true }).remove().draw();
-                    deleteBtn.style.display = 'none';
+                // Botão Inativar
+                const inativarBtn = document.getElementById("inativarBtn");
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
+                    inativarBtn.innerHTML = `Inativar (${count})`;
+                });
+
+                // Ação Inativar
+                inativarBtn.addEventListener('click', function () {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+                    const jaInativos = [];
+
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+                        if (index !== null && listaUsuarios[index]) {
+                            const u = listaUsuarios[index];
+                            if (u.ativo === 0) {
+                                jaInativos.push(u.nome_completo);
+                            } else {
+                                selectedIds.push(u.id_usuario);
+                            }
+                        }
+                    });
+
+                    if (jaInativos.length > 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Ação Bloqueada',
+                            html: `Os seguintes usuários <b>já estão inativos</b>:<br><br>${jaInativos.join('<br>')}<br><br>Desmarque-os para continuar.`
+                        });
+                        return;
+                    }
+
+                    if (selectedIds.length === 0) return;
+
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: `Deseja inativar ${selectedIds.length} usuário(s)? Eles perderão o acesso ao sistema.`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            confirmButton: 'btn bg-amber-500 text-white hover:bg-amber-600 px-6 py-2 rounded-lg',
+                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
+                        },
+                        buttonsStyling: false
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                // CORRIGIDO: /usuario/inativar-multiplos
+                                const response = await fetch('/usuario/inativar-multiplos', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: selectedIds })
+                                });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                                } else {
+                                    Swal.fire('Erro', data.message, 'error');
+                                }
+                            } catch (err) {
+                                Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                            }
+                        }
+                    });
                 });
             });
         </script>
 
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: false, allowEmptyOption: true });
+            });
+        </script>
 </body>
 
 </html>

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - Gestão de Unidades</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- CSS -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -149,25 +151,25 @@
                             : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
                         tr.innerHTML = `
-                        <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${unidade.nome_fantasia || ''}</td>
-                        <td class="whitespace-nowrap">${unidade.razao_social || '-'}</td>
-                        <td class="whitespace-nowrap">${unidade.cnpj || ''}</td>
-                        <td class="whitespace-nowrap">${unidade.cidade || ''} - ${unidade.estado || ''}</td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                <a href="/unidade/editar/${unidade.id_unidade}" class="btn !p-1.5 hover:!text-primary">
-                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                </a>
-                            </div>
-                        </td>
-                    `;
+                    <td></td>
+                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${unidade.nome_fantasia || ''}</td>
+                    <td class="whitespace-nowrap">${unidade.razao_social || '-'}</td>
+                    <td class="whitespace-nowrap">${unidade.cnpj || ''}</td>
+                    <td class="whitespace-nowrap">${unidade.cidade || ''} - ${unidade.estado || ''}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <div class="flex items-center justify-end gap-1 relative z-[1]">
+                            <a href="/unidade/editar/${unidade.id_unidade}" class="btn !p-1.5 hover:!text-primary">
+                                <span class="icon-[lucide--edit] text-lg"></span>
+                            </a>
+                        </div>
+                    </td>
+                `;
                         tbody.appendChild(tr);
                     });
                 }
 
-                // 3. INICIALIZAR DATATABLE
+                // 3. INICIALIZAR DATATABLE (CONFIGURAÇÃO IGUAL A TELA DE SERVIÇOS)
                 const table = new DataTable('#table_unidades', {
                     lengthChange: false,
                     pageLength: 10,
@@ -179,15 +181,18 @@
                         paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
                         select: { rows: "" }
                     },
-                    columnDefs: [{
-                        orderable: false,
-                        className: 'select-checkbox',
-                        targets: 0,
-                    }],
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            searchable: false,
+                            render: DataTable.render.select(), // IGUAL SERVIÇOS
+                            targets: 0,
+                        }
+                    ],
                     select: {
-                        style: 'multi',
+                        style: 'os', // IGUAL SERVIÇOS
                         selector: 'td:first-child',
-                        headerCheckbox: true
+                        headerCheckbox: false // IGUAL SERVIÇOS
                     },
                     order: [[1, 'asc']]
                 });
@@ -213,7 +218,7 @@
                 inativarBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
-                    const unidadesJaInativas = []; // Lista para guardar os nomes dos "teimosos"
+                    const unidadesJaInativas = [];
 
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
@@ -240,7 +245,7 @@
                             title: 'Ação Bloqueada',
                             html: `A seguinte unidade <b>já está inativada</b>:<br><br><b>${unidadesJaInativas.join('<br>')}</b><br><br>Por favor, desmarque essas opções para continuar.`
                         });
-                        return; // O return aqui impede que o código continue
+                        return;
                     }
 
                     console.log("IDs capturados:", selectedIds);
