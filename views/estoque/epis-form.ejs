@@ -207,7 +207,7 @@
                     setMsg("info", "Conectando ao sistema...");
 
                     try {
-                        const response = await fetch(`/api/epi/ca/${ca}`);
+                        const response = await fetch(`/epi/consulta-ca/${ca}`);
 
                         if (!response.ok) {
                             const errorData = await response.json();
