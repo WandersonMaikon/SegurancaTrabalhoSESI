@@ -7,17 +7,13 @@
     <title>Raven - Perfis de Acesso</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
 </head>
@@ -30,6 +26,7 @@
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
+
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Perfis de Acesso</h2>
 
@@ -60,7 +57,7 @@
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="perfilSearch" id="perfilSearch"
-                                            placeholder="Buscar perfil (nome ou código)">
+                                            placeholder="Buscar perfil (nome ou descrição)">
                                         <span
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
@@ -69,7 +66,7 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="deleteBtnPerfil" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display:none;">
-                                        Excluir
+                                        Excluir Selecionados
                                     </button>
 
                                     <a href="/perfil/novo"
@@ -80,55 +77,56 @@
                                 </div>
                             </div>
 
-                            <table id="table_perfis" class="table-default">
+                            <table id="table_perfis" class="table-default w-full">
                                 <thead>
                                     <tr>
-                                        <th></th>
+                                        <th></th> <!-- Checkbox do DataTables -->
                                         <th class="text-nowrap">Nome do Perfil</th>
-                                        <th class="text-nowrap">Código (Slug)</th>
+                                        <th class="text-nowrap">Descrição</th>
                                         <th class="text-nowrap">Usuários Ativos</th>
-                                        <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        <th class="text-nowrap text-end" data-orderable="false">Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td class="font-semibold text-zinc-900 dark:text-white">Administrador</td>
-                                        <td><span
-                                                class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">admin</span>
-                                        </td>
-                                        <td>5</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1">
-                                                <a href="/perfis/editar/1" class="btn !p-1.5 hover:!text-primary"
-                                                    title="Editar Permissões">
-                                                    <span class="icon-[lucide--shield-check] text-lg"></span>
-                                                </a>
-                                                <a href="/perfis/detalhes/1" class="btn !p-1.5 hover:!text-primary"
-                                                    title="Ver Detalhes">
+                                    <% if (typeof perfis !=='undefined' && perfis.length> 0) { %>
+                                        <% perfis.forEach(function(p) { %>
+                                            <tr data-id="<​%= p.id_perfil %>">
+                                                <td></td>
+                                                <td class="font-semibold text-zinc-900 dark:text-white">
+                                                    <%= p.nome_perfil %>
+                                                </td>
+                                                <td>
+                                                    <span class="text-sm text-zinc-500 truncate max-w-[200px] block">
+                                                        <%= p.descricao || 'Sem descrição' %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                                                        <%= p.total_usuarios %> usuários
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <div class="flex items-center justify-end gap-1">
+                                                        <!-- Botão Editar -->
+                                                        <a href="/perfis/editar/<%= p.id_perfil %>"
+                                                            class="btn !p-1.5 hover:!text-primary"
+                                                            title="Editar Permissões">
+                                                            <span class="icon-[lucide--shield-check] text-lg"></span>
+                                                        </a>
+                                                        <!-- Botão Detalhes (Opcional) -->
+                                                        <!-- 
+                                                <a href="/perfis/detalhes/<%= p.id_perfil %>" class="btn !p-1.5 hover:!text-primary" title="Ver Detalhes">
                                                     <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td class="font-semibold text-zinc-900 dark:text-white">Gestor de Operações</td>
-                                        <td><span
-                                                class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">gestor</span>
-                                        </td>
-                                        <td>12</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1">
-                                                <a href="/perfis/editar/2" class="btn !p-1.5 hover:!text-primary">
-                                                    <span class="icon-[lucide--shield-check] text-lg"></span>
-                                                </a>
-                                                <a href="/perfis/detalhes/2" class="btn !p-1.5 hover:!text-primary">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                </a> 
+                                                -->
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <!-- Caso não tenha perfis (raro, pois tem o seed) -->
+                                                    <% } %>
                                 </tbody>
                             </table>
                         </div>
@@ -150,33 +148,58 @@
                     lengthChange: false,
                     pageLength: 10,
                     scrollX: true,
-                    dom: 'lrtip',
+                    dom: 'lrtip', // Esconde o search padrão do DataTables para usar o nosso customizado
+                    language: {
+                        emptyTable: "Nenhum perfil encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ perfis",
+                        paginate: {
+                            first: "Primeiro",
+                            last: "Último",
+                            next: "Próximo",
+                            previous: "Anterior"
+                        }
+                    },
                     columnDefs: [
                         {
                             orderable: false,
                             render: DataTable.render.select(),
-                            targets: 0,
+                            targets: 0, // Primeira coluna vira checkbox
+                            className: 'select-checkbox'
                         }
                     ],
                     select: {
-                        style: 'os',
-                        selector: 'td:first-child',
-                        headerCheckbox: false
+                        style: 'multi', // Permite selecionar vários
+                        selector: 'td:first-child'
                     },
-                    order: [[1, 'asc']],
+                    order: [[1, 'asc']], // Ordena pelo nome
                 });
 
-                // Busca personalizada
+                // Busca personalizada (Conecta o input HTML ao DataTables)
                 const searchInput = document.getElementById('perfilSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                // Lógica do botão excluir (Apenas visual neste exemplo)
+                // Lógica do botão excluir
                 const deleteBtn = document.getElementById('deleteBtnPerfil');
+
                 table.on('select deselect', function () {
-                    const selectedRows = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
+                    const selectedCount = table.rows({ selected: true }).count();
+
+                    if (selectedCount > 0) {
+                        deleteBtn.style.display = 'inline-flex';
+                        deleteBtn.textContent = `Excluir (${selectedCount})`;
+                    } else {
+                        deleteBtn.style.display = 'none';
+                    }
+                });
+
+                // Ação de Excluir (Exemplo básico)
+                deleteBtn.addEventListener('click', () => {
+                    const selectedData = table.rows({ selected: true }).data();
+                    // Aqui você pegaria os IDs das linhas selecionadas para enviar ao backend
+                    // Exemplo: const ids = table.rows({ selected: true }).nodes().map(row => row.getAttribute('data-id'));
+                    alert('Funcionalidade de excluir será implementada em breve!');
                 });
             });
         </script>

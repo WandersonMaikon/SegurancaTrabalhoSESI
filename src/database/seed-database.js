@@ -1,21 +1,21 @@
-const db = require('./database/db');
+const db = require('./db'); // Certifique-se que o caminho está correto
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid'); // Biblioteca para gerar UUID
+const { v4: uuidv4 } = require('uuid');
 
 async function seedDatabase() {
     console.log("🚀 Iniciando a população do banco de dados...");
 
-    const connection = await db.getConnection(); // Pega uma conexão do pool
+    const connection = await db.getConnection();
 
     try {
-        await connection.beginTransaction(); // Inicia uma transação (tudo ou nada)
+        await connection.beginTransaction();
 
         // ---------------------------------------------------------
         // 1. CRIAR UNIDADE (Matriz)
         // ---------------------------------------------------------
         const unidadeId = uuidv4();
         console.log(`🏢 Criando Unidade (ID: ${unidadeId})...`);
-        
+
         await connection.query(`
             INSERT INTO unidade (id_unidade, nome_fantasia, razao_social, cnpj, cidade, estado, ativo)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -33,13 +33,53 @@ async function seedDatabase() {
         `, [perfilId, 'Administrador', 'Acesso total ao sistema', true]);
 
         // ---------------------------------------------------------
+        // 2.1. CRIAR MÓDULOS E DAR PERMISSÕES AO ADMIN
+        // ---------------------------------------------------------
+        console.log(`📦 Cadastrando Módulos e Permissões...`);
+
+        // Lista baseada na sua estrutura
+        const listaModulos = [
+            { nome: 'Dashboard', chave: 'dashboard_view' },
+            { nome: 'Gestão de Clientes', chave: 'clientes' },
+            { nome: 'Catálogo de Serviços', chave: 'servicos' },
+            { nome: 'Ordem de Serviço (OS)', chave: 'ordem_servico' },
+            { nome: 'Relatórios Gerenciais', chave: 'relatorios' },
+            { nome: 'Scrum Board', chave: 'scrum_board' },
+            // Usuários (Dividido em 3 para controle granular)
+            { nome: 'Gestão de Usuários', chave: 'usuarios_lista' },
+            { nome: 'Registro de Atividades (Logs)', chave: 'usuarios_logs' },
+            { nome: 'Perfis e Permissões', chave: 'usuarios_perfis' },
+            // Cadastros
+            { nome: 'Cadastros de Segurança (Riscos, EPIs)', chave: 'cadastros_seguranca' },
+            { nome: 'Gestão de Unidades', chave: 'unidades' }
+        ];
+
+        for (const mod of listaModulos) {
+            const moduloId = uuidv4();
+
+            // A. Insere o Módulo
+            await connection.query(`
+                INSERT INTO modulo_sistema (id_modulo, nome_modulo, chave_sistema)
+                VALUES (?, ?, ?)
+            `, [moduloId, mod.nome, mod.chave]);
+
+            // B. Cria a Permissão TOTAL para o Admin neste módulo
+            const permissaoId = uuidv4();
+            await connection.query(`
+                INSERT INTO perfil_permissao (
+                    id_permissao, id_perfil, id_modulo, 
+                    pode_ver, pode_criar, pode_editar, pode_excluir, tudo
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            `, [permissaoId, perfilId, moduloId, true, true, true, true, true]);
+        }
+
+        // ---------------------------------------------------------
         // 3. CRIAR USUÁRIO (Admin)
         // ---------------------------------------------------------
         const usuarioId = uuidv4();
         const email = "admin@admin.com";
         const senhaPlana = "123456";
-        
-        // Criptografa a senha
+
         const salt = bcrypt.genSaltSync(10);
         const senhaHash = bcrypt.hashSync(senhaPlana, salt);
 
@@ -54,7 +94,7 @@ async function seedDatabase() {
         // ---------------------------------------------------------
         // FINALIZAÇÃO
         // ---------------------------------------------------------
-        await connection.commit(); // Confirma todas as alterações
+        await connection.commit();
         console.log("\n✅ SUCESSO TOTAL!");
         console.log("------------------------------------------------");
         console.log(`📧 Login: ${email}`);
@@ -62,15 +102,15 @@ async function seedDatabase() {
         console.log("------------------------------------------------");
 
     } catch (error) {
-        await connection.rollback(); // Desfaz tudo se der erro
-        
+        await connection.rollback();
+
         if (error.code === 'ER_DUP_ENTRY') {
-            console.log("\n⚠️  AVISO: Parece que esses dados já existem no banco.");
+            console.log("\n⚠️  AVISO: Dados duplicados. Limpe o banco se quiser recriar do zero.");
         } else {
             console.error("\n❌ ERRO CRÍTICO:", error);
         }
     } finally {
-        connection.release(); // Libera a conexão
+        connection.release();
         process.exit();
     }
 }
