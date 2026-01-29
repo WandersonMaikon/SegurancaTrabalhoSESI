@@ -7,29 +7,43 @@
     <title>Raven - Perfis de Acesso</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
+
+    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
+
+    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
 <body
-    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
 
     <%- include('../partials/sidebar') %>
 
+        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
+                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Perfis de Acesso</h2>
 
+                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/dashboard"
@@ -48,87 +62,72 @@
                     </ol>
                 </div>
 
+                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+
+                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="perfilSearch" id="perfilSearch"
-                                            placeholder="Buscar perfil (nome ou descrição)">
+                                            placeholder="Buscar perfil">
                                         <span
                                             class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtnPerfil" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display:none;">
-                                        Excluir Selecionados
+                                    <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
+                                        style="display: none;">
+                                        Inativar
                                     </button>
 
-                                    <a href="/perfil/novo"
-                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                        <span class="icon-[lucide--plus] text-lg me-1"></span>
-                                        Novo Perfil
-                                    </a>
+                                    <div class="flex-grow w-56 sm:w-auto">
+                                        <select id="statusFilter" class="js-select w-full sm:w-56">
+                                            <option value="" selected>Todos</option>
+                                            <option value="Ativo">Ativo</option>
+                                            <option value="Inativo">Inativo</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <a href="/perfil/novo"
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            <span class="icon-[lucide--plus] text-lg me-1"></span>
+                                            Novo Perfil
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
+                            <!-- Table -->
                             <table id="table_perfis" class="table-default w-full">
                                 <thead>
                                     <tr>
-                                        <th></th> <!-- Checkbox do DataTables -->
-                                        <th class="text-nowrap">Nome do Perfil</th>
-                                        <th class="text-nowrap">Descrição</th>
-                                        <th class="text-nowrap">Usuários Ativos</th>
-                                        <th class="text-nowrap text-end" data-orderable="false">Ações</th>
+                                        <th></th>
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Nome do Perfil</div>
+                                        </th>
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Descrição</div>
+                                        </th>
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Usuários Ativos</div>
+                                        </th>
+                                        <th class="text-nowrap">
+                                            <div class="flex items-center">Status</div>
+                                        </th>
+                                        <th class="text-nowrap" data-orderable="false"></th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <% if (typeof perfis !=='undefined' && perfis.length> 0) { %>
-                                        <% perfis.forEach(function(p) { %>
-                                            <tr data-id="<​%= p.id_perfil %>">
-                                                <td></td>
-                                                <td class="font-semibold text-zinc-900 dark:text-white">
-                                                    <%= p.nome_perfil %>
-                                                </td>
-                                                <td>
-                                                    <span class="text-sm text-zinc-500 truncate max-w-[200px] block">
-                                                        <%= p.descricao || 'Sem descrição' %>
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                                                        <%= p.total_usuarios %> usuários
-                                                    </span>
-                                                </td>
-                                                <td>
-                                                    <div class="flex items-center justify-end gap-1">
-                                                        <!-- Botão Editar -->
-                                                        <a href="/perfis/editar/<%= p.id_perfil %>"
-                                                            class="btn !p-1.5 hover:!text-primary"
-                                                            title="Editar Permissões">
-                                                            <span class="icon-[lucide--shield-check] text-lg"></span>
-                                                        </a>
-                                                        <!-- Botão Detalhes (Opcional) -->
-                                                        <!-- 
-                                                <a href="/perfis/detalhes/<%= p.id_perfil %>" class="btn !p-1.5 hover:!text-primary" title="Ver Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a> 
-                                                -->
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <!-- Caso não tenha perfis (raro, pois tem o seed) -->
-                                                    <% } %>
-                                </tbody>
+                                <!-- O CORPO DA TABELA ESTÁ VAZIO. O JAVASCRIPT VAI PREENCHER. -->
+                                <tbody id="tableBody"></tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
@@ -137,70 +136,222 @@
 
         </main>
 
+        <!-- ELEMENTO OCULTO: Guarda o JSON puro. -->
+        <div id="dados-perfis-json" style="display: none;">
+            <%= perfisJson %>
+        </div>
+
+        <!-- Scripts -->
         <script src="/js/theme.js"></script>
+
+        <!-- Page scripts -->
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // 1. LER OS DADOS DO ELEMENTO OCULTO
+                let listaPerfis = [];
+                try {
+                    const divJson = document.getElementById('dados-perfis-json');
+                    if (divJson) {
+                        const rawJson = divJson.innerText;
+                        if (rawJson) {
+                            listaPerfis = JSON.parse(rawJson);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Erro ao processar JSON:", e);
+                }
+
+                console.log("Perfis carregados no JS:", listaPerfis);
+
+                // 2. GERAR O HTML DA TABELA VIA JAVASCRIPT
+                const tbody = document.getElementById('tableBody');
+
+                if (listaPerfis.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum perfil encontrado.</td></tr>';
+                } else {
+                    listaPerfis.forEach((p, index) => {
+                        const tr = document.createElement('tr');
+                        tr.setAttribute('data-index', index);
+
+                        const statusHtml = (Number(p.ativo) === 1)
+                            ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
+                            : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
+
+                        tr.innerHTML = `
+                            <td></td>
+                            <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                                ${p.nome_perfil}
+                            </td>
+                            <td>
+                                <span class="text-sm text-zinc-500 truncate max-w-[220px] block">
+                                    ${p.descricao || 'Sem descrição'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                                    ${p.total_usuarios} usuários
+                                </span>
+                            </td>
+                            <td>${statusHtml}</td>
+                            <td>
+                                <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                    <a href="/perfil/editar/${p.id_perfil}" role="tooltip" data-bs-toggle="tooltip"
+                                        data-bs-placement="top" class="btn !p-1.5 hover:!text-primary" data-bs-title="Editar">
+                                        <span class="icon-[lucide--edit] text-lg"></span>
+                                    </a>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // 3. INICIALIZAR DATATABLE (CONFIGURAÇÃO IGUAL A TELA DE SERVIÇOS)
                 const table = new DataTable('#table_perfis', {
                     lengthChange: false,
-                    pageLength: 10,
+                    pageLength: 9,
                     scrollX: true,
-                    dom: 'lrtip', // Esconde o search padrão do DataTables para usar o nosso customizado
-                    language: {
-                        emptyTable: "Nenhum perfil encontrado",
-                        info: "Mostrando _START_ até _END_ de _TOTAL_ perfis",
-                        paginate: {
-                            first: "Primeiro",
-                            last: "Último",
-                            next: "Próximo",
-                            previous: "Anterior"
-                        }
-                    },
+                    dom: 'lrtip',
                     columnDefs: [
                         {
                             orderable: false,
-                            render: DataTable.render.select(),
-                            targets: 0, // Primeira coluna vira checkbox
-                            className: 'select-checkbox'
+                            searchable: false,
+                            render: DataTable.render.select(), // IGUAL SERVIÇOS
+                            targets: 0,
                         }
                     ],
                     select: {
-                        style: 'multi', // Permite selecionar vários
-                        selector: 'td:first-child'
+                        style: 'os', // IGUAL SERVIÇOS
+                        selector: 'td:first-child',
+                        headerCheckbox: false // IGUAL SERVIÇOS
                     },
-                    order: [[1, 'asc']], // Ordena pelo nome
+                    order: [[1, 'asc']],
                 });
 
-                // Busca personalizada (Conecta o input HTML ao DataTables)
+                // Busca
                 const searchInput = document.getElementById('perfilSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                // Lógica do botão excluir
-                const deleteBtn = document.getElementById('deleteBtnPerfil');
-
+                // Botão Inativar (show/hide)
+                const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
-                    const selectedCount = table.rows({ selected: true }).count();
+                    const count = table.rows({ selected: true }).count();
+                    inativarBtn.style.display = count > 0 ? "inline-block" : "none"; // IGUAL SERVIÇOS
+                    if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
+                });
 
-                    if (selectedCount > 0) {
-                        deleteBtn.style.display = 'inline-flex';
-                        deleteBtn.textContent = `Excluir (${selectedCount})`;
-                    } else {
-                        deleteBtn.style.display = 'none';
+                // Filtro de Status (coluna índice 4)
+                document.getElementById('statusFilter').addEventListener('change', function () {
+                    table.columns(4).search(this.value).draw();
+                });
+
+                // 4. AÇÃO DE INATIVAR (COM VERIFICAÇÃO DE STATUS)
+                inativarBtn.addEventListener('click', function () {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+                    const perfisJaInativos = [];
+
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+
+                        if (index !== null && listaPerfis[index]) {
+                            const perfil = listaPerfis[index];
+
+                            // VERIFICAÇÃO: Se já for 0 (Inativo), adiciona na lista de erro
+                            if (Number(perfil.ativo) === 0) {
+                                perfisJaInativos.push(perfil.nome_perfil);
+                            } else {
+                                // Se for 1 (Ativo), adiciona na lista para enviar
+                                if (perfil && perfil.id_perfil) {
+                                    selectedIds.push(perfil.id_perfil);
+                                }
+                            }
+                        }
+                    });
+
+                    // SE TIVER ALGUÉM JÁ INATIVO, PARA TUDO E AVISA
+                    if (perfisJaInativos.length > 0) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Ação Bloqueada',
+                            html: `O(s) perfil(is) abaixo <b>já está(ão) inativo(s)</b>:<br><br><b>${perfisJaInativos.join('<br>')}</b><br><br>Por favor, desmarque para continuar.`
+                        });
+                        return;
                     }
-                });
 
-                // Ação de Excluir (Exemplo básico)
-                deleteBtn.addEventListener('click', () => {
-                    const selectedData = table.rows({ selected: true }).data();
-                    // Aqui você pegaria os IDs das linhas selecionadas para enviar ao backend
-                    // Exemplo: const ids = table.rows({ selected: true }).nodes().map(row => row.getAttribute('data-id'));
-                    alert('Funcionalidade de excluir será implementada em breve!');
+                    if (selectedIds.length === 0) {
+                        Swal.fire('Erro', 'Nenhum perfil válido selecionado.', 'error');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Tem certeza?',
+                        text: `Você está prestes a inativar ${selectedIds.length} perfil(is).`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: {
+                            confirmButton: 'btn bg-amber-500 text-white hover:bg-amber-600 px-6 py-2 rounded-lg',
+                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
+                        },
+                        buttonsStyling: false
+                    }).then(async (result) => {
+                        if (!result.isConfirmed) return;
+
+                        try {
+                            const response = await fetch('/perfil/inativar-multiplos', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ ids: selectedIds })
+                            });
+
+                            const data = await response.json();
+
+                            if (response.ok && data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso!',
+                                    text: data.message,
+                                    confirmButtonText: 'OK',
+                                    customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
+                                    buttonsStyling: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Atenção',
+                                    text: data.message || "Erro desconhecido"
+                                });
+                            }
+                        } catch (error) {
+                            console.error(error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro!',
+                                text: 'Não foi possível conectar ao servidor.'
+                            });
+                        }
+                    });
                 });
+            });
+        </script>
+
+        <!-- Select -->
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: false, allowEmptyOption: true });
             });
         </script>
 </body>
