@@ -4,10 +4,8 @@ const db = require("../database/db");
 const bcrypt = require("bcrypt");
 const { v4: uuidv4 } = require("uuid");
 
-// 1. Importa o middleware de Login (que você já tinha)
+// Importa o middleware de Login e o de permissão 
 const verificarAutenticacao = require("../middlewares/auth.middleware");
-
-// 2. Importa o NOVO middleware de Permissão (que criamos agora)
 const verificarPermissao = require("../middlewares/permission.middleware");
 
 // -- LISTAR USUÁRIOS --
