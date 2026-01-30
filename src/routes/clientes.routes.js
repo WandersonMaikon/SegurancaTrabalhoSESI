@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
-const { v4: uuidv4 } = require('uuid'); // Necessário para gerar o ID
+const { v4: uuidv4 } = require('uuid'); 
 const verificarAutenticacao = require("../middlewares/auth.middleware");
 
 // --- Rota: Listar Clientes ---

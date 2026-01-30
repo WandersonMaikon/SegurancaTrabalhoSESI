@@ -55,6 +55,7 @@ const epiRoutes = require('./routes/epi.routes');
 const epcRoutes = require('./routes/epc.routes');
 const unidadeRoutes = require('./routes/unidade.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
+const verificarPermissao = require("./middlewares/permission.middleware");
 
 app.use('/', authRoutes);
 app.use('/dashboard', dashboardRoutes);

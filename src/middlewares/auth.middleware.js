@@ -8,6 +8,7 @@ const verificarAutenticacao = (req, res, next) => {
     res.locals.user = req.session.user;
 
     // 3. Cria a função 'can' para verificar permissões direto no HTML/EJS
+
     res.locals.can = (modulo, acao = 'ver') => {
         const perms = req.session.user.permissoes;
 
