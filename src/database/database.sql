@@ -108,12 +108,19 @@ CREATE TABLE servico (
     nome_servico VARCHAR(255) NOT NULL,
     descricao TEXT,
     ativo BOOLEAN DEFAULT TRUE,
-    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     
     FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE servico_responsavel (
+    id_servico CHAR(36) NOT NULL,
+    id_usuario CHAR(36) NOT NULL,
+    PRIMARY KEY (id_servico, id_usuario),
+    FOREIGN KEY (id_servico) REFERENCES servico(id_servico) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE ordem_servico (

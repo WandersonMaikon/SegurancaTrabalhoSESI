@@ -4,138 +4,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Raven - Cadastrar Serviço</title>
-    <link rel="icon" href="/images/favicon.png" type="image/png">
-
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
-        rel="stylesheet">
-
-    <!-- Main Style -->
-    <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page styles -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
 
-<body
-    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+<body class="font-theme flex flex-col h-full bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
-
             <%- include('../partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar serviço</h2>
-
-                    <ol class="flex gap-1 items-center text-sm">
-                        <li class="flex items-center">
-                            <a href="/dashboard"
-                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
-                        </li>
-                        <li class="flex items-center opacity-30 leading-none">
-                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-                        </li>
-                        <li class="flex items-center">
-                            <a href="/servicos"
-                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Serviços</a>
-                        </li>
-                        <li class="flex items-center opacity-30 leading-none">
-                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-                        </li>
-                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
-                    </ol>
                 </div>
 
-                <!-- Page content -->
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form id="form_add_servico" action="/servicos/novo" method="post" class="w-full">
-
+                    <form id="form_add_servico" class="w-full">
                         <div class="grid grid-cols-1 gap-6">
                             <div class="md:col-span-8 space-y-6 w-full">
 
-                                <!-- Card: Dados do serviço -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do serviço</h5>
-                                        <p class="text-sm text-zinc-400 mt-1">Preencha as informações básicas do
-                                            serviço.</p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium" for="nome_servico">Nome do
-                                                serviço</label>
+                                            <label class="mb-2 block font-medium" for="nome_servico">Nome do serviço
+                                                <span class="text-red-500">*</span></label>
                                             <input id="nome_servico" name="nome_servico" type="text"
-                                                class="input h-10 w-full" placeholder="Insira o nome do serviço"
+                                                class="input h-10 w-full" placeholder="Ex: Manutenção Elétrica"
                                                 required>
                                         </div>
 
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium" for="servico_perfil">Responsável pelo
-                                                serviço</label>
-                                            <select id="servico_perfil" name="responsavel" class="js-select w-full"
-                                                required>
-                                                <option value="" selected disabled>Selecione um responsável...</option>
-                                                <option value="usuario">Vania</option>
-                                                <option value="usuario">Luiz</option>
-                                                <option value="usuario">Renata</option>
+                                            <label class="mb-2 block font-medium">Quem realiza este serviço?</label>
+                                            <select id="responsaveis" name="responsaveis" class="w-full" multiple
+                                                placeholder="Selecione os colaboradores...">
+                                                <% usuarios.forEach(u=> { %>
+                                                    <option value="<%= u.id_usuario %>">
+                                                        <%= u.nome_completo %>
+                                                    </option>
+                                                    <% }) %>
                                             </select>
+                                            <p class="text-xs text-zinc-400 mt-1">Você pode selecionar múltiplos
+                                                colaboradores.</p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="descricao">Descrição</label>
+                                            <textarea id="descricao" name="descricao" class="input w-full py-2" rows="3"
+                                                placeholder="Detalhes técnicos..."></textarea>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Ações -->
-                                <div
-                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
                                     <a href="/servicos"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center transition-all">
-                                        <span class="icon-[lucide--x] text-lg me-1 leading-none"></span>
-                                        Cancelar
-                                    </a>
-
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center">Cancelar</a>
                                     <button onclick="saveServico(event)" type="submit"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8 transition-all">
-                                        <span class="icon-[lucide--save] text-lg me-1"></span>
-                                        Salvar Serviço
-                                    </button>
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">Salvar
+                                        Serviço</button>
                                 </div>
-
                             </div>
                         </div>
                     </form>
                 </div>
-
                 <%- include('../partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
-
-        <!-- Select -->
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+
         <script>
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true,
-                    render: {
-                        no_results: function (data, escape) {
-                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
-                        }
+            // Inicializa o TomSelect com Multipla Escolha
+            new TomSelect("#responsaveis", {
+                plugins: ['remove_button'], // Permite remover clicando no X
+                create: false,
+                maxItems: null, // Sem limite de seleção
+                placeholder: "Selecione os colaboradores...",
+                render: {
+                    no_results: function (data, escape) {
+                        return '<div class="no-results p-2">Nenhum usuário encontrado</div>';
                     }
-                });
+                }
             });
+
+            async function saveServico(event) {
+                event.preventDefault();
+                const btn = document.querySelector('button[type="submit"]');
+
+                const nome = document.getElementById('nome_servico').value;
+                const descricao = document.getElementById('descricao').value;
+
+                // Pega os valores do TomSelect (Multiplos IDs)
+                const select = document.getElementById('responsaveis');
+                const responsaveis = Array.from(select.selectedOptions).map(option => option.value);
+
+                if (!nome) {
+                    Swal.fire('Atenção', 'Nome é obrigatório.', 'warning');
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = 'Salvando...';
+
+                try {
+                    const response = await fetch('/servicos/novo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            nome_servico: nome,
+                            descricao: descricao,
+                            responsaveis: responsaveis // Envia array de IDs
+                        })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire('Sucesso', data.message, 'success').then(() => window.location.href = '/servicos');
+                    } else {
+                        Swal.fire('Erro', data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = 'Salvar Serviço';
+                    }
+                } catch (error) {
+                    Swal.fire('Erro', 'Falha na comunicação.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Salvar Serviço';
+                }
+            }
         </script>
 </body>
 

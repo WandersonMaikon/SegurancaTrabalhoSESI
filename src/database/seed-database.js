@@ -1,4 +1,4 @@
-const db = require('./db'); // Certifique-se que o caminho para o DB está certo
+const db = require('./db'); 
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
@@ -13,7 +13,7 @@ async function seedDatabase() {
         // ---------------------------------------------------------
         // 1. CRIAR UNIDADE (Matriz)
         // ---------------------------------------------------------
-        // Verifica se já existe para não duplicar (opcional, mas boa prática)
+     
         const [unidadesExistentes] = await connection.query("SELECT id_unidade FROM unidade WHERE cnpj = '00.000.000/0001-00'");
 
         let unidadeId;

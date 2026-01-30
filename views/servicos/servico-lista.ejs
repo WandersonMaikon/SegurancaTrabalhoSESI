@@ -5,42 +5,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Raven - Serviços</title>
-
   <link rel="icon" href="/images/favicon.png" type="image/png">
 
-  <!-- Simplebar -->
   <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-  <!-- Fonts -->
+  <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com/">
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
     rel="stylesheet">
-
-  <!-- Main Style -->
   <link rel="stylesheet" href="/css/style.css" />
 
-  <!-- Page css -->
   <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
   <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
 <body
-  class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+  class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
   <%- include('../partials/sidebar') %>
 
-    <!-- Main -->
     <main class="flex-1 lg:ms-64 flex flex-col app-content">
-
       <%- include('../partials/header') %>
 
-        <!-- Page Header -->
         <div class="px-4 lg:px-8 py-4">
           <h2 class="text-xl mb-2">Serviços</h2>
-          <!-- Breadcrumbs -->
           <ol class="flex gap-1 items-center text-sm">
             <li class="flex items-center">
               <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
@@ -52,13 +42,11 @@
           </ol>
         </div>
 
-        <!-- Page Content -->
         <div class="content flex-grow lg:px-4">
           <div class="grid grid-cols-1 px-4">
             <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
-              <div class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
 
-                <!-- Search -->
+              <div class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
                 <div class="flex-grow">
                   <div class="relative">
                     <input type="search" class="input !ps-9" name="servicoSearch" id="servicoSearch"
@@ -71,7 +59,7 @@
                 <div class="flex items-center flex-wrap justify-end gap-2">
                   <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
                     style="display: none;">
-                    Inativar
+                    Inativar Selecionados
                   </button>
 
                   <div class="flex-grow w-56 sm:w-auto">
@@ -83,31 +71,6 @@
                   </div>
 
                   <div class="flex items-center gap-2">
-                    <div class="relative">
-                      <button data-bs-toggle="dropdown" type="button"
-                        class="btn bg-sky-500 text-white hover:bg-sky-600">
-                        <span class="icon-[lucide--download] text-lg me-1"></span>
-                        Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                      </button>
-                      <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                        <a href="#!" class="dropdown-item">
-                          <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                        </a>
-                        <a href="#!" class="dropdown-item">
-                          <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
-                        </a>
-                        <a href="#!" class="dropdown-item">
-                          <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar Excel
-                        </a>
-                        <a href="#!" class="dropdown-item">
-                          <img src="/images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
-                        </a>
-                        <a href="#!" class="dropdown-item">
-                          <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt=""> Baixar PDF
-                        </a>
-                      </div>
-                    </div>
-
                     <a href="/servicos/novo" class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                       <span class="icon-[lucide--plus] text-lg me-1"></span>
                       Criar Novo
@@ -116,84 +79,99 @@
                 </div>
               </div>
 
-              <!-- Table -->
-              <table id="table_servicos" class="table-default">
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th class="text-nowrap">
-                      <div class="flex items-center">Nome do serviço</div>
-                    </th>
-                    <th class="text-nowrap">
-                      <div class="flex items-center">Status</div>
-                    </th>
-                    <th class="text-nowrap" data-orderable="false"></th>
-                  </tr>
-                </thead>
+              <div class="overflow-x-auto">
+                <table id="table_servicos" class="table-default w-full">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th class="text-nowrap">Nome do serviço</th>
+                      <th class="text-nowrap">Tipo</th>
+                      <th class="text-nowrap">Status</th>
+                      <th class="text-nowrap" data-orderable="false">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBody"></tbody>
+                </table>
+              </div>
 
-                <tbody>
-                  <tr>
-                    <td></td>
-                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                      Elaboração de PPRA
-                    </td>
-                    <td>
-                      <span class="badge bg-green-500/10 text-green-500">Ativo</span>
-                    </td>
-                    <td>
-                      <div class="flex items-center justify-end gap-1 relative z-[1]">
-                        <a href="/servicos/editar/1" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top"
-                          class="btn !p-1.5 hover:!text-primary" data-bs-title="Editar">
-                          <span class="icon-[lucide--edit] text-lg"></span>
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td></td>
-                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                      LTCAT
-                    </td>
-                    <td>
-                      <span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>
-                    </td>
-                    <td>
-                      <div class="flex items-center justify-end gap-1 relative z-[1]">
-                        <a href="/servicos/editar/2" role="tooltip" data-bs-toggle="tooltip" data-bs-placement="top"
-                          class="btn !p-1.5 hover:!text-primary" data-bs-title="Editar">
-                          <span class="icon-[lucide--edit] text-lg"></span>
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                  <!-- Adicione mais linhas conforme necessário -->
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
 
         <%- include('../partials/footer') %>
-
     </main>
 
-    <!-- Scripts -->
-    <script src="/js/theme.js"></script>
+    <div id="dados-servicos-json" style="display: none;">
+      <%= servicosJson %>
+    </div>
 
-    <!-- Page scripts -->
+    <script src="/js/theme.js"></script>
     <script src="/vendor/js/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
     <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+    <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+        // 1. LER DADOS
+        let listaServicos = [];
+        try {
+          const divJson = document.getElementById('dados-servicos-json');
+          if (divJson && divJson.innerText.trim()) {
+            listaServicos = JSON.parse(divJson.innerText);
+          }
+        } catch (e) {
+          console.error("Erro ao ler JSON:", e);
+        }
+
+        // 2. RENDERIZAR TABELA
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = ''; // Limpa antes de popular
+
+        listaServicos.forEach((s, index) => {
+          const tr = document.createElement('tr');
+          tr.setAttribute('data-index', index);
+
+          const statusHtml = s.ativo
+            ? '<span class="badge bg-green-500/10 text-green-500">Ativo</span>'
+            : '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
+
+          // Lógica: Se id_unidade é null, é Global. Se tem ID, é Específico.
+          const tipoHtml = !s.id_unidade
+            ? '<span class="badge bg-purple-500/10 text-purple-500 border border-purple-200">Global</span>'
+            : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Unidade'}</span>`;
+
+          tr.innerHTML = `
+          <td></td>
+          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+            ${s.nome_servico}
+          </td>
+          <td>${tipoHtml}</td>
+          <td>${statusHtml}</td>
+          <td>
+            <div class="flex items-center justify-end gap-1 relative z-[1]">
+              <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                <span class="icon-[lucide--edit] text-lg"></span>
+              </a>
+            </div>
+          </td>
+        `;
+          tbody.appendChild(tr);
+        });
+
+        // 3. DATATABLES INIT
         const table = new DataTable('#table_servicos', {
           lengthChange: false,
-          pageLength: 9,
+          pageLength: 10,
           scrollX: true,
           dom: 'lrtip',
+          language: {
+            emptyTable: "Nenhum serviço encontrado",
+            info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
+            select: { rows: "" }
+          },
           columnDefs: [
             {
               orderable: false,
@@ -207,48 +185,76 @@
             selector: 'td:first-child',
             headerCheckbox: false
           },
-          order: [[1, 'asc']],
+          order: [[1, 'asc']], // Ordena pelo Nome
         });
 
-        const searchInput = document.getElementById('servicoSearch');
-        searchInput.addEventListener('input', e => {
+        // Busca
+        document.getElementById('servicoSearch').addEventListener('input', e => {
           table.search(e.target.value).draw();
         });
 
+        // Filtro Status (Coluna 3 agora, pois adicionei a coluna Tipo na posição 2)
+        document.getElementById('statusFilter').addEventListener('change', function () {
+          table.columns(3).search(this.value).draw();
+        });
+
+        // Botão Inativar Lógica
         const inativarBtn = document.getElementById("inativarBtn");
         table.on('select deselect', function () {
-          const selectedRows = table.rows({ selected: true }).count();
-          inativarBtn.style.display = selectedRows > 0 ? "inline-block" : "none";
+          const count = table.rows({ selected: true }).count();
+          inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
+          inativarBtn.innerText = `Inativar (${count})`;
         });
 
+        // Ação de Inativar (Fetch)
         inativarBtn.addEventListener('click', () => {
-          const rows = table.rows({ selected: true });
-          rows.every(function () {
-            const tr = this.node();
-            const statusCell = tr.querySelector('td:nth-child(3)');
-            if (statusCell) {
-              statusCell.innerHTML = '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
-            }
+          const selectedRows = table.rows({ selected: true }).nodes();
+          const idsParaInativar = [];
+
+          selectedRows.each(function (row) {
+            const index = row.getAttribute('data-index');
+            const servico = listaServicos[index];
+            if (servico) idsParaInativar.push(servico.id_servico);
           });
 
-          rows.deselect();
-          inativarBtn.style.display = "none";
+          if (idsParaInativar.length === 0) return;
+
+          Swal.fire({
+            title: 'Tem certeza?',
+            text: "Deseja inativar os serviços selecionados?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, inativar',
+            cancelButtonText: 'Cancelar'
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+              try {
+                const response = await fetch('/servicos/inativar-multiplos', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ids: idsParaInativar })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                  Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                } else {
+                  Swal.fire('Erro!', data.message, 'error');
+                }
+              } catch (err) {
+                Swal.fire('Erro!', 'Falha na comunicação.', 'error');
+              }
+            }
+          });
         });
 
-        document.getElementById('statusFilter').addEventListener('change', function () {
-          table.columns(2).search(this.value).draw();
-        });
       });
     </script>
 
-    <!-- Select -->
     <script src="/vendor/js/tom-select.complete.min.js"></script>
     <script>
       document.querySelectorAll('.js-select').forEach(select => {
-        new TomSelect(select, {
-          create: false,
-          allowEmptyOption: true
-        });
+        new TomSelect(select, { create: false, allowEmptyOption: true });
       });
     </script>
 </body>
