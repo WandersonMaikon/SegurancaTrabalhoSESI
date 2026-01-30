@@ -31,10 +31,10 @@ router.get("/",
     });
 
 // --- Rota: INATIVAR MÚLTIPLAS ---
-// Proteção: Excluir (Já que inativar é um soft delete)
+// Proteção: Inativar (Já que inativar é um soft delete)
 router.post("/inativar-multiplas",
     verificarAutenticacao,
-    verificarPermissao('unidades', 'excluir'),
+    verificarPermissao('unidades', 'inativar'),
     async (req, res) => {
         try {
             const { ids } = req.body;

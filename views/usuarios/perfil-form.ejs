@@ -93,7 +93,7 @@
                                                     Editar</th>
                                                 <th
                                                     class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
-                                                    Excluir</th>
+                                                    Inativar</th>
                                                 <th
                                                     class="px-4 py-5 text-center text-xs font-bold text-primary uppercase bg-primary/5">
                                                     Tudo</th>
@@ -130,7 +130,7 @@
                                                         </td>
                                                         <td class="px-4 py-4 text-center">
                                                             <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][excluir]"
+                                                                name="permissoes[<%= mod.id_modulo %>][inativar]"
                                                                 class="checkbox-custom">
                                                         </td>
                                                         <td class="px-4 py-4 text-center bg-primary/5">
@@ -206,7 +206,7 @@
                                 ver: isChecked('ver'),
                                 criar: isChecked('criar'),
                                 editar: isChecked('editar'),
-                                excluir: isChecked('excluir'),
+                                inativar: isChecked('inativar'),
                                 tudo: masterInput.checked ? 1 : 0 // Também converte o master
                             };
                         }

@@ -61,7 +61,7 @@
                                     <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display: none;">
                                         <span class="icon-[lucide--trash] text-lg me-1"></span>
-                                        Excluir Selecionados
+                                        Inativar Selecionados
                                     </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
@@ -207,14 +207,14 @@
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
                     deleteBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Excluir (${count})`;
+                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
                 });
 
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(4).search(this.value).draw();
                 });
 
-                // 4. AÇÃO DE EXCLUIR
+                // 4. AÇÃO DE INATIVAR
                 deleteBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
@@ -236,10 +236,10 @@
 
                     Swal.fire({
                         title: 'Tem certeza?',
-                        text: `Você vai excluir ${selectedIds.length} cliente(s). Eles não aparecerão mais nesta lista.`,
+                        text: `Você vai inativar ${selectedIds.length} cliente(s). Eles não aparecerão mais nesta lista.`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Sim, excluir',
+                        confirmButtonText: 'Sim, inativar',
                         cancelButtonText: 'Cancelar',
                         customClass: {
                             confirmButton: 'btn bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg',
@@ -250,7 +250,7 @@
                         if (!result.isConfirmed) return;
 
                         try {
-                            const response = await fetch('/clientes/excluir-multiplos', {
+                            const response = await fetch('/clientes/inativar-multiplos', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ ids: selectedIds })

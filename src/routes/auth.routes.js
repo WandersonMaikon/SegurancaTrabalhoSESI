@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
 
         // 3. BUSCAR PERMISSÕES DO PERFIL (A Mágica acontece aqui)
         const [perms] = await db.query(`
-            SELECT m.chave_sistema, pp.pode_ver, pp.pode_criar, pp.pode_editar, pp.pode_excluir, pp.tudo
+            SELECT m.chave_sistema, pp.pode_ver, pp.pode_criar, pp.pode_editar, pp.pode_inativar, pp.tudo
             FROM perfil_permissao pp
             JOIN modulo_sistema m ON pp.id_modulo = m.id_modulo
             WHERE pp.id_perfil = ?
@@ -56,7 +56,7 @@ router.post("/login", async (req, res) => {
                 ver: p.pode_ver === 1 || p.tudo === 1,
                 criar: p.pode_criar === 1 || p.tudo === 1,
                 editar: p.pode_editar === 1 || p.tudo === 1,
-                excluir: p.pode_excluir === 1 || p.tudo === 1
+                inativar: p.inativar === 1 || p.tudo === 1
             };
         });
 

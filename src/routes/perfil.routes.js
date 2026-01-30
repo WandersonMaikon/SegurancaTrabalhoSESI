@@ -94,14 +94,14 @@ router.post("/novo",
                     const podeVer = Number(actions.ver) || 0;
                     const podeCriar = Number(actions.criar) || 0;
                     const podeEditar = Number(actions.editar) || 0;
-                    const podeExcluir = Number(actions.excluir) || 0;
+                    const podeInativar = Number(actions.inativar) || 0;
                     const tudo = Number(actions.tudo) || 0;
 
                     await connection.query(`
                     INSERT INTO perfil_permissao 
-                    (id_permissao, id_perfil, id_modulo, pode_ver, pode_criar, pode_editar, pode_excluir, tudo)
+                    (id_permissao, id_perfil, id_modulo, pode_ver, pode_criar, pode_editar, pode_inativar, tudo)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                `, [idPermissao, idPerfil, idModulo, podeVer, podeCriar, podeEditar, podeExcluir, tudo]);
+                `, [idPermissao, idPerfil, idModulo, podeVer, podeCriar, podeEditar, podeInativar, tudo]);
                 }
             }
 
@@ -121,10 +121,10 @@ router.post("/novo",
     });
 
 // -- INATIVAR MÚLTIPLOS --
-// Proteção: Excluir
+// Proteção: Inativar
 router.post("/inativar-multiplos",
     verificarAutenticacao,
-    verificarPermissao('perfis', 'excluir'),
+    verificarPermissao('perfis', 'inativar'),
     async (req, res) => {
         try {
             const { ids } = req.body;

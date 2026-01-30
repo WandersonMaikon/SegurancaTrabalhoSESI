@@ -22,7 +22,7 @@ const verificarPermissao = (modulo, acao = 'ver') => {
             return res.redirect('/dashboard');
         }
 
-        // 3. Verifica a ação específica (ver, criar, editar, excluir)
+        // 3. Verifica a ação específica (ver, criar, editar, inativar)
         // Aceita true ou 1 (dependendo do banco de dados)
         const temPermissao = perms[modulo][acao] === true || perms[modulo][acao] === 1;
 

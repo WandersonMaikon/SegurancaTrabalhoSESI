@@ -93,8 +93,8 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- Rota: Excluir Múltiplos ---
-router.post("/excluir-multiplos", verificarAutenticacao, async (req, res) => {
+// --- Rota: inativar Múltiplos ---
+router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;
         if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: "Nenhum cliente selecionado." });
@@ -107,10 +107,10 @@ router.post("/excluir-multiplos", verificarAutenticacao, async (req, res) => {
 
         const [result] = await db.query(sql, validIds);
 
-        return res.status(200).json({ success: true, message: `${result.affectedRows} cliente(s) excluído(s) com sucesso!` });
+        return res.status(200).json({ success: true, message: `${result.affectedRows} cliente(s) inativado(s) com sucesso!` });
     } catch (error) {
-        console.error("ERRO AO EXCLUIR:", error);
-        return res.status(500).json({ success: false, message: "Erro interno ao excluir." });
+        console.error("ERRO AO INATIVAR:", error);
+        return res.status(500).json({ success: false, message: "Erro interno ao inativar cliente(s)." });
     }
 });
 
