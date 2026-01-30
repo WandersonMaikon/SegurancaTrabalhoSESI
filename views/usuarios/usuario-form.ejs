@@ -52,48 +52,38 @@
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
-                                        <!-- 1. SELECT UNIDADE (NO TOPO) -->
-                                        <!-- Só aparece se o backend mandar a lista de unidades (ou seja, se for Admin) -->
-                                        <% if (unidades && unidades.length> 0) { %>
-                                            <div class="w-full max-w-2xl">
-                                                <label class="mb-2 block font-medium">Unidade Vinculada</label>
-                                                <select id="user_unidade" name="unidade" class="js-select w-full"
-                                                    required>
-                                                    <option value="" selected disabled>Selecione a unidade...</option>
-                                                    <% unidades.forEach(function(u) { %>
-                                                        <option value="<​%= u.id_unidade %>">
-                                                            <%= u.nome_fantasia %> (<%= u.cidade %>)
-                                                        </option>
-                                                        <% }); %>
-                                                </select>
-                                                <p class="text-xs text-zinc-400 mt-1">Selecione a unidade onde este
-                                                    usuário irá atuar.</p>
-                                            </div>
-                                            <% } %>
+                                        <!-- 1. SELECT UNIDADE -->
+                                        <div id="container_unidade" class="w-full max-w-2xl" style="display: none;">
+                                            <label class="mb-2 block font-medium">Unidade Vinculada</label>
+                                            <!-- REMOVIDO O 'required' DAQUI -->
+                                            <select id="user_unidade" name="unidade" class="w-full">
+                                                <option value="" selected disabled>Carregando unidades...</option>
+                                            </select>
+                                            <p class="text-xs text-zinc-400 mt-1">Selecione a unidade onde este usuário
+                                                irá atuar.</p>
+                                        </div>
 
-                                                <!-- 2. NOME -->
-                                                <div class="w-full max-w-2xl">
-                                                    <label class="mb-2 block font-medium" for="userName">Nome
-                                                        Completo</label>
-                                                    <input id="userName" name="nome" type="text"
-                                                        class="input h-10 w-full" placeholder="Ex: João Silva" required>
-                                                </div>
+                                        <!-- 2. NOME -->
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userName">Nome Completo</label>
+                                            <input id="userName" name="nome" type="text" class="input h-10 w-full"
+                                                placeholder="Ex: João Silva" required>
+                                        </div>
 
-                                                <!-- 3. EMAIL -->
-                                                <div class="w-full max-w-2xl">
-                                                    <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
-                                                    <input id="userEmail" name="email" type="email"
-                                                        class="input h-10 w-full" placeholder="email@exemplo.com"
-                                                        required>
-                                                </div>
+                                        <!-- 3. EMAIL -->
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
+                                            <input id="userEmail" name="email" type="email" class="input h-10 w-full"
+                                                placeholder="email@exemplo.com" required>
+                                        </div>
 
-                                                <!-- 4. PERFIL -->
-                                                <div class="w-full max-w-2xl">
-                                                    <label class="mb-2 block font-medium">Perfil de Acesso</label>
-                                                    <select id="user_perfil" name="perfil" class="w-full" required>
-                                                        <option value="" selected disabled>Carregando...</option>
-                                                    </select>
-                                                </div>
+                                        <!-- 4. PERFIL -->
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Perfil de Acesso</label>
+                                            <select id="user_perfil" name="perfil" class="w-full" required>
+                                                <option value="" selected disabled>Carregando...</option>
+                                            </select>
+                                        </div>
 
                                     </div>
                                 </div>
@@ -123,8 +113,8 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // --- DADOS DO BACKEND ---
                 const perfis = JSON.parse('<%- JSON.stringify(perfis || []) %>');
+                const unidades = JSON.parse('<%- JSON.stringify(unidades || []) %>');
 
                 // --- POPULAR PERFIS ---
                 const selectPerfil = document.getElementById('user_perfil');
@@ -137,13 +127,27 @@
                     selectPerfil.appendChild(opt);
                 });
 
-                new TomSelect('#user_perfil', { create: false, allowEmptyOption: true });
+                new TomSelect('#user_perfil', { create: false, sortField: { field: "text", direction: "asc" } });
 
-                // --- INICIALIZAR UNIDADE (SE EXISTIR) ---
-                // O EJS já cuidou de mostrar ou esconder o HTML.
-                // Se o elemento existir na página, inicializamos o TomSelect.
-                if (document.getElementById('user_unidade')) {
-                    new TomSelect('#user_unidade', { create: false, allowEmptyOption: true });
+                // --- POPULAR UNIDADES (SE HOUVER) ---
+                const containerUnidade = document.getElementById('container_unidade');
+                const selectUnidade = document.getElementById('user_unidade');
+
+                if (unidades && unidades.length > 0) {
+                    containerUnidade.style.display = 'block';
+                    selectUnidade.innerHTML = '<option value="" selected disabled>Selecione a unidade...</option>';
+
+                    unidades.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id_unidade;
+                        opt.textContent = `${u.nome_fantasia} (${u.cidade})`;
+                        selectUnidade.appendChild(opt);
+                    });
+
+                    new TomSelect('#user_unidade', {
+                        create: false,
+                        sortField: { field: "text", direction: "asc" }
+                    });
                 }
             });
 
@@ -151,6 +155,21 @@
                 e.preventDefault();
                 const form = document.getElementById('form_add_user');
 
+                // Validação manual da Unidade (apenas se estiver visível)
+                const containerUnidade = document.getElementById('container_unidade');
+                const selectUnidade = document.getElementById('user_unidade');
+                let unidade = null;
+
+                if (containerUnidade.style.display !== 'none') {
+                    // Se está visível, TEM que ter valor
+                    if (!selectUnidade.value) {
+                        Swal.fire('Atenção', 'Por favor, selecione a Unidade Vinculada.', 'warning');
+                        return;
+                    }
+                    unidade = selectUnidade.value;
+                }
+
+                // Validação padrão do HTML (Nome, Email, Perfil)
                 if (!form.checkValidity()) {
                     form.reportValidity();
                     return;
@@ -159,14 +178,6 @@
                 const nome = document.getElementById('userName').value;
                 const email = document.getElementById('userEmail').value;
                 const perfil = document.getElementById('user_perfil').value;
-
-                let unidade = null;
-                const selectUnidade = document.getElementById('user_unidade');
-
-                // Se o campo existe na tela, pegamos o valor
-                if (selectUnidade) {
-                    unidade = selectUnidade.value;
-                }
 
                 const payload = { nome, email, perfil, unidade };
 
