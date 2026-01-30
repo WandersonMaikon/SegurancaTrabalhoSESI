@@ -1,4 +1,4 @@
-const db = require('./db'); // Certifique-se que o caminho está correto
+const db = require('./db'); // CAMINHO CORRIGIDO (mesma pasta)
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
@@ -37,20 +37,18 @@ async function seedDatabase() {
         // ---------------------------------------------------------
         console.log(`📦 Cadastrando Módulos e Permissões...`);
 
-        // Lista baseada na sua estrutura
+        // ATENÇÃO: Estas chaves DEVEM ser iguais às usadas no sidebar.ejs
         const listaModulos = [
-            { nome: 'Dashboard', chave: 'dashboard_view' },
+            { nome: 'Dashboard', chave: 'dashboard' },
             { nome: 'Gestão de Clientes', chave: 'clientes' },
-            { nome: 'Catálogo de Serviços', chave: 'servicos' },
-            { nome: 'Ordem de Serviço (OS)', chave: 'ordem_servico' },
-            { nome: 'Relatórios Gerenciais', chave: 'relatorios' },
-            { nome: 'Scrum Board', chave: 'scrum_board' },
-            // Usuários (Dividido em 3 para controle granular)
-            { nome: 'Gestão de Usuários', chave: 'usuarios_lista' },
-            { nome: 'Registro de Atividades (Logs)', chave: 'usuarios_logs' },
-            { nome: 'Perfis e Permissões', chave: 'usuarios_perfis' },
-            // Cadastros
-            { nome: 'Cadastros de Segurança (Riscos, EPIs)', chave: 'cadastros_seguranca' },
+            { nome: 'Gestão de Serviços', chave: 'servicos' },
+            { nome: 'Ordens de Serviço', chave: 'ordens_servico' },
+            { nome: 'Relatórios', chave: 'relatorios' },
+            { nome: 'Scrum Board', chave: 'scrum' },
+            { nome: 'Gestão de Usuários', chave: 'usuarios' }, // Engloba lista, logs e perfis no menu
+            { nome: 'Riscos', chave: 'riscos' },
+            { nome: 'EPIs', chave: 'epis' },
+            { nome: 'EPCs', chave: 'epcs' },
             { nome: 'Gestão de Unidades', chave: 'unidades' }
         ];
 

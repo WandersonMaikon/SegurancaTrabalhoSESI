@@ -14,6 +14,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             FROM usuario u
             LEFT JOIN perfil p ON u.id_perfil = p.id_perfil
             LEFT JOIN unidade un ON u.id_unidade = un.id_unidade
+            where p.nome_perfil <> 'Administrador'
             ORDER BY u.nome_completo ASC
         `;
         const [usuarios] = await db.query(query);

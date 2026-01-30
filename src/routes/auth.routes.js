@@ -15,7 +15,7 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Busca usuário no banco
+        // 1. Busca usuário no banco
         const [rows] = await db.query("SELECT * FROM usuario WHERE email = ?", [email]);
         const usuario = rows[0];
 
@@ -25,7 +25,13 @@ router.post("/login", async (req, res) => {
             return res.redirect("/login");
         }
 
-        // Verifica a senha
+        // Verifica se o usuário está ativo
+        if (usuario.ativo === 0) {
+            req.session.message = "Usuário inativo. Contate o administrador.";
+            return res.redirect("/login");
+        }
+
+        // 2. Verifica a senha
         const senhaCorreta = bcrypt.compareSync(password, usuario.senha_hash);
 
         if (!senhaCorreta) {
@@ -33,13 +39,36 @@ router.post("/login", async (req, res) => {
             return res.redirect("/login");
         }
 
-        // Login com sucesso
+        // 3. BUSCAR PERMISSÕES DO PERFIL (A Mágica acontece aqui)
+        const [perms] = await db.query(`
+            SELECT m.chave_sistema, pp.pode_ver, pp.pode_criar, pp.pode_editar, pp.pode_excluir, pp.tudo
+            FROM perfil_permissao pp
+            JOIN modulo_sistema m ON pp.id_modulo = m.id_modulo
+            WHERE pp.id_perfil = ?
+        `, [usuario.id_perfil]);
+
+        // Transforma o array do banco em um Objeto fácil de usar no EJS
+        // Ex: permissoes['clientes'].ver = true
+        const permissoesObj = {};
+
+        perms.forEach(p => {
+            permissoesObj[p.chave_sistema] = {
+                ver: p.pode_ver === 1 || p.tudo === 1,
+                criar: p.pode_criar === 1 || p.tudo === 1,
+                editar: p.pode_editar === 1 || p.tudo === 1,
+                excluir: p.pode_excluir === 1 || p.tudo === 1
+            };
+        });
+
+        // 4. Salva tudo na sessão
         req.session.user = {
-            id: usuario.id_usuario,      // UUID do usuário
-            nome: usuario.nome_completo, // Nome completo
+            id_usuario: usuario.id_usuario, // UUID
+            id: usuario.id_usuario,         // Mantendo compatibilidade se usar .id em algum lugar
+            nome: usuario.nome_completo,
             email: usuario.email,
-            id_unidade: usuario.id_unidade, // multi-unidade
-            id_perfil: usuario.id_perfil    // Importante para permissões
+            id_unidade: usuario.id_unidade,
+            id_perfil: usuario.id_perfil,
+            permissoes: permissoesObj       // <--- Objeto de permissões salvo na sessão
         };
 
         return res.redirect("/dashboard");
