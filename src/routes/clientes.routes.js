@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../database/db");
 const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
-const verificarPermissao = require("../middlewares/permission.middleware"); // Se estiver usando
+const verificarPermissao = require("../middlewares/permission.middleware");
 
 // Função auxiliar Admin
 const verificarSeEhAdmin = (user) => {
@@ -12,7 +12,7 @@ const verificarSeEhAdmin = (user) => {
     return false;
 };
 
-// --- LISTAR CLIENTES ---
+// --- LISTAR CLIENTES (Mantido original) ---
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -46,7 +46,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- FORMULÁRIO DE NOVO CLIENTE ---
+// --- FORMULÁRIO DE NOVO CLIENTE (Mantido original) ---
 router.get("/novo", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -62,7 +62,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             user: req.session.user,
             currentPage: 'clientes',
             unidades: unidades,
-            ehAdmin: ehAdmin // Importante para o EJS esconder o select
+            ehAdmin: ehAdmin
         });
     } catch (error) {
         console.error("Erro ao carregar formulário:", error);
@@ -70,7 +70,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- SALVAR NOVO CLIENTE ---
+// --- SALVAR NOVO CLIENTE (ALTERADO AQUI) ---
 router.post("/salvar", verificarAutenticacao, async (req, res) => {
     try {
         const data = req.body;
@@ -92,7 +92,6 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         }
 
         // 3. Validação de Duplicidade (CNPJ)
-        // Verifica no banco se já existe (mesmo deletado, pra evitar conflito se reativar, ou filtra só ativos)
         const [existente] = await db.query("SELECT id_cliente FROM cliente WHERE cnpj = ?", [data.cnpj]);
 
         if (existente.length > 0) {
@@ -100,21 +99,47 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         }
 
         const id_cliente = uuidv4();
-        const industria = data.empresa_industria ? 1 : 0;
+
+        // --- LÓGICA NOVA: Indústria e Cartão Vantagem ---
+        // Verifica se é indústria (checkbox html manda 'on' ou true, se vazio é false)
+        const ehIndustria = (data.empresa_industria === true || data.empresa_industria === 'true' || data.empresa_industria === 'on') ? 1 : 0;
+
+        let valorCartao = 0.00;
+        if (ehIndustria === 1 && data.cartao_vantagem) {
+            // Converte virgula para ponto e transforma em numero
+            valorCartao = parseFloat(data.cartao_vantagem.toString().replace(',', '.'));
+            if (isNaN(valorCartao)) valorCartao = 0.00;
+        }
+        // ------------------------------------------------
 
         const sql = `
             INSERT INTO cliente (
-                id_cliente, id_unidade, nome_empresa, industria, cnpj, email, telefone,
-                num_colaboradores, nome_representante, cpf_mf, rg_ci,
+                id_cliente, id_unidade, nome_empresa, industria, cnpj, email, 
+                cartao_vantagem, -- COLUNA NOVA
+                telefone, num_colaboradores, nome_representante, cpf_mf, rg_ci,
                 cep, logradouro, numero, bairro, cidade, estado
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
-            id_cliente, idUnidadeFinal, data.nome, industria, data.cnpj,
-            data.email, data.telefone, data.ncolaboradores || 0,
-            data.representante_nome, data.cpf, data.rg,
-            data.cep, data.endereco, data.numero, data.bairro, data.cidade, data.estado
+            id_cliente,
+            idUnidadeFinal,
+            data.nome,
+            ehIndustria,
+            data.cnpj,
+            data.email,
+            valorCartao, // VALOR NOVO
+            data.telefone,
+            data.ncolaboradores || 0,
+            data.representante_nome,
+            data.cpf,
+            data.rg,
+            data.cep,
+            data.endereco,
+            data.numero,
+            data.bairro,
+            data.cidade,
+            data.estado
         ];
 
         await db.query(sql, values);

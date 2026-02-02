@@ -66,8 +66,8 @@
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
-                                            <option value="" selected>Todos</option>
-                                            <option value="Ativo">Ativo</option>
+                                            <option value="">Todos</option>
+                                            <option value="Ativo" selected>Ativo</option>
                                             <option value="Inativo">Inativo</option>
                                         </select>
                                     </div>
@@ -149,9 +149,9 @@
           <td class="whitespace-nowrap">${localizacao}</td>
           <td>${statusHtml}</td>
           <td>
-            <div class="flex items-center justify-end gap-1 relative z-[1]">
+            <div class="flex items-center gap-1 relative z-[1]">
               <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                <span class="icon-[lucide--edit] text-lg"></span>
+                <span class=" icon-[lucide--edit] text-lg"></span>
               </a>
             </div>
           </td>
