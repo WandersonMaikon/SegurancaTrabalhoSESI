@@ -1,6 +1,7 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4 (DEFINITIVA)
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.1
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
+-- Atualizações: Cartão Vantagem (Cliente) e Prazo em Dias (Escopo OS)
 -- ============================================
 
 CREATE DATABASE IF NOT EXISTS seguranca_trabalho;
@@ -54,7 +55,7 @@ CREATE TABLE perfil_permissao (
 
 CREATE TABLE usuario (
     id_usuario CHAR(36) NOT NULL PRIMARY KEY, -- UUID
-    id_unidade CHAR(36) NOT NULL, -- O VÍNCULO MÁGICO AQUI
+    id_unidade CHAR(36) NOT NULL,
     nome_completo VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
@@ -81,6 +82,7 @@ CREATE TABLE cliente (
     industria BOOLEAN NOT NULL DEFAULT FALSE,
     cnpj VARCHAR(18) NOT NULL,
     email VARCHAR(255),
+    cartao_vantagem DECIMAL(5, 2) DEFAULT 0.00, -- Ex: 10.50 para 10,5%
     telefone VARCHAR(20),
     num_colaboradores INT,
     nome_representante VARCHAR(255),
@@ -99,12 +101,12 @@ CREATE TABLE cliente (
     deleted_at TIMESTAMP NULL, -- Soft Delete
     
     FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade),
-    INDEX idx_sync (updated_at) -- Índice para acelerar a sincronização
+    INDEX idx_sync (updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE servico (
     id_servico CHAR(36) NOT NULL PRIMARY KEY, -- UUID
-    id_unidade CHAR(36), -- NULL = Global, Preenchido = Específico
+    id_unidade CHAR(36),
     nome_servico VARCHAR(255) NOT NULL,
     descricao TEXT,
     ativo BOOLEAN DEFAULT TRUE,
@@ -132,7 +134,6 @@ CREATE TABLE ordem_servico (
     data_abertura DATE NOT NULL,
     status ENUM('Aberta', 'Em Andamento', 'Concluída', 'Cancelada') DEFAULT 'Aberta',
     criado_por CHAR(36) NOT NULL,
-    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
@@ -149,7 +150,7 @@ CREATE TABLE ordem_servico_item (
     id_responsavel_execucao CHAR(36) NOT NULL,
     quantidade INT DEFAULT 1,
     status_item ENUM('Pendente', 'Em Execução', 'Feito') DEFAULT 'Pendente',
-    
+    prazo_execucao_dias INT NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
@@ -160,12 +161,11 @@ CREATE TABLE ordem_servico_item (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ============================================
--- 4. TABELAS GLOBAIS (Estáticas / Pouca mudança)
--- Podem manter ID numérico se quiser, mas UUID padroniza
+-- 4. TABELAS GLOBAIS
 -- ============================================
 
 CREATE TABLE epi (
-    id_epi INT AUTO_INCREMENT PRIMARY KEY, -- Mantive INT pois raramente se cria EPI no mobile offline
+    id_epi INT AUTO_INCREMENT PRIMARY KEY,
     ca VARCHAR(50) NOT NULL UNIQUE,
     nome_equipamento VARCHAR(255) NOT NULL,
     validade_ca DATE,
@@ -199,12 +199,12 @@ CREATE TABLE risco (
 -- ============================================
 
 CREATE TABLE log_atividade (
-    id_log INT AUTO_INCREMENT PRIMARY KEY, -- Log não precisa de UUID, é só inserção
+    id_log INT AUTO_INCREMENT PRIMARY KEY,
     id_unidade CHAR(36) NOT NULL,
     id_usuario CHAR(36),
     acao VARCHAR(50) NOT NULL,
     tabela_afetada VARCHAR(50),
-    id_registro_afetado CHAR(36), -- Referência ao UUID do registro
+    id_registro_afetado CHAR(36),
     dados_anteriores JSON,
     dados_novos JSON,
     data_acao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -221,11 +221,3 @@ CREATE TABLE notificacao (
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario_destino) REFERENCES usuario(id_usuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- ============================================
--- 6. DADOS INICIAIS (Exemplo com UUID)
--- ============================================
-
--- Nota: No MySQL, você usará a função UUID() para gerar os IDs
--- Exemplo de Insert:
--- INSERT INTO unidade (id_unidade, nome_fantasia, ...) VALUES (UUID(), 'Matriz', ...);

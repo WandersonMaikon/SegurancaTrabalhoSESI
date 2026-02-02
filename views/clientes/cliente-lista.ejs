@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - Clientes</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
+
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -14,18 +15,18 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
+
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
 <body
-    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
     <%- include('../partials/sidebar') %>
 
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
-
             <%- include('../partials/header') %>
 
                 <div class="px-4 lg:px-8 py-4">
@@ -45,9 +46,9 @@
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="customerSearch"
@@ -60,51 +61,49 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display: none;">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span>
-                                        Inativar Selecionados
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
                                     </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
                                             <option value="" selected>Todos</option>
                                             <option value="Ativo">Ativo</option>
-                                            <!-- Como estamos filtrando deleted_at IS NULL no back, todos virão como Ativos por enquanto -->
+                                            <option value="Inativo">Inativo</option>
                                         </select>
                                     </div>
 
                                     <div class="flex items-center gap-2">
                                         <a href="/clientes/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                            <span class="icon-[lucide--user-plus] text-lg me-1"></span>
-                                            Criar Novo
+                                            <span class="icon-[lucide--user-plus] text-lg me-1"></span> Criar Novo
                                         </a>
                                     </div>
                                 </div>
                             </div>
 
-                            <table id="table_customers" class="table-default">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th class="text-nowrap">Nome da Empresa</th>
-                                        <th class="text-nowrap">E-mail</th>
-                                        <th class="text-nowrap">Localização</th>
-                                        <th class="text-nowrap">Status</th>
-                                        <th class="text-nowrap" data-orderable="false">Ações</th>
-                                    </tr>
-                                </thead>
-                                <!-- BODY VAZIO: O JS VAI PREENCHER -->
-                                <tbody id="tableBody"></tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table id="table_customers" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-nowrap">Nome da Empresa</th>
+                                            <th class="text-nowrap">CNPJ</th>
+                                            <th class="text-nowrap">Localização</th>
+                                            <th class="text-nowrap">Status</th>
+                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
+
                         </div>
                     </div>
                 </div>
 
                 <%- include('../partials/footer') %>
-
         </main>
 
-        <!-- ELEMENTO OCULTO: O COFRE DOS DADOS -->
         <div id="dados-clientes-json" style="display: none;">
             <%= clientesJson %>
         </div>
@@ -119,60 +118,48 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // 1. LER OS DADOS DO ELEMENTO OCULTO
                 let listaClientes = [];
                 try {
                     const divJson = document.getElementById('dados-clientes-json');
-                    if (divJson) {
-                        const rawJson = divJson.innerText;
-                        if (rawJson) {
-                            listaClientes = JSON.parse(rawJson);
-                        }
+                    if (divJson && divJson.innerText.trim()) {
+                        listaClientes = JSON.parse(divJson.innerText);
                     }
-                } catch (e) {
-                    console.error("Erro ao processar JSON de clientes:", e);
-                }
+                } catch (e) { console.error(e); }
 
-                console.log("Clientes carregados:", listaClientes);
-
-                // 2. GERAR O HTML DA TABELA
                 const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
 
-                if (listaClientes.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum cliente encontrado.</td></tr>';
-                } else {
-                    listaClientes.forEach((cliente, index) => {
-                        const tr = document.createElement('tr');
-                        tr.setAttribute('data-index', index);
+                // Renderiza as linhas SOMENTE se houver dados
+                listaClientes.forEach((cliente, index) => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-index', index);
 
-                        // Como filtramos deleted_at IS NULL, todos aqui são ativos
-                        const statusHtml = '<span class="badge bg-green-500/10 text-green-500">Ativo</span>';
+                    const statusHtml = '<span class="badge bg-green-500/10 text-green-500">Ativo</span>';
 
-                        const localizacao = (cliente.cidade && cliente.estado)
-                            ? `${cliente.cidade} - ${cliente.estado}`
-                            : (cliente.cidade || '-');
+                    const localizacao = (cliente.cidade && cliente.estado)
+                        ? `${cliente.cidade} - ${cliente.estado}`
+                        : (cliente.cidade || '-');
 
-                        tr.innerHTML = `
-                        <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                            ${cliente.nome_empresa || 'Sem Nome'}
-                        </td>
-                        <td class="whitespace-nowrap">${cliente.email || '-'}</td>
-                        <td class="whitespace-nowrap">${localizacao}</td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                </a>
-                            </div>
-                        </td>
-                    `;
-                        tbody.appendChild(tr);
-                    });
-                }
+                    tr.innerHTML = `
+          <td></td>
+          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+            ${cliente.nome_empresa || 'Sem Nome'}
+          </td>
+          <td class="whitespace-nowrap">${cliente.cnpj || '-'}</td>
+          <td class="whitespace-nowrap">${localizacao}</td>
+          <td>${statusHtml}</td>
+          <td>
+            <div class="flex items-center justify-end gap-1 relative z-[1]">
+              <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                <span class="icon-[lucide--edit] text-lg"></span>
+              </a>
+            </div>
+          </td>
+        `;
+                    tbody.appendChild(tr);
+                });
 
-                // 3. INICIALIZAR DATATABLE
+                // Inicializa DataTables
                 const table = new DataTable('#table_customers', {
                     lengthChange: false,
                     pageLength: 10,
@@ -184,11 +171,9 @@
                         paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
                         select: { rows: "" }
                     },
-                    columnDefs: [{
-                        orderable: false,
-                        className: 'select-checkbox',
-                        targets: 0,
-                    }],
+                    columnDefs: [
+                        { orderable: false, className: 'select-checkbox', targets: 0 }
+                    ],
                     select: {
                         style: 'multi',
                         selector: 'td:first-child',
@@ -197,92 +182,60 @@
                     order: [[1, 'asc']]
                 });
 
-                const searchInput = document.getElementById('customerSearch');
-                searchInput.addEventListener('input', e => {
+                // Busca
+                document.getElementById('customerSearch').addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
+                // Botão Inativar
                 const deleteBtn = document.getElementById("deleteBtn");
-
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
                     deleteBtn.style.display = count > 0 ? "inline-flex" : "none";
                     deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
                 });
 
+                // Filtro Status
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(4).search(this.value).draw();
                 });
 
-                // 4. AÇÃO DE INATIVAR
+                // Ação Fetch Inativar
                 deleteBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
 
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
-                        if (index !== null && listaClientes[index]) {
-                            const cliente = listaClientes[index];
-                            if (cliente && cliente.id_cliente) {
-                                selectedIds.push(cliente.id_cliente);
-                            }
-                        }
+                        if (listaClientes[index]) selectedIds.push(listaClientes[index].id_cliente);
                     });
 
-                    if (selectedIds.length === 0) {
-                        Swal.fire('Erro', 'Nenhum cliente selecionado.', 'error');
-                        return;
-                    }
+                    if (selectedIds.length === 0) return;
 
                     Swal.fire({
                         title: 'Tem certeza?',
-                        text: `Você vai inativar ${selectedIds.length} cliente(s). Eles não aparecerão mais nesta lista.`,
+                        text: `Você vai inativar ${selectedIds.length} cliente(s).`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar',
-                        customClass: {
-                            confirmButton: 'btn bg-red-500 text-white hover:bg-red-600 px-6 py-2 rounded-lg',
-                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
-                        },
-                        buttonsStyling: false
+                        cancelButtonText: 'Cancelar'
                     }).then(async (result) => {
-                        if (!result.isConfirmed) return;
-
-                        try {
-                            const response = await fetch('/clientes/inativar-multiplos', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ ids: selectedIds })
-                            });
-
-                            const data = await response.json();
-
-                            if (response.ok && data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Sucesso!',
-                                    text: data.message,
-                                    confirmButtonText: 'OK',
-                                    customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
-                                    buttonsStyling: false
-                                }).then(() => {
-                                    window.location.reload();
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch('/clientes/inativar-multiplos', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: selectedIds })
                                 });
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Erro',
-                                    text: data.message
-                                });
+                                const data = await response.json();
+                                if (data.success) {
+                                    Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Erro', data.message, 'error');
+                                }
+                            } catch (error) {
+                                Swal.fire('Erro', 'Falha na comunicação.', 'error');
                             }
-                        } catch (error) {
-                            console.error(error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro!',
-                                text: 'Falha na comunicação com o servidor.'
-                            });
                         }
                     });
                 });

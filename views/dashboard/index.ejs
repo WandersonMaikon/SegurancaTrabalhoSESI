@@ -8,20 +8,16 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page css -->
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
     <link rel="stylesheet" type="text/css" href="/vendor/css/daterangepicker.css" />
@@ -32,12 +28,10 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 pt-4 pb-4 flex flex-col sm:flex-row sm:items-center">
                     <div class="flex-grow mb-3 sm:mb-0">
                         <h2 class="text-xl font-semibold text-black dark:text-white">
@@ -57,10 +51,8 @@
                     </div>
                 </div>
 
-                <!-- Page content -->
                 <div class="content lg:px-4 flex-grow relative">
 
-                    <!-- Preloader -->
                     <div id="preloader"
                         class="absolute inset-0 w-full h-[75vh] flex items-center justify-center z-50 hidden">
                         <div class="size-12 bg-white shadow-xl rounded-full flex items-center justify-center">
@@ -122,15 +114,12 @@
                         </div>
                     </div>
 
-                    <!-- (Aqui você pode colar o resto do HTML original do Raven, só trocando os links de assets para /...) -->
-
                 </div>
 
                 <%- include('../partials/footer') %>
 
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/echarts.min.js"></script>
@@ -162,6 +151,28 @@
                 }, cb);
 
                 cb(start, end);
+            });
+        </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Pega o nome do usuário vindo do EJS. Se não tiver nome, fica vazio.
+                const userName = "<%= (user && user.nome) ? user.nome : '' %>";
+
+                // Mensagem personalizada
+                const welcomeMessage = userName ? `Bem-vindo novamente, ${userName}!` : 'Bem-vindo novamente!';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: welcomeMessage,
+                    toast: true,
+                    position: 'top-end', // Canto superior direito
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    showCloseButton: true,
+                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>'
+                });
             });
         </script>
 

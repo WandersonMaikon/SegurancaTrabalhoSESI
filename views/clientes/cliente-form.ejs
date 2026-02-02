@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - Cadastrar Cliente</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
+
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -23,192 +23,154 @@
     <%- include('../partials/sidebar') %>
 
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
-
             <%- include('../partials/header') %>
 
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar cliente</h2>
-                    <ol class="flex gap-1 items-center text-sm">
-                        <li class="flex items-center">
-                            <a href="/clientes"
-                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Clientes</a>
-                        </li>
-                        <li class="flex items-center opacity-30 leading-none">
-                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-                        </li>
-                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
-                    </ol>
                 </div>
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <!-- ID adicionado ao form para o JS capturar -->
-                    <form id="formCliente" action="/clientes/salvar" method="post" class="w-full">
-
+                    <form id="formCliente" class="w-full">
                         <div class="grid grid-cols-1 gap-6">
                             <div class="md:col-span-8 space-y-6">
 
-                                <!-- Card: Vínculo (NOVO) -->
-                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                                        <h5 class="text-xl">Vínculo</h5>
-                                    </div>
-                                    <div class="p-6">
-                                        <label class="mb-2 block">Unidade Responsável <span
-                                                class="text-red-500">*</span></label>
-                                        <select name="id_unidade" class="js-select w-full" required>
-                                            <option value="">Selecione uma unidade...</option>
-                                            <% if (typeof unidades !=='undefined' && unidades.length> 0) { %>
+                                <% if (ehAdmin) { %>
+                                    <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                        <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                            <h5 class="text-xl">Vínculo</h5>
+                                        </div>
+                                        <div class="p-6">
+                                            <label class="mb-2 block">Unidade Responsável <span
+                                                    class="text-red-500">*</span></label>
+                                            <select name="id_unidade" class="js-select w-full" required>
+                                                <option value="">Selecione uma unidade...</option>
                                                 <% unidades.forEach(function(unidade) { %>
-                                                    <option value="<​%= unidade.id_unidade %>">
+                                                    <option value="<%= unidade.id_unidade %>">
                                                         <%= unidade.nome_fantasia %>
                                                     </option>
                                                     <% }); %>
-                                                        <% } else { %>
-                                                            <option value="" disabled>Nenhuma unidade ativa encontrada
-                                                            </option>
-                                                            <% } %>
-                                        </select>
+                                            </select>
+                                        </div>
                                     </div>
-                                </div>
+                                    <% } %>
 
-                                <!-- Card: Empresa -->
-                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                                        <h5 class="text-xl">Empresa</h5>
-                                    </div>
-
-                                    <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div class="flex items-end gap-3 w-full max-w-2xl">
-                                            <div class="flex-1 min-w-0">
-                                                <label class="mb-2 block">Nome empresa <span
-                                                        class="text-red-500">*</span></label>
-                                                <input name="nome" type="text" class="input h-10 w-full"
-                                                    placeholder="Empresa" required>
+                                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                            <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                                <h5 class="text-xl">Empresa</h5>
                                             </div>
-                                            <label for="empresaIndustria"
-                                                class="inline-flex items-center gap-2 mb-1 whitespace-nowrap cursor-pointer">
-                                                <input type="checkbox" class="input-checkbox" id="empresaIndustria"
-                                                    name="empresa_industria" value="1">
-                                                <span>É indústria?</span>
-                                            </label>
-                                        </div>
+                                            <div class="p-6 grid grid-cols-1 gap-6">
+                                                <div class="flex items-end gap-3 w-full max-w-2xl">
+                                                    <div class="flex-1 min-w-0">
+                                                        <label class="mb-2 block">Nome empresa <span
+                                                                class="text-red-500">*</span></label>
+                                                        <input name="nome" type="text" class="input h-10 w-full"
+                                                            placeholder="Empresa" required>
+                                                    </div>
+                                                    <label class="inline-flex items-center gap-2 mb-1 cursor-pointer">
+                                                        <input type="checkbox" class="input-checkbox"
+                                                            id="empresaIndustria" name="empresa_industria" value="1">
+                                                        <span>É indústria?</span>
+                                                    </label>
+                                                </div>
 
-                                        <div>
-                                            <label class="mb-2 block">CNPJ <span class="text-red-500">*</span></label>
-                                            <input id="cnpj" name="cnpj" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="00.000.000/0000-00" required>
-                                        </div>
+                                                <div>
+                                                    <label class="mb-2 block">CNPJ <span
+                                                            class="text-red-500">*</span></label>
+                                                    <input id="cnpj" name="cnpj" type="text"
+                                                        class="input h-10 w-full max-w-2xl"
+                                                        placeholder="00.000.000/0000-00" required>
+                                                    <p id="feedbackCNPJ" class="text-xs mt-1 hidden"></p>
+                                                </div>
 
-                                        <div>
-                                            <label class="mb-2 block">E-mail</label>
-                                            <input name="email" type="email" class="input h-10 w-full max-w-2xl"
-                                                placeholder="email@exemplo.com">
-                                        </div>
-
-                                        <div>
-                                            <label class="mb-2 block">Telefone</label>
-                                            <input id="telefone" name="telefone" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="(xx) xxxxx-xxxx">
-                                        </div>
-
-                                        <div>
-                                            <label class="mb-2 block">Nº de colaboradores</label>
-                                            <input name="ncolaboradores" type="number"
-                                                class="input h-10 w-full max-w-2xl" placeholder="0" min="0">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card: Representante -->
-                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                                        <h5 class="text-xl">Sobre o representante</h5>
-                                    </div>
-                                    <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div>
-                                            <label class="mb-2 block">Nome do representante</label>
-                                            <input name="representante_nome" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Nome completo">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">CPF/MF</label>
-                                            <input id="cpf" name="cpf" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="000.000.000-00">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">RG/CI</label>
-                                            <input name="rg" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="000000">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card: Endereço -->
-                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                                        <h5 class="text-xl">Endereço</h5>
-                                    </div>
-                                    <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div>
-                                            <label class="mb-2 block">CEP</label>
-                                            <div class="relative w-full max-w-2xl">
-                                                <input id="cep" name="cep" type="text" class="input h-10 w-full !pe-11"
-                                                    placeholder="00000-000">
-                                                <button id="btnBuscarCep" type="button"
-                                                    class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
-                                                    <span class="icon-[lucide--search] text-lg"></span>
-                                                </button>
+                                                <div>
+                                                    <label class="mb-2 block">E-mail</label>
+                                                    <input name="email" type="email" class="input h-10 w-full max-w-2xl"
+                                                        placeholder="email@exemplo.com">
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">Telefone</label>
+                                                    <input id="telefone" name="telefone" type="text"
+                                                        class="input h-10 w-full max-w-2xl"
+                                                        placeholder="(xx) xxxxx-xxxx">
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">Nº de colaboradores</label>
+                                                    <input name="ncolaboradores" type="number"
+                                                        class="input h-10 w-full max-w-2xl" placeholder="0" min="0">
+                                                </div>
                                             </div>
-                                            <p id="cepMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
                                         </div>
-                                        <div>
-                                            <label class="mb-2 block">País</label>
-                                            <input id="pais" name="pais" type="text"
-                                                class="input h-10 w-full max-w-2xl bg-zinc-100 dark:bg-zinc-800/60 cursor-not-allowed"
-                                                value="Brasil" disabled>
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">Logradouro</label>
-                                            <input id="logradouro" name="endereco" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Rua, avenida...">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">Número</label>
-                                            <input id="numero" name="numero" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Número">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">Bairro</label>
-                                            <input id="bairro" name="bairro" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Bairro">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">Cidade</label>
-                                            <input id="cidade" name="cidade" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="Cidade">
-                                        </div>
-                                        <div>
-                                            <label class="mb-2 block">Estado (UF)</label>
-                                            <input id="estado" name="estado" type="text"
-                                                class="input h-10 w-full max-w-2xl" placeholder="UF">
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <!-- Footer Actions -->
-                                <div
-                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <a href="/clientes"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 flex items-center justify-center">
-                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
-                                        Cancelar
-                                    </a>
-                                    <button type="submit" id="btnSalvar"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
-                                        Salvar
-                                    </button>
-                                </div>
+                                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                            <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                                <h5 class="text-xl">Sobre o representante</h5>
+                                            </div>
+                                            <div class="p-6 grid grid-cols-1 gap-6">
+                                                <div>
+                                                    <label class="mb-2 block">Nome do representante</label>
+                                                    <input name="representante_nome" type="text"
+                                                        class="input h-10 w-full max-w-2xl" placeholder="Nome completo">
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">CPF/MF</label>
+                                                    <input id="cpf" name="cpf" type="text"
+                                                        class="input h-10 w-full max-w-2xl"
+                                                        placeholder="000.000.000-00">
+                                                    <p id="feedbackCPF" class="text-xs mt-1 hidden"></p>
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">RG/CI</label>
+                                                    <input name="rg" type="text" class="input h-10 w-full max-w-2xl"
+                                                        placeholder="000000">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                            <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                                <h5 class="text-xl">Endereço</h5>
+                                            </div>
+                                            <div class="p-6 grid grid-cols-1 gap-6">
+                                                <div>
+                                                    <label class="mb-2 block">CEP</label>
+                                                    <div class="relative w-full max-w-2xl">
+                                                        <input id="cep" name="cep" type="text"
+                                                            class="input h-10 w-full !pe-11" placeholder="00000-000">
+                                                        <button id="btnBuscarCep" type="button"
+                                                            class="absolute right-2 top-1/2 -translate-y-1/2 size-8 flex items-center justify-center text-zinc-500 hover:text-primary">
+                                                            <span class="icon-[lucide--search] text-lg"></span>
+                                                        </button>
+                                                    </div>
+                                                    <p id="cepMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                                </div>
+                                                <div><label class="mb-2 block">País</label><input id="pais" name="pais"
+                                                        type="text"
+                                                        class="input h-10 w-full max-w-2xl bg-zinc-100 cursor-not-allowed"
+                                                        value="Brasil" disabled></div>
+                                                <div><label class="mb-2 block">Logradouro</label><input id="logradouro"
+                                                        name="endereco" type="text" class="input h-10 w-full max-w-2xl">
+                                                </div>
+                                                <div><label class="mb-2 block">Número</label><input id="numero"
+                                                        name="numero" type="text" class="input h-10 w-full max-w-2xl">
+                                                </div>
+                                                <div><label class="mb-2 block">Bairro</label><input id="bairro"
+                                                        name="bairro" type="text" class="input h-10 w-full max-w-2xl">
+                                                </div>
+                                                <div><label class="mb-2 block">Cidade</label><input id="cidade"
+                                                        name="cidade" type="text" class="input h-10 w-full max-w-2xl">
+                                                </div>
+                                                <div><label class="mb-2 block">Estado (UF)</label><input id="estado"
+                                                        name="estado" type="text" class="input h-10 w-full max-w-2xl">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                                            <a href="/clientes"
+                                                class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 flex items-center justify-center">Cancelar</a>
+                                            <button type="submit" id="btnSalvar"
+                                                class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">Salvar</button>
+                                        </div>
                             </div>
                         </div>
                     </form>
@@ -221,136 +183,232 @@
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
-        <!-- Script de Máscaras e CEP (Mantido e Otimizado) -->
         <script>
+            // --- ALGORITMOS DE VALIDAÇÃO ---
+
+            function validarCNPJ(cnpj) {
+                cnpj = cnpj.replace(/[^\d]+/g, '');
+                if (cnpj == '') return false;
+                if (cnpj.length != 14) return false;
+                // Bloqueia conhecidos (1111..., 2222...)
+                if (/^(\d)\1+$/.test(cnpj)) return false;
+
+                let tamanho = cnpj.length - 2
+                let numeros = cnpj.substring(0, tamanho);
+                let digitos = cnpj.substring(tamanho);
+                let soma = 0;
+                let pos = tamanho - 7;
+                for (let i = tamanho; i >= 1; i--) {
+                    soma += numeros.charAt(tamanho - i) * pos--;
+                    if (pos < 2) pos = 9;
+                }
+                let resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                if (resultado != digitos.charAt(0)) return false;
+
+                tamanho = tamanho + 1;
+                numeros = cnpj.substring(0, tamanho);
+                soma = 0;
+                pos = tamanho - 7;
+                for (let i = tamanho; i >= 1; i--) {
+                    soma += numeros.charAt(tamanho - i) * pos--;
+                    if (pos < 2) pos = 9;
+                }
+                resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+                if (resultado != digitos.charAt(1)) return false;
+
+                return true;
+            }
+
+            function validarCPF(cpf) {
+                cpf = cpf.replace(/[^\d]+/g, '');
+                if (cpf == '') return false;
+                if (cpf.length != 11) return false;
+                if (/^(\d)\1+$/.test(cpf)) return false;
+
+                let soma = 0;
+                let resto;
+                for (let i = 1; i <= 9; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (11 - i);
+                resto = (soma * 10) % 11;
+
+                if ((resto == 10) || (resto == 11)) resto = 0;
+                if (resto != parseInt(cpf.substring(9, 10))) return false;
+
+                soma = 0;
+                for (let i = 1; i <= 10; i++) soma = soma + parseInt(cpf.substring(i - 1, i)) * (12 - i);
+                resto = (soma * 10) % 11;
+
+                if ((resto == 10) || (resto == 11)) resto = 0;
+                if (resto != parseInt(cpf.substring(10, 11))) return false;
+                return true;
+            }
+
+            // --- MANIPULAÇÃO DE MÁSCARAS E EVENTOS ---
             (function () {
                 const $ = (id) => document.getElementById(id);
                 const onlyDigits = (v) => (v || "").replace(/\D/g, "");
 
+                // Formatadores
                 function formatCep(value) {
                     const d = onlyDigits(value).slice(0, 8);
-                    if (d.length <= 5) return d;
-                    return d.slice(0, 5) + "-" + d.slice(5);
+                    return d.length <= 5 ? d : d.slice(0, 5) + "-" + d.slice(5);
                 }
-
-                function formatCnpj(value) {
-                    const d = onlyDigits(value).slice(0, 14);
-                    if (d.length <= 2) return d;
-                    if (d.length <= 5) return d.slice(0, 2) + "." + d.slice(2);
-                    if (d.length <= 8) return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5);
-                    if (d.length <= 12) return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5, 8) + "/" + d.slice(8);
-                    return d.slice(0, 2) + "." + d.slice(2, 5) + "." + d.slice(5, 8) + "/" + d.slice(8, 12) + "-" + d.slice(12);
-                }
-
-                function formatCpf(value) {
-                    const d = onlyDigits(value).slice(0, 11);
-                    if (d.length <= 3) return d;
-                    if (d.length <= 6) return d.slice(0, 3) + "." + d.slice(3);
-                    if (d.length <= 9) return d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6);
-                    return d.slice(0, 3) + "." + d.slice(3, 6) + "." + d.slice(6, 9) + "-" + d.slice(9);
-                }
-
                 function formatTelefone(value) {
                     const d = onlyDigits(value).slice(0, 11);
-                    if (d.length <= 2) return d;
-                    const ddd = d.slice(0, 2);
-                    const rest = d.slice(2);
-                    if (d.length >= 11) return "(" + ddd + ") " + rest.slice(0, 5) + "-" + rest.slice(5, 9);
-                    if (d.length >= 7) return "(" + ddd + ") " + rest.slice(0, 4) + "-" + rest.slice(4, 8);
-                    return "(" + ddd + ") " + rest;
+                    if (d.length > 10) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+                    return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+                }
+                function formatCpf(value) {
+                    const d = onlyDigits(value).slice(0, 11);
+                    return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
                 }
 
+                // Função para Aplicar Máscara
                 function applyMask(inputEl, formatter) {
                     if (!inputEl) return;
                     inputEl.addEventListener("input", () => {
-                        const formatted = formatter(inputEl.value);
-                        if (inputEl.value !== formatted) inputEl.value = formatted;
+                        inputEl.value = formatter(inputEl.value);
                     });
                 }
 
-                const cepInput = $("cep");
-                const btnBuscarCep = $("btnBuscarCep");
-                const cepMsg = $("cepMsg");
-                const logradouro = $("logradouro");
-                const bairro = $("bairro");
-                const cidade = $("cidade");
-                const estado = $("estado");
-                const numero = $("numero");
+                // Função de Feedback Visual (Cor e Texto)
+                function showFeedback(inputId, feedbackId, isValid, msgSuccess, msgError) {
+                    const input = $(inputId);
+                    const feedback = $(feedbackId);
 
-                async function buscarCep() {
-                    if (!cepInput || !btnBuscarCep || !cepMsg) return;
-                    const cep = onlyDigits(cepInput.value);
-                    if (cep.length !== 8) {
-                        cepMsg.classList.remove("hidden");
-                        cepMsg.className = "text-sm mt-2 text-red-500";
-                        cepMsg.textContent = "Informe um CEP válido (8 dígitos).";
+                    if (!input.value) {
+                        feedback.classList.add('hidden');
+                        input.classList.remove('border-red-500', 'border-green-500', 'text-red-600', 'text-green-600');
                         return;
                     }
-                    btnBuscarCep.disabled = true;
-                    cepMsg.classList.remove("hidden");
-                    cepMsg.className = "text-sm mt-2 text-zinc-400";
-                    cepMsg.textContent = "Buscando CEP...";
 
-                    try {
-                        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { method: "GET" });
-                        if (!res.ok) throw new Error("Falha");
-                        const data = await res.json();
-                        if (data.erro) {
-                            cepMsg.className = "text-sm mt-2 text-red-500";
-                            cepMsg.textContent = "CEP não encontrado.";
-                            return;
-                        }
-                        if (logradouro) logradouro.value = data.logradouro || "";
-                        if (bairro) bairro.value = data.bairro || "";
-                        if (cidade) cidade.value = data.localidade || "";
-                        if (estado) estado.value = data.uf || "";
-                        cepMsg.className = "text-sm mt-2 text-green-600";
-                        cepMsg.textContent = "Endereço preenchido.";
-                        if (numero) numero.focus();
-                    } catch (e) {
-                        cepMsg.className = "text-sm mt-2 text-red-500";
-                        cepMsg.textContent = "Erro ao buscar CEP.";
-                    } finally {
-                        btnBuscarCep.disabled = false;
+                    feedback.classList.remove('hidden');
+
+                    if (isValid) {
+                        feedback.textContent = msgSuccess;
+                        feedback.className = "text-xs mt-1 text-green-600 font-medium";
+                        input.classList.remove('border-red-500', 'text-red-600');
+                        input.classList.add('border-green-500', 'text-green-600');
+                    } else {
+                        feedback.textContent = msgError;
+                        feedback.className = "text-xs mt-1 text-red-500 font-medium";
+                        input.classList.remove('border-green-500', 'text-green-600');
+                        input.classList.add('border-red-500', 'text-red-600');
                     }
                 }
 
-                applyMask(cepInput, formatCep);
-                applyMask($("cnpj"), formatCnpj);
+                // --- Lógica do CNPJ ---
+                const cnpjInput = $("cnpj");
+                if (cnpjInput) {
+                    // Máscara
+                    cnpjInput.addEventListener('input', function (e) {
+                        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,3})(\d{0,3})(\d{0,4})(\d{0,2})/);
+                        e.target.value = !x[2] ? x[1] : x[1] + '.' + x[2] + '.' + x[3] + '/' + x[4] + (x[5] ? '-' + x[5] : '');
+                    });
+
+                    // Validação ao sair (Blur)
+                    cnpjInput.addEventListener('blur', function () {
+                        const valid = validarCNPJ(this.value);
+                        showFeedback('cnpj', 'feedbackCNPJ', valid, 'CNPJ Válido', 'CNPJ Inválido');
+                    });
+                }
+
+                // --- Lógica do CPF ---
+                const cpfInput = $("cpf");
+                if (cpfInput) {
+                    applyMask(cpfInput, formatCpf);
+
+                    // Validação ao sair (Blur)
+                    cpfInput.addEventListener('blur', function () {
+                        // Se estiver vazio, não valida
+                        if (!this.value) return;
+                        const valid = validarCPF(this.value);
+                        showFeedback('cpf', 'feedbackCPF', valid, 'CPF Válido', 'CPF Inválido');
+                    });
+                }
+
+                // --- Restante (CEP, Telefone) ---
+                applyMask($("cep"), formatCep);
                 applyMask($("telefone"), formatTelefone);
-                applyMask($("cpf"), formatCpf);
 
-                btnBuscarCep?.addEventListener("click", buscarCep);
-                cepInput?.addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") { e.preventDefault(); buscarCep(); }
-                });
+                // ... (Lógica do Busca CEP Mantida Igual) ...
+                function lockField(id, value) {
+                    const el = $(id);
+                    if (el && value) {
+                        el.value = value;
+                        el.readOnly = true;
+                        el.classList.add('bg-zinc-100', 'cursor-not-allowed', 'opacity-70');
+                    } else if (el) {
+                        el.readOnly = false;
+                        el.classList.remove('bg-zinc-100', 'cursor-not-allowed', 'opacity-70');
+                    }
+                }
+
+                async function buscarCep() {
+                    const cepInput = $("cep");
+                    const btn = $("btnBuscarCep");
+                    const msg = $("cepMsg");
+                    const cep = onlyDigits(cepInput.value);
+
+                    if (cep.length !== 8) return;
+
+                    btn.disabled = true;
+                    msg.textContent = "Buscando...";
+                    msg.className = "text-sm mt-2 text-zinc-400 block";
+
+                    try {
+                        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                        const data = await res.json();
+                        if (data.erro) throw new Error("CEP não encontrado");
+
+                        lockField("logradouro", data.logradouro);
+                        lockField("bairro", data.bairro);
+                        lockField("cidade", data.localidade);
+                        lockField("estado", data.uf);
+                        $("numero").focus();
+                        msg.textContent = "Endereço encontrado!";
+                        msg.className = "text-sm mt-2 text-green-600 block";
+                    } catch (e) {
+                        msg.textContent = "CEP não encontrado.";
+                        msg.className = "text-sm mt-2 text-red-500 block";
+                        lockField("logradouro", "");
+                        lockField("bairro", "");
+                        lockField("cidade", "");
+                        lockField("estado", "");
+                    } finally {
+                        btn.disabled = false;
+                    }
+                }
+                $("btnBuscarCep")?.addEventListener("click", buscarCep);
+                $("cep")?.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); buscarCep(); } });
             })();
-        </script>
 
-        <!-- Script de Envio do Formulário (AJAX + SweetAlert) -->
-        <script>
+            // --- SUBMIT DO FORM ---
             document.addEventListener('DOMContentLoaded', () => {
-                // Inicializa TomSelect
-                document.querySelectorAll('.js-select').forEach(select => {
-                    new TomSelect(select, { create: false, allowEmptyOption: true });
-                });
+                document.querySelectorAll('.js-select').forEach(select => new TomSelect(select, { create: false }));
 
                 const form = document.getElementById('formCliente');
-                const btnSalvar = document.getElementById('btnSalvar');
-
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    // Feedback visual no botão
-                    const originalText = btnSalvar.innerHTML;
-                    btnSalvar.disabled = true;
-                    btnSalvar.innerHTML = '<span class="animate-spin inline-block w-4 h-4 border-[2px] border-current border-t-transparent text-white rounded-full mr-2"></span> Salvando...';
+                    // Valida novamente antes de enviar (caso o usuário ignore o aviso vermelho)
+                    if (!validarCNPJ(document.getElementById('cnpj').value)) {
+                        Swal.fire('Erro', 'Corrija o CNPJ antes de salvar.', 'error');
+                        return;
+                    }
 
-                    // Coleta dados
+                    const cpfVal = document.getElementById('cpf').value;
+                    if (cpfVal && !validarCPF(cpfVal)) {
+                        Swal.fire('Erro', 'Corrija o CPF antes de salvar.', 'error');
+                        return;
+                    }
+
+                    const btn = document.getElementById('btnSalvar');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = 'Salvando...';
+
                     const formData = new FormData(form);
                     const data = Object.fromEntries(formData.entries());
-
-                    // Checkbox manual (se não estiver marcado, não vem no FormData, então forçamos)
                     data.empresa_industria = document.getElementById('empresaIndustria').checked ? 1 : 0;
 
                     try {
@@ -359,37 +417,18 @@
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(data)
                         });
-
                         const result = await response.json();
 
                         if (response.ok && result.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Sucesso!',
-                                text: result.message,
-                                confirmButtonText: 'OK',
-                                customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
-                                buttonsStyling: false
-                            }).then(() => {
-                                window.location.href = '/clientes';
-                            });
+                            Swal.fire('Sucesso!', result.message, 'success').then(() => window.location.href = '/clientes');
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro',
-                                text: result.message || 'Erro desconhecido.'
-                            });
+                            Swal.fire('Erro', result.message, 'error');
                         }
                     } catch (error) {
-                        console.error(error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Erro de Conexão',
-                            text: 'Não foi possível conectar ao servidor.'
-                        });
+                        Swal.fire('Erro', 'Falha na comunicação.', 'error');
                     } finally {
-                        btnSalvar.disabled = false;
-                        btnSalvar.innerHTML = originalText;
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
                     }
                 });
             });

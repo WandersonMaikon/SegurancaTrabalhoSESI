@@ -1,13 +1,40 @@
 const express = require("express");
 const router = express.Router();
 const db = require("../database/db");
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
+const verificarPermissao = require("../middlewares/permission.middleware"); // Se estiver usando
 
-// --- Rota: Listar Clientes ---
+// Função auxiliar Admin
+const verificarSeEhAdmin = (user) => {
+    if (user.email === 'admin@admin.com') return true;
+    if (user.nome_perfil === 'Administrador' || user.nome_perfil === 'Super Admin') return true;
+    return false;
+};
+
+// --- LISTAR CLIENTES ---
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
-        const [clientes] = await db.query("SELECT * FROM cliente WHERE deleted_at IS NULL ORDER BY created_at DESC");
+        const userLogado = req.session.user;
+        const ehAdmin = verificarSeEhAdmin(userLogado);
+
+        let query = `
+            SELECT c.*, u.nome_fantasia as nome_unidade
+            FROM cliente c
+            JOIN unidade u ON c.id_unidade = u.id_unidade
+            WHERE c.deleted_at IS NULL
+        `;
+        const params = [];
+
+        if (!ehAdmin) {
+            query += ` AND c.id_unidade = ?`;
+            params.push(userLogado.id_unidade || userLogado.unidade_id);
+        }
+
+        query += ` ORDER BY c.nome_empresa ASC`;
+
+        const [clientes] = await db.query(query, params);
+
         res.render("clientes/cliente-lista", {
             user: req.session.user,
             currentPage: 'clientes',
@@ -19,16 +46,23 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- Rota: Formulário de Novo Cliente ---
+// --- FORMULÁRIO DE NOVO CLIENTE ---
 router.get("/novo", verificarAutenticacao, async (req, res) => {
     try {
-        // Precisamos das unidades para preencher o Select
-        const [unidades] = await db.query("SELECT id_unidade, nome_fantasia FROM unidade WHERE ativo = 1 ORDER BY nome_fantasia ASC");
+        const userLogado = req.session.user;
+        const ehAdmin = verificarSeEhAdmin(userLogado);
+        let unidades = [];
+
+        if (ehAdmin) {
+            const [rows] = await db.query("SELECT id_unidade, nome_fantasia FROM unidade WHERE ativo = 1 ORDER BY nome_fantasia ASC");
+            unidades = rows;
+        }
 
         res.render("clientes/cliente-form", {
             user: req.session.user,
             currentPage: 'clientes',
-            unidades: unidades // Enviando para a view
+            unidades: unidades,
+            ehAdmin: ehAdmin // Importante para o EJS esconder o select
         });
     } catch (error) {
         console.error("Erro ao carregar formulário:", error);
@@ -36,19 +70,36 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- Rota: SALVAR Novo Cliente (INSERT) ---
+// --- SALVAR NOVO CLIENTE ---
 router.post("/salvar", verificarAutenticacao, async (req, res) => {
     try {
         const data = req.body;
+        const userLogado = req.session.user;
+        const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        // Validação básica
-        if (!data.nome || !data.cnpj || !data.id_unidade) {
-            return res.status(400).json({ success: false, message: "Preencha os campos obrigatórios (Unidade, Nome e CNPJ)." });
+        // 1. Validação Básica
+        if (!data.nome || !data.cnpj) {
+            return res.status(400).json({ success: false, message: "Preencha Nome e CNPJ." });
+        }
+
+        // 2. Validação de Unidade
+        let idUnidadeFinal = null;
+        if (ehAdmin) {
+            if (!data.id_unidade) return res.status(400).json({ success: false, message: "Selecione a Unidade." });
+            idUnidadeFinal = data.id_unidade;
+        } else {
+            idUnidadeFinal = userLogado.id_unidade || userLogado.unidade_id;
+        }
+
+        // 3. Validação de Duplicidade (CNPJ)
+        // Verifica no banco se já existe (mesmo deletado, pra evitar conflito se reativar, ou filtra só ativos)
+        const [existente] = await db.query("SELECT id_cliente FROM cliente WHERE cnpj = ?", [data.cnpj]);
+
+        if (existente.length > 0) {
+            return res.status(400).json({ success: false, message: "Já existe um cliente cadastrado com este CNPJ." });
         }
 
         const id_cliente = uuidv4();
-
-        // Tratamento do Checkbox (se marcado vem '1', se não, vem undefined)
         const industria = data.empresa_industria ? 1 : 0;
 
         const sql = `
@@ -60,23 +111,10 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         `;
 
         const values = [
-            id_cliente,
-            data.id_unidade,
-            data.nome,
-            industria,
-            data.cnpj,
-            data.email,
-            data.telefone,
-            data.ncolaboradores || 0,
-            data.representante_nome,
-            data.cpf,
-            data.rg,
-            data.cep,
-            data.endereco, // O name no form é 'endereco' para logradouro
-            data.numero,
-            data.bairro,
-            data.cidade,
-            data.estado
+            id_cliente, idUnidadeFinal, data.nome, industria, data.cnpj,
+            data.email, data.telefone, data.ncolaboradores || 0,
+            data.representante_nome, data.cpf, data.rg,
+            data.cep, data.endereco, data.numero, data.bairro, data.cidade, data.estado
         ];
 
         await db.query(sql, values);
@@ -85,32 +123,22 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
 
     } catch (error) {
         console.error("Erro ao salvar cliente:", error);
-        // Verifica duplicidade de chave (ex: CNPJ único se houver constraint)
-        if (error.code === 'ER_DUP_ENTRY') {
-            return res.status(400).json({ success: false, message: "Já existe um cliente com este CNPJ cadastrado." });
-        }
         return res.status(500).json({ success: false, message: "Erro interno ao salvar cliente." });
     }
 });
 
-// --- Rota: inativar Múltiplos ---
+// --- Inativar Múltiplos (Mantido igual) ---
 router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;
         if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: "Nenhum cliente selecionado." });
-
         const validIds = ids.map(id => String(id).trim()).filter(id => id.length > 0);
-        if (validIds.length === 0) return res.status(400).json({ success: false, message: "IDs inválidos." });
-
         const placeholders = validIds.map(() => '?').join(',');
         const sql = `UPDATE cliente SET deleted_at = NOW() WHERE id_cliente IN (${placeholders})`;
-
-        const [result] = await db.query(sql, validIds);
-
-        return res.status(200).json({ success: true, message: `${result.affectedRows} cliente(s) inativado(s) com sucesso!` });
+        await db.query(sql, validIds);
+        return res.status(200).json({ success: true, message: "Clientes inativados." });
     } catch (error) {
-        console.error("ERRO AO INATIVAR:", error);
-        return res.status(500).json({ success: false, message: "Erro interno ao inativar cliente(s)." });
+        return res.status(500).json({ success: false, message: "Erro interno." });
     }
 });
 
