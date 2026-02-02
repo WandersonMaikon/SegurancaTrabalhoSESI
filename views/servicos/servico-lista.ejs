@@ -85,7 +85,7 @@
                     <tr>
                       <th></th>
                       <th class="text-nowrap">Nome do serviço</th>
-                      <th class="text-nowrap">Tipo</th>
+                      <th class="text-nowrap">Unidade</th>
                       <th class="text-nowrap">Status</th>
                       <th class="text-nowrap" data-orderable="false">Ações</th>
                     </tr>
@@ -114,20 +114,16 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-        // 1. LER DADOS
         let listaServicos = [];
         try {
           const divJson = document.getElementById('dados-servicos-json');
           if (divJson && divJson.innerText.trim()) {
             listaServicos = JSON.parse(divJson.innerText);
           }
-        } catch (e) {
-          console.error("Erro ao ler JSON:", e);
-        }
+        } catch (e) { console.error(e); }
 
-        // 2. RENDERIZAR TABELA
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = ''; // Limpa antes de popular
+        tbody.innerHTML = '';
 
         listaServicos.forEach((s, index) => {
           const tr = document.createElement('tr');
@@ -137,16 +133,15 @@
             ? '<span class="badge bg-green-500/10 text-green-500">Ativo</span>'
             : '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
 
-          // Lógica: Se id_unidade é null, é Global. Se tem ID, é Específico.
+          // Lógica Visual: Se o Admin acessar, ele verá "Global" ou o nome da Unidade.
+          // Se o Usuário comum acessar, ele só verá os nomes da unidade dele (o back-end já filtrou o resto).
           const tipoHtml = !s.id_unidade
             ? '<span class="badge bg-purple-500/10 text-purple-500 border border-purple-200">Global</span>'
-            : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Unidade'}</span>`;
+            : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Local'}</span>`;
 
           tr.innerHTML = `
           <td></td>
-          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-            ${s.nome_servico}
-          </td>
+          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
           <td>${tipoHtml}</td>
           <td>${statusHtml}</td>
           <td>
@@ -160,45 +155,20 @@
           tbody.appendChild(tr);
         });
 
-        // 3. DATATABLES INIT
         const table = new DataTable('#table_servicos', {
           lengthChange: false,
           pageLength: 10,
           scrollX: true,
           dom: 'lrtip',
-          language: {
-            emptyTable: "Nenhum serviço encontrado",
-            info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-            select: { rows: "" }
-          },
-          columnDefs: [
-            {
-              orderable: false,
-              searchable: false,
-              render: DataTable.render.select(),
-              targets: 0,
-            }
-          ],
-          select: {
-            style: 'os',
-            selector: 'td:first-child',
-            headerCheckbox: false
-          },
-          order: [[1, 'asc']], // Ordena pelo Nome
+          language: { emptyTable: "Nenhum serviço encontrado", select: { rows: "" } },
+          columnDefs: [{ orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }],
+          select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
+          order: [[1, 'asc']],
         });
 
-        // Busca
-        document.getElementById('servicoSearch').addEventListener('input', e => {
-          table.search(e.target.value).draw();
-        });
+        document.getElementById('servicoSearch').addEventListener('input', e => { table.search(e.target.value).draw(); });
+        document.getElementById('statusFilter').addEventListener('change', function () { table.columns(3).search(this.value).draw(); });
 
-        // Filtro Status (Coluna 3 agora, pois adicionei a coluna Tipo na posição 2)
-        document.getElementById('statusFilter').addEventListener('change', function () {
-          table.columns(3).search(this.value).draw();
-        });
-
-        // Botão Inativar Lógica
         const inativarBtn = document.getElementById("inativarBtn");
         table.on('select deselect', function () {
           const count = table.rows({ selected: true }).count();
@@ -206,57 +176,37 @@
           inativarBtn.innerText = `Inativar (${count})`;
         });
 
-        // Ação de Inativar (Fetch)
         inativarBtn.addEventListener('click', () => {
           const selectedRows = table.rows({ selected: true }).nodes();
-          const idsParaInativar = [];
-
+          const ids = [];
           selectedRows.each(function (row) {
             const index = row.getAttribute('data-index');
-            const servico = listaServicos[index];
-            if (servico) idsParaInativar.push(servico.id_servico);
+            if (listaServicos[index]) ids.push(listaServicos[index].id_servico);
           });
-
-          if (idsParaInativar.length === 0) return;
+          if (ids.length === 0) return;
 
           Swal.fire({
-            title: 'Tem certeza?',
-            text: "Deseja inativar os serviços selecionados?",
+            title: 'Inativar?',
+            text: "Os serviços selecionados não aparecerão em novas OS.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sim, inativar',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: 'Sim, inativar'
           }).then(async (result) => {
             if (result.isConfirmed) {
-              try {
-                const response = await fetch('/servicos/inativar-multiplos', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ ids: idsParaInativar })
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                  Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
-                } else {
-                  Swal.fire('Erro!', data.message, 'error');
-                }
-              } catch (err) {
-                Swal.fire('Erro!', 'Falha na comunicação.', 'error');
-              }
+              const res = await fetch('/servicos/inativar-multiplos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ids })
+              });
+              const data = await res.json();
+              if (data.success) location.reload();
             }
           });
         });
-
       });
     </script>
-
     <script src="/vendor/js/tom-select.complete.min.js"></script>
-    <script>
-      document.querySelectorAll('.js-select').forEach(select => {
-        new TomSelect(select, { create: false, allowEmptyOption: true });
-      });
-    </script>
+    <script>document.querySelectorAll('.js-select').forEach(s => new TomSelect(s, { create: false }));</script>
 </body>
 
 </html>
