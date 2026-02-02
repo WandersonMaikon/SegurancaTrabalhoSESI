@@ -26,7 +26,7 @@ async function seedDatabase() {
             await connection.query(`
                 INSERT INTO unidade (id_unidade, nome_fantasia, razao_social, cnpj, cidade, estado, ativo)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            `, [unidadeId, 'Matriz', 'Minha Empresa LTDA', '00.000.000/0001-00', 'Rondônia', 'RO', true]);
+            `, [unidadeId, 'SESI - Ji-paraná', 'Serviço Social da Indústria', '03.783.989/0003-07', 'Rondônia', 'RO', true]);
         }
 
         // ---------------------------------------------------------
