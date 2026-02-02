@@ -44,7 +44,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- TELA DE NOVA OS (GET) ---
+// --- TELA DE NOVA OS (GET - Mantido igual) ---
 router.get("/novo", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -58,13 +58,13 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             paramsUnidade.push(userLogado.id_unidade || userLogado.unidade_id);
         }
 
-        // 1. Clientes (Empresas)
+        // 1. Clientes
         const [clientes] = await db.query(
             `SELECT id_cliente, nome_empresa, cnpj FROM cliente WHERE deleted_at IS NULL ${filtroUnidade} ORDER BY nome_empresa ASC`,
             paramsUnidade
         );
 
-        // 2. Serviços Disponíveis
+        // 2. Serviços
         let sqlServicos = `SELECT id_servico, nome_servico FROM servico WHERE deleted_at IS NULL AND ativo = 1`;
         let paramsServicos = [];
         if (!ehAdmin) {
@@ -74,8 +74,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
         sqlServicos += ` ORDER BY nome_servico ASC`;
         const [servicos] = await db.query(sqlServicos, paramsServicos);
 
-        // 3. VÍNCULOS (Serviço x Responsável)
-        // Aqui está a mágica: Trazemos quem pode fazer o que.
+        // 3. Vínculos
         let sqlVinculos = `
             SELECT sr.id_servico, u.id_usuario, u.nome_completo
             FROM servico_responsavel sr
@@ -91,15 +90,12 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
 
         const [vinculos] = await db.query(sqlVinculos, paramsVinculos);
 
-        // Agrupamos no Backend ou enviamos o JSON puro para o Frontend tratar
-        // Vamos enviar puro e filtrar no JS do navegador, é mais rápido.
-
         res.render("servicos/os-form", {
             user: req.session.user,
             currentPage: 'ordem-servicos',
             clientes: clientes,
             servicos: servicos,
-            vinculosJson: JSON.stringify(vinculos) // Passamos como JSON string
+            vinculosJson: JSON.stringify(vinculos)
         });
 
     } catch (error) {
@@ -108,7 +104,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- SALVAR NOVA OS (POST) ---
+// --- SALVAR NOVA OS (POST - Alterado) ---
 router.post("/salvar", verificarAutenticacao, async (req, res) => {
     let connection;
     try {
@@ -136,6 +132,7 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
 
         const idOS = uuidv4();
 
+        // 1. Inserir OS Cabeçalho
         await connection.query(
             `INSERT INTO ordem_servico (
                 id_ordem_servico, id_unidade, contrato_numero, id_cliente, 
@@ -144,16 +141,20 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
             [idOS, idUnidadeOS, data.contrato_numero, data.contratante_id, valorLimpo, userLogado.id_usuario]
         );
 
+        // 2. Inserir Itens do Escopo
         let itens = data.escopo || [];
         if (!Array.isArray(itens) && typeof itens === 'object') itens = Object.values(itens);
 
         for (const item of itens) {
             if (item.servico_id && item.responsavel_id) {
+                // Se prazo não vier, define 1 dia padrão
+                const prazoDias = item.prazo_execucao_dias ? parseInt(item.prazo_execucao_dias) : 1;
+
                 await connection.query(
                     `INSERT INTO ordem_servico_item (
-                        id_item, id_ordem_servico, id_servico, id_responsavel_execucao, quantidade, status_item
-                    ) VALUES (?, ?, ?, ?, ?, 'Pendente')`,
-                    [uuidv4(), idOS, item.servico_id, item.responsavel_id, item.quantidade || 1]
+                        id_item, id_ordem_servico, id_servico, id_responsavel_execucao, quantidade, status_item, prazo_execucao_dias
+                    ) VALUES (?, ?, ?, ?, ?, 'Pendente', ?)`,
+                    [uuidv4(), idOS, item.servico_id, item.responsavel_id, item.quantidade || 1, prazoDias]
                 );
             }
         }
@@ -170,6 +171,7 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
     }
 });
 
+// --- Inativar Múltiplos (Mantido igual) ---
 router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;

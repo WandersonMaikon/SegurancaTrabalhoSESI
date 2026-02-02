@@ -16,8 +16,40 @@
         rel="stylesheet">
 
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+
+    <style>
+        /* Ajustes visuais para o DataTables ficar Clean */
+        .dataTables_info {
+            font-size: 0.875rem;
+            color: #a1a1aa;
+            margin-top: 0.5rem;
+        }
+
+        .dataTables_paginate {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* Highlight na linha selecionável */
+        .hover-row:hover {
+            background-color: #f4f4f5;
+        }
+
+        .dark .hover-row:hover {
+            background-color: #27272a;
+        }
+
+        /* Remove borda feia do DataTables */
+        table.dataTable.no-footer {
+            border-bottom: none !important;
+        }
+
+        /* Centralizar verticalmente conteúdo da tabela principal */
+        #table_escopo td {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body
@@ -110,10 +142,11 @@
                                             <thead>
                                                 <tr>
                                                     <th class="text-nowrap">Serviços</th>
-                                                    <th class="text-nowrap">Quantidade</th>
+                                                    <th class="text-nowrap w-24">Quantidade</th>
                                                     <th class="text-nowrap">Responsável</th>
-                                                    <th class="text-nowrap">
-                                                        <div class="flex items-center justify-end">Ações</div>
+                                                    <th class="text-nowrap">Prazo Limite</th>
+                                                    <th class="text-nowrap w-20">
+                                                        <div class="flex items-center justify-center">Ações</div>
                                                     </th>
                                                 </tr>
                                             </thead>
@@ -151,39 +184,40 @@
         <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
             <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                 <div
-                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh]">
                     <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                        <h5 class="text-lg">Pesquisar empresa contratante</h5>
+                        <h5 class="text-lg">Selecione a Empresa</h5>
                         <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
                             <span class="icon-[lucide--x] text-lg"></span>
                         </button>
                     </div>
-                    <div class="p-4">
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
                         <div class="relative mb-3">
                             <input id="contratanteSearch" type="search" class="input !ps-9 w-full"
                                 placeholder="Buscar empresa...">
                             <span
                                 class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                         </div>
-                        <div class="max-h-[360px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
-                            <table class="table-default w-full">
-                                <thead>
+
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_contratante_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
                                     <tr>
-                                        <th>Empresa</th>
-                                        <th class="text-right">Selecionar</th>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Empresa
+                                            / CNPJ</th>
                                     </tr>
                                 </thead>
-                                <tbody id="contratanteList">
-                                    <% clientes.forEach(c=> { %>
-                                        <tr data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
-                                            <td class="font-semibold text-zinc-900 dark:text-white">
-                                                <%= c.nome_empresa %> <small class="text-zinc-400 block font-normal">
-                                                        <%= c.cnpj %>
-                                                    </small>
-                                            </td>
-                                            <td class="text-right">
-                                                <button type="button"
-                                                    class="btn bg-primary text-white hover:bg-primary-deep btnPickContratante">Selecionar</button>
+                                <tbody>
+                                    <% clientes.forEach((c)=> { %>
+                                        <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
+                                            data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
+                                            <td class="py-3">
+                                                <div class="font-semibold text-zinc-900 dark:text-white">
+                                                    <%= c.nome_empresa %>
+                                                </div>
+                                                <div class="text-xs text-zinc-400 font-normal">
+                                                    <%= c.cnpj %>
+                                                </div>
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -198,37 +232,34 @@
         <div id="modal_servico" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
             <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                 <div
-                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh]">
                     <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                        <h5 class="text-lg">Pesquisar serviço</h5>
+                        <h5 class="text-lg">Selecione o Serviço</h5>
                         <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
                             <span class="icon-[lucide--x] text-lg"></span>
                         </button>
                     </div>
-                    <div class="p-4">
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
                         <div class="relative mb-3">
                             <input id="servicoSearch" type="search" class="input !ps-9 w-full"
                                 placeholder="Buscar serviço...">
                             <span
                                 class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                         </div>
-                        <div class="max-h-[420px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
-                            <table class="table-default w-full">
-                                <thead>
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_servico_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
                                     <tr>
-                                        <th>Serviço</th>
-                                        <th class="text-right">Selecionar</th>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Serviço
+                                        </th>
                                     </tr>
                                 </thead>
-                                <tbody id="servicoList">
+                                <tbody>
                                     <% servicos.forEach(s=> { %>
-                                        <tr data-id="<%= s.id_servico %>" data-nome="<%= s.nome_servico %>">
-                                            <td class="font-semibold text-zinc-900 dark:text-white">
+                                        <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
+                                            data-id="<%= s.id_servico %>" data-nome="<%= s.nome_servico %>">
+                                            <td class="py-3 font-semibold text-zinc-900 dark:text-white">
                                                 <%= s.nome_servico %>
-                                            </td>
-                                            <td class="text-right">
-                                                <button type="button"
-                                                    class="btn bg-primary text-white hover:bg-primary-deep btnPickServico">Selecionar</button>
                                             </td>
                                         </tr>
                                         <% }) %>
@@ -243,31 +274,30 @@
         <div id="modal_responsavel" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
             <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                 <div
-                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl">
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh]">
                     <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                        <h5 class="text-lg">Pesquisar responsável</h5>
+                        <h5 class="text-lg">Selecione o Responsável</h5>
                         <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
                             <span class="icon-[lucide--x] text-lg"></span>
                         </button>
                     </div>
-                    <div class="p-4">
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
                         <div class="relative mb-3">
                             <input id="responsavelSearch" type="search" class="input !ps-9 w-full"
                                 placeholder="Buscar responsável...">
                             <span
                                 class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                         </div>
-                        <div class="max-h-[420px] overflow-auto border border-zinc-200 dark:border-zinc-800 rounded-lg">
-                            <table class="table-default w-full">
-                                <thead>
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_responsavel_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
                                     <tr>
-                                        <th>Responsável</th>
-                                        <th class="text-right">Selecionar</th>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Nome do
+                                            Responsável</th>
                                     </tr>
                                 </thead>
-                                <tbody id="responsavelList"></tbody>
+                                <tbody id="responsavelListBody"></tbody>
                             </table>
-
                             <div id="msgSemResponsavel" class="hidden text-center py-4 text-zinc-400">
                                 Nenhum responsável habilitado para este serviço.
                             </div>
@@ -283,8 +313,8 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
-            (function () {
-                // --- 1. LER DADOS DE VÍNCULO (JSON) ---
+            $(document).ready(function () {
+                // --- 1. LER DADOS DE VÍNCULO ---
                 let vinculos = [];
                 try {
                     const raw = document.getElementById('vinculos-data').innerText;
@@ -292,73 +322,84 @@
                 } catch (e) { console.error("Erro vínculos", e); }
 
                 // --- 2. MÁSCARA MOEDA ---
-                const valorInput = document.getElementById('valorTotal');
-                valorInput?.addEventListener('input', function (e) {
+                $('#valorTotal').on('input', function (e) {
                     let value = e.target.value.replace(/\D/g, "");
                     value = (Number(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     e.target.value = value;
                 });
 
-                // --- 3. CONFIGURAÇÃO DE FILTROS DOS MODAIS ---
-                function setupFilter(inputId, listId) {
-                    const input = document.getElementById(inputId);
-                    const list = document.getElementById(listId);
-                    input?.addEventListener('input', () => {
-                        const q = (input.value || '').toLowerCase();
-                        list?.querySelectorAll('tr').forEach(tr => {
-                            const nome = (tr.getAttribute('data-nome') || tr.innerText).toLowerCase();
-                            tr.style.display = nome.includes(q) ? '' : 'none';
-                        });
-                    });
-                }
-                setupFilter('contratanteSearch', 'contratanteList');
-                setupFilter('servicoSearch', 'servicoList');
-                setupFilter('responsavelSearch', 'responsavelList');
+                // --- 3. CONFIGURAÇÃO DOS DATATABLES NOS MODAIS ---
+                const dtConfig = {
+                    dom: 'rtip',
+                    paging: true,
+                    pageLength: 6,
+                    ordering: false,
+                    autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado",
+                        info: "Exibindo _START_ a _END_ de _TOTAL_",
+                        infoEmpty: "Nenhum registro",
+                        infoFiltered: "(filtrado de _MAX_)",
+                        zeroRecords: "Nada encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                };
 
-                // --- 4. DATATABLES E LÓGICA DE ESCOPO ---
-                const dt = new DataTable('#table_escopo', {
+                const dtContratante = $('#table_contratante_modal').DataTable(dtConfig);
+                $('#contratanteSearch').on('keyup', function () { dtContratante.search(this.value).draw(); });
+
+                const dtServico = $('#table_servico_modal').DataTable(dtConfig);
+                $('#servicoSearch').on('keyup', function () { dtServico.search(this.value).draw(); });
+
+                const dtResponsavel = $('#table_responsavel_modal').DataTable(dtConfig);
+                $('#responsavelSearch').on('keyup', function () { dtResponsavel.search(this.value).draw(); });
+
+
+                // --- 4. DATATABLE DO ESCOPO (Tabela Principal) ---
+                const dtEscopo = new DataTable('#table_escopo', {
                     paging: false, searching: false, info: false, sort: false,
-                    columnDefs: [{ targets: 3, className: "text-end" }]
+                    // Coluna 4 (Ações) agora é text-center para centralizar o ícone
+                    columnDefs: [{ targets: 4, className: "text-center" }]
                 });
 
                 let nextIndex = 0;
-                let currentRowIndex = null; // Guarda qual linha está sendo editada
+                let currentRowIndex = null;
 
-                // Funções geradoras de HTML para a tabela
                 function rowHtmlServico(index) {
                     return `
-                    <div class="relative">
+                    <div class="relative group">
                         <input type="hidden" name="escopo[${index}][servico_id]" value="">
                         <input type="text" name="escopo[${index}][servico_nome]" 
-                            class="input h-10 w-full min-w-[280px] !pe-11 cursor-pointer" 
-                            placeholder="Selecione um serviço..." readonly required 
+                            class="input h-10 w-full min-w-[400px] !pe-11 cursor-pointer bg-white dark:bg-zinc-900" 
+                            placeholder="Clique para selecionar..." readonly required 
                             data-bs-toggle="modal" data-bs-target="#modal_servico">
-                        
-                        <button type="button" class="btn !p-2 absolute right-0 top-0 h-full js-pick-servico" 
-                            data-bs-toggle="modal" data-bs-target="#modal_servico">
+                        <span class="absolute right-3 top-2.5 text-zinc-400 pointer-events-none group-hover:text-primary transition-colors">
                             <span class="icon-[lucide--search] text-lg"></span>
-                        </button>
+                        </span>
                     </div>`;
                 }
 
                 function rowHtmlQtd(index) {
-                    return `<input type="number" name="escopo[${index}][quantidade]" class="input h-10 w-full min-w-[100px]" value="1" min="1" required>`;
+                    // Diminuído para min-w-[70px]
+                    return `<input type="number" name="escopo[${index}][quantidade]" class="input h-10 w-full min-w-[70px]" value="1" min="1" required>`;
                 }
 
                 function rowHtmlResponsavel(index) {
                     return `
-                    <div class="relative">
+                    <div class="relative group">
                         <input type="hidden" name="escopo[${index}][responsavel_id]" value="">
                         <input type="text" name="escopo[${index}][responsavel_nome]" 
-                            class="input h-10 w-full min-w-[220px] !pe-11 cursor-pointer" 
-                            placeholder="Selecione..." readonly required 
+                            class="input h-10 w-full min-w-[220px] !pe-11 cursor-pointer bg-white dark:bg-zinc-900" 
+                            placeholder="Clique para selecionar..." readonly required 
                             data-bs-toggle="modal" data-bs-target="#modal_responsavel">
-                        
-                        <button type="button" class="btn !p-2 absolute right-0 top-0 h-full js-pick-responsavel" 
-                            data-bs-toggle="modal" data-bs-target="#modal_responsavel">
+                        <span class="absolute right-3 top-2.5 text-zinc-400 pointer-events-none group-hover:text-primary transition-colors">
                             <span class="icon-[lucide--search] text-lg"></span>
-                        </button>
+                        </span>
                     </div>`;
+                }
+
+                function rowHtmlPrazo(index) {
+                    return `<input type="date" name="escopo[${index}][data_prazo]" class="input h-10 w-full min-w-[140px]" required>`;
                 }
 
                 function rowHtmlAcoes() {
@@ -367,169 +408,150 @@
 
                 function addRow() {
                     const idx = nextIndex++;
-                    dt.row.add([
+                    dtEscopo.row.add([
                         rowHtmlServico(idx),
                         rowHtmlQtd(idx),
                         rowHtmlResponsavel(idx),
+                        rowHtmlPrazo(idx),
                         rowHtmlAcoes()
                     ]).draw(false);
 
-                    // Marca a linha com o índice para sabermos onde escrever depois
-                    const lastTr = dt.table().body().lastChild;
-                    lastTr.setAttribute('data-row-index', String(idx));
+                    const lastTr = $('#table_escopo tbody tr').last()[0];
+                    $(lastTr).attr('data-row-index', idx);
                 }
 
-                // Adiciona primeira linha e evento do botão
                 addRow();
-                document.getElementById('btnAddLinha')?.addEventListener('click', addRow);
+                $('#btnAddLinha').on('click', addRow);
 
-                // --- 5. EVENTOS DA TABELA DE ESCOPO (Cliques nas Lupas/Inputs) ---
-                document.getElementById('table_escopo')?.addEventListener('click', (e) => {
+                // --- 5. LÓGICA DE INTERAÇÃO COM A TABELA DE ESCOPO ---
+                $('#table_escopo').on('click', '.js-remove-row', function () {
+                    dtEscopo.row($(this).closest('tr')).remove().draw(false);
+                });
 
-                    // A) Clicou para remover linha
-                    if (e.target.closest('.js-remove-row')) {
-                        dt.row(e.target.closest('tr')).remove().draw(false);
+                $('#table_escopo').on('click', 'input[data-bs-toggle="modal"]', function () {
+                    const tr = $(this).closest('tr');
+                    currentRowIndex = tr.attr('data-row-index');
+                    if ($(this).attr('data-bs-target') === '#modal_responsavel') {
+                        prepareResponsavelModal(tr);
+                    }
+                });
+
+                function prepareResponsavelModal(tr) {
+                    const servicoId = tr.find(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val();
+                    const msg = $('#msgSemResponsavel');
+
+                    dtResponsavel.clear().draw();
+
+                    if (!servicoId) {
+                        setTimeout(() => {
+                            bootstrap.Modal.getInstance(document.getElementById('modal_responsavel')).hide();
+                            Swal.fire('Atenção', 'Selecione um serviço primeiro.', 'warning');
+                        }, 100);
                         return;
                     }
 
-                    // Identifica a linha clicada
-                    const tr = e.target.closest('tr');
-                    if (!tr) return;
-                    currentRowIndex = tr.getAttribute('data-row-index');
+                    const permitidos = vinculos.filter(v => v.id_servico === servicoId);
 
-                    // B) Clicou na Lupa/Input de RESPONSÁVEL (AQUI ESTÁ A LÓGICA DE FILTRO)
-                    const isResp = e.target.closest('.js-pick-responsavel') ||
-                        (e.target.tagName === 'INPUT' && e.target.name.includes('responsavel_nome'));
+                    if (permitidos.length === 0) {
+                        $('#table_responsavel_modal').hide();
+                        msg.removeClass('hidden');
+                    } else {
+                        $('#table_responsavel_modal').show();
+                        msg.addClass('hidden');
 
-                    if (isResp) {
-                        // 1. Descobrir qual serviço está selecionado nesta linha
-                        const servicoInput = tr.querySelector(`input[name="escopo[${currentRowIndex}][servico_id]"]`);
-                        const idServico = servicoInput ? servicoInput.value : '';
+                        permitidos.forEach(u => {
+                            const rowNode = dtResponsavel.row.add([
+                                `<div class="font-semibold text-zinc-900 dark:text-white py-2">${u.nome_completo}</div>`
+                            ]).node();
 
-                        // 2. Limpar a tabela do modal
-                        const tbody = document.getElementById('responsavelList');
-                        const msg = document.getElementById('msgSemResponsavel');
-                        tbody.innerHTML = '';
+                            $(rowNode)
+                                .addClass('border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors')
+                                .attr('data-id', u.id_usuario)
+                                .attr('data-nome', u.nome_completo);
+                        });
+                        dtResponsavel.draw();
+                    }
+                }
 
-                        if (!idServico) {
-                            e.stopPropagation(); // Impede abrir o modal se estiver via JS (bootstrap data-toggle abre igual, então usamos SweetAlert pra avisar)
-                            // Como o data-bs-toggle abre o modal de qualquer jeito, vamos fechar ou avisar dentro dele
-                            // Melhor: Deixar abrir e mostrar aviso "Selecione Serviço"
-                            msg.innerHTML = '<span class="text-amber-500 font-bold">Por favor, selecione um serviço na linha primeiro.</span>';
-                            msg.classList.remove('hidden');
-                            return;
-                        }
+                // --- 6. EVENTOS DE CLIQUE NAS LINHAS DOS MODAIS (SELEÇÃO) ---
 
-                        // 3. Filtrar Vínculos
-                        const permitidos = vinculos.filter(v => v.id_servico === idServico);
-
-                        if (permitidos.length === 0) {
-                            msg.innerHTML = 'Nenhum responsável vinculado a este serviço.';
-                            msg.classList.remove('hidden');
-                        } else {
-                            msg.classList.add('hidden');
-                            // 4. Preencher a tabela mantendo o HTML do usuário
-                            permitidos.forEach(u => {
-                                const row = `
-                                <tr data-id="${u.id_usuario}" data-nome="${u.nome_completo}">
-                                    <td class="font-semibold text-zinc-900 dark:text-white">${u.nome_completo}</td>
-                                    <td class="text-right">
-                                        <button type="button" class="btn bg-primary text-white hover:bg-primary-deep btnPickResponsavel">Selecionar</button>
-                                    </td>
-                                </tr>
-                            `;
-                                tbody.insertAdjacentHTML('beforeend', row);
-                            });
-                        }
+                // CONTRATANTE
+                $('#table_contratante_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id');
+                    const nome = $(this).attr('data-nome');
+                    if (id) {
+                        $('#contratante_id').val(id);
+                        $('#contratante_nome').val(nome);
+                        bootstrap.Modal.getInstance(document.getElementById('modal_contratante')).hide();
                     }
                 });
 
-                // --- 6. SELEÇÃO NOS MODAIS (Botão "Selecionar") ---
-
-                // CONTRATANTE
-                document.getElementById('contratanteList')?.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('btnPickContratante')) return;
-                    const tr = e.target.closest('tr');
-                    document.getElementById('contratante_id').value = tr.dataset.id;
-                    document.getElementById('contratante_nome').value = tr.dataset.nome;
-
-                    // Fecha modal
-                    const modalEl = document.getElementById('modal_contratante');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    modal.hide();
-                });
-
                 // SERVIÇO
-                document.getElementById('servicoList')?.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('btnPickServico')) return;
-                    if (currentRowIndex === null) return;
-
-                    const tr = e.target.closest('tr');
-                    const id = tr.dataset.id;
-                    const nome = tr.dataset.nome;
-
-                    // Preenche inputs
-                    const idInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_id]"]`);
-                    const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndex}][servico_nome]"]`);
-                    if (idInput) idInput.value = id;
-                    if (nomeInput) nomeInput.value = nome;
-
-                    // Limpa responsável (para evitar inconsistência)
-                    const respId = document.querySelector(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`);
-                    const respNome = document.querySelector(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`);
-                    if (respId) respId.value = '';
-                    if (respNome) respNome.value = '';
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modal_servico'));
-                    modal.hide();
+                $('#table_servico_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id');
+                    const nome = $(this).attr('data-nome');
+                    if (id && currentRowIndex !== null) {
+                        $(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val(id);
+                        $(`input[name="escopo[${currentRowIndex}][servico_nome]"]`).val(nome);
+                        $(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`).val('');
+                        $(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`).val('');
+                        bootstrap.Modal.getInstance(document.getElementById('modal_servico')).hide();
+                    }
                 });
 
                 // RESPONSÁVEL
-                document.getElementById('responsavelList')?.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('btnPickResponsavel')) return;
-                    if (currentRowIndex === null) return;
-
-                    const tr = e.target.closest('tr');
-                    const id = tr.dataset.id;
-                    const nome = tr.dataset.nome;
-
-                    const idInput = document.querySelector(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`);
-                    const nomeInput = document.querySelector(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`);
-                    if (idInput) idInput.value = id;
-                    if (nomeInput) nomeInput.value = nome;
-
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modal_responsavel'));
-                    modal.hide();
+                $('#table_responsavel_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id');
+                    const nome = $(this).attr('data-nome');
+                    if (id && currentRowIndex !== null) {
+                        $(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`).val(id);
+                        $(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`).val(nome);
+                        bootstrap.Modal.getInstance(document.getElementById('modal_responsavel')).hide();
+                    }
                 });
 
                 // --- 7. SUBMIT FORM ---
-                document.getElementById('osForm')?.addEventListener('submit', async (e) => {
+                $('#osForm').on('submit', async function (e) {
                     e.preventDefault();
-                    const btn = document.getElementById('btnSalvar');
-                    const originalText = btn.innerHTML;
-                    btn.disabled = true;
-                    btn.innerHTML = 'Salvando...';
+                    const btn = $('#btnSalvar');
+                    const originalText = btn.html();
+                    btn.prop('disabled', true).html('Salvando...');
 
-                    // Coletar dados manualmente para garantir estrutura do array
-                    const formData = new FormData(e.target);
+                    const formData = new FormData(this);
                     const payload = Object.fromEntries(formData.entries());
-
                     const escopo = [];
-                    document.querySelectorAll('#table_escopo tbody tr').forEach(tr => {
-                        const idx = tr.getAttribute('data-row-index');
-                        const sId = tr.querySelector(`input[name="escopo[${idx}][servico_id]"]`)?.value;
-                        const rId = tr.querySelector(`input[name="escopo[${idx}][responsavel_id]"]`)?.value;
-                        const qtd = tr.querySelector(`input[name="escopo[${idx}][quantidade]"]`)?.value;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    $('#table_escopo tbody tr').each(function () {
+                        const idx = $(this).attr('data-row-index');
+                        const sId = $(this).find(`input[name="escopo[${idx}][servico_id]"]`).val();
+                        const rId = $(this).find(`input[name="escopo[${idx}][responsavel_id]"]`).val();
+                        const qtd = $(this).find(`input[name="escopo[${idx}][quantidade]"]`).val();
+                        const dataPrazoVal = $(this).find(`input[name="escopo[${idx}][data_prazo]"]`).val();
 
                         if (sId && rId) {
-                            escopo.push({ servico_id: sId, responsavel_id: rId, quantidade: qtd });
+                            let diasExecucao = 1;
+                            if (dataPrazoVal) {
+                                const dataPrazo = new Date(dataPrazoVal);
+                                dataPrazo.setHours(0, 0, 0, 0);
+                                const diffTime = dataPrazo - today;
+                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                diasExecucao = diffDays > 0 ? diffDays : 0;
+                            }
+
+                            escopo.push({
+                                servico_id: sId,
+                                responsavel_id: rId,
+                                quantidade: qtd,
+                                prazo_execucao_dias: diasExecucao
+                            });
                         }
                     });
 
                     if (escopo.length === 0) {
-                        Swal.fire('Atenção', 'Adicione pelo menos um serviço com responsável.', 'warning');
-                        btn.disabled = false;
-                        btn.innerHTML = originalText;
+                        Swal.fire('Atenção', 'Adicione pelo menos um serviço completo.', 'warning');
+                        btn.prop('disabled', false).html(originalText);
                         return;
                     }
 
@@ -551,12 +573,11 @@
                     } catch (err) {
                         Swal.fire('Erro', 'Falha ao comunicar com servidor', 'error');
                     } finally {
-                        btn.disabled = false;
-                        btn.innerHTML = originalText;
+                        btn.prop('disabled', false).html(originalText);
                     }
                 });
 
-            })();
+            });
         </script>
 </body>
 
