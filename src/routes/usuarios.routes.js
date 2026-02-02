@@ -28,8 +28,6 @@ router.get("/",
             const userLogado = req.session.user;
             const ehAdmin = verificarSeEhAdmin(userLogado);
 
-            console.log(`[DEBUG] Usuário: ${userLogado.email} | É Admin? ${ehAdmin} | Unidade ID: ${userLogado.id_unidade}`);
-
             let query = `
             SELECT u.id_usuario, u.nome_completo, u.email, u.ativo, 
                    p.nome_perfil, un.nome_fantasia as nome_unidade

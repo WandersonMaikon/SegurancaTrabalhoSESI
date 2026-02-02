@@ -67,7 +67,7 @@
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium" for="userName">Nome Completo</label>
                                             <input id="userName" name="nome" type="text" class="input h-10 w-full"
-                                                placeholder="Ex: João Silva" required>
+                                                placeholder="Informe o nome completo do usuário" required>
                                         </div>
 
                                         <!-- 3. EMAIL -->
@@ -113,8 +113,11 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
+                // --- CAPTURA DE DADOS NO FORMATO SOLICITADO ---
+                // O EJS renderiza uma string dentro das aspas simples, e o JSON.parse converte de volta para Objeto/Booleano
                 const perfis = JSON.parse('<%- JSON.stringify(perfis || []) %>');
                 const unidades = JSON.parse('<%- JSON.stringify(unidades || []) %>');
+                const ehAdmin = JSON.parse('<%- JSON.stringify(ehAdmin || false) %>');
 
                 // --- POPULAR PERFIS ---
                 const selectPerfil = document.getElementById('user_perfil');
@@ -129,11 +132,12 @@
 
                 new TomSelect('#user_perfil', { create: false, sortField: { field: "text", direction: "asc" } });
 
-                // --- POPULAR UNIDADES (SE HOUVER) ---
+                // --- LÓGICA DA UNIDADE ---
                 const containerUnidade = document.getElementById('container_unidade');
                 const selectUnidade = document.getElementById('user_unidade');
 
-                if (unidades && unidades.length > 0) {
+                // LÓGICA: Se é Admin (true) E existem unidades na lista
+                if (ehAdmin === true && unidades.length > 0) {
                     containerUnidade.style.display = 'block';
                     selectUnidade.innerHTML = '<option value="" selected disabled>Selecione a unidade...</option>';
 
@@ -155,21 +159,26 @@
                 e.preventDefault();
                 const form = document.getElementById('form_add_user');
 
-                // Validação manual da Unidade (apenas se estiver visível)
-                const containerUnidade = document.getElementById('container_unidade');
+                // Captura novamente para usar dentro da função (mesmo padrão)
+                const ehAdmin = JSON.parse('<%- JSON.stringify(ehAdmin || false) %>');
+
+                // Validação manual da Unidade (APENAS SE FOR ADMIN)
                 const selectUnidade = document.getElementById('user_unidade');
                 let unidade = null;
 
-                if (containerUnidade.style.display !== 'none') {
-                    // Se está visível, TEM que ter valor
+                if (ehAdmin === true) {
+                    // Se for admin, o campo é obrigatório
                     if (!selectUnidade.value) {
                         Swal.fire('Atenção', 'Por favor, selecione a Unidade Vinculada.', 'warning');
                         return;
                     }
                     unidade = selectUnidade.value;
+                } else {
+                    // Se não for admin, enviamos null
+                    unidade = null;
                 }
 
-                // Validação padrão do HTML (Nome, Email, Perfil)
+                // Validação padrão do HTML
                 if (!form.checkValidity()) {
                     form.reportValidity();
                     return;
