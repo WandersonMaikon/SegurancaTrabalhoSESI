@@ -1,5 +1,5 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4.1
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.2
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
 -- Atualizações: Cartão Vantagem (Cliente) e Prazo em Dias (Escopo OS)
 -- ============================================
@@ -166,17 +166,21 @@ CREATE TABLE ordem_servico_item (
 
 CREATE TABLE epi (
     id_epi INT AUTO_INCREMENT PRIMARY KEY,
-    ca VARCHAR(50) NOT NULL UNIQUE,
+    id_unidade CHAR(36) NULL, -- NULL = Global, Preenchido = Exclusivo da Unidade
+    ca VARCHAR(50) NOT NULL, -- Removi UNIQUE global, pois unidades diferentes podem cadastrar o mesmo CA se quiserem personalizar
     nome_equipamento VARCHAR(255) NOT NULL,
     validade_ca DATE,
-    ativo BOOLEAN DEFAULT TRUE
+    ativo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE epc (
     id_epc INT AUTO_INCREMENT PRIMARY KEY,
+    id_unidade CHAR(36) NULL, 
     nome VARCHAR(255) NOT NULL,
     observacoes TEXT,
-    ativo BOOLEAN DEFAULT TRUE
+    ativo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE tabela_24_esocial (
@@ -188,10 +192,12 @@ CREATE TABLE tabela_24_esocial (
 
 CREATE TABLE risco (
     id_risco INT AUTO_INCREMENT PRIMARY KEY,
+    id_unidade CHAR(36) NULL, -- Híbrido: Se NULL, todos veem. Se preenchido, é customizado.
     id_tabela_24 INT,
     nome_risco VARCHAR(255) NOT NULL,
     tipo_risco VARCHAR(50),
     deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade),
     FOREIGN KEY (id_tabela_24) REFERENCES tabela_24_esocial(id_tabela_24)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
