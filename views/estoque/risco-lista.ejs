@@ -8,20 +8,17 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -32,20 +29,17 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Riscos</h2>
 
-                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
-                            <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">
-                                Dashboard</a>
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
                         </li>
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
@@ -60,14 +54,12 @@
                     </ol>
                 </div>
 
-                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="riscoSearch" id="riscoSearch"
@@ -80,7 +72,7 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="deleteBtnRiscos" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display:none;">
-                                        Inativar
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
                                     </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
@@ -91,37 +83,13 @@
                                             <option value="Biológico">Biológico</option>
                                             <option value="Ergonômico">Ergonômico</option>
                                             <option value="Mecânico">Mecânico</option>
+                                            <option value="Associação">Associação</option>
+                                            <option value="Outros">Outros</option>
+                                            <option value="Ausência de Risco">Ausência de Risco</option>
                                         </select>
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        <div class="relative">
-                                            <button data-bs-toggle="dropdown" type="button"
-                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
-                                                <span class="icon-[lucide--download] text-lg me-1"></span>
-                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                                            </button>
-                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar
-                                                    Excel
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt="">
-                                                    Baixar PDF
-                                                </a>
-                                            </div>
-                                        </div>
-
                                         <a href="/risco/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--plus] text-lg me-1"></span>
@@ -131,105 +99,20 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
-                            <table id="table_riscos" class="table-default">
-                                <thead>
-                                    <tr>
-                                        <th></th>
-
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Tipo</div>
-                                        </th>
-
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Nome do risco</div>
-                                        </th>
-
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Código eSocial</div>
-                                        </th>
-
-                                        <th class="text-nowrap" data-orderable="false"></th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-sky-500/10 text-sky-500">Físico</span>
-                                        </td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Ruído contínuo/intermitente
-                                        </td>
-                                        <td class="whitespace-nowrap">01.01.001</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/risco/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-amber-500/10 text-amber-500">Químico</span>
-                                        </td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Poeiras minerais
-                                        </td>
-                                        <td class="whitespace-nowrap">02.01.003</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/2" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/risco/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td></td>
-                                        <td class="whitespace-nowrap">
-                                            <span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>
-                                        </td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Vírus e bactérias
-                                        </td>
-                                        <td class="whitespace-nowrap">03.02.001</td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/risco/editar/3" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/risco/detalhes/3" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="overflow-x-auto">
+                                <table id="table_riscos" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-nowrap">Tipo</th>
+                                            <th class="text-nowrap">Nome do risco</th>
+                                            <th class="text-nowrap">Código eSocial</th>
+                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
 
                         </div>
                     </div>
@@ -239,81 +122,162 @@
 
         </main>
 
-        <!-- Scripts -->
-        <script src="/js/theme.js"></script>
+        <div id="riscos-data" class="hidden"><%- riscosJson %></div>
 
-        <!-- Page scripts -->
+        <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // 1. Ler dados do JSON
+                let listaRiscos = [];
+                try {
+                    const divJson = document.getElementById('riscos-data');
+                    if (divJson && divJson.innerText.trim()) {
+                        listaRiscos = JSON.parse(divJson.innerText);
+                    }
+                } catch (e) { console.error("Erro ao ler JSON de riscos:", e); }
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                // 2. Função para gerar Badges de Tipo (ATUALIZADA)
+                const getRiskBadge = (tipo) => {
+                    switch (tipo) {
+                        case 'Físico': return '<span class="badge bg-sky-500/10 text-sky-500">Físico</span>';
+                        case 'Químico': return '<span class="badge bg-amber-500/10 text-amber-500">Químico</span>';
+                        case 'Biológico': return '<span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>';
+                        case 'Ergonômico': return '<span class="badge bg-purple-500/10 text-purple-500">Ergonômico</span>';
+                        case 'Mecânico': return '<span class="badge bg-rose-500/10 text-rose-500">Mecânico</span>';
+
+                        // Novos Tipos
+                        case 'Associação': return '<span class="badge bg-indigo-500/10 text-indigo-500">Associação</span>';
+                        case 'Outros': return '<span class="badge bg-zinc-500/10 text-zinc-500">Outros</span>';
+                        case 'Ausência de Risco': return '<span class="badge bg-teal-500/10 text-teal-500">Ausência</span>';
+
+                        default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo}</span>`;
+                    }
+                };
+
+                // 3. Popular Tabela
+                listaRiscos.forEach((r, index) => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-index', index);
+
+                    tr.innerHTML = `
+                    <td></td>
+                    <td class="whitespace-nowrap">${getRiskBadge(r.tipo_risco)}</td>
+                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${r.nome_risco}</td>
+                    <td class="whitespace-nowrap">${r.codigo_esocial || '-'}</td>
+                    <td>
+                        <div class="flex items-center gap-1 relative z-[1]">
+                            <a href="/risco/editar/${r.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                <span class="icon-[lucide--edit] text-lg"></span>
+                            </a>
+                        </div>
+                    </td>
+                `;
+                    tbody.appendChild(tr);
+                });
+
+                // 4. Inicializar DataTables
                 const table = new DataTable('#table_riscos', {
                     lengthChange: false,
                     pageLength: 9,
                     scrollX: true,
                     dom: 'lrtip',
+                    language: {
+                        emptyTable: "Nenhum risco cadastrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" },
+                        select: { rows: "" }
+                    },
                     columnDefs: [
-                        {
-                            orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(),
-                            targets: 0,
-                        }
+                        { orderable: false, className: 'select-checkbox', targets: 0 },
+                        { orderable: false, targets: 4 } // Ações
                     ],
                     select: {
-                        style: 'os',
+                        style: 'multi',
                         selector: 'td:first-child',
-                        headerCheckbox: false
+                        headerCheckbox: true // Checkbox header para selecionar tudo
                     },
-                    order: [[2, 'asc']], // Nome do risco
+                    order: [[2, 'asc']] // Ordenar por Nome do Risco
                 });
 
+                // 5. Busca Global
                 const searchInput = document.getElementById('riscoSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                table.on('draw', () => {
-                    const rowCount = table.rows({ search: 'applied' }).count();
-                    if (rowCount === 0) {
-                        searchInput.setAttribute('disabled', 'disabled');
-                    } else {
-                        searchInput.removeAttribute('disabled');
-                    }
-                });
-
-                const deleteBtn = document.getElementById('deleteBtnRiscos');
-                table.on('select deselect', function () {
-                    const selectedRows = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
-                });
-
-                deleteBtn.addEventListener('click', () => {
-                    table.rows({ selected: true }).remove().draw();
-                    deleteBtn.style.display = 'none';
-                });
-
-                // Filtro por tipo (coluna 1)
+                // 6. Filtro por Tipo (Coluna 1)
                 document.getElementById('tipoFilter').addEventListener('change', function () {
                     table.columns(1).search(this.value).draw();
                 });
-            });
-        </script>
 
-        <!-- Select -->
-        <script src="/vendor/js/tom-select.complete.min.js"></script>
-        <script>
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true
+                // 7. Lógica de Inativar (Botão de Delete em Massa)
+                const deleteBtn = document.getElementById('deleteBtnRiscos');
+
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
+                });
+
+                deleteBtn.addEventListener('click', () => {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+                        if (listaRiscos[index]) selectedIds.push(listaRiscos[index].id_risco);
+                    });
+
+                    if (selectedIds.length === 0) return;
+
+                    Swal.fire({
+                        title: 'Inativar Riscos?',
+                        text: `Deseja inativar ${selectedIds.length} risco(s)?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#3f3f46',
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch('/risco/inativar-multiplos', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: selectedIds })
+                                });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Erro', data.message, 'error');
+                                }
+                            } catch (error) {
+                                Swal.fire('Erro', 'Falha na comunicação com o servidor', 'error');
+                            }
+                        }
+                    });
                 });
             });
-        </script>
 
+            // Inicializa TomSelect
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: false, allowEmptyOption: true });
+            });
+        </script>
 </body>
 
 </html>

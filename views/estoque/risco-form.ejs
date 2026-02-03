@@ -8,20 +8,15 @@
     <title>Raven - Riscos</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page styles -->
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -30,12 +25,10 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar risco</h2>
 
@@ -57,47 +50,48 @@
                     </ol>
                 </div>
 
-                <!-- Page content -->
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form action="/risco/novo" method="post" class="w-full">
+                    <form id="formRisco" action="/risco/novo" method="post" class="w-full">
+                        <input type="hidden" id="id_tabela_24" name="id_tabela_24" value="">
 
                         <div class="grid grid-cols-1 gap-6">
-                            <!-- Coluna principal -->
                             <div class="md:col-span-8 space-y-6">
 
-                                <!-- Card: Risco -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do risco</h5>
                                         <p class="text-sm text-zinc-400 mt-1">
-                                            Informe o tipo, o nome do risco e o código eSocial.
+                                            Informe o código eSocial para preenchimento automático.
                                         </p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
-                                        <!-- 1) Código eSocial primeiro -->
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Código eSocial tabela 24</label>
-                                            <input id="codigo_esocial" name="codigo_esocial" type="text"
-                                                class="input h-10 w-full" placeholder="Ex.: 02.01.2001"
-                                                inputmode="numeric" autocomplete="off" required>
-                                            <p id="codigoMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                            <label class="mb-2 block font-medium">Código eSocial tabela 24</label>
+                                            <div class="relative">
+                                                <input id="codigo_esocial" name="codigo_esocial_visual" type="text"
+                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.2001"
+                                                    inputmode="numeric" autocomplete="off">
+
+                                                <button id="btnConsultarCodigo" type="button"
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
+                                                    <span class="icon-[lucide--search] text-lg me-2"></span>
+                                                    Consultar
+                                                </button>
+                                            </div>
+                                            <p id="codigoMsg" class="text-sm mt-2 hidden"></p>
                                         </div>
 
-                                        <!-- 2) Nome do risco depois (auto-completa, mas editável) -->
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Nome do risco</label>
+                                            <label class="mb-2 block font-medium">Nome do risco</label>
                                             <input id="nome_risco" name="nome_risco" type="text"
-                                                class="input h-10 w-full"
-                                                placeholder="Será sugerido pela Tabela 24 (editável)" required
-                                                maxlength="120">
-                                            <p id="nomeMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
+                                                class="input h-11 w-full" placeholder="Preenchimento automático..."
+                                                required maxlength="255">
                                         </div>
 
-                                        <!-- 3) Tipo por último (select como estava) -->
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Tipo de risco</label>
+                                            <label class="mb-2 block font-medium">Tipo de risco</label>
                                             <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required>
                                                 <option value="" selected disabled>Selecione...</option>
                                                 <option value="Físico">Físico</option>
@@ -105,31 +99,26 @@
                                                 <option value="Biológico">Biológico</option>
                                                 <option value="Ergonômico">Ergonômico</option>
                                                 <option value="Mecânico">Mecânico</option>
+                                                <option value="Associação">Associação</option>
+                                                <option value="Outros">Outros</option>
+                                                <option value="Ausência de Risco">Ausência de Risco</option>
                                             </select>
                                         </div>
 
                                     </div>
                                 </div>
 
-                                <!-- Page footer (ações do form) -->
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <a href="/risco"
-                                        class="btn border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 text-center">
-                                        <span class="icon-[lucide--arrow-left] text-lg me-1 leading-none"></span>
-                                        Voltar
-                                    </a>
-
-                                    <button type="reset"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
-                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
-                                        Descartar
+                                    <button type="reset" id="btnReset"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6">
+                                        Limpar
                                     </button>
 
-                                    <button type="submit"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
-                                        Salvar
+                                    <button type="submit" id="btnSalvar" disabled
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8 opacity-50 cursor-not-allowed">
+                                        <span class="icon-[lucide--save] text-lg me-2"></span>
+                                        Salvar Risco
                                     </button>
                                 </div>
 
@@ -141,121 +130,162 @@
                 <%- include('../partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
-
-        <!-- Page scripts -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
         <script>
-            // TomSelect (mantém igual)
+            // Inicializa TomSelect
+            let tomSelectTipo;
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true
-                });
+                tomSelectTipo = new TomSelect(select, { create: false, allowEmptyOption: true });
             });
-        </script>
 
-        <script>
-            (function () {
-                const $ = (id) => document.getElementById(id);
+            const formRisco = document.getElementById("formRisco");
+            const elCodigo = document.getElementById("codigo_esocial");
+            const elNome = document.getElementById("nome_risco");
+            const elIdTabela = document.getElementById("id_tabela_24");
+            const elMsg = document.getElementById("codigoMsg");
+            const btnConsultar = document.getElementById("btnConsultarCodigo");
+            const btnSalvar = document.getElementById("btnSalvar");
+            const btnReset = document.getElementById("btnReset");
 
-                /*
-                  TABELA 24 (código -> descrição)
-                  Você precisa preencher essa lista (ou renderizar via EJS, ou carregar via endpoint).
-                  Formato esperado:
-                    { code: "02.01.2001", description: "Ruído" }
-          
-                  Exemplo (descomente/adicione itens):
-                */
-                const TABELA_24 = [
-                    // { code: "02.01.2001", description: "Ruído" },
-                    // { code: "01.02.2001", description: "Asbestos (ou amianto)" },
-                ];
+            // --- FUNÇÕES DE CONTROLE VISUAL ---
 
-                const tabela24Map = new Map(
-                    (TABELA_24 || []).map(item => [
-                        String(item.code || "").trim(),
-                        String(item.description || "").trim()
-                    ])
-                );
+            function lockFields() {
+                // Trava Nome (Readonly + Visual)
+                elNome.setAttribute("readonly", "true");
+                elNome.classList.add("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
 
-                function onlyAllowedEsocial(value) {
-                    // Mantém somente dígitos e pontos
-                    return (value || "").replace(/[^\d.]/g, "");
+                // Trava Select (TomSelect disable)
+                if (tomSelectTipo) {
+                    tomSelectTipo.disable();
+                    // Adiciona estilo visual ao wrapper do TomSelect para parecer disabled
+                    tomSelectTipo.wrapper.classList.add("opacity-60", "cursor-not-allowed");
+                }
+            }
+
+            function unlockFields() {
+                // Destrava Nome
+                elNome.removeAttribute("readonly");
+                elNome.classList.remove("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
+                elNome.value = "";
+
+                // Destrava Select
+                if (tomSelectTipo) {
+                    tomSelectTipo.enable();
+                    tomSelectTipo.clear();
+                    tomSelectTipo.wrapper.classList.remove("opacity-60", "cursor-not-allowed");
                 }
 
-                function formatEsocialCode(value) {
-                    /*
-                      Ajustado para: 99.99.9999 (2 + 2 + 4 dígitos)
-                      Ex.: 02.01.2001
-                    */
-                    const digits = (value || "").replace(/\D/g, "").slice(0, 8);
-                    if (digits.length <= 2) return digits;
-                    if (digits.length <= 4) return digits.slice(0, 2) + "." + digits.slice(2);
-                    return digits.slice(0, 2) + "." + digits.slice(2, 4) + "." + digits.slice(4);
+                elIdTabela.value = "";
+            }
+
+            function setMsg(type, text) {
+                elMsg.classList.remove("hidden", "text-red-500", "text-green-600", "text-sky-500");
+                elMsg.textContent = text;
+                if (type === "error") elMsg.classList.add("text-red-500");
+                else if (type === "success") elMsg.classList.add("text-green-600");
+                else if (type === "info") elMsg.classList.add("text-sky-500");
+                else elMsg.classList.add("hidden");
+            }
+
+            // --- MÁSCARA INTELIGENTE ---
+            elCodigo.addEventListener("input", function () {
+                let v = this.value.replace(/\D/g, "");
+
+                if (v.length > 8) v = v.slice(0, 8);
+
+                if (v.length > 4) {
+                    v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1.$2.$3");
+                }
+                else if (v.length > 2) {
+                    v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
                 }
 
-                const codigo = $("codigo_esocial");
-                const nome = $("nome_risco");
-                const msgCodigo = $("codigoMsg");
-                const msgNome = $("nomeMsg");
+                this.value = v;
 
-                if (!codigo || !nome || !msgCodigo) return;
+                // Se o usuário altera o código, resetamos o form e destravamos
+                setMsg("clear");
+                btnSalvar.disabled = true;
+                btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                unlockFields(); // Garante que campos fiquem editáveis se o código mudar
+            });
 
-                // Formata enquanto digita
-                codigo.addEventListener("input", () => {
-                    const cleaned = onlyAllowedEsocial(codigo.value);
-                    const formatted = formatEsocialCode(cleaned);
+            // --- CONSULTA ---
+            async function runConsulta() {
+                const codigo = elCodigo.value;
 
-                    if (codigo.value !== formatted) codigo.value = formatted;
+                if (!codigo) {
+                    setMsg("error", "Informe o código eSocial.");
+                    return;
+                }
 
-                    msgCodigo.classList.add("hidden");
-                    msgCodigo.textContent = "";
-                    codigo.removeAttribute("aria-invalid");
-                });
+                if (codigo.length < 9) {
+                    setMsg("error", "Formato inválido. Ex: 01.19.041 ou 01.01.2001");
+                    return;
+                }
 
-                // Ao sair do campo código: valida formato e tenta sugerir nome
-                codigo.addEventListener("blur", () => {
-                    if (!codigo.value) return;
+                btnConsultar.disabled = true;
+                btnConsultar.textContent = "Buscando...";
+                setMsg("info", "Consultando tabela...");
 
-                    // Checagem simples: precisa bater com 99.99.9999
-                    const ok = /^\d{2}\.\d{2}\.\d{4}$/.test(codigo.value);
+                // Limpa antes de preencher
+                unlockFields();
 
-                    msgCodigo.classList.remove("hidden", "text-red-500", "text-green-600", "text-zinc-400");
-                    if (!ok) {
-                        msgCodigo.classList.add("text-red-500");
-                        msgCodigo.textContent = "Formato esperado: 99.99.9999";
-                        codigo.setAttribute("aria-invalid", "true");
-                        return;
+                try {
+                    const response = await fetch(`/risco/buscar-esocial/${codigo}`);
+                    const json = await response.json();
+
+                    if (json.success) {
+                        const dados = json.data;
+
+                        // Preenche
+                        elNome.value = dados.descricao;
+                        elIdTabela.value = dados.id_tabela_24;
+                        if (tomSelectTipo) tomSelectTipo.setValue(dados.grupo);
+
+                        // TRAVA OS CAMPOS
+                        lockFields();
+
+                        setMsg("success", "Código Tabela 24 encontrado!");
+                        btnSalvar.disabled = false;
+                        btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
                     } else {
-                        msgCodigo.classList.add("text-green-600");
-                        msgCodigo.textContent = "Formato do código OK.";
-                        codigo.removeAttribute("aria-invalid");
+                        setMsg("error", "Código não encontrado na Tabela 24.");
                     }
+                } catch (error) {
+                    console.error(error);
+                    setMsg("error", "Erro ao comunicar com o servidor.");
+                } finally {
+                    btnConsultar.disabled = false;
+                    btnConsultar.innerHTML = `<span class="icon-[lucide--search] text-lg me-2"></span> Consultar`;
+                }
+            }
 
-                    // Auto-preenchimento do nome (mantém editável)
-                    const desc = tabela24Map.get(codigo.value);
+            btnConsultar.addEventListener("click", runConsulta);
 
-                    if (desc) {
-                        // Só preenche automaticamente se o campo estiver vazio
-                        if (!nome.value || nome.value.trim().length === 0) {
-                            nome.value = desc;
-                        }
+            elCodigo.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    runConsulta();
+                }
+            });
 
-                        if (msgNome) {
-                            msgNome.classList.remove("hidden");
-                            msgNome.textContent = "Nome sugerido pela Tabela 24 (editável).";
-                        }
-                    } else {
-                        if (msgNome) {
-                            msgNome.classList.remove("hidden");
-                            msgNome.textContent = "Código não encontrado na Tabela 24 (preencha o nome manualmente).";
-                        }
-                    }
-                });
-            })();
+            btnReset.addEventListener("click", () => {
+                setMsg("clear");
+                btnSalvar.disabled = true;
+                btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                unlockFields(); // Destrava ao limpar
+            });
+
+            // --- ENVIO DO FORMULÁRIO ---
+            // Importante: Campos disabled não são enviados no POST.
+            // Precisamos habilitar o TomSelect rapidinho antes de enviar.
+            formRisco.addEventListener('submit', function () {
+                if (tomSelectTipo) {
+                    tomSelectTipo.enable();
+                }
+            });
         </script>
 
 </body>

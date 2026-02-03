@@ -191,6 +191,7 @@ CREATE TABLE risco (
     id_tabela_24 INT,
     nome_risco VARCHAR(255) NOT NULL,
     tipo_risco VARCHAR(50),
+    deleted_at DATETIME DEFAULT NULL,
     FOREIGN KEY (id_tabela_24) REFERENCES tabela_24_esocial(id_tabela_24)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
