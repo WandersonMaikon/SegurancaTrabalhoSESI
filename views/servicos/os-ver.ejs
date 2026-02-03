@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Visualizar OS</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-2xl">Visualizar Ordem de Serviço</h2>
+
+                        <% let statusClass='bg-zinc-100 text-zinc-500' ; if(os.status==='Aberta' )
+                            statusClass='bg-blue-500/10 text-blue-500' ; if(os.status==='Em Andamento' )
+                            statusClass='bg-amber-500/10 text-amber-500' ; if(os.status==='Concluída' )
+                            statusClass='bg-green-500/10 text-green-500' ; if(os.status==='Cancelada' )
+                            statusClass='bg-red-500/10 text-red-500' ; %>
+                            <span
+                                class="px-3 py-1 rounded-full text-sm font-semibold <%= statusClass %> border border-current/10">
+                                <%= os.status %>
+                            </span>
+                    </div>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center"><a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a></li>
+                        <li class="flex items-center opacity-30 leading-none"><span
+                                class="icon-[lucide--chevron-right] rtl:rotate-180"></span></li>
+                        <li class="flex items-center"><a href="/ordem-servico"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Ordem de serviço</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none"><span
+                                class="icon-[lucide--chevron-right] rtl:rotate-180"></span></li>
+                        <li class="flex items-center"><span class="pointer-events-none">Visualizar</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="md:col-span-12 space-y-6">
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                    <h5 class="text-xl">Dados Gerais</h5>
+                                </div>
+
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="mb-2 block text-zinc-400 text-sm">CONTRATO Nº</label>
+                                        <input type="text" class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950"
+                                            value="<%= os.contrato_numero %>" readonly>
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-2 block text-zinc-400 text-sm">VALOR TOTAL</label>
+                                        <input type="text" class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950"
+                                            value="<%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(os.valor_total_contrato) %>"
+                                            readonly>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="mb-2 block text-zinc-400 text-sm">EMPRESA CONTRATANTE</label>
+                                        <input type="text" class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950"
+                                            value="<%= os.nome_empresa %> - <%= os.cnpj %>" readonly>
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-2 block text-zinc-400 text-sm">DATA DE ABERTURA</label>
+                                        <input type="text" class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950"
+                                            value="<%= new Date(os.data_abertura).toLocaleDateString('pt-BR') %>"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                    <h5 class="text-xl">Escopo do Serviço</h5>
+                                </div>
+
+                                <div class="p-6 overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead
+                                            class="border-b border-zinc-200 dark:border-zinc-800 text-zinc-500 dark:text-zinc-400 text-sm">
+                                            <tr>
+                                                <th class="py-3 font-semibold">Serviço</th>
+                                                <th class="py-3 font-semibold w-24 text-center">Qtd</th>
+                                                <th class="py-3 font-semibold">Responsável</th>
+                                                <th class="py-3 font-semibold">Prazo (Dias)</th>
+                                                <th class="py-3 font-semibold text-center">Status Item</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-sm">
+                                            <% if (itens.length> 0) { %>
+                                                <% itens.forEach(item=> { %>
+                                                    <tr
+                                                        class="border-b border-zinc-100 dark:border-zinc-800 last:border-0">
+                                                        <td class="py-3 font-medium text-zinc-900 dark:text-white">
+                                                            <%= item.nome_servico %>
+                                                        </td>
+                                                        <td class="py-3 text-center">
+                                                            <%= item.quantidade %>
+                                                        </td>
+                                                        <td class="py-3">
+                                                            <div class="flex items-center gap-2">
+                                                                <div
+                                                                    class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                                                    <%= item.nome_responsavel.charAt(0).toUpperCase() %>
+                                                                </div>
+                                                                <span>
+                                                                    <%= item.nome_responsavel %>
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td class="py-3">
+                                                            <%= item.prazo_execucao_dias %> dias
+                                                        </td>
+                                                        <td class="py-3 text-center">
+                                                            <span
+                                                                class="px-2 py-0.5 rounded text-xs bg-zinc-100 text-zinc-500 border border-zinc-200">
+                                                                <%= item.status_item %>
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                        <% } else { %>
+                                                            <tr>
+                                                                <td colspan="5" class="py-8 text-center text-zinc-400">
+                                                                    Nenhum item encontrado neste escopo.
+                                                                </td>
+                                                            </tr>
+                                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end pt-2">
+                                <a href="/ordem-servico"
+                                    class="btn border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 h-11 px-6">
+                                    <span class="icon-[lucide--arrow-left] text-lg me-1"></span> Voltar
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+</body>
+
+</html>

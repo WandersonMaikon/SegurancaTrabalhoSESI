@@ -186,4 +186,44 @@ router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     }
 });
 
+// --- VISUALIZAR OS (Adicionar este bloco) ---
+router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // 1. Buscar Cabeçalho da OS
+        const [rows] = await db.query(`
+            SELECT os.*, c.nome_empresa, c.cnpj
+            FROM ordem_servico os
+            JOIN cliente c ON os.id_cliente = c.id_cliente
+            WHERE os.id_ordem_servico = ?
+        `, [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).send("Ordem de Serviço não encontrada.");
+        }
+        const ordem = rows[0];
+
+        // 2. Buscar Itens do Escopo
+        const [itens] = await db.query(`
+            SELECT osi.*, s.nome_servico, u.nome_completo as nome_responsavel
+            FROM ordem_servico_item osi
+            JOIN servico s ON osi.id_servico = s.id_servico
+            JOIN usuario u ON osi.id_responsavel_execucao = u.id_usuario
+            WHERE osi.id_ordem_servico = ?
+        `, [id]);
+
+        res.render("servicos/os-ver", {
+            user: req.session.user,
+            currentPage: 'ordem-servicos',
+            os: ordem,
+            itens: itens
+        });
+
+    } catch (error) {
+        console.error("Erro ao visualizar OS:", error);
+        res.redirect('/ordem-servico');
+    }
+});
+
 module.exports = router;

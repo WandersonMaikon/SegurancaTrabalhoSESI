@@ -358,7 +358,6 @@
                 // --- 4. DATATABLE DO ESCOPO (Tabela Principal) ---
                 const dtEscopo = new DataTable('#table_escopo', {
                     paging: false, searching: false, info: false, sort: false,
-                    // Coluna 4 (Ações) agora é text-center para centralizar o ícone
                     columnDefs: [{ targets: 4, className: "text-center" }]
                 });
 
@@ -380,7 +379,6 @@
                 }
 
                 function rowHtmlQtd(index) {
-                    // Diminuído para min-w-[70px]
                     return `<input type="number" name="escopo[${index}][quantidade]" class="input h-10 w-full min-w-[70px]" value="1" min="1" required>`;
                 }
 
@@ -440,7 +438,7 @@
                     const servicoId = tr.find(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val();
                     const msg = $('#msgSemResponsavel');
 
-                    dtResponsavel.clear().draw();
+                    dtResponsavel.clear(); // Limpa dados anteriores
 
                     if (!servicoId) {
                         setTimeout(() => {
@@ -453,21 +451,23 @@
                     const permitidos = vinculos.filter(v => v.id_servico === servicoId);
 
                     if (permitidos.length === 0) {
-                        $('#table_responsavel_modal').hide();
+                        // Se não tem ninguém, esconde a tabela e mostra mensagem
+                        $('#table_responsavel_modal').parent().hide(); // Esconde container da tabela
                         msg.removeClass('hidden');
                     } else {
-                        $('#table_responsavel_modal').show();
+                        $('#table_responsavel_modal').parent().show(); // Mostra tabela
                         msg.addClass('hidden');
 
                         permitidos.forEach(u => {
-                            const rowNode = dtResponsavel.row.add([
-                                `<div class="font-semibold text-zinc-900 dark:text-white py-2">${u.nome_completo}</div>`
-                            ]).node();
-
-                            $(rowNode)
-                                .addClass('border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors')
-                                .attr('data-id', u.id_usuario)
-                                .attr('data-nome', u.nome_completo);
+                            // CORREÇÃO: Embutir o ID e Nome dentro do HTML da célula para persistir após o .draw()
+                            const cellContent = `
+                                <div class="font-semibold text-zinc-900 dark:text-white py-2 w-full h-full"
+                                     data-id="${u.id_usuario}" 
+                                     data-nome="${u.nome_completo}">
+                                    ${u.nome_completo}
+                                </div>
+                            `;
+                            dtResponsavel.row.add([cellContent]);
                         });
                         dtResponsavel.draw();
                     }
@@ -493,16 +493,20 @@
                     if (id && currentRowIndex !== null) {
                         $(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val(id);
                         $(`input[name="escopo[${currentRowIndex}][servico_nome]"]`).val(nome);
+                        // Limpa responsável
                         $(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`).val('');
                         $(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`).val('');
                         bootstrap.Modal.getInstance(document.getElementById('modal_servico')).hide();
                     }
                 });
 
-                // RESPONSÁVEL
+                // RESPONSÁVEL - CORREÇÃO DA SELEÇÃO
                 $('#table_responsavel_modal tbody').on('click', 'tr', function () {
-                    const id = $(this).attr('data-id');
-                    const nome = $(this).attr('data-nome');
+                    // Busca os dados na DIV interna, pois o TR pode ter sido redesenhado
+                    const divData = $(this).find('div[data-id]');
+                    const id = divData.attr('data-id');
+                    const nome = divData.attr('data-nome');
+
                     if (id && currentRowIndex !== null) {
                         $(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`).val(id);
                         $(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`).val(nome);
@@ -579,6 +583,20 @@
 
             });
         </script>
+
+        <style>
+            #table_responsavel_modal tbody tr {
+                cursor: pointer;
+            }
+
+            #table_responsavel_modal tbody tr:hover {
+                background-color: #f4f4f5;
+            }
+
+            .dark #table_responsavel_modal tbody tr:hover {
+                background-color: #27272a;
+            }
+        </style>
 </body>
 
 </html>

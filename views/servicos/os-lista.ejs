@@ -172,8 +172,12 @@
           </td>
           <td>${getStatusBadge(os.status)}</td>
           <td>
-            <div class="flex items-center justify-end gap-1 relative z-[1]">
-              <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+            <div class="flex items-center gap-1 relative z-[1]">
+              <a href="/ordem-servico/ver/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Visualizar">
+                <span class="icon-[lucide--eye] text-lg"></span>
+              </a>
+              
+              <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Editar">
                 <span class="icon-[lucide--edit] text-lg"></span>
               </a>
             </div>
