@@ -8,20 +8,18 @@
     <title>Raven - EPC</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-    <!-- Fonts -->
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page styles -->
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -30,12 +28,10 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar EPC</h2>
 
@@ -57,33 +53,32 @@
                     </ol>
                 </div>
 
-                <!-- Page content -->
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form action="/epc/novo" method="post" class="w-full">
+                    <form id="formEpc" action="/epc/novo" method="post" class="w-full">
 
                         <div class="grid grid-cols-1 gap-6">
-
-                            <!-- Coluna principal -->
                             <div class="md:col-span-8 space-y-6">
 
-                                <!-- Card: EPC -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do EPC</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">
+                                            Equipamento de Proteção Coletiva.
+                                        </p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Nome</label>
-                                            <input id="epc_nome" name="nome" type="text" class="input h-10 w-full"
+                                            <label class="mb-2 block font-medium">Nome</label>
+                                            <input id="epc_nome" name="nome" type="text" class="input h-11 w-full"
                                                 placeholder="Ex.: Exaustão localizada / Guarda-corpo" required
                                                 maxlength="120">
                                         </div>
 
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block">Observações</label>
-                                            <textarea id="epc_obs" name="obs" class="input w-full min-h-28"
+                                            <label class="mb-2 block font-medium">Observações</label>
+                                            <textarea id="epc_obs" name="obs" class="input w-full min-h-28 py-2"
                                                 placeholder="Descreva detalhes, recomendações de uso, manutenção, etc. (opcional)"></textarea>
                                             <p class="text-sm text-zinc-400 mt-2">
                                                 Campo opcional.
@@ -93,24 +88,21 @@
                                     </div>
                                 </div>
 
-                                <!-- Page footer (ações do form) -->
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <button type="reset"
-                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6">
-                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
-                                        Descartar
-                                    </button>
+                                    <a href="/epc"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 flex items-center justify-center">
+                                        Cancelar
+                                    </a>
 
-                                    <button type="submit"
+                                    <button type="submit" id="btnSalvar"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
-                                        Salvar
+                                        <span class="icon-[lucide--save] text-lg me-2"></span>
+                                        Salvar EPC
                                     </button>
                                 </div>
 
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -118,16 +110,69 @@
                 <%- include('../partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
 
-        <!-- Page scripts -->
-        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
-            // Mantido por compatibilidade com o template (mesmo que esta tela não tenha select)
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: true });
+            const form = document.getElementById('formEpc');
+            const btnSalvar = document.getElementById('btnSalvar');
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Impede o envio normal do form
+
+                // Feedback visual no botão
+                const textoOriginal = btnSalvar.innerHTML;
+                btnSalvar.disabled = true;
+                btnSalvar.innerHTML = `<span class="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span> Salvando...`;
+
+                // Captura os dados
+                const formData = new FormData(form);
+                const dados = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('/epc/novo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(dados)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Sucesso!',
+                            text: result.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981', // green-500
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/epc'; // Redireciona para a lista
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: result.message || 'Ocorreu um erro ao salvar.',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444' // red-500
+                        });
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Erro de conexão',
+                        text: 'Não foi possível comunicar com o servidor.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = textoOriginal;
+                }
             });
         </script>
 

@@ -8,20 +8,17 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -32,16 +29,13 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">EPC</h2>
 
-                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">
@@ -60,14 +54,12 @@
                     </ol>
                 </div>
 
-                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="epcSearch" id="epcSearch"
@@ -80,33 +72,14 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="deleteBtnEpc" class="btn bg-red-500 text-white hover:bg-red-600"
                                         style="display:none;">
-                                        Inativar
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
                                     </button>
 
                                     <div class="flex items-center gap-2">
                                         <div class="relative">
-                                            <button data-bs-toggle="dropdown" type="button"
-                                                class="btn bg-sky-500 text-white hover:bg-sky-600">
-                                                <span class="icon-[lucide--download] text-lg me-1"></span>
-                                                Baixar <span class="icon-[lucide--chevron-down] ms-1"></span>
-                                            </button>
                                             <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
                                                 <a href="#!" class="dropdown-item">
                                                     <span class="icon-[lucide--copy] dropdown-icon"></span> Copiar JSON
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <span class="icon-[lucide--printer] dropdown-icon"></span> Imprimir
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/excel.svg" class="h-4 me-2" alt=""> Baixar
-                                                    Excel
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/csv.svg" class="h-4 me-2" alt=""> Baixar CSV
-                                                </a>
-                                                <a href="#!" class="dropdown-item">
-                                                    <img src="/images/files/pdf.svg" class="h-4 w-auto me-2" alt="">
-                                                    Baixar PDF
                                                 </a>
                                             </div>
                                         </div>
@@ -120,74 +93,27 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
-                            <table id="table_epc" class="table-default">
-                                <thead>
-                                    <tr>
-                                        <th></th>
+                            <div class="overflow-x-auto">
+                                <table id="table_epc" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
 
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Nome</div>
-                                        </th>
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Nome</div>
+                                            </th>
 
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Observações</div>
-                                        </th>
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Observações</div>
+                                            </th>
 
-                                        <th class="text-nowrap" data-orderable="false"></th>
-                                    </tr>
-                                </thead>
+                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
 
-                                <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Exaustão localizada
-                                        </td>
-                                        <td class="whitespace-nowrap">
-                                            Instalar próximo à fonte geradora. Manutenção preventiva trimestral.
-                                        </td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/epc/editar/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/epc/detalhes/1" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-
-                                    <tr>
-                                        <td></td>
-                                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                            Guarda-corpo
-                                        </td>
-                                        <td class="whitespace-nowrap">
-                                            Aplicável para áreas elevadas. Conferir fixação e integridade semanalmente.
-                                        </td>
-                                        <td>
-                                            <div class="flex items-center justify-end gap-1 relative z-[1]">
-                                                <a href="/epc/editar/2" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Editar">
-                                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                                </a>
-                                                <a href="/epc/detalhes/2" role="tooltip" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" class="btn !p-1.5 hover:!text-primary"
-                                                    data-bs-title="Detalhes">
-                                                    <span class="icon-[lucide--eye] text-lg"></span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
 
                         </div>
                     </div>
@@ -197,17 +123,67 @@
 
         </main>
 
-        <!-- Scripts -->
+        <div id="epc-data" class="hidden"><%- epcsJson %></div>
+
         <script src="/js/theme.js"></script>
 
-        <!-- Page scripts -->
         <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
 
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // 1. Ler dados do JSON
+                let listaEpcs = [];
+                try {
+                    const divJson = document.getElementById('epc-data');
+                    if (divJson && divJson.innerText.trim()) {
+                        listaEpcs = JSON.parse(divJson.innerText);
+                    }
+                } catch (e) { console.error("Erro ao ler JSON de EPCs:", e); }
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                // 2. Popular Tabela
+                listaEpcs.forEach((epc, index) => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-index', index);
+
+                    // Badge de Isolamento (Local vs Global)
+                    let escopoBadge = '';
+                    
+                    // Se quiser badge Global, descomente:
+                    // else {
+                    //      escopoBadge = `<span class="ms-2 text-xs font-medium text-zinc-500 bg-zinc-100 px-1.5 py-0.5 rounded border border-zinc-200">Global</span>`;
+                    // }
+
+                    tr.innerHTML = `
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                            ${epc.nome}
+                            ${escopoBadge}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            ${epc.observacoes || '-'}
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/epc/editar/${epc.id_epc}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // 3. Inicializar DataTables
                 const table = new DataTable('#table_epc', {
                     lengthChange: false,
                     pageLength: 9,
@@ -216,53 +192,80 @@
                     columnDefs: [
                         {
                             orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(),
+                            className: 'select-checkbox',
                             targets: 0,
-                        }
+                        },
+                        { orderable: false, targets: 3 } // Ações
                     ],
                     select: {
-                        style: 'os',
+                        style: 'multi',
                         selector: 'td:first-child',
-                        headerCheckbox: false
+                        headerCheckbox: true
                     },
                     order: [[1, 'asc']], // Nome
+                    language: {
+                        emptyTable: "Nenhum EPC cadastrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" },
+                        select: { rows: "" }
+                    }
                 });
 
+                // 4. Busca
                 const searchInput = document.getElementById('epcSearch');
                 searchInput.addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                table.on('draw', () => {
-                    const rowCount = table.rows({ search: 'applied' }).count();
-                    if (rowCount === 0) {
-                        searchInput.setAttribute('disabled', 'disabled');
-                    } else {
-                        searchInput.removeAttribute('disabled');
-                    }
-                });
-
+                // 5. Inativar (Delete)
                 const deleteBtn = document.getElementById('deleteBtnEpc');
+
                 table.on('select deselect', function () {
-                    const selectedRows = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = selectedRows > 0 ? 'inline-block' : 'none';
+                    const count = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
                 });
 
                 deleteBtn.addEventListener('click', () => {
-                    table.rows({ selected: true }).remove().draw();
-                    deleteBtn.style.display = 'none';
-                });
-            });
-        </script>
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
 
-        <!-- Select (mantido por compatibilidade com o template) -->
-        <script src="/vendor/js/tom-select.complete.min.js"></script>
-        <script>
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+                        if (listaEpcs[index]) selectedIds.push(listaEpcs[index].id_epc);
+                    });
+
+                    if (selectedIds.length === 0) return;
+
+                    Swal.fire({
+                        title: 'Inativar EPCs?',
+                        text: `Deseja inativar ${selectedIds.length} item(ns)?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#3f3f46',
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch('/epc/inativar-multiplos', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: selectedIds })
+                                });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Erro', data.message, 'error');
+                                }
+                            } catch (error) {
+                                Swal.fire('Erro', 'Falha na comunicação com o servidor', 'error');
+                            }
+                        }
+                    });
                 });
             });
         </script>

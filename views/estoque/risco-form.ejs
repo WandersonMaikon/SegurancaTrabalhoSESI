@@ -7,9 +7,8 @@
 
     <title>Raven - Riscos</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
@@ -86,8 +85,10 @@
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium">Nome do risco</label>
                                             <input id="nome_risco" name="nome_risco" type="text"
-                                                class="input h-11 w-full" placeholder="Preenchimento automático..."
-                                                required maxlength="255">
+                                                class="input h-11 w-full"
+                                                placeholder="Preenchimento automático (Máx 9 palavras)..." required
+                                                maxlength="255">
+                                            <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
                                         </div>
 
                                         <div class="w-full max-w-2xl">
@@ -133,6 +134,8 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
         <script>
             // Inicializa TomSelect
             let tomSelectTipo;
@@ -149,34 +152,44 @@
             const btnSalvar = document.getElementById("btnSalvar");
             const btnReset = document.getElementById("btnReset");
 
-            // --- FUNÇÕES DE CONTROLE VISUAL ---
+            // --- FUNÇÃO AUXILIAR: LIMITAR PALAVRAS ---
+            function limitarPalavras(texto, max) {
+                if (!texto) return "";
+                const palavras = texto.trim().split(/\s+/);
+                if (palavras.length > max) {
+                    return palavras.slice(0, max).join(" ");
+                }
+                return texto;
+            }
 
+            // --- EVENTO DE DIGITAÇÃO ---
+            elNome.addEventListener("input", function () {
+                const textoAtual = this.value;
+                const textoLimitado = limitarPalavras(textoAtual, 9);
+                if (textoAtual !== textoLimitado) {
+                    this.value = textoLimitado;
+                }
+            });
+
+            // --- FUNÇÕES DE CONTROLE VISUAL ---
             function lockFields() {
-                // Trava Nome (Readonly + Visual)
                 elNome.setAttribute("readonly", "true");
                 elNome.classList.add("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
-
-                // Trava Select (TomSelect disable)
                 if (tomSelectTipo) {
                     tomSelectTipo.disable();
-                    // Adiciona estilo visual ao wrapper do TomSelect para parecer disabled
                     tomSelectTipo.wrapper.classList.add("opacity-60", "cursor-not-allowed");
                 }
             }
 
             function unlockFields() {
-                // Destrava Nome
                 elNome.removeAttribute("readonly");
                 elNome.classList.remove("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
                 elNome.value = "";
-
-                // Destrava Select
                 if (tomSelectTipo) {
                     tomSelectTipo.enable();
                     tomSelectTipo.clear();
                     tomSelectTipo.wrapper.classList.remove("opacity-60", "cursor-not-allowed");
                 }
-
                 elIdTabela.value = "";
             }
 
@@ -192,44 +205,28 @@
             // --- MÁSCARA INTELIGENTE ---
             elCodigo.addEventListener("input", function () {
                 let v = this.value.replace(/\D/g, "");
-
                 if (v.length > 8) v = v.slice(0, 8);
-
-                if (v.length > 4) {
-                    v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1.$2.$3");
-                }
-                else if (v.length > 2) {
-                    v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
-                }
-
+                if (v.length > 4) v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1.$2.$3");
+                else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
                 this.value = v;
 
-                // Se o usuário altera o código, resetamos o form e destravamos
                 setMsg("clear");
                 btnSalvar.disabled = true;
                 btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
-                unlockFields(); // Garante que campos fiquem editáveis se o código mudar
+                unlockFields();
             });
 
             // --- CONSULTA ---
             async function runConsulta() {
                 const codigo = elCodigo.value;
 
-                if (!codigo) {
-                    setMsg("error", "Informe o código eSocial.");
-                    return;
-                }
-
-                if (codigo.length < 9) {
-                    setMsg("error", "Formato inválido. Ex: 01.19.041 ou 01.01.2001");
-                    return;
-                }
+                if (!codigo) { setMsg("error", "Informe o código eSocial."); return; }
+                if (codigo.length < 9) { setMsg("error", "Formato inválido."); return; }
 
                 btnConsultar.disabled = true;
                 btnConsultar.textContent = "Buscando...";
                 setMsg("info", "Consultando tabela...");
 
-                // Limpa antes de preencher
                 unlockFields();
 
                 try {
@@ -238,15 +235,10 @@
 
                     if (json.success) {
                         const dados = json.data;
-
-                        // Preenche
-                        elNome.value = dados.descricao;
+                        elNome.value = limitarPalavras(dados.descricao, 9);
                         elIdTabela.value = dados.id_tabela_24;
                         if (tomSelectTipo) tomSelectTipo.setValue(dados.grupo);
-
-                        // TRAVA OS CAMPOS
                         lockFields();
-
                         setMsg("success", "Código Tabela 24 encontrado!");
                         btnSalvar.disabled = false;
                         btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
@@ -263,7 +255,6 @@
             }
 
             btnConsultar.addEventListener("click", runConsulta);
-
             elCodigo.addEventListener("keydown", (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
@@ -275,15 +266,69 @@
                 setMsg("clear");
                 btnSalvar.disabled = true;
                 btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
-                unlockFields(); // Destrava ao limpar
+                unlockFields();
             });
 
-            // --- ENVIO DO FORMULÁRIO ---
-            // Importante: Campos disabled não são enviados no POST.
-            // Precisamos habilitar o TomSelect rapidinho antes de enviar.
-            formRisco.addEventListener('submit', function () {
+            // --- ENVIO COM SWEETALERT E FETCH ---
+            formRisco.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // 1. Destrava o TomSelect (se estiver travado) para o FormData pegar o valor
                 if (tomSelectTipo) {
                     tomSelectTipo.enable();
+                }
+
+                // 2. Feedback visual
+                const textoOriginal = btnSalvar.innerHTML;
+                btnSalvar.disabled = true;
+                btnSalvar.innerHTML = `<span class="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span> Salvando...`;
+
+                // 3. Coleta dados
+                const formData = new FormData(formRisco);
+                const dados = Object.fromEntries(formData);
+
+                try {
+                    const response = await fetch('/risco/novo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dados)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Sucesso!',
+                            text: result.message,
+                            icon: 'success',
+                            confirmButtonColor: '#10b981',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/risco';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: result.message || 'Ocorreu um erro ao salvar.',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        // Se deu erro, precisamos ver se devemos re-travar o campo se veio de consulta
+                        // Mas para simplificar, apenas liberamos o botão. 
+                        // O usuário pode tentar corrigir.
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({
+                        title: 'Erro de conexão',
+                        text: 'Não foi possível comunicar com o servidor.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = textoOriginal;
                 }
             });
         </script>

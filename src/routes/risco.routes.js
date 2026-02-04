@@ -83,7 +83,7 @@ router.get("/buscar-esocial/:codigo", verificarAutenticacao, async (req, res) =>
     }
 });
 
-// --- SALVAR NOVO RISCO (COM VÍNCULO DE UNIDADE) ---
+// --- SALVAR NOVO RISCO ---
 router.post("/novo", verificarAutenticacao, async (req, res) => {
     try {
         const { id_tabela_24, nome_risco, tipo_risco } = req.body;
@@ -91,19 +91,17 @@ router.post("/novo", verificarAutenticacao, async (req, res) => {
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
         if (!nome_risco || !tipo_risco) {
-            return res.status(400).send("Campos obrigatórios faltando.");
+            return res.status(400).json({ success: false, message: "Campos obrigatórios faltando." });
         }
 
         const idTabela = id_tabela_24 ? id_tabela_24 : null;
 
-        // DEFINIÇÃO DE UNIDADE NO CADASTRO
+        // LÓGICA DE ISOLAMENTO
         let idUnidadeParaSalvar = null;
 
         if (ehAdmin) {
-            // Admin cria riscos GLOBAIS (Padrão do Sistema)
             idUnidadeParaSalvar = null;
         } else {
-            // Usuário comum cria risco LOCAL (Exclusivo da Unidade)
             idUnidadeParaSalvar = userLogado.id_unidade || userLogado.unidade_id;
         }
 
@@ -112,11 +110,12 @@ router.post("/novo", verificarAutenticacao, async (req, res) => {
             VALUES (?, ?, ?, ?)
         `, [idUnidadeParaSalvar, idTabela, nome_risco, tipo_risco]);
 
-        res.redirect("/risco");
+        // ALTERADO: Retorna JSON ao invés de redirect
+        return res.json({ success: true, message: "Risco cadastrado com sucesso!" });
 
     } catch (error) {
         console.error("Erro ao salvar risco:", error);
-        res.status(500).send("Erro ao salvar risco.");
+        return res.status(500).json({ success: false, message: "Erro ao salvar risco." });
     }
 });
 
