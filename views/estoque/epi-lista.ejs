@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - EPI</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">EPI</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">
+                                Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Cadastros</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">EPI</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9" name="epiSearch" id="epiSearch"
+                                            placeholder="Buscar EPI (nome ou CA)">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center flex-wrap justify-end gap-2">
+                                    <button id="deleteBtnEpi" class="btn bg-red-500 text-white hover:bg-red-600"
+                                        style="display:none;">
+                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
+                                    </button>
+
+                                    <div class="flex items-center gap-2">
+                                        <a href="/epi/novo"
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            <span class="icon-[lucide--plus] text-lg me-1"></span>
+                                            Criar Novo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table id="table_epi" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Nome</div>
+                                            </th>
+
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">CA</div>
+                                            </th>
+
+                                            <th class="text-nowrap">
+                                                <div class="flex items-center">Validade (Banco)</div>
+                                            </th>
+
+                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
+
+                            <div class="p-4 text-sm text-zinc-400">
+                                Fonte de consulta do CA:
+                                <a class="text-sky-600 hover:text-sky-700"
+                                    href="https://caepi.mte.gov.br/internet/ConsultaCAInternet.aspx" target="_blank"
+                                    rel="noopener">
+                                    Consulta CA Internet (MTE)
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+
+        </main>
+
+        <div id="epi-data" class="hidden"><%- episJson %></div>
+
+        <script src="/js/theme.js"></script>
+
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // 1. Ler dados do JSON
+                let listaEpis = [];
+                try {
+                    const divJson = document.getElementById('epi-data');
+                    if (divJson && divJson.innerText.trim()) {
+                        listaEpis = JSON.parse(divJson.innerText);
+                    }
+                } catch (e) { console.error("Erro ao ler JSON de EPIs:", e); }
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                // Função para formatar data (YYYY-MM-DD -> DD/MM/YYYY)
+                const formatDate = (dateString) => {
+                    if (!dateString) return '-';
+                    // Se vier timestamp ou formato ISO completo, cortamos
+                    const dataPart = dateString.split('T')[0];
+                    const [ano, mes, dia] = dataPart.split('-');
+                    return `${dia}/${mes}/${ano}`;
+                };
+
+                // 2. Popular Tabela
+                listaEpis.forEach((epi, index) => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-index', index);
+
+                    // Badge Local/Global
+                    let escopoBadge = '';
+                    
+
+                    tr.innerHTML = `
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                            ${epi.nome_equipamento}
+                            ${escopoBadge}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <span class="ca-value">${epi.ca}</span>
+                                <button type="button" 
+                                    class="btn !p-1.5 hover:!text-primary btn-consultar-ca"
+                                    data-ca="${epi.ca}" 
+                                    title="Verificar validade atual na API">
+                                    <span class="icon-[lucide--refresh-cw] text-lg"></span>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap validade-cell">
+                            <span class="validade-text">${formatDate(epi.validade_ca)}</span>
+                            <span class="status-api text-xs ms-1"></span>
+                        </td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/epi/editar/${epi.id_epi}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // 3. Inicializar DataTables
+                const table = new DataTable('#table_epi', {
+                    lengthChange: false,
+                    pageLength: 9,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    columnDefs: [
+                        {
+                            orderable: false,
+                            className: 'select-checkbox',
+                            targets: 0,
+                        },
+                        { orderable: false, targets: 4 } // Ações
+                    ],
+                    select: {
+                        style: 'multi',
+                        selector: 'td:first-child',
+                        headerCheckbox: true
+                    },
+                    order: [[1, 'asc']], // Nome
+                    language: {
+                        emptyTable: "Nenhum EPI cadastrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" },
+                        select: { rows: "" }
+                    }
+                });
+
+                // 4. Busca
+                const searchInput = document.getElementById('epiSearch');
+                searchInput.addEventListener('input', e => {
+                    table.search(e.target.value).draw();
+                });
+
+                // 5. Inativar (Delete)
+                const deleteBtn = document.getElementById('deleteBtnEpi');
+
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    deleteBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
+                });
+
+                deleteBtn.addEventListener('click', () => {
+                    const selectedRows = table.rows({ selected: true }).nodes();
+                    const selectedIds = [];
+
+                    selectedRows.each(function (row) {
+                        const index = row.getAttribute('data-index');
+                        if (listaEpis[index]) {
+                            // Atenção: Use id_epi aqui (INT)
+                            selectedIds.push(listaEpis[index].id_epi);
+                        }
+                    });
+
+                    if (selectedIds.length === 0) return;
+
+                    Swal.fire({
+                        title: 'Inativar EPIs?',
+                        text: `Deseja inativar ${selectedIds.length} item(ns)?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#3f3f46',
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await fetch('/epi/inativar-multiplos', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ ids: selectedIds })
+                                });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                                } else {
+                                    Swal.fire('Erro', data.message, 'error');
+                                }
+                            } catch (error) {
+                                Swal.fire('Erro', 'Falha na comunicação com o servidor', 'error');
+                            }
+                        }
+                    });
+                });
+
+                // 6. Lógica de Consultar CA na Lista (API)
+                // Usamos "event delegation" pois o DataTables recria o DOM
+                document.querySelector('#table_epi').addEventListener('click', async (e) => {
+                    const btn = e.target.closest('.btn-consultar-ca');
+                    if (!btn) return;
+
+                    const ca = btn.getAttribute('data-ca');
+                    const tdValidade = btn.closest('tr').querySelector('.validade-cell');
+                    const spanStatus = tdValidade.querySelector('.status-api');
+
+                    // Estado de carregando
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50');
+                    spanStatus.textContent = ' Checando...';
+                    spanStatus.className = 'status-api text-xs ms-1 text-sky-500';
+
+                    try {
+                        const response = await fetch(`/epi/consulta-ca/${ca}`);
+                        if (!response.ok) throw new Error();
+                        const data = await response.json();
+
+                        // Atualiza visualmente
+                        const hoje = new Date();
+
+                        // Parse da data DD/MM/YYYY para Date object
+                        const [d, m, y] = data.validade.split('/');
+                        const dataValidade = new Date(`${y}-${m}-${d}`);
+
+                        let classeCor = 'text-green-600';
+                        let textoStatus = '(Válido)';
+
+                        if (dataValidade < hoje) {
+                            classeCor = 'text-red-500';
+                            textoStatus = '(Vencido)';
+                        }
+
+                        // Atualiza a célula com a data nova DA API
+                        tdValidade.innerHTML = `
+                            <span class="validade-text font-bold ${classeCor}">${data.validade}</span>
+                            <span class="text-xs ${classeCor}">${textoStatus}</span>
+                        `;
+
+                        // Opcional: Feedback suave
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                        Toast.fire({ icon: 'success', title: `CA ${ca} atualizado.` });
+
+                    } catch (err) {
+                        spanStatus.textContent = ' Falha API';
+                        spanStatus.className = 'status-api text-xs ms-1 text-red-500';
+                    } finally {
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-50');
+                    }
+                });
+
+            });
+        </script>
+
+</body>
+
+</html>

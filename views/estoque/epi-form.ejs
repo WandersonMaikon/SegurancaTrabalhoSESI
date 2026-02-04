@@ -6,12 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raven - EPI</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
+
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
+
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
@@ -24,6 +28,7 @@
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
+
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Cadastrar EPI</h2>
                     <ol class="flex gap-1 items-center text-sm">
@@ -45,7 +50,7 @@
                 </div>
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                    <form action="/epi/novo" method="post" class="w-full">
+                    <form id="formEpi" action="/epi/novo" method="post" class="w-full">
 
                         <div class="grid grid-cols-1 gap-6">
                             <div class="md:col-span-8 space-y-6">
@@ -64,8 +69,9 @@
                                             <label class="mb-2 block font-medium">Nº do CA</label>
                                             <div class="relative">
                                                 <input id="epi_ca" name="ca" type="text"
-                                                    class="input h-11 w-full !pe-32" placeholder="Informe o número do CA"
-                                                    inputmode="numeric" autocomplete="off" required>
+                                                    class="input h-11 w-full !pe-32"
+                                                    placeholder="Informe o número do CA" inputmode="numeric"
+                                                    autocomplete="off" required>
 
                                                 <button id="btnConsultarCa" type="button"
                                                     class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
@@ -155,6 +161,8 @@
 
         <script src="/js/theme.js"></script>
 
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
         <script>
             (function () {
                 const $ = (id) => document.getElementById(id);
@@ -169,6 +177,7 @@
                 const btnConsultar = $("btnConsultarCa");
                 const caMsg = $("caMsg");
                 const btnSalvar = $("btnSalvar");
+                const formEpi = $("formEpi");
 
                 function setMsg(type, text) {
                     if (!caMsg) return;
@@ -225,17 +234,14 @@
                                 nomeInput.value = data.equipamento;
                             }
 
-                            // Lógica baseada no seu back-end (Válido ou Vencido)
                             const status = data.situacao;
                             situacaoDisplay.value = status.toUpperCase();
 
                             if (status === "Válido") {
                                 situacaoDisplay.classList.add("text-green-600", "dark:text-green-400");
-                                // Ícone de Check Verde
                                 situacaoIcon.innerHTML = '<span class="icon-[lucide--check-circle-2] text-green-600 dark:text-green-400 text-xl"></span>';
                             } else if (status === "Vencido") {
                                 situacaoDisplay.classList.add("text-red-600", "dark:text-red-400");
-                                // Ícone de X/Alerta Vermelho
                                 situacaoIcon.innerHTML = '<span class="icon-[lucide--x-circle] text-red-600 dark:text-red-400 text-xl"></span>';
                             } else {
                                 situacaoIcon.innerHTML = '<span class="icon-[lucide--help-circle] text-zinc-400 text-xl"></span>';
@@ -278,6 +284,60 @@
                     resetCampos();
                     btnSalvar.disabled = true;
                     btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                });
+
+                // --- ENVIO DO FORM COM SWEETALERT ---
+                formEpi.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    // Feedback visual
+                    const textoOriginal = btnSalvar.innerHTML;
+                    btnSalvar.disabled = true;
+                    btnSalvar.innerHTML = `<span class="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span> Salvando...`;
+
+                    const formData = new FormData(formEpi);
+                    const dados = Object.fromEntries(formData);
+
+                    try {
+                        const response = await fetch('/epi/novo', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dados)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                title: 'Sucesso!',
+                                text: result.message,
+                                icon: 'success',
+                                confirmButtonColor: '#10b981',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/epi'; // Redireciona para lista
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Erro!',
+                                text: result.message || 'Ocorreu um erro ao salvar.',
+                                icon: 'error',
+                                confirmButtonColor: '#ef4444'
+                            });
+                            btnSalvar.disabled = false;
+                            btnSalvar.innerHTML = textoOriginal;
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            title: 'Erro de conexão',
+                            text: 'Falha ao comunicar com o servidor.',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                    }
                 });
 
             })();
