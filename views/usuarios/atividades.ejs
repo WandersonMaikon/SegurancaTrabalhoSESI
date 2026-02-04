@@ -4,22 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Raven - Atividade do Usuário</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
-    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 </head>
 
 <body
@@ -30,9 +24,9 @@
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
+
                 <div class="px-4 lg:px-10 py-6">
                     <h2 class="text-2xl mb-2">Atividade do Usuário</h2>
-
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/usuarios"
@@ -47,278 +41,55 @@
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
                     <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
-
                         <div class="p-4 md:p-6 max-w-3xl mx-auto">
-                            <div class="mb-7 flex items-center justify-between">
+
+                            <div
+                                class="mb-7 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-zinc-100 pb-4 dark:border-zinc-800">
 
                                 <label class="flex items-center text-sm gap-2 cursor-pointer">
-                                    <span class="flex-grow">Atualização automática</span>
-                                    <input class="input-switch" name="activityRefresh" type="checkbox" value="1">
+                                    <span class="flex-grow">Atualização auto. (30s)</span>
+                                    <input class="input-switch" id="autoRefreshToggle" type="checkbox">
                                 </label>
-                                <div class="relative">
-                                    <button data-bs-auto-close="outside" data-bs-toggle="dropdown" type="button"
-                                        class="btn btn-default gap-2">
-                                        <span class="icon-[lucide--sliders-horizontal]"></span> Filtro
-                                    </button>
-                                    <div class="dropdown-menu absolute !end-0 !start-auto top-full min-w-44 !p-4 !mt-1">
-                                        <div class="flex flex-col space-y-3">
 
-                                            <label for="project_in_progress"
-                                                class="flex items-center cursor-pointer gap-2">
-                                                <input type="checkbox" class="input-checkbox" id="project_in_progress">
-                                                <span>Atribuir Tarefa</span>
-                                            </label>
-
-                                            <label for="project_not_started"
-                                                class="flex items-center cursor-pointer gap-2">
-                                                <input type="checkbox" class="input-checkbox" id="project_not_started">
-                                                <span>Apenas menções</span>
-                                            </label>
-                                            <label for="project_pending" class="flex items-center cursor-pointer gap-2">
-                                                <input type="checkbox" class="input-checkbox" id="project_pending">
-                                                <span>Respostas</span>
-                                            </label>
-                                        </div>
+                                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                                    <div class="w-full md:w-48">
+                                        <select id="filtroUsuario" class="js-select" placeholder="Filtrar Usuário">
+                                            <option value="">Todos Usuários</option>
+                                            <% listaUsuarios.forEach(u=> { %>
+                                                <option value="<%= u.id_usuario %>">
+                                                    <%= u.nome_completo %>
+                                                </option>
+                                                <% }) %>
+                                        </select>
                                     </div>
+
+                                    <div class="w-full md:w-40">
+                                        <select id="filtroModulo" class="js-select" placeholder="Módulo">
+                                            <option value="">Todos Módulos</option>
+                                            <option value="ordem_servico">Ordens de Serviço</option>
+                                            <option value="cliente">Clientes</option>
+                                            <option value="epi">EPIs</option>
+                                            <option value="risco">Riscos</option>
+                                        </select>
+                                    </div>
+
+                                    <button id="btnFiltrar" class="btn btn-default">
+                                        <span class="icon-[lucide--filter]"></span>
+                                    </button>
                                 </div>
                             </div>
-                            <span class="font-semibold block mb-2 text-muted">Hoje</span>
-                            <!--:Timeline:-->
-                            <ul class="timeline">
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <img alt="" src="images/avatars/thumb-3.jpg"
-                                                    class="rounded-full size-7">
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Angelina
-                                                        Gotelli</span><span> alterou </span><span
-                                                        class="font-semibold">#ts-212</span><span>
-                                                        para </span><span
-                                                        class="font-semibold text-green-500">Concluído</span>
-                                                    <span class="block mt-1 text-xs text-muted">10:15
-                                                        AM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <!--:Timeline item:-->
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <img alt="" src="images/avatars/thumb-6.jpg"
-                                                    class="rounded-full size-7">
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Max Alexander</span>
-                                                    comentou na sua postagem
-                                                    <a href="#!"
-                                                        class="font-semibold text-primary hover:text-primary-deep">Top
-                                                        10 Tendências Tech</a>
-                                                    <span class="text-xs mt-1 text-muted block">11:50
-                                                        AM</span>
-                                                </p>
-                                                <div class="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                                                    <p class="mb-2">
-                                                        Lorem ipsum is text commonly used in the print, and
-                                                        publishing industries for previewing layouts and visual
-                                                        mockups
-                                                    </p>
-                                                    <a href="#!"
-                                                        class="hover:text-primary border-b text-sm font-semibold border-dashed">
-                                                        <span class="icon-[lucide--reply]"></span>
-                                                        Responder</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <!--:Timeline item:-->
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <span
-                                                    class="size-7 flex items-center justify-center rounded-full bg-primary text-white">
-                                                    <span class="icon-[lucide--hash]"></span>
-                                                </span>
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Eugene
-                                                        Stewart</span><span> adicionou tags </span>
-                                                    <span class="badge bg-sky-500/10 text-sky-500">Tailwindcss</span>
-                                                    <span class="badge bg-red-500/10 text-red-500">Gulp</span>
 
-                                                    <span class="block text-xs mt-1 text-muted">12:50
-                                                        PM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                            <div class="my-5"></div>
-                            <span class="font-semibold block mb-2 text-muted">Ontem</span>
-                            <!--:Timeline:-->
-                            <ul class="timeline">
+                            <div id="timelineContainer">
+                                <div class="text-center py-10 text-zinc-400">
+                                    <span
+                                        class="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full mb-2"></span>
+                                    <p>Carregando atividades...</p>
+                                </div>
+                            </div>
 
-                                <!--:Timeline item:-->
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <span
-                                                    class="size-7 flex items-center justify-center rounded-full bg-blue-500 text-white">
-                                                    <span class="icon-[lucide--message-circle-more]"></span>
-                                                </span>
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Nikki
-                                                        Stewart</span><span> mencionou você em um comentário </span>
-                                                    <span class="block text-xs mt-1 text-muted">12:50
-                                                        PM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <img alt="" src="images/avatars/thumb-4.jpg"
-                                                    class="rounded-full size-7">
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Emelia</span><span> alterou
-                                                    </span><span class="font-semibold">#ts-212</span><span>
-                                                        para </span><span
-                                                        class="font-semibold text-yellow-500">Pendente</span>
-                                                    <span class="block mt-1 text-xs text-muted">10:15
-                                                        AM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                            <div class="my-5"></div>
-                            <span class="font-semibold block mb-2 text-muted">20 de Junho, 2025</span>
-                            <!--:Timeline:-->
-                            <ul class="timeline">
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <img alt="" src="images/avatars/thumb-3.jpg"
-                                                    class="rounded-full size-7">
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Angelina
-                                                        Gotelli</span><span> alterou </span><span
-                                                        class="font-semibold">#ts-212</span><span>
-                                                        para </span><span
-                                                        class="font-semibold text-green-500">Concluído</span>
-                                                    <span class="block mt-1 text-xs text-muted">10:15
-                                                        AM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <!--:Timeline item:-->
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <img alt="" src="images/avatars/thumb-8.jpg"
-                                                    class="rounded-full size-7">
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">John Doe</span>
-                                                    comentou na sua postagem
-                                                    <a href="#!"
-                                                        class="font-semibold text-primary hover:text-primary-deep">Utilidades
-                                                        do
-                                                        TailwindCss</a>
-                                                    <span class="text-xs mt-1 text-muted block">11:50
-                                                        AM</span>
-                                                </p>
-                                                <div class="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                                                    <p class="mb-2">
-                                                        Lorem ipsum is text commonly used in the print, and
-                                                        publishing industries for previewing layouts and visual
-                                                        mockups
-                                                    </p>
-                                                    <a href="#!"
-                                                        class="hover:text-primary border-b text-sm font-semibold border-dashed">
-                                                        <span class="icon-[lucide--reply]"></span>
-                                                        Responder</a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <!--:Timeline item:-->
-                                <li class="timeline-item">
-                                    <div class="timeline-item-wrapper">
-                                        <div class="timeline-item-media shrink-0">
-                                            <div class="timeline-item-media-content">
-                                                <!--:Avatar:-->
-                                                <span
-                                                    class="size-7 flex items-center justify-center rounded-full bg-primary text-white">
-                                                    <span class="icon-[lucide--hash]"></span>
-                                                </span>
-                                            </div>
-                                            <div class="timeline-connect"></div>
-                                        </div>
-                                        <div class="timeline-item-content">
-                                            <div class="mt-1">
-                                                <p class="mb-1"><span class="h6">Eugene
-                                                        Stewart</span><span> adicionou tags </span>
-                                                    <span class="badge bg-amber-500/10 text-amber-500">Problema</span>
-                                                    <span class="block text-xs mt-1 text-muted">12:50
-                                                        PM</span>
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                            <div class="mt-7">
-                                <button class="btn bg-primary hover:bg-primary-deep text-white">
+                            <div class="mt-7 text-center hidden" id="loadMoreContainer">
+                                <button
+                                    class="btn bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300">
                                     Carregar mais
                                 </button>
                             </div>
@@ -331,24 +102,143 @@
         </main>
 
         <script src="/js/theme.js"></script>
-
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+
         <script>
-            // Inicialização do TomSelect, se necessário (embora não haja selects nesta página)
-            document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, {
-                    create: false,
-                    allowEmptyOption: true,
-                    render: {
-                        no_results: function (data, escape) {
-                            return '<div class="no-results p-2 text-sm text-zinc-400">Nenhum resultado para "' + escape(data.query) + '"</div>';
+            document.addEventListener('DOMContentLoaded', () => {
+                // Inicializa TomSelects
+                document.querySelectorAll('.js-select').forEach(el => new TomSelect(el, { create: false }));
+
+                const timelineContainer = document.getElementById('timelineContainer');
+                const filtroUsuario = document.getElementById('filtroUsuario');
+                const filtroModulo = document.getElementById('filtroModulo');
+                const btnFiltrar = document.getElementById('btnFiltrar');
+                const autoRefreshToggle = document.getElementById('autoRefreshToggle');
+
+                let refreshInterval;
+
+                // --- FUNÇÃO PRINCIPAL: BUSCAR LOGS ---
+                async function fetchLogs() {
+                    const idUser = filtroUsuario.value;
+                    const mod = filtroModulo.value;
+
+                    // Monta URL com parâmetros
+                    const params = new URLSearchParams();
+                    if (idUser) params.append('id_usuario', idUser);
+                    if (mod) params.append('modulo', mod);
+
+                    try {
+                        const response = await fetch(`/usuarios/atividades/api/listar?${params.toString()}`);
+                        const json = await response.json();
+
+                        if (json.success) {
+                            renderTimeline(json.data);
+                        } else {
+                            timelineContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar dados.</p>';
                         }
+                    } catch (error) {
+                        console.error(error);
+                        timelineContainer.innerHTML = '<p class="text-center text-zinc-400">Falha na conexão.</p>';
+                    }
+                }
+
+                // --- RENDERIZAÇÃO (HTML GENERATOR) ---
+                function renderTimeline(logs) {
+                    if (logs.length === 0) {
+                        timelineContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-10 text-zinc-400">
+                            <span class="icon-[lucide--activity] text-4xl mb-2 opacity-50"></span>
+                            <p>Nenhuma atividade registrada com estes filtros.</p>
+                        </div>
+                    `;
+                        return;
+                    }
+
+                    let html = '';
+                    let lastDate = '';
+
+                    logs.forEach(log => {
+                        // Agrupamento por data (Hoje, Ontem, Data Completa)
+                        const logDate = new Date(log.data_full).toLocaleDateString();
+                        const hoje = new Date().toLocaleDateString();
+
+                        // Lógica para Ontem
+                        const ontemDate = new Date();
+                        ontemDate.setDate(ontemDate.getDate() - 1);
+                        const ontem = ontemDate.toLocaleDateString();
+
+                        if (logDate !== lastDate) {
+                            let labelDate = logDate;
+                            if (logDate === hoje) labelDate = "Hoje";
+                            else if (logDate === ontem) labelDate = "Ontem";
+
+                            // Fecha UL anterior se não for o primeiro
+                            if (lastDate !== '') html += '</ul><div class="my-5"></div>';
+
+                            html += `<span class="font-semibold block mb-2 text-muted text-sm uppercase tracking-wider">${labelDate}</span>`;
+                            html += '<ul class="timeline">';
+                            lastDate = logDate;
+                        }
+
+                        // Avatar Placeholder (Iniciais)
+                        const iniciais = log.usuario_nome.substring(0, 2).toUpperCase();
+
+                        // Item da Timeline
+                        html += `
+                        <li class="timeline-item">
+                            <div class="timeline-item-wrapper">
+                                <div class="timeline-item-media shrink-0">
+                                    <div class="timeline-item-media-content">
+                                        <span class="size-9 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 font-bold text-xs border border-zinc-200 dark:border-zinc-700">
+                                            ${iniciais}
+                                        </span>
+                                    </div>
+                                    <div class="timeline-connect"></div>
+                                </div>
+                                <div class="timeline-item-content">
+                                    <div class="mt-1 bg-white dark:bg-zinc-800/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/50 shadow-sm">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <p class="mb-1 text-sm text-zinc-800 dark:text-zinc-200">
+                                                    <span class="font-bold text-zinc-900 dark:text-white">${log.usuario_nome}</span>
+                                                </p>
+                                                <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                                    <span class="icon-[lucide--${log.icone}] text-${log.cor} align-text-bottom me-1"></span>
+                                                    ${log.titulo}
+                                                </p>
+                                            </div>
+                                            <span class="text-xs text-muted whitespace-nowrap ms-2">${log.hora}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                    });
+
+                    html += '</ul>'; // Fecha a última UL
+                    timelineContainer.innerHTML = html;
+                }
+
+                // --- EVENTOS ---
+                btnFiltrar.addEventListener('click', () => {
+                    timelineContainer.innerHTML = '<div class="text-center py-4 text-zinc-400">Atualizando...</div>';
+                    fetchLogs();
+                });
+
+                // Auto Refresh
+                autoRefreshToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        refreshInterval = setInterval(fetchLogs, 30000); // 30 segundos
+                    } else {
+                        clearInterval(refreshInterval);
                     }
                 });
+
+                // Carregamento Inicial
+                fetchLogs();
             });
         </script>
-
-        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 </body>
 
 </html>
