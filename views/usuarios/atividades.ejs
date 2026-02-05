@@ -73,13 +73,17 @@
                                         </select>
                                     </div>
 
-                                    <button id="btnFiltrar" class="btn btn-default">
+                                    <div class="w-full md:w-48">
+                                        <input type="date" id="filtroData"
+                                            class="input h-[38px] w-full bg-white dark:bg-zinc-900 cursor-pointer">
+                                    </div>
+                                    <button id="btnFiltrar" class="btn btn-default h-[38px]">
                                         <span class="icon-[lucide--filter]"></span>
                                     </button>
                                 </div>
                             </div>
 
-                            <div id="timelineContainer">
+                            <div id="timelineContainer" class="min-h-[300px]">
                                 <div class="text-center py-10 text-zinc-400">
                                     <span
                                         class="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full mb-2"></span>
@@ -87,10 +91,18 @@
                                 </div>
                             </div>
 
-                            <div class="mt-7 text-center hidden" id="loadMoreContainer">
-                                <button
-                                    class="btn bg-zinc-100 hover:bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:hover:bg-zinc-700 dark:text-zinc-300">
-                                    Carregar mais
+                            <div id="paginationContainer"
+                                class="mt-6 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between hidden">
+                                <button id="btnPrevPage" class="btn btn-outline-secondary btn-sm" disabled>
+                                    <span class="icon-[lucide--chevron-left]"></span> Anterior
+                                </button>
+
+                                <span class="text-sm text-zinc-500 font-medium" id="pageInfo">
+                                    Página 1 de 1
+                                </span>
+
+                                <button id="btnNextPage" class="btn btn-outline-secondary btn-sm" disabled>
+                                    Próxima <span class="icon-[lucide--chevron-right]"></span>
                                 </button>
                             </div>
 
@@ -110,46 +122,78 @@
                 document.querySelectorAll('.js-select').forEach(el => new TomSelect(el, { create: false }));
 
                 const timelineContainer = document.getElementById('timelineContainer');
+                const paginationContainer = document.getElementById('paginationContainer');
+                const btnPrevPage = document.getElementById('btnPrevPage');
+                const btnNextPage = document.getElementById('btnNextPage');
+                const pageInfo = document.getElementById('pageInfo');
+
                 const filtroUsuario = document.getElementById('filtroUsuario');
                 const filtroModulo = document.getElementById('filtroModulo');
+                const filtroData = document.getElementById('filtroData');
                 const btnFiltrar = document.getElementById('btnFiltrar');
                 const autoRefreshToggle = document.getElementById('autoRefreshToggle');
 
                 let refreshInterval;
+                let currentPage = 1; // Controla a página atual
 
                 // --- FUNÇÃO PRINCIPAL: BUSCAR LOGS ---
-                async function fetchLogs() {
+                async function fetchLogs(page = 1) {
                     const idUser = filtroUsuario.value;
                     const mod = filtroModulo.value;
+                    const data = filtroData.value;
 
                     // Monta URL com parâmetros
                     const params = new URLSearchParams();
+                    params.append('page', page); // Envia a página atual
                     if (idUser) params.append('id_usuario', idUser);
                     if (mod) params.append('modulo', mod);
+                    if (data) params.append('data_inicio', data);
+
+                    // Mostra loading se for filtro manual (não auto-refresh)
+                    if (page === 1 && !refreshInterval) {
+                        timelineContainer.innerHTML = '<div class="text-center py-10 text-zinc-400"><span class="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full mb-2"></span><p>Carregando...</p></div>';
+                    }
 
                     try {
-                        // CORREÇÃO AQUI: A rota no server.js é '/atividades', então removemos o '/usuarios' da frente
                         const response = await fetch(`/atividades/api/listar?${params.toString()}`);
                         const json = await response.json();
 
                         if (json.success) {
                             renderTimeline(json.data);
+                            updatePagination(json.pagination);
                         } else {
                             timelineContainer.innerHTML = '<p class="text-center text-red-500">Erro ao carregar dados.</p>';
                         }
                     } catch (error) {
                         console.error(error);
-                        timelineContainer.innerHTML = '<p class="text-center text-zinc-400">Falha na conexão ou rota inválida.</p>';
+                        timelineContainer.innerHTML = '<p class="text-center text-zinc-400">Falha na conexão.</p>';
                     }
                 }
 
-                // --- RENDERIZAÇÃO (HTML GENERATOR) ---
+                // --- ATUALIZA A PAGINAÇÃO ---
+                function updatePagination(pagination) {
+                    if (!pagination || pagination.totalRegistros === 0) {
+                        paginationContainer.classList.add('hidden');
+                        return;
+                    }
+
+                    paginationContainer.classList.remove('hidden');
+                    pageInfo.textContent = `Página ${pagination.paginaAtual} de ${pagination.totalPaginas}`;
+
+                    // Lógica dos botões
+                    btnPrevPage.disabled = pagination.paginaAtual <= 1;
+                    btnNextPage.disabled = pagination.paginaAtual >= pagination.totalPaginas;
+
+                    currentPage = pagination.paginaAtual;
+                }
+
+                // --- RENDERIZAÇÃO ---
                 function renderTimeline(logs) {
                     if (logs.length === 0) {
                         timelineContainer.innerHTML = `
                         <div class="flex flex-col items-center justify-center py-10 text-zinc-400">
                             <span class="icon-[lucide--activity] text-4xl mb-2 opacity-50"></span>
-                            <p>Nenhuma atividade registrada com estes filtros.</p>
+                            <p>Nenhuma atividade encontrada.</p>
                         </div>
                     `;
                         return;
@@ -217,19 +261,32 @@
 
                 // --- EVENTOS ---
                 btnFiltrar.addEventListener('click', () => {
-                    timelineContainer.innerHTML = '<div class="text-center py-4 text-zinc-400">Atualizando...</div>';
-                    fetchLogs();
+                    currentPage = 1; // Reseta para primeira página ao filtrar
+                    fetchLogs(currentPage);
+                });
+
+                btnPrevPage.addEventListener('click', () => {
+                    if (currentPage > 1) fetchLogs(currentPage - 1);
+                });
+
+                btnNextPage.addEventListener('click', () => {
+                    fetchLogs(currentPage + 1);
                 });
 
                 autoRefreshToggle.addEventListener('change', (e) => {
                     if (e.target.checked) {
-                        refreshInterval = setInterval(fetchLogs, 30000);
+                        // Ao ativar auto-refresh, voltamos para a primeira página
+                        currentPage = 1;
+                        fetchLogs(1);
+                        refreshInterval = setInterval(() => fetchLogs(1), 30000);
                     } else {
                         clearInterval(refreshInterval);
+                        refreshInterval = null;
                     }
                 });
 
-                fetchLogs();
+                // Carga Inicial
+                fetchLogs(1);
             });
         </script>
 </body>

@@ -7,18 +7,14 @@
     <title>Raven - Riscos</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -135,7 +131,28 @@
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // 1. Ler dados do JSON
+
+                // ============================================================
+                // 1. LÓGICA DE ALERTA DE PERMISSÃO (Query String)
+                // ============================================================
+                const urlParams = new URLSearchParams(window.location.search);
+                const alertType = urlParams.get('alert');
+
+                if (alertType === 'sem_permissao') {
+                    Swal.fire({
+                        title: 'Acesso Negado',
+                        text: 'Você não tem permissão para acessar a tela de edição.',
+                        icon: 'warning',
+                        confirmButtonColor: '#f59e0b', // Amber
+                        confirmButtonText: 'Entendido'
+                    });
+                    // Limpa a URL
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+
+                // ============================================================
+                // 2. CONSTRUÇÃO DA TABELA
+                // ============================================================
                 let listaRiscos = [];
                 try {
                     const divJson = document.getElementById('riscos-data');
@@ -147,7 +164,6 @@
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
-                // 2. Função para gerar Badges de Tipo (ATUALIZADA)
                 const getRiskBadge = (tipo) => {
                     switch (tipo) {
                         case 'Físico': return '<span class="badge bg-sky-500/10 text-sky-500">Físico</span>';
@@ -155,38 +171,32 @@
                         case 'Biológico': return '<span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>';
                         case 'Ergonômico': return '<span class="badge bg-purple-500/10 text-purple-500">Ergonômico</span>';
                         case 'Mecânico': return '<span class="badge bg-rose-500/10 text-rose-500">Mecânico</span>';
-
-                        // Novos Tipos
                         case 'Associação': return '<span class="badge bg-indigo-500/10 text-indigo-500">Associação</span>';
                         case 'Outros': return '<span class="badge bg-zinc-500/10 text-zinc-500">Outros</span>';
                         case 'Ausência de Risco': return '<span class="badge bg-teal-500/10 text-teal-500">Ausência</span>';
-
                         default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo}</span>`;
                     }
                 };
 
-                // 3. Popular Tabela
                 listaRiscos.forEach((r, index) => {
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-index', index);
-
                     tr.innerHTML = `
-                    <td></td>
-                    <td class="whitespace-nowrap">${getRiskBadge(r.tipo_risco)}</td>
-                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${r.nome_risco}</td>
-                    <td class="whitespace-nowrap">${r.codigo_esocial || '-'}</td>
-                    <td>
-                        <div class="flex items-center gap-1 relative z-[1]">
-                            <a href="/risco/editar/${r.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                <span class="icon-[lucide--edit] text-lg"></span>
-                            </a>
-                        </div>
-                    </td>
-                `;
+                        <td></td>
+                        <td class="whitespace-nowrap">${getRiskBadge(r.tipo_risco)}</td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${r.nome_risco}</td>
+                        <td class="whitespace-nowrap">${r.codigo_esocial || '-'}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/risco/editar/${r.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
 
-                // 4. Inicializar DataTables
                 const table = new DataTable('#table_riscos', {
                     lengthChange: false,
                     pageLength: 9,
@@ -200,28 +210,23 @@
                     },
                     columnDefs: [
                         { orderable: false, className: 'select-checkbox', targets: 0 },
-                        { orderable: false, targets: 4 } // Ações
+                        { orderable: false, targets: 4 }
                     ],
                     select: {
                         style: 'multi',
                         selector: 'td:first-child',
-                        headerCheckbox: true // Checkbox header para selecionar tudo
+                        headerCheckbox: true
                     },
-                    order: [[2, 'asc']] // Ordenar por Nome do Risco
+                    order: [[2, 'asc']]
                 });
 
-                // 5. Busca Global
-                const searchInput = document.getElementById('riscoSearch');
-                searchInput.addEventListener('input', e => {
-                    table.search(e.target.value).draw();
-                });
+                // Busca e Filtros
+                document.getElementById('riscoSearch').addEventListener('input', e => table.search(e.target.value).draw());
+                document.getElementById('tipoFilter').addEventListener('change', function () { table.columns(1).search(this.value).draw(); });
 
-                // 6. Filtro por Tipo (Coluna 1)
-                document.getElementById('tipoFilter').addEventListener('change', function () {
-                    table.columns(1).search(this.value).draw();
-                });
-
-                // 7. Lógica de Inativar (Botão de Delete em Massa)
+                // ============================================================
+                // 3. LÓGICA DE INATIVAR COM TRATAMENTO DE ERRO 403
+                // ============================================================
                 const deleteBtn = document.getElementById('deleteBtnRiscos');
 
                 table.on('select deselect', function () {
@@ -233,7 +238,6 @@
                 deleteBtn.addEventListener('click', () => {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
-
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
                         if (listaRiscos[index]) selectedIds.push(listaRiscos[index].id_risco);
@@ -258,6 +262,13 @@
                                     headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
+
+                                // === AQUI ESTÁ A MÁGICA PARA O INATIVAR ===
+                                if (response.status === 403) {
+                                    Swal.fire('Acesso Negado', 'Você não tem permissão para inativar registros.', 'warning');
+                                    return;
+                                }
+
                                 const data = await response.json();
 
                                 if (data.success) {
@@ -273,7 +284,7 @@
                 });
             });
 
-            // Inicializa TomSelect
+            // Inicializa TomSelect do Filtro
             document.querySelectorAll('.js-select').forEach(select => {
                 new TomSelect(select, { create: false, allowEmptyOption: true });
             });

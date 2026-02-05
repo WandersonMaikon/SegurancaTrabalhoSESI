@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Editar Risco</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Editar risco</h2>
+
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/risco" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Riscos</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Editar</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+
+                    <div id="alertNoPermission"
+                        class="hidden mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-3">
+                        <span class="icon-[lucide--lock] text-xl shrink-0 mt-0.5"></span>
+                        <div>
+                            <h4 class="font-bold text-sm">Modo Apenas Leitura</h4>
+                            <p class="text-sm mt-1">Você não tem permissão para editar este registro. Entre em contato
+                                com seu gestor para solicitar acesso.</p>
+                        </div>
+                    </div>
+
+                    <form id="formRisco" class="w-full">
+                        <input type="hidden" name="id_risco" value="<%= risco.id_risco %>">
+                        <input type="hidden" id="id_tabela_24" name="id_tabela_24"
+                            value="<%= risco.id_tabela_24 || '' %>">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6">
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do risco</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">
+                                            Edite as informações abaixo.
+                                        </p>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Código eSocial tabela 24</label>
+                                            <div class="relative">
+                                                <input id="codigo_esocial" name="codigo_esocial_visual" type="text"
+                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.2001"
+                                                    inputmode="numeric" autocomplete="off"
+                                                    value="<%= risco.codigo_esocial_visual || '' %>">
+
+                                                <button id="btnConsultarCodigo" type="button"
+                                                    class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
+                                                    <span class="icon-[lucide--search] text-lg me-2"></span>
+                                                    Consultar
+                                                </button>
+                                            </div>
+                                            <p id="codigoMsg" class="text-sm mt-2 hidden"></p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nome do risco</label>
+                                            <input id="nome_risco" name="nome_risco" type="text"
+                                                class="input h-11 w-full" placeholder="Nome do risco..." required
+                                                maxlength="255" value="<%= risco.nome_risco %>">
+                                            <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Tipo de risco</label>
+                                            <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required
+                                                data-selected="<%= risco.tipo_risco %>">
+                                                <option value="" disabled>Selecione...</option>
+                                                <option value="Físico">Físico</option>
+                                                <option value="Químico">Químico</option>
+                                                <option value="Biológico">Biológico</option>
+                                                <option value="Ergonômico">Ergonômico</option>
+                                                <option value="Mecânico">Mecânico</option>
+                                                <option value="Associação">Associação</option>
+                                                <option value="Outros">Outros</option>
+                                                <option value="Ausência de Risco">Ausência de Risco</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <a href="/risco"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 text-center pt-2">
+                                        Voltar
+                                    </a>
+
+                                    <button type="submit" id="btnSalvar"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
+                                        <span class="icon-[lucide--save] text-lg me-2"></span>
+                                        Salvar Alterações
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            const canEdit = "<%= (user.permissoes['riscos'] && (user.permissoes['riscos'].tudo || user.permissoes['riscos'].pode_editar)) ? 'true' : 'false' %>";
+        </script>
+
+        <script>
+            // Inicializa TomSelect
+            let tomSelectTipo;
+            document.querySelectorAll('.js-select').forEach(select => {
+                tomSelectTipo = new TomSelect(select, { create: false, allowEmptyOption: true });
+
+                // --- SELECIONAR O VALOR QUE VEIO DO BACKEND ---
+                const selectedVal = select.getAttribute('data-selected');
+                if (selectedVal) {
+                    tomSelectTipo.setValue(selectedVal);
+                }
+            });
+
+            const formRisco = document.getElementById("formRisco");
+            const elCodigo = document.getElementById("codigo_esocial");
+            const elNome = document.getElementById("nome_risco");
+            const elIdTabela = document.getElementById("id_tabela_24");
+            const elMsg = document.getElementById("codigoMsg");
+            const btnConsultar = document.getElementById("btnConsultarCodigo");
+            const btnSalvar = document.getElementById("btnSalvar");
+            const alertNoPermission = document.getElementById("alertNoPermission");
+
+            // --- LÓGICA DE BLOQUEIO POR PERMISSÃO ---
+            if (!canEdit) {
+                // 1. Mostra o alerta
+                alertNoPermission.classList.remove('hidden');
+
+                // 2. Desabilita todos os inputs do form
+                const inputs = formRisco.querySelectorAll('input, select, button');
+                inputs.forEach(el => {
+                    el.disabled = true;
+                    el.classList.add('cursor-not-allowed', 'opacity-60');
+                });
+
+                // 3. Remove o botão de salvar do DOM para evitar submissão forçada
+                if (btnSalvar) btnSalvar.remove();
+
+                // 4. Bloqueia o TomSelect especificamente
+                if (tomSelectTipo) tomSelectTipo.disable();
+            }
+
+            // --- FUNÇÃO AUXILIAR: LIMITAR PALAVRAS ---
+            function limitarPalavras(texto, max) {
+                if (!texto) return "";
+                const palavras = texto.trim().split(/\s+/);
+                if (palavras.length > max) {
+                    return palavras.slice(0, max).join(" ");
+                }
+                return texto;
+            }
+
+            elNome.addEventListener("input", function () {
+                const textoAtual = this.value;
+                const textoLimitado = limitarPalavras(textoAtual, 9);
+                if (textoAtual !== textoLimitado) {
+                    this.value = textoLimitado;
+                }
+            });
+
+            // --- FUNÇÕES DE CONTROLE VISUAL ---
+            function lockFields() {
+                elNome.setAttribute("readonly", "true");
+                elNome.classList.add("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
+                if (tomSelectTipo) {
+                    tomSelectTipo.disable();
+                    tomSelectTipo.wrapper.classList.add("opacity-60", "cursor-not-allowed");
+                }
+            }
+
+            function unlockFields() {
+                // Só destrava se o usuário tiver permissão global de edição
+                if (!canEdit) return;
+
+                elNome.removeAttribute("readonly");
+                elNome.classList.remove("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
+                if (tomSelectTipo) {
+                    tomSelectTipo.enable();
+                    tomSelectTipo.wrapper.classList.remove("opacity-60", "cursor-not-allowed");
+                }
+            }
+
+            function setMsg(type, text) {
+                elMsg.classList.remove("hidden", "text-red-500", "text-green-600", "text-sky-500");
+                elMsg.textContent = text;
+                if (type === "error") elMsg.classList.add("text-red-500");
+                else if (type === "success") elMsg.classList.add("text-green-600");
+                else if (type === "info") elMsg.classList.add("text-sky-500");
+                else elMsg.classList.add("hidden");
+            }
+
+            // --- ESTADO INICIAL (CRÍTICO PARA EDIÇÃO) ---
+            if (elIdTabela.value) {
+                lockFields();
+                if (canEdit) setMsg("success", "Risco vinculado ao eSocial.");
+            }
+
+            // --- MÁSCARA INTELIGENTE ---
+            elCodigo.addEventListener("input", function () {
+                let v = this.value.replace(/\D/g, "");
+                if (v.length > 8) v = v.slice(0, 8);
+                if (v.length > 4) v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1.$2.$3");
+                else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
+                this.value = v;
+
+                setMsg("clear");
+                unlockFields();
+            });
+
+            // --- CONSULTA ---
+            async function runConsulta() {
+                // Bloqueia se não tiver permissão
+                if (!canEdit) return;
+
+                const codigo = elCodigo.value;
+                if (!codigo) { setMsg("error", "Informe o código eSocial."); return; }
+                if (codigo.length < 9) { setMsg("error", "Formato inválido."); return; }
+
+                btnConsultar.disabled = true;
+                btnConsultar.textContent = "Buscando...";
+                setMsg("info", "Consultando tabela...");
+                unlockFields();
+
+                try {
+                    const response = await fetch(`/risco/buscar-esocial/${codigo}`);
+                    const json = await response.json();
+
+                    if (json.success) {
+                        const dados = json.data;
+                        elNome.value = limitarPalavras(dados.descricao, 9);
+                        elIdTabela.value = dados.id_tabela_24;
+                        if (tomSelectTipo) tomSelectTipo.setValue(dados.grupo);
+                        lockFields();
+                        setMsg("success", "Código Tabela 24 encontrado!");
+                    } else {
+                        setMsg("error", "Código não encontrado na Tabela 24.");
+                        elIdTabela.value = ""; // Limpa ID se não achou
+                    }
+                } catch (error) {
+                    console.error(error);
+                    setMsg("error", "Erro ao comunicar com o servidor.");
+                } finally {
+                    btnConsultar.disabled = false;
+                    btnConsultar.innerHTML = `<span class="icon-[lucide--search] text-lg me-2"></span> Consultar`;
+                }
+            }
+
+            btnConsultar.addEventListener("click", runConsulta);
+            elCodigo.addEventListener("keydown", (e) => {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    runConsulta();
+                }
+            });
+
+            // --- ENVIO COM SWEETALERT (ROTA DE EDIÇÃO) ---
+            if (formRisco) {
+                formRisco.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    if (!canEdit) return; // Bloqueio final
+
+                    // Destrava TomSelect para o FormData pegar o valor
+                    if (tomSelectTipo) tomSelectTipo.enable();
+
+                    const textoOriginal = btnSalvar.innerHTML;
+                    btnSalvar.disabled = true;
+                    btnSalvar.innerHTML = `<span class="animate-spin h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full"></span> Salvando...`;
+
+                    const formData = new FormData(formRisco);
+                    const dados = Object.fromEntries(formData);
+
+                    try {
+                        const response = await fetch('/risco/editar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(dados)
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                title: 'Atualizado!',
+                                text: result.message,
+                                icon: 'success',
+                                confirmButtonColor: '#10b981',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/risco';
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Erro!',
+                                text: result.message || 'Erro ao atualizar.',
+                                icon: 'error',
+                                confirmButtonColor: '#ef4444'
+                            });
+                            btnSalvar.disabled = false;
+                            btnSalvar.innerHTML = textoOriginal;
+                            if (elIdTabela.value) lockFields();
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        Swal.fire({
+                            title: 'Erro de conexão',
+                            text: 'Não foi possível comunicar com o servidor.',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                        if (elIdTabela.value) lockFields();
+                    }
+                });
+            }
+        </script>
+</body>
+
+</html>
