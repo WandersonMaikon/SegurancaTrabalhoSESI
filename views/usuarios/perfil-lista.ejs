@@ -261,15 +261,11 @@
 
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
-
                         if (index !== null && listaPerfis[index]) {
                             const perfil = listaPerfis[index];
-
-                            // VERIFICAÇÃO: Se já for 0 (Inativo), adiciona na lista de erro
                             if (Number(perfil.ativo) === 0) {
                                 perfisJaInativos.push(perfil.nome_perfil);
                             } else {
-                                // Se for 1 (Ativo), adiciona na lista para enviar
                                 if (perfil && perfil.id_perfil) {
                                     selectedIds.push(perfil.id_perfil);
                                 }
@@ -277,7 +273,6 @@
                         }
                     });
 
-                    // SE TIVER ALGUÉM JÁ INATIVO, PARA TUDO E AVISA
                     if (perfisJaInativos.length > 0) {
                         Swal.fire({
                             icon: 'warning',
@@ -299,48 +294,36 @@
                         showCancelButton: true,
                         confirmButtonText: 'Sim, inativar',
                         cancelButtonText: 'Cancelar',
-                        customClass: {
-                            confirmButton: 'btn bg-amber-500 text-white hover:bg-amber-600 px-6 py-2 rounded-lg',
-                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
-                        },
-                        buttonsStyling: false
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#3f3f46'
                     }).then(async (result) => {
                         if (!result.isConfirmed) return;
 
                         try {
                             const response = await fetch('/perfil/inativar-multiplos', {
                                 method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json' // <--- CORREÇÃO CRÍTICA
+                                },
                                 body: JSON.stringify({ ids: selectedIds })
                             });
+
+                            // TRATAMENTO DE BLOQUEIO
+                            if (response.status === 403) {
+                                Swal.fire('Acesso Negado', 'Você não tem permissão para inativar perfis.', 'warning');
+                                return;
+                            }
 
                             const data = await response.json();
 
                             if (response.ok && data.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Sucesso!',
-                                    text: data.message,
-                                    confirmButtonText: 'OK',
-                                    customClass: { confirmButton: 'btn bg-primary text-white px-6 py-2 rounded-lg' },
-                                    buttonsStyling: false
-                                }).then(() => {
-                                    window.location.reload();
-                                });
+                                Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
                             } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Atenção',
-                                    text: data.message || "Erro desconhecido"
-                                });
+                                Swal.fire('Erro', data.message || "Erro desconhecido", 'error');
                             }
                         } catch (error) {
-                            console.error(error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Erro!',
-                                text: 'Não foi possível conectar ao servidor.'
-                            });
+                            Swal.fire('Erro', 'Não foi possível conectar ao servidor.', 'error');
                         }
                     });
                 });

@@ -15,8 +15,15 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 1. Busca usuário no banco
-        const [rows] = await db.query("SELECT * FROM usuario WHERE email = ?", [email]);
+        // 1. Busca usuário E O NOME DO PERFIL no banco
+        // (Adicionamos o JOIN e o p.nome_perfil)
+        const [rows] = await db.query(`
+            SELECT u.*, p.nome_perfil 
+            FROM usuario u 
+            LEFT JOIN perfil p ON u.id_perfil = p.id_perfil 
+            WHERE u.email = ?
+        `, [email]);
+        
         const usuario = rows[0];
 
         // Verifica se o usuário existe
@@ -39,7 +46,7 @@ router.post("/login", async (req, res) => {
             return res.redirect("/login");
         }
 
-        // 3. BUSCAR PERMISSÕES DO PERFIL (A Mágica acontece aqui)
+        // 3. BUSCAR PERMISSÕES DO PERFIL
         const [perms] = await db.query(`
             SELECT m.chave_sistema, pp.pode_ver, pp.pode_criar, pp.pode_editar, pp.pode_inativar, pp.tudo
             FROM perfil_permissao pp
@@ -47,8 +54,7 @@ router.post("/login", async (req, res) => {
             WHERE pp.id_perfil = ?
         `, [usuario.id_perfil]);
 
-        // Transforma o array do banco em um Objeto fácil de usar no EJS
-        // Ex: permissoes['clientes'].ver = true
+        // Transforma o array do banco em um Objeto fácil
         const permissoesObj = {};
 
         perms.forEach(p => {
@@ -56,19 +62,31 @@ router.post("/login", async (req, res) => {
                 ver: p.pode_ver === 1 || p.tudo === 1,
                 criar: p.pode_criar === 1 || p.tudo === 1,
                 editar: p.pode_editar === 1 || p.tudo === 1,
-                inativar: p.inativar === 1 || p.tudo === 1
+                // CORREÇÃO AQUI: O banco retorna 'pode_inativar', não 'inativar'
+                inativar: p.pode_inativar === 1 || p.tudo === 1, 
+                
+                // Mantemos as chaves originais também para garantir compatibilidade
+                pode_ver: p.pode_ver,
+                pode_criar: p.pode_criar,
+                pode_editar: p.pode_editar,
+                pode_inativar: p.pode_inativar,
+                tudo: p.tudo
             };
         });
 
         // 4. Salva tudo na sessão
         req.session.user = {
-            id_usuario: usuario.id_usuario, // UUID
-            id: usuario.id_usuario,         // Mantendo compatibilidade se usar .id em algum lugar
+            id_usuario: usuario.id_usuario,
+            id: usuario.id_usuario,
             nome: usuario.nome_completo,
             email: usuario.email,
             id_unidade: usuario.id_unidade,
             id_perfil: usuario.id_perfil,
-            permissoes: permissoesObj       // <--- Objeto de permissões salvo na sessão
+            
+            // CORREÇÃO CRUCIAL: Salvando o nome do perfil para o Bypass de Admin funcionar
+            nome_perfil: usuario.nome_perfil, 
+
+            permissoes: permissoesObj
         };
 
         return res.redirect("/dashboard");

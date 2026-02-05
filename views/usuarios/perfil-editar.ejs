@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raven - Editar Perfil</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
+    <style>
+        .checkbox-custom,
+        .master-checker {
+            appearance: none;
+            width: 1.15em;
+            height: 1.15em;
+            border: 1px solid #e4e4e7;
+            border-radius: 0.25rem;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+        }
+
+        .checkbox-custom:checked::before,
+        .master-checker:checked::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            box-shadow: inset 1em 1em var(--primary-color, #0AA34A);
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+    </style>
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2 text-zinc-800 dark:text-white font-bold">Editar Perfil</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard" class="text-zinc-400 hover:text-zinc-700">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/perfil" class="text-zinc-400 hover:text-zinc-700">Perfis</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Editar</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-8 px-4 pb-8">
+
+                    <div id="alertNoPermission"
+                        class="hidden mb-6 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 flex items-start gap-3">
+                        <span class="icon-[lucide--lock] text-xl shrink-0 mt-0.5"></span>
+                        <div>
+                            <h4 class="font-bold text-sm">Modo Apenas Leitura</h4>
+                            <p class="text-sm mt-1">Você não tem permissão para editar este perfil.</p>
+                        </div>
+                    </div>
+
+                    <form id="form-editar-perfil">
+                        <input type="hidden" id="id_perfil" value="<%= perfil.id_perfil %>">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do
+                                            Perfil</label>
+                                        <input type="text" id="perfilNome" required value="<%= perfil.nome_perfil %>"
+                                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-4 py-2.5 outline-none focus:border-primary">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Descrição</label>
+                                        <input type="text" id="perfilDescricao" value="<%= perfil.descricao %>"
+                                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-4 py-2.5 outline-none">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                                <div class="overflow-x-auto">
+                                    <table class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                                        <thead>
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                                                <th
+                                                    class="py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider pl-8 text-left">
+                                                    Módulo</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
+                                                    Ver</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
+                                                    Criar</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
+                                                    Editar</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
+                                                    Inativar</th>
+                                                <th
+                                                    class="px-4 py-5 text-center text-xs font-bold text-primary uppercase bg-primary/5">
+                                                    Tudo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-zinc-50 dark:divide-zinc-800/50">
+
+                                            <% if (typeof modulos !=='undefined' ) { %>
+                                                <% modulos.forEach(function(mod) { let perm=permissoes.find(p=>
+                                                    p.id_modulo === mod.id_modulo) || {};
+                                                    %>
+                                                    <tr>
+                                                        <td class="pl-8 py-4">
+                                                            <div
+                                                                class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
+                                                                <span class="icon-[lucide--box] text-zinc-400"></span>
+                                                                <%= mod.nome_modulo %>
+                                                            </div>
+                                                        </td>
+                                                        <td class="px-4 py-4 text-center">
+                                                            <input type="checkbox"
+                                                                name="permissoes[<%= mod.id_modulo %>][ver]"
+                                                                class="checkbox-custom" <%=(perm.pode_ver==1)
+                                                                ? 'checked' : '' %>>
+                                                        </td>
+                                                        <td class="px-4 py-4 text-center">
+                                                            <input type="checkbox"
+                                                                name="permissoes[<%= mod.id_modulo %>][criar]"
+                                                                class="checkbox-custom" <%=(perm.pode_criar==1)
+                                                                ? 'checked' : '' %>>
+                                                        </td>
+                                                        <td class="px-4 py-4 text-center">
+                                                            <input type="checkbox"
+                                                                name="permissoes[<%= mod.id_modulo %>][editar]"
+                                                                class="checkbox-custom" <%=(perm.pode_editar==1)
+                                                                ? 'checked' : '' %>>
+                                                        </td>
+                                                        <td class="px-4 py-4 text-center">
+                                                            <input type="checkbox"
+                                                                name="permissoes[<%= mod.id_modulo %>][inativar]"
+                                                                class="checkbox-custom" <%=(perm.pode_inativar==1)
+                                                                ? 'checked' : '' %>>
+                                                        </td>
+                                                        <td class="px-4 py-4 text-center bg-primary/5">
+                                                            <input type="checkbox"
+                                                                name="permissoes[<%= mod.id_modulo %>][tudo]"
+                                                                class="master-checker" <%=(perm.tudo==1) ? 'checked'
+                                                                : '' %>>
+                                                        </td>
+                                                    </tr>
+                                                    <% }); %>
+                                                        <% } %>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div
+                                    class="p-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3 bg-zinc-50/50 dark:bg-zinc-900">
+                                    <a href="/perfil"
+                                        class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors text-sm font-medium">Voltar</a>
+                                    <button type="submit" id="btnSalvar"
+                                        class="btn px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary-deep transition-colors shadow-lg shadow-primary/20 text-sm font-medium">Salvar
+                                        Alterações</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            // ============================================================
+            // 1. RECUPERAÇÃO SEGURA DE DADOS E PERMISSÕES
+            // ============================================================
+
+            // Dados do usuário logado (Injetados via EJS)
+            const userEmail = "<%= user.email %>";
+            const userPerfil = "<%= user.nome_perfil %>";
+
+            // Permissões específicas do módulo 'perfis'. 
+            // Usamos <%- %> com JSON.stringify para passar o objeto ou vazio {}
+            const permPerfil = "<% - JSON.stringify(user.permissoes['perfis'] || {}) %>";
+
+            let canEdit = false;
+
+            // 2. LÓGICA DE VALIDAÇÃO (Feita no Cliente para evitar erros de EJS)
+
+            // A. Checa se é Admin Supremo
+            if (userEmail === 'admin@admin.com' || userPerfil === 'Administrador' || userPerfil === 'Super Admin') {
+                canEdit = true;
+            }
+            // B. Checa permissão específica
+            else {
+                // Converte para booleano caso venha 1 ou "1"
+                const podeEditar = (permPerfil.pode_editar == 1 || permPerfil.pode_editar === true);
+                const temTudo = (permPerfil.tudo == 1 || permPerfil.tudo === true);
+
+                if (podeEditar || temTudo) {
+                    canEdit = true;
+                }
+            }
+
+            console.log("Status de Permissão (canEdit):", canEdit);
+
+            // ============================================================
+            // 3. BLOQUEIO VISUAL
+            // ============================================================
+            const formPerfil = document.getElementById('form-editar-perfil');
+            const btnSalvar = document.getElementById('btnSalvar');
+            const alertNoPermission = document.getElementById('alertNoPermission');
+
+            if (!canEdit) {
+                if (alertNoPermission) alertNoPermission.classList.remove('hidden');
+
+                // Desabilita inputs e botões
+                const inputs = formPerfil.querySelectorAll('input, button');
+                inputs.forEach(el => {
+                    el.disabled = true;
+                    el.classList.add('opacity-60', 'cursor-not-allowed');
+                });
+
+                // Remove botão de salvar
+                if (btnSalvar) btnSalvar.remove();
+            }
+
+            // ============================================================
+            // 4. LÓGICA DO CHECKBOX "TUDO"
+            // ============================================================
+            document.querySelectorAll('.master-checker').forEach(master => {
+                master.addEventListener('change', function () {
+                    const row = this.closest('tr');
+                    const checkboxes = row.querySelectorAll('.checkbox-custom');
+                    checkboxes.forEach(cb => {
+                        // Só marca se o checkbox não estiver desabilitado (caso visual)
+                        if (!cb.disabled) cb.checked = this.checked;
+                    });
+                });
+            });
+
+            // ============================================================
+            // 5. ENVIO DO FORMULÁRIO (UPDATE)
+            // ============================================================
+            formPerfil.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Bloqueio extra no envio
+                if (!canEdit) return;
+
+                const payload = {
+                    id_perfil: document.getElementById('id_perfil').value,
+                    nome: document.getElementById('perfilNome').value,
+                    descricao: document.getElementById('perfilDescricao').value || '',
+                    permissoes: {}
+                };
+
+                const rows = document.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const masterInput = row.querySelector('.master-checker');
+                    if (masterInput) {
+                        const match = masterInput.name.match(/permissoes\[(.*?)\]/);
+                        if (match && match[1]) {
+                            const idModulo = match[1];
+
+                            const isChecked = (tipo) => {
+                                const el = row.querySelector(`input[name="permissoes[${idModulo}][${tipo}]"]`);
+                                return (el && el.checked) ? 1 : 0;
+                            };
+
+                            payload.permissoes[idModulo] = {
+                                ver: isChecked('ver'),
+                                criar: isChecked('criar'),
+                                editar: isChecked('editar'),
+                                inativar: isChecked('inativar'),
+                                tudo: masterInput.checked ? 1 : 0
+                            };
+                        }
+                    }
+                });
+
+                const textoOriginal = btnSalvar.innerHTML;
+                btnSalvar.disabled = true;
+                btnSalvar.innerHTML = 'Salvando...';
+
+                try {
+                    const response = await fetch('/perfil/editar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    // Tratamento de bloqueio 403
+                    if (response.status === 403) {
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para salvar edições.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        Swal.fire({
+                            icon: 'success', title: 'Sucesso!', text: 'Perfil atualizado.',
+                            showConfirmButton: false, timer: 1500
+                        }).then(() => window.location.href = '/perfil');
+                    } else {
+                        Swal.fire('Erro', result.message || 'Erro ao salvar.', 'error');
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = textoOriginal;
+                    }
+
+                } catch (error) {
+                    console.error("Erro na requisição:", error);
+                    Swal.fire('Erro', 'O servidor não respondeu.', 'error');
+                    btnSalvar.disabled = false;
+                    btnSalvar.innerHTML = textoOriginal;
+                }
+            });
+        </script>
+</body>
+
+</html>
