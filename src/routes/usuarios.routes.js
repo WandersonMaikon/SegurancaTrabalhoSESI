@@ -97,7 +97,7 @@ router.get("/novo",
                 perfis: perfis,
                 unidades: unidades,
                 ehAdmin: ehAdmin,
-                currentPage: 'usuario-novo'
+                currentPage: 'usuarios'
             });
 
         } catch (error) {

@@ -128,7 +128,8 @@
                     if (mod) params.append('modulo', mod);
 
                     try {
-                        const response = await fetch(`/usuarios/atividades/api/listar?${params.toString()}`);
+                        // CORREÇÃO AQUI: A rota no server.js é '/atividades', então removemos o '/usuarios' da frente
+                        const response = await fetch(`/atividades/api/listar?${params.toString()}`);
                         const json = await response.json();
 
                         if (json.success) {
@@ -138,7 +139,7 @@
                         }
                     } catch (error) {
                         console.error(error);
-                        timelineContainer.innerHTML = '<p class="text-center text-zinc-400">Falha na conexão.</p>';
+                        timelineContainer.innerHTML = '<p class="text-center text-zinc-400">Falha na conexão ou rota inválida.</p>';
                     }
                 }
 
@@ -158,11 +159,8 @@
                     let lastDate = '';
 
                     logs.forEach(log => {
-                        // Agrupamento por data (Hoje, Ontem, Data Completa)
                         const logDate = new Date(log.data_full).toLocaleDateString();
                         const hoje = new Date().toLocaleDateString();
-
-                        // Lógica para Ontem
                         const ontemDate = new Date();
                         ontemDate.setDate(ontemDate.getDate() - 1);
                         const ontem = ontemDate.toLocaleDateString();
@@ -172,7 +170,6 @@
                             if (logDate === hoje) labelDate = "Hoje";
                             else if (logDate === ontem) labelDate = "Ontem";
 
-                            // Fecha UL anterior se não for o primeiro
                             if (lastDate !== '') html += '</ul><div class="my-5"></div>';
 
                             html += `<span class="font-semibold block mb-2 text-muted text-sm uppercase tracking-wider">${labelDate}</span>`;
@@ -180,10 +177,8 @@
                             lastDate = logDate;
                         }
 
-                        // Avatar Placeholder (Iniciais)
                         const iniciais = log.usuario_nome.substring(0, 2).toUpperCase();
 
-                        // Item da Timeline
                         html += `
                         <li class="timeline-item">
                             <div class="timeline-item-wrapper">
@@ -216,7 +211,7 @@
                     `;
                     });
 
-                    html += '</ul>'; // Fecha a última UL
+                    html += '</ul>';
                     timelineContainer.innerHTML = html;
                 }
 
@@ -226,16 +221,14 @@
                     fetchLogs();
                 });
 
-                // Auto Refresh
                 autoRefreshToggle.addEventListener('change', (e) => {
                     if (e.target.checked) {
-                        refreshInterval = setInterval(fetchLogs, 30000); // 30 segundos
+                        refreshInterval = setInterval(fetchLogs, 30000);
                     } else {
                         clearInterval(refreshInterval);
                     }
                 });
 
-                // Carregamento Inicial
                 fetchLogs();
             });
         </script>

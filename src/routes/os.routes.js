@@ -34,7 +34,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
 
         res.render("servicos/os-lista", {
             user: req.session.user,
-            currentPage: 'ordem-servicos',
+            currentPage: 'ordem-servico',
             ordensJson: JSON.stringify(ordens),
             ehAdmin: ehAdmin
         });
@@ -92,7 +92,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
 
         res.render("servicos/os-form", {
             user: req.session.user,
-            currentPage: 'ordem-servicos',
+            currentPage: 'ordem-servico',
             clientes: clientes,
             servicos: servicos,
             vinculosJson: JSON.stringify(vinculos)
@@ -215,7 +215,7 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
 
         res.render("servicos/os-ver", {
             user: req.session.user,
-            currentPage: 'ordem-servicos',
+            currentPage: 'ordem-servico',
             os: ordem,
             itens: itens
         });

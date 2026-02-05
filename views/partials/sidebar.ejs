@@ -1,4 +1,3 @@
-<!-- Sidebar -->
 <aside
   class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
 
@@ -9,13 +8,11 @@
           class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl text-white shrink-0 font-normal">
           <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 100 100" role="img"
             aria-label="Segurança do Trabalho">
-            <!-- Ring -->
             <circle cx="50" cy="50" r="42" fill="none" stroke="#0AA34A" stroke-width="12" />
-            <!-- Cross -->
             <path fill="#0AA34A" d="M 44 22 H 56 V 44 H 78 V 56 H 56 V 78 H 44 V 56 H 22 V 44 H 44 Z" />
           </svg>
         </span>
-        <h5 class="text-2xl ms-3 logo-text font-display">Raven</h5>
+        <h5 class="text-2xl ms-3 logo-text font-display">ProS</h5>
       </a>
 
       <button id="isSidebarMini"
@@ -31,7 +28,6 @@
         <span class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">Visão
           geral</span>
 
-        <!-- DASHBOARD (Geralmente liberado, mas se tiver módulo 'dashboard', usa ele) -->
         <% if (typeof can==='function' && can('dashboard', 'ver' )) { %>
           <a href="/dashboard" class="sidebar-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
             <span class="sidebar-icon"><span class="icon-[lucide--file-chart-column]"></span></span>
@@ -39,7 +35,6 @@
           </a>
           <% } %>
 
-            <!-- CLIENTES -->
             <% if (typeof can==='function' && can('clientes', 'ver' )) { %>
               <div class="static">
                 <a href="/clientes" class="sidebar-link <%= currentPage === 'clientes' ? 'active' : '' %>">
@@ -49,7 +44,6 @@
               </div>
               <% } %>
 
-                <!-- SERVIÇOS -->
                 <% if (typeof can==='function' && can('servicos', 'ver' )) { %>
                   <a href="/servicos" class="sidebar-link <%= currentPage === 'servicos' ? 'active' : '' %>">
                     <span class="sidebar-icon"><span class="icon-[lucide--baggage-claim]"></span></span>
@@ -57,25 +51,22 @@
                   </a>
                   <% } %>
 
-                    <!-- ORDEM DE SERVIÇO -->
                     <% if (typeof can==='function' && can('ordens_servico', 'ver' )) { %>
                       <a href="/ordem-servico"
-                        class="sidebar-link <%= currentPage === 'ordemservicos' ? 'active' : '' %>">
+                        class="sidebar-link <%= ['ordem-servico', 'os', 'ordemservicos', 'ordens_servico'].includes(currentPage) ? 'active' : '' %>">
                         <span class="sidebar-icon"><span class="icon-[lucide--briefcase-business]"></span></span>
                         <span class="sidebar-text">Ordem de serviço</span>
                       </a>
                       <% } %>
 
-                        <!-- RELATÓRIOS -->
                         <% if (typeof can==='function' && can('relatorios', 'ver' )) { %>
                           <a href="/relatorios"
-                            class="sidebar-link <%= currentPage === 'relatorios' ? 'active' : '' %>">
+                            class="sidebar-link <%= currentPage === 'relatorio' || currentPage === 'relatorios' ? 'active' : '' %>">
                             <span class="sidebar-icon"><span class="icon-[lucide--file-chart-line]"></span></span>
                             <span class="sidebar-text">Relatórios</span>
                           </a>
                           <% } %>
 
-                            <!-- SCRUM BOARD -->
                             <% if (typeof can==='function' && can('scrum', 'ver' )) { %>
                               <a href="/scrum-board"
                                 class="sidebar-link <%= currentPage === 'scrum-board' ? 'active' : '' %>">
@@ -84,12 +75,9 @@
                               </a>
                               <% } %>
 
-                                <!-- GRUPO USUÁRIOS -->
-                                <!-- Lógica: Mostra o grupo se tiver permissão no módulo 'usuarios' -->
                                 <% if (typeof can==='function' && can('usuarios', 'ver' )) { %>
-                                  <% const usuariosPages=['usuario', 'account_activty' , 'account_roles'
-                                    , 'account_pricing' ]; const isUsuariosSection=usuariosPages.includes(currentPage);
-                                    %>
+                                  <% const usuariosPages=['usuarios', 'usuario-novo' , 'atividades' , 'perfil' ]; const
+                                    isUsuariosSection=usuariosPages.includes(currentPage); %>
                                     <div class="static">
                                       <a data-bs-toggle="collapse" href="#cAccount"
                                         class="sidebar-link <%= isUsuariosSection ? 'active' : '' %>">
@@ -103,15 +91,15 @@
                                         class="collapse sidebar-collapse w-48 z-50 <%= isUsuariosSection ? 'show' : '' %>">
                                         <div class="py-1">
                                           <a href="/usuario"
-                                            class="sidebar-collapse-item <%= currentPage === 'usuario' ? 'active' : '' %>">
+                                            class="sidebar-collapse-item <%= (currentPage === 'usuario' || currentPage === 'usuario-novo') ? 'active' : '' %>">
                                             Lista de usuários
                                           </a>
                                           <a href="/atividades"
-                                            class="sidebar-collapse-item <%= currentPage === 'account_activty' ? 'active' : '' %>">
+                                            class="sidebar-collapse-item <%= currentPage === 'atividades' ? 'active' : '' %>">
                                             Registro de atividades
                                           </a>
                                           <a href="/perfil"
-                                            class="sidebar-collapse-item <%= currentPage === 'account_roles' ? 'active' : '' %>">
+                                            class="sidebar-collapse-item <%= currentPage === 'perfil' ? 'active' : '' %>">
                                             Perfis & Permissões
                                           </a>
                                         </div>
@@ -119,11 +107,10 @@
                                     </div>
                                     <% } %>
 
-                                      <!-- GRUPO CADASTROS -->
-                                      <!-- Lógica: Mostra o grupo se tiver permissão em QUALQUER um dos sub-itens (riscos, epis ou epcs) -->
                                       <% if (typeof can==='function' && (can('riscos', 'ver' ) || can('epis', 'ver' ) ||
                                         can('epcs', 'ver' ))) { %>
-                                        <% const cadastrosPages=['risco', 'epi' , 'epc' ]; const
+                                        <% const cadastrosPages=['risco', 'risco-novo' , 'epi' , 'epi-novo'
+                                          , 'epi-editar' , 'epc' , 'epc-novo' ]; const
                                           isCadastrosSection=cadastrosPages.includes(currentPage); %>
                                           <div class="static">
                                             <a data-bs-toggle="collapse" href="#cCadastros"
@@ -139,21 +126,21 @@
                                               <div class="py-1">
                                                 <% if (can('riscos', 'ver' )) { %>
                                                   <a href="/risco"
-                                                    class="sidebar-collapse-item <%= currentPage === 'risco' ? 'active' : '' %>">
+                                                    class="sidebar-collapse-item <%= (currentPage === 'risco' || currentPage === 'risco-novo') ? 'active' : '' %>">
                                                     Riscos
                                                   </a>
                                                   <% } %>
 
                                                     <% if (can('epis', 'ver' )) { %>
                                                       <a href="/epi"
-                                                        class="sidebar-collapse-item <%= currentPage === 'epi' ? 'active' : '' %>">
+                                                        class="sidebar-collapse-item <%= (currentPage === 'epi' || currentPage === 'epi-novo' || currentPage === 'epi-editar') ? 'active' : '' %>">
                                                         EPIs
                                                       </a>
                                                       <% } %>
 
                                                         <% if (can('epcs', 'ver' )) { %>
                                                           <a href="/epc"
-                                                            class="sidebar-collapse-item <%= currentPage === 'epc' ? 'active' : '' %>">
+                                                            class="sidebar-collapse-item <%= (currentPage === 'epc' || currentPage === 'epc-novo') ? 'active' : '' %>">
                                                             EPC
                                                           </a>
                                                           <% } %>
@@ -162,7 +149,6 @@
                                           </div>
                                           <% } %>
 
-                                            <!-- UNIDADES -->
                                             <% if (typeof can==='function' && can('unidades', 'ver' )) { %>
                                               <a href="/unidade"
                                                 class="sidebar-link <%= currentPage === 'unidade' ? 'active' : '' %>">

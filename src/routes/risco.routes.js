@@ -3,15 +3,16 @@ const router = express.Router();
 const db = require("../database/db");
 const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
+const registrarLog = require("../utils/logger");
 
-// Função auxiliar para verificar Admin (Reutilize se já tiver em um helper)
+// Função auxiliar para verificar Admin
 const verificarSeEhAdmin = (user) => {
     if (user.email === 'admin@admin.com') return true;
     if (user.nome_perfil === 'Administrador' || user.nome_perfil === 'Super Admin') return true;
     return false;
 };
 
-// --- LISTAR RISCOS (COM ISOLAMENTO) ---
+// --- LISTAR RISCOS ---
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -32,13 +33,10 @@ router.get("/", verificarAutenticacao, async (req, res) => {
 
         const params = [];
 
-        // LÓGICA DE ISOLAMENTO HÍBRIDO:
-        // Se NÃO for Admin, filtra: (Globais OU Da Minha Unidade)
         if (!ehAdmin) {
             query += ` AND (r.id_unidade IS NULL OR r.id_unidade = ?)`;
             params.push(idUnidadeUsuario);
         }
-        // Se for Admin, ele vê tudo (sem filtro de unidade), então não adicionamos cláusula AND extra.
 
         query += ` ORDER BY r.nome_risco ASC`;
 
@@ -60,12 +58,10 @@ router.get("/novo", verificarAutenticacao, (req, res) => {
     res.render("estoque/risco-form", { user: req.session.user, currentPage: 'risco-novo' });
 });
 
-// --- API: BUSCAR DADOS DO ESOCIAL (TABELA 24) - ACESSO GLOBAL ---
+// --- API: BUSCAR DADOS DO ESOCIAL ---
 router.get("/buscar-esocial/:codigo", verificarAutenticacao, async (req, res) => {
     try {
         const { codigo } = req.params;
-
-        // Tabela 24 é catálogo do governo, acesso livre para todos os autenticados
         const [rows] = await db.query(
             "SELECT id_tabela_24, grupo, descricao FROM tabela_24_esocial WHERE codigo = ?",
             [codigo]
@@ -76,14 +72,13 @@ router.get("/buscar-esocial/:codigo", verificarAutenticacao, async (req, res) =>
         } else {
             return res.json({ success: false, message: "Código não encontrado." });
         }
-
     } catch (error) {
         console.error("Erro na API eSocial:", error);
         return res.status(500).json({ success: false, message: "Erro no servidor." });
     }
 });
 
-// --- SALVAR NOVO RISCO ---
+// --- SALVAR NOVO RISCO (COM LOG) ---
 router.post("/novo", verificarAutenticacao, async (req, res) => {
     try {
         const { id_tabela_24, nome_risco, tipo_risco } = req.body;
@@ -95,22 +90,31 @@ router.post("/novo", verificarAutenticacao, async (req, res) => {
         }
 
         const idTabela = id_tabela_24 ? id_tabela_24 : null;
+        let idUnidadeParaSalvar = ehAdmin ? null : (userLogado.id_unidade || userLogado.unidade_id);
 
-        // LÓGICA DE ISOLAMENTO
-        let idUnidadeParaSalvar = null;
-
-        if (ehAdmin) {
-            idUnidadeParaSalvar = null;
-        } else {
-            idUnidadeParaSalvar = userLogado.id_unidade || userLogado.unidade_id;
-        }
-
-        await db.query(`
+        // 2. MUDANÇA: Usamos const [result] para pegar o ID gerado
+        const [result] = await db.query(`
             INSERT INTO risco (id_unidade, id_tabela_24, nome_risco, tipo_risco)
             VALUES (?, ?, ?, ?)
         `, [idUnidadeParaSalvar, idTabela, nome_risco, tipo_risco]);
 
-        // ALTERADO: Retorna JSON ao invés de redirect
+        // ============================================================
+        // 3. REGISTRAR LOG (O insertId pega o ID do auto_increment)
+        // ============================================================
+        await registrarLog({
+            id_unidade: userLogado.id_unidade || userLogado.unidade_id,
+            id_usuario: userLogado.id_usuario,
+            acao: 'INSERT',
+            tabela: 'risco',
+            id_registro: result.insertId, // ID do risco recém criado
+            dados_novos: {
+                nome: nome_risco,
+                tipo: tipo_risco,
+                esocial: idTabela ? 'Sim' : 'Não'
+            }
+        });
+        // ============================================================
+
         return res.json({ success: true, message: "Risco cadastrado com sucesso!" });
 
     } catch (error) {
@@ -119,7 +123,7 @@ router.post("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- INATIVAR MÚLTIPLOS RISCOS ---
+// --- INATIVAR MÚLTIPLOS RISCOS (COM LOG) ---
 router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;
@@ -137,23 +141,35 @@ router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
             return res.status(400).json({ success: false, message: "IDs inválidos." });
         }
 
-        // SEGURANÇA NA EXCLUSÃO:
-        // Admin pode inativar qualquer um.
-        // Usuário comum só pode inativar riscos DA PRÓPRIA UNIDADE.
-
         let sql = `UPDATE risco SET deleted_at = NOW() WHERE id_risco IN (${validIds.map(() => '?').join(',')})`;
         const params = [...validIds];
 
         if (!ehAdmin) {
-            // Adiciona cláusula extra para garantir que usuário não delete risco global ou de outra unidade
             sql += ` AND id_unidade = ?`;
             params.push(idUnidadeUsuario);
         }
 
-        const [result] = await db.query(sql, params);
+        await db.query(sql, params);
 
-        // Se usuário comum tentou deletar risco global, result.affectedRows será 0 ou menor que o esperado.
-        // Podemos tratar isso visualmente se quiser, mas a segurança está feita.
+        // ============================================================
+        // 4. REGISTRAR LOG (Loop para registrar cada exclusão)
+        // ============================================================
+        // Fazemos isso de forma assíncrona sem travar a resposta para o usuário (fire and forget)
+        // ou usamos Promise.all para garantir. Aqui vou usar Promise.all para ser seguro.
+
+        const promisesLog = validIds.map(async (idRisco) => {
+            return registrarLog({
+                id_unidade: idUnidadeUsuario,
+                id_usuario: userLogado.id_usuario,
+                acao: 'INATIVAR', // Ou 'DELETE'
+                tabela: 'risco',
+                id_registro: idRisco,
+                dados_novos: { status: 'Inativo/Excluído' }
+            });
+        });
+
+        await Promise.all(promisesLog);
+        // ============================================================
 
         return res.json({ success: true, message: "Operação concluída." });
     } catch (error) {
