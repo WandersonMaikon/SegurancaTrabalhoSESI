@@ -8,22 +8,17 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-    <!-- SweetAlert2 -->
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
 
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- Page css -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -34,16 +29,13 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page Header -->
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Perfis de Acesso</h2>
 
-                    <!-- Breadcrumbs -->
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/dashboard"
@@ -62,7 +54,6 @@
                     </ol>
                 </div>
 
-                <!-- Page Content -->
                 <div class="content flex-grow lg:px-4">
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
@@ -70,7 +61,6 @@
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
 
-                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="perfilSearch" id="perfilSearch"
@@ -104,7 +94,6 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
                             <table id="table_perfis" class="table-default w-full">
                                 <thead>
                                     <tr>
@@ -115,16 +104,15 @@
                                         <th class="text-nowrap">
                                             <div class="flex items-center">Descrição</div>
                                         </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Usuários Ativos</div>
+                                        <th class="text-nowrap text-center">
+                                            <div class="flex items-center justify-center">Usuários Ativos</div>
                                         </th>
-                                        <th class="text-nowrap">
-                                            <div class="flex items-center">Status</div>
+                                        <th class="text-nowrap text-center">
+                                            <div class="flex items-center justify-center">Status</div>
                                         </th>
-                                        <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        <th class="text-nowrap text-end" data-orderable="false">Ações</th>
                                     </tr>
                                 </thead>
-                                <!-- O CORPO DA TABELA ESTÁ VAZIO. O JAVASCRIPT VAI PREENCHER. -->
                                 <tbody id="tableBody"></tbody>
                             </table>
 
@@ -136,15 +124,12 @@
 
         </main>
 
-        <!-- ELEMENTO OCULTO: Guarda o JSON puro. -->
         <div id="dados-perfis-json" style="display: none;">
             <%= perfisJson %>
         </div>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
 
-        <!-- Page scripts -->
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
@@ -152,8 +137,30 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
+            // Pega as permissões do módulo 'perfis' da sessão do usuário
+        const permPerfil = "<% - JSON.stringify(user.permissoes && user.permissoes['perfis'] ? user.permissoes['perfis'] : {}) %>";
+
+            let canEdit = false;
+
+            // Lógica de Bypass (Admin) ou Permissão Específica
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+            } else {
+                // Verifica se tem permissão 'pode_editar' ou 'tudo'
+                if ((permPerfil.pode_editar == 1 || permPerfil.pode_editar === true) ||
+                    (permPerfil.tudo == 1 || permPerfil.tudo === true)) {
+                    canEdit = true;
+                }
+            }
+            console.log("Permissão de editar perfis:", canEdit);
+        </script>
+
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // 1. LER OS DADOS DO ELEMENTO OCULTO
+
+                // 2. LER OS DADOS DO ELEMENTO OCULTO
                 let listaPerfis = [];
                 try {
                     const divJson = document.getElementById('dados-perfis-json');
@@ -167,9 +174,7 @@
                     console.error("Erro ao processar JSON:", e);
                 }
 
-                console.log("Perfis carregados no JS:", listaPerfis);
-
-                // 2. GERAR O HTML DA TABELA VIA JAVASCRIPT
+                // 3. GERAR O HTML DA TABELA VIA JAVASCRIPT
                 const tbody = document.getElementById('tableBody');
 
                 if (listaPerfis.length === 0) {
@@ -193,16 +198,15 @@
                                     ${p.descricao || 'Sem descrição'}
                                 </span>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                                     ${p.total_usuarios} usuários
                                 </span>
                             </td>
-                            <td>${statusHtml}</td>
-                            <td>
-                                <div class="flex items-center gap-1 relative z-[1]">
-                                    <a href="/perfil/editar/${p.id_perfil}" role="tooltip" data-bs-toggle="tooltip"
-                                        data-bs-placement="top" class="btn !p-1.5 hover:!text-primary" data-bs-title="Editar">
+                            <td class="text-center">${statusHtml}</td>
+                            <td class="text-end">
+                                <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                    <a href="/perfil/editar/${p.id_perfil}" class="btn !p-1.5 hover:!text-primary btn-editar-link" title="Editar">
                                         <span class="icon-[lucide--edit] text-lg"></span>
                                     </a>
                                 </div>
@@ -212,7 +216,7 @@
                     });
                 }
 
-                // 3. INICIALIZAR DATATABLE (CONFIGURAÇÃO IGUAL A TELA DE SERVIÇOS)
+                // 4. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_perfis', {
                     lengthChange: false,
                     pageLength: 9,
@@ -222,14 +226,15 @@
                         {
                             orderable: false,
                             searchable: false,
-                            render: DataTable.render.select(), // IGUAL SERVIÇOS
+                            render: DataTable.render.select(),
                             targets: 0,
-                        }
+                        },
+                        { targets: [3, 4, 5], className: "text-center" }
                     ],
                     select: {
-                        style: 'os', // IGUAL SERVIÇOS
+                        style: 'os',
                         selector: 'td:first-child',
-                        headerCheckbox: false // IGUAL SERVIÇOS
+                        headerCheckbox: false
                     },
                     order: [[1, 'asc']],
                 });
@@ -244,16 +249,40 @@
                 const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
-                    inativarBtn.style.display = count > 0 ? "inline-block" : "none"; // IGUAL SERVIÇOS
+                    inativarBtn.style.display = count > 0 ? "inline-block" : "none";
                     if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
                 });
 
-                // Filtro de Status (coluna índice 4)
+                // Filtro de Status
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(4).search(this.value).draw();
                 });
 
-                // 4. AÇÃO DE INATIVAR (COM VERIFICAÇÃO DE STATUS)
+                // =========================================================================
+                // 5. INTERCEPTADOR DE CLIQUE NO BOTÃO EDITAR (O Segredo para "ficar preso")
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+                    // Verifica se o elemento clicado (ou pai) é o link de edição
+                    const link = e.target.closest('a[href^="/perfil/editar/"]');
+
+                    if (link) {
+                        // Se NÃO tiver permissão calculada lá no topo do script
+                        if (!canEdit) {
+                            e.preventDefault(); // <--- ISTO IMPEDE O REDIRECIONAMENTO
+
+                            // Mostra o alerta igual ao do Risco
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para acessar a tela de edição.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b', // Amber (igual risco)
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    }
+                });
+
+                // 6. AÇÃO DE INATIVAR MÚLTIPLOS
                 inativarBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
@@ -304,14 +333,18 @@
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'Accept': 'application/json' // <--- CORREÇÃO CRÍTICA
+                                    'Accept': 'application/json'
                                 },
                                 body: JSON.stringify({ ids: selectedIds })
                             });
 
-                            // TRATAMENTO DE BLOQUEIO
                             if (response.status === 403) {
-                                Swal.fire('Acesso Negado', 'Você não tem permissão para inativar perfis.', 'warning');
+                                Swal.fire({
+                                    title: 'Acesso Negado',
+                                    text: 'Você não tem permissão para inativar perfis.',
+                                    icon: 'warning',
+                                    confirmButtonColor: '#f59e0b'
+                                });
                                 return;
                             }
 
@@ -330,7 +363,6 @@
             });
         </script>
 
-        <!-- Select -->
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script>
             document.querySelectorAll('.js-select').forEach(select => {

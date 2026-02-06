@@ -75,8 +75,10 @@
                               </a>
                               <% } %>
 
-                                <% if (typeof can==='function' && can('usuarios', 'ver' )) { %>
-                                  <% const usuariosPages=['usuarios', 'usuario-novo' , 'atividades' , 'perfil' ]; const
+                                <% if (typeof can==='function' && (can('usuarios', 'ver' ) || can('atividades', 'ver' )
+                                  || can('perfis', 'ver' ))) { %>
+                                  <% const usuariosPages=['usuario', 'usuario-novo' , 'atividades' , 'perfil'
+                                    , 'perfil-novo' , 'perfil-editar' ]; const
                                     isUsuariosSection=usuariosPages.includes(currentPage); %>
                                     <div class="static">
                                       <a data-bs-toggle="collapse" href="#cAccount"
@@ -90,18 +92,26 @@
                                       <div data-bs-parent="#SidebarCollapseGroup" id="cAccount"
                                         class="collapse sidebar-collapse w-48 z-50 <%= isUsuariosSection ? 'show' : '' %>">
                                         <div class="py-1">
-                                          <a href="/usuario"
-                                            class="sidebar-collapse-item <%= (currentPage === 'usuario' || currentPage === 'usuario-novo') ? 'active' : '' %>">
-                                            Lista de usuários
-                                          </a>
-                                          <a href="/atividades"
-                                            class="sidebar-collapse-item <%= currentPage === 'atividades' ? 'active' : '' %>">
-                                            Registro de atividades
-                                          </a>
-                                          <a href="/perfil"
-                                            class="sidebar-collapse-item <%= currentPage === 'perfil' ? 'active' : '' %>">
-                                            Perfis & Permissões
-                                          </a>
+                                          <% if (can('usuarios', 'ver' )) { %>
+                                            <a href="/usuario"
+                                              class="sidebar-collapse-item <%= (currentPage === 'usuario' || currentPage === 'usuario-novo') ? 'active' : '' %>">
+                                              Lista de usuários
+                                            </a>
+                                            <% } %>
+
+                                              <% if (can('atividades', 'ver' )) { %>
+                                                <a href="/atividades"
+                                                  class="sidebar-collapse-item <%= currentPage === 'atividades' ? 'active' : '' %>">
+                                                  Registro de atividades
+                                                </a>
+                                                <% } %>
+
+                                                  <% if (can('perfis', 'ver' )) { %>
+                                                    <a href="/perfil"
+                                                      class="sidebar-collapse-item <%= (currentPage === 'perfil' || currentPage === 'perfil-novo' || currentPage === 'perfil-editar') ? 'active' : '' %>">
+                                                      Perfis & Permissões
+                                                    </a>
+                                                    <% } %>
                                         </div>
                                       </div>
                                     </div>
@@ -109,8 +119,8 @@
 
                                       <% if (typeof can==='function' && (can('riscos', 'ver' ) || can('epis', 'ver' ) ||
                                         can('epcs', 'ver' ))) { %>
-                                        <% const cadastrosPages=['risco', 'risco-novo' , 'epi' , 'epi-novo'
-                                          , 'epi-editar' , 'epc' , 'epc-novo' ]; const
+                                        <% const cadastrosPages=['risco', 'risco-novo' , 'risco-editar' , 'epi'
+                                          , 'epi-novo' , 'epi-editar' , 'epc' , 'epc-novo' , 'epc-editar' ]; const
                                           isCadastrosSection=cadastrosPages.includes(currentPage); %>
                                           <div class="static">
                                             <a data-bs-toggle="collapse" href="#cCadastros"
@@ -126,7 +136,7 @@
                                               <div class="py-1">
                                                 <% if (can('riscos', 'ver' )) { %>
                                                   <a href="/risco"
-                                                    class="sidebar-collapse-item <%= (currentPage === 'risco' || currentPage === 'risco-novo') ? 'active' : '' %>">
+                                                    class="sidebar-collapse-item <%= (currentPage === 'risco' || currentPage === 'risco-novo' || currentPage === 'risco-editar') ? 'active' : '' %>">
                                                     Riscos
                                                   </a>
                                                   <% } %>
@@ -140,7 +150,7 @@
 
                                                         <% if (can('epcs', 'ver' )) { %>
                                                           <a href="/epc"
-                                                            class="sidebar-collapse-item <%= (currentPage === 'epc' || currentPage === 'epc-novo') ? 'active' : '' %>">
+                                                            class="sidebar-collapse-item <%= (currentPage === 'epc' || currentPage === 'epc-novo' || currentPage === 'epc-editar') ? 'active' : '' %>">
                                                             EPC
                                                           </a>
                                                           <% } %>
