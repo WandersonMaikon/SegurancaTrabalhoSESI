@@ -166,14 +166,14 @@
 
                 const getRiskBadge = (tipo) => {
                     switch (tipo) {
-                        case 'Físico': return '<span class="badge bg-sky-500/10 text-sky-500">Físico</span>';
-                        case 'Químico': return '<span class="badge bg-amber-500/10 text-amber-500">Químico</span>';
-                        case 'Biológico': return '<span class="badge bg-emerald-500/10 text-emerald-500">Biológico</span>';
-                        case 'Ergonômico': return '<span class="badge bg-purple-500/10 text-purple-500">Ergonômico</span>';
-                        case 'Mecânico': return '<span class="badge bg-rose-500/10 text-rose-500">Mecânico</span>';
-                        case 'Associação': return '<span class="badge bg-indigo-500/10 text-indigo-500">Associação</span>';
+                        case 'Físico': return '<span class="badge bg-green-500/10 text-green-500">Físico</span>';
+                        case 'Químico': return '<span class="badge bg-red-500/10 text-red-500">Químico</span>';
+                        case 'Biológico': return '<span class="badge bg-yellow-600/10 text-yellow-600">Biológico</span>';
+                        case 'Ergonômico': return '<span class="badge bg-yellow-500/10 text-yellow-500">Ergonômico</span>';
+                        case 'Mecânico': return '<span class="badge bg-sky-500/10 text-sky-500">Mecânico</span>';
+                        case 'Associação': return '<span class="badge bg-zinc-500/10 text-zinc-500">Associação</span>';
                         case 'Outros': return '<span class="badge bg-zinc-500/10 text-zinc-500">Outros</span>';
-                        case 'Ausência de Risco': return '<span class="badge bg-teal-500/10 text-teal-500">Ausência</span>';
+                        case 'Ausência de Risco': return '<span class="badge bg-slate-500/10 text-slate-500">Ausência</span>';
                         default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo}</span>`;
                     }
                 };

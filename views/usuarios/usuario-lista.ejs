@@ -7,7 +7,6 @@
     <title>Raven - Gestão de Usuários</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <!-- CSS -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -17,7 +16,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
 
-    <!-- DataTables & Plugins -->
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -50,11 +48,9 @@
                     <div class="grid grid-cols-1 px-4">
                         <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
-                            <!-- Toolbar -->
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
 
-                                <!-- Search -->
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="userSearch" id="userSearch"
@@ -65,13 +61,11 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <!-- Botão Inativar (Oculto inicialmente) -->
                                     <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
                                         style="display: none;">
                                         Inativar Selecionados
                                     </button>
 
-                                    <!-- Filtro de Status -->
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
                                             <option value="" selected>Todos os Status</option>
@@ -80,10 +74,8 @@
                                         </select>
                                     </div>
 
-                                    <!-- Botões de Ação -->
                                     <div class="flex items-center gap-2">
                                         <div class="relative">
-                                            
                                             <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
                                                 <a href="#!" class="dropdown-item"><span
                                                         class="icon-[lucide--copy] dropdown-icon"></span> Copiar
@@ -93,7 +85,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- CORRIGIDO: /usuario/novo -->
                                         <a href="/usuario/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--user-plus] text-lg me-1"></span>
@@ -103,7 +94,6 @@
                                 </div>
                             </div>
 
-                            <!-- Table -->
                             <table id="table_usuarios" class="table-default w-full">
                                 <thead>
                                     <tr>
@@ -125,18 +115,51 @@
 
         </main>
 
-        <!-- ELEMENTO OCULTO: Guarda o JSON puro vindo do backend -->
         <div id="dados-usuarios-json" style="display: none;">
             <%= usuariosJson %>
         </div>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
+            // Pega as permissões do módulo 'usuarios' da sessão
+            const permUsuario = "<% - JSON.stringify(user.permissoes && user.permissoes['usuarios'] ? user.permissoes['usuarios'] : {}) %>";
+
+            let canEdit = false;
+            let canCreate = false;
+            let canInactivate = false;
+
+            // Admin Bypass
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+                canCreate = true;
+                canInactivate = true;
+            } else {
+                // Permissão para Editar
+                if ((permUsuario.pode_editar == 1 || permUsuario.pode_editar === true) ||
+                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                    canEdit = true;
+                }
+                // Permissão para Criar
+                if ((permUsuario.pode_criar == 1 || permUsuario.pode_criar === true) ||
+                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                    canCreate = true;
+                }
+                // Permissão para Inativar
+                if ((permUsuario.pode_inativar == 1 || permUsuario.pode_inativar === true) ||
+                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                    canInactivate = true;
+                }
+            }
+            console.log("Permissões Usuário -> Criar:", canCreate, "| Editar:", canEdit, "| Inativar:", canInactivate);
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -151,11 +174,9 @@
                     console.error("Erro ao ler JSON:", e);
                 }
 
-                console.log("Usuários carregados:", listaUsuarios);
-
                 // 2. RENDERIZAR TABELA
                 const tbody = document.getElementById('tableBody');
-                tbody.innerHTML = ''; // Limpa para garantir
+                tbody.innerHTML = '';
 
                 listaUsuarios.forEach((u, index) => {
                     const tr = document.createElement('tr');
@@ -165,49 +186,45 @@
                         ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
                         : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
-                    // Garante que não quebre se o nome for null (caso raro no banco novo)
                     const nomeCompleto = u.nome_completo || "Sem Nome";
                     const iniciais = nomeCompleto.substring(0, 2).toUpperCase();
 
                     tr.innerHTML = `
-        <td></td>
-        <td>
-            <div class="flex items-center">
-                <div class="flex flex-nowrap items-center gap-2.5">
-                    <div class="size-10 rounded-full shrink-0 bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
-                        ${iniciais}
-                    </div>
-                    <div class="flex-grow">
-                        <h6 class="font-semibold text-zinc-900 dark:text-zinc-100">${nomeCompleto}</h6>
-                        <p class="text-muted text-sm">${u.email || ''}</p>
-                    </div>
-                </div>
-            </div>
-        </td>
-        <td class="whitespace-nowrap text-sm">${u.nome_unidade || '-'}</td>
-        <td>
-            <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                ${u.nome_perfil || '-'}
-            </span>
-        </td>
-        <td>${statusHtml}</td>
-        <td>
-            <div class="flex items-center gap-1 relative z-[1]">
-                <a href="/usuario/editar/${u.id_usuario}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                    <span class="icon-[lucide--edit] text-lg"></span>
-                </a>
-            </div>
-        </td>
-    `;
+                        <td></td>
+                        <td>
+                            <div class="flex items-center">
+                                <div class="flex flex-nowrap items-center gap-2.5">
+                                    <div class="size-10 rounded-full shrink-0 bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                                        ${iniciais}
+                                    </div>
+                                    <div class="flex-grow">
+                                        <h6 class="font-semibold text-zinc-900 dark:text-zinc-100">${nomeCompleto}</h6>
+                                        <p class="text-muted text-sm">${u.email || ''}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="whitespace-nowrap text-sm">${u.nome_unidade || '-'}</td>
+                        <td>
+                            <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                                ${u.nome_perfil || '-'}
+                            </span>
+                        </td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/usuario/editar/${u.id_usuario}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
 
-                // 3. INICIALIZAR DATATABLE (Configuração Padrão Raven)
+                // 3. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_usuarios', {
-                    lengthChange: false,
-                    pageLength: 10,
-                    scrollX: true,
-                    dom: 'lrtip',
+                    lengthChange: false, pageLength: 10, scrollX: true, dom: 'lrtip',
                     language: {
                         emptyTable: "Nenhum usuário encontrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
@@ -215,18 +232,9 @@
                         select: { rows: "" }
                     },
                     columnDefs: [
-                        {
-                            orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(),
-                            targets: 0,
-                        }
+                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
                     ],
-                    select: {
-                        style: 'os',
-                        selector: 'td:first-child',
-                        headerCheckbox: false
-                    },
+                    select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
                     order: [[1, 'asc']]
                 });
 
@@ -240,16 +248,53 @@
                     table.columns(4).search(this.value).draw();
                 });
 
-                // Botão Inativar
+                // Botão Inativar (Visibilidade)
                 const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
                     inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    inativarBtn.innerHTML = `Inativar (${count})`;
+                    inativarBtn.innerHTML = `Inativar Selecionados (${count})`;
                 });
 
-                // Ação Inativar
+                // =========================================================================
+                // 4. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+                    // LINK EDITAR
+                    const linkEditar = e.target.closest('a[href^="/usuario/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para editar usuários.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // LINK NOVO
+                    const linkNovo = e.target.closest('a[href="/usuario/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para criar novos usuários.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+                });
+
+                // 5. AÇÃO INATIVAR (Com Depuração de Erros)
                 inativarBtn.addEventListener('click', function () {
+
+                    if (!canInactivate) {
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                        return;
+                    }
+
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
                     const jaInativos = [];
@@ -258,20 +303,13 @@
                         const index = row.getAttribute('data-index');
                         if (index !== null && listaUsuarios[index]) {
                             const u = listaUsuarios[index];
-                            if (u.ativo === 0) {
-                                jaInativos.push(u.nome_completo);
-                            } else {
-                                selectedIds.push(u.id_usuario);
-                            }
+                            if (u.ativo === 0) jaInativos.push(u.nome_completo);
+                            else selectedIds.push(u.id_usuario);
                         }
                     });
 
                     if (jaInativos.length > 0) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Ação Bloqueada',
-                            html: `Os seguintes usuários <b>já estão inativos</b>:<br><br>${jaInativos.join('<br>')}<br><br>Desmarque-os para continuar.`
-                        });
+                        Swal.fire({ icon: 'warning', title: 'Ação Bloqueada', html: `Os seguintes usuários <b>já estão inativos</b>:<br><br>${jaInativos.join('<br>')}<br><br>Desmarque-os para continuar.` });
                         return;
                     }
 
@@ -279,7 +317,7 @@
 
                     Swal.fire({
                         title: 'Tem certeza?',
-                        text: `Deseja inativar ${selectedIds.length} usuário(s)? Eles perderão o acesso ao sistema.`,
+                        text: `Deseja inativar ${selectedIds.length} usuário(s)?`,
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonText: 'Sim, inativar',
@@ -292,21 +330,33 @@
                     }).then(async (result) => {
                         if (result.isConfirmed) {
                             try {
-                                // CORRIGIDO: /usuario/inativar-multiplos
+                                console.log("Enviando IDs:", selectedIds);
                                 const response = await fetch('/usuario/inativar-multiplos', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
-                                const data = await response.json();
 
+                                // AQUI ESTÁ A CORREÇÃO DO ALERT: Verifica o status da resposta
+                                if (!response.ok) {
+                                    if (response.status === 404) throw new Error('Rota não encontrada (404). Verifique se o arquivo de rotas possui /usuario/inativar-multiplos.');
+                                    if (response.status === 500) throw new Error('Erro interno do servidor (500). Verifique os logs do backend.');
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+                                    throw new Error(`Erro desconhecido: ${response.status}`);
+                                }
+
+                                const data = await response.json();
                                 if (data.success) {
                                     Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
                                 } else {
                                     Swal.fire('Erro', data.message, 'error');
                                 }
                             } catch (err) {
-                                Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                                console.error(err);
+                                Swal.fire('Erro no Servidor', err.message, 'error');
                             }
                         }
                     });

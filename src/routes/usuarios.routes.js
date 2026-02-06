@@ -177,4 +177,31 @@ router.post("/novo",
         }
     });
 
+// =========================================================================
+// ROTA ADICIONADA: INATIVAR MÚLTIPLOS
+// =========================================================================
+router.post("/inativar-multiplos",
+    verificarAutenticacao,
+    verificarPermissao('usuarios', 'inativar'), // Garanta que a permissão 'inativar' existe no BD
+    async (req, res) => {
+        try {
+            const { ids } = req.body;
+
+            if (!ids || !Array.isArray(ids) || ids.length === 0) {
+                return res.status(400).json({ success: false, message: "Nenhum usuário selecionado." });
+            }
+
+            // Evita inativar o 'admin@admin.com' por segurança
+            const query = `UPDATE usuario SET ativo = 0 WHERE id_usuario IN (?) AND email <> 'admin@admin.com'`;
+
+            await db.query(query, [ids]);
+
+            res.json({ success: true, message: "Usuários inativados com sucesso!" });
+
+        } catch (error) {
+            console.error("Erro ao inativar usuários:", error);
+            res.status(500).json({ success: false, message: "Erro ao processar inativação." });
+        }
+    });
+
 module.exports = router;

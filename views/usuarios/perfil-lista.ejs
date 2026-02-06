@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raven - Perfis de Acesso</title>
+    <title>ProS - Perfis de Acesso</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
@@ -86,7 +86,7 @@
 
                                     <div class="flex items-center gap-2">
                                         <a href="/perfil/novo"
-                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep btn-novo-perfil">
                                             <span class="icon-[lucide--plus] text-lg me-1"></span>
                                             Novo Perfil
                                         </a>
@@ -139,73 +139,61 @@
         <script>
             const userEmail = "<%= user.email %>";
             const userPerfilNome = "<%= user.nome_perfil %>";
-            // Pega as permissões do módulo 'perfis' da sessão do usuário
-        const permPerfil = "<% - JSON.stringify(user.permissoes && user.permissoes['perfis'] ? user.permissoes['perfis'] : {}) %>";
+            const permPerfil = "<% - JSON.stringify(user.permissoes && user.permissoes['perfis'] ? user.permissoes['perfis'] : {}) %>";
 
             let canEdit = false;
+            let canCreate = false;
 
-            // Lógica de Bypass (Admin) ou Permissão Específica
+            // Admin Bypass ou Verificação Individual
             if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
                 canEdit = true;
+                canCreate = true;
             } else {
-                // Verifica se tem permissão 'pode_editar' ou 'tudo'
+                // Permissão para Editar
                 if ((permPerfil.pode_editar == 1 || permPerfil.pode_editar === true) ||
                     (permPerfil.tudo == 1 || permPerfil.tudo === true)) {
                     canEdit = true;
                 }
+                // Permissão para Criar Novo
+                if ((permPerfil.pode_criar == 1 || permPerfil.pode_criar === true) ||
+                    (permPerfil.tudo == 1 || permPerfil.tudo === true)) {
+                    canCreate = true;
+                }
             }
-            console.log("Permissão de editar perfis:", canEdit);
         </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
 
-                // 2. LER OS DADOS DO ELEMENTO OCULTO
+                // 1. LER DADOS
                 let listaPerfis = [];
                 try {
                     const divJson = document.getElementById('dados-perfis-json');
-                    if (divJson) {
-                        const rawJson = divJson.innerText;
-                        if (rawJson) {
-                            listaPerfis = JSON.parse(rawJson);
-                        }
+                    if (divJson && divJson.innerText) {
+                        listaPerfis = JSON.parse(divJson.innerText);
                     }
-                } catch (e) {
-                    console.error("Erro ao processar JSON:", e);
-                }
+                } catch (e) { console.error("Erro ao ler JSON:", e); }
 
-                // 3. GERAR O HTML DA TABELA VIA JAVASCRIPT
+                // 2. POPULAR TABELA
                 const tbody = document.getElementById('tableBody');
-
                 if (listaPerfis.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum perfil encontrado.</td></tr>';
                 } else {
                     listaPerfis.forEach((p, index) => {
                         const tr = document.createElement('tr');
                         tr.setAttribute('data-index', index);
-
                         const statusHtml = (Number(p.ativo) === 1)
                             ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
                             : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
                         tr.innerHTML = `
                             <td></td>
-                            <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                                ${p.nome_perfil}
-                            </td>
-                            <td>
-                                <span class="text-sm text-zinc-500 truncate max-w-[220px] block">
-                                    ${p.descricao || 'Sem descrição'}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-                                    ${p.total_usuarios} usuários
-                                </span>
-                            </td>
+                            <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${p.nome_perfil}</td>
+                            <td><span class="text-sm text-zinc-500 truncate max-w-[220px] block">${p.descricao || 'Sem descrição'}</span></td>
+                            <td class="text-center"><span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">${p.total_usuarios} usuários</span></td>
                             <td class="text-center">${statusHtml}</td>
                             <td class="text-end">
-                                <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                <div class="flex items-center gap-1 relative z-[1]">
                                     <a href="/perfil/editar/${p.id_perfil}" class="btn !p-1.5 hover:!text-primary btn-editar-link" title="Editar">
                                         <span class="icon-[lucide--edit] text-lg"></span>
                                     </a>
@@ -216,36 +204,22 @@
                     });
                 }
 
-                // 4. INICIALIZAR DATATABLE
+                // 3. DATATABLE
                 const table = new DataTable('#table_perfis', {
-                    lengthChange: false,
-                    pageLength: 9,
-                    scrollX: true,
-                    dom: 'lrtip',
+                    lengthChange: false, pageLength: 9, scrollX: true, dom: 'lrtip',
                     columnDefs: [
-                        {
-                            orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(),
-                            targets: 0,
-                        },
+                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 },
                         { targets: [3, 4, 5], className: "text-center" }
                     ],
-                    select: {
-                        style: 'os',
-                        selector: 'td:first-child',
-                        headerCheckbox: false
-                    },
+                    select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
                     order: [[1, 'asc']],
                 });
 
-                // Busca
-                const searchInput = document.getElementById('perfilSearch');
-                searchInput.addEventListener('input', e => {
-                    table.search(e.target.value).draw();
-                });
+                // Busca e Filtros
+                document.getElementById('perfilSearch').addEventListener('input', e => table.search(e.target.value).draw());
+                document.getElementById('statusFilter').addEventListener('change', function () { table.columns(4).search(this.value).draw(); });
 
-                // Botão Inativar (show/hide)
+                // Botão Inativar
                 const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
@@ -253,36 +227,26 @@
                     if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
                 });
 
-                // Filtro de Status
-                document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(4).search(this.value).draw();
-                });
-
                 // =========================================================================
-                // 5. INTERCEPTADOR DE CLIQUE NO BOTÃO EDITAR (O Segredo para "ficar preso")
+                // 4. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
                 // =========================================================================
                 document.body.addEventListener('click', function (e) {
-                    // Verifica se o elemento clicado (ou pai) é o link de edição
-                    const link = e.target.closest('a[href^="/perfil/editar/"]');
+                    // LINK EDITAR
+                    const linkEditar = e.target.closest('a[href^="/perfil/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para acessar a tela de edição.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                    }
 
-                    if (link) {
-                        // Se NÃO tiver permissão calculada lá no topo do script
-                        if (!canEdit) {
-                            e.preventDefault(); // <--- ISTO IMPEDE O REDIRECIONAMENTO
-
-                            // Mostra o alerta igual ao do Risco
-                            Swal.fire({
-                                title: 'Acesso Negado',
-                                text: 'Você não tem permissão para acessar a tela de edição.',
-                                icon: 'warning',
-                                confirmButtonColor: '#f59e0b', // Amber (igual risco)
-                                confirmButtonText: 'Entendido'
-                            });
-                        }
+                    // LINK NOVO
+                    const linkNovo = e.target.closest('a[href="/perfil/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos perfis.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
                 });
 
-                // 6. AÇÃO DE INATIVAR MÚLTIPLOS
+                // 5. AÇÃO INATIVAR MÚLTIPLOS
                 inativarBtn.addEventListener('click', function () {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
@@ -291,73 +255,37 @@
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
                         if (index !== null && listaPerfis[index]) {
-                            const perfil = listaPerfis[index];
-                            if (Number(perfil.ativo) === 0) {
-                                perfisJaInativos.push(perfil.nome_perfil);
-                            } else {
-                                if (perfil && perfil.id_perfil) {
-                                    selectedIds.push(perfil.id_perfil);
-                                }
-                            }
+                            const p = listaPerfis[index];
+                            if (Number(p.ativo) === 0) perfisJaInativos.push(p.nome_perfil);
+                            else selectedIds.push(p.id_perfil);
                         }
                     });
 
                     if (perfisJaInativos.length > 0) {
-                        Swal.fire({
-                            icon: 'warning',
-                            title: 'Ação Bloqueada',
-                            html: `O(s) perfil(is) abaixo <b>já está(ão) inativo(s)</b>:<br><br><b>${perfisJaInativos.join('<br>')}</b><br><br>Por favor, desmarque para continuar.`
-                        });
+                        Swal.fire({ icon: 'warning', title: 'Ação Bloqueada', html: `O(s) perfil(is) abaixo <b>já está(ão) inativo(s)</b>:<br><br><b>${perfisJaInativos.join('<br>')}</b><br><br>Por favor, desmarque para continuar.` });
                         return;
                     }
 
-                    if (selectedIds.length === 0) {
-                        Swal.fire('Erro', 'Nenhum perfil válido selecionado.', 'error');
-                        return;
-                    }
+                    if (selectedIds.length === 0) return;
 
                     Swal.fire({
-                        title: 'Tem certeza?',
-                        text: `Você está prestes a inativar ${selectedIds.length} perfil(is).`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar',
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#3f3f46'
+                        title: 'Tem certeza?', text: `Você está prestes a inativar ${selectedIds.length} perfil(is).`, icon: 'warning',
+                        showCancelButton: true, confirmButtonText: 'Sim, inativar', cancelButtonText: 'Cancelar', confirmButtonColor: '#ef4444', cancelButtonColor: '#3f3f46'
                     }).then(async (result) => {
                         if (!result.isConfirmed) return;
-
                         try {
                             const response = await fetch('/perfil/inativar-multiplos', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                },
+                                method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                                 body: JSON.stringify({ ids: selectedIds })
                             });
-
                             if (response.status === 403) {
-                                Swal.fire({
-                                    title: 'Acesso Negado',
-                                    text: 'Você não tem permissão para inativar perfis.',
-                                    icon: 'warning',
-                                    confirmButtonColor: '#f59e0b'
-                                });
+                                Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b' });
                                 return;
                             }
-
                             const data = await response.json();
-
-                            if (response.ok && data.success) {
-                                Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
-                            } else {
-                                Swal.fire('Erro', data.message || "Erro desconhecido", 'error');
-                            }
-                        } catch (error) {
-                            Swal.fire('Erro', 'Não foi possível conectar ao servidor.', 'error');
-                        }
+                            if (data.success) Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                            else Swal.fire('Erro', data.message, 'error');
+                        } catch (error) { Swal.fire('Erro', 'Erro de conexão.', 'error'); }
                     });
                 });
             });
