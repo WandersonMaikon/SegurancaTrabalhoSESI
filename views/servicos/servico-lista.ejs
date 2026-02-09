@@ -64,7 +64,7 @@
 
                   <div class="flex-grow w-56 sm:w-auto">
                     <select id="statusFilter" class="js-select w-full sm:w-56">
-                      <option value="" >Todos</option>
+                      <option value="">Todos</option>
                       <option value="Ativo" selected>Ativo</option>
                       <option value="Inativo">Inativo</option>
                     </select>
@@ -105,12 +105,60 @@
       <%= servicosJson %>
     </div>
 
+    <div id="permissoes-servicos-json" style="display: none;">
+      <%- JSON.stringify(user.permissoes && user.permissoes['servicos'] ? user.permissoes['servicos'] : {}) %>
+    </div>
+
     <script src="/js/theme.js"></script>
     <script src="/vendor/js/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
     <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
     <script src="/vendor/js/sweetalert2.all.min.js"></script>
+    <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+    <script>
+      const userEmail = "<%= user.email %>";
+      const userPerfilNome = "<%= user.nome_perfil %>";
+
+      // LER AS PERMISSÕES DA DIV OCULTA
+      let permServicos = {};
+      try {
+        const divPerm = document.getElementById('permissoes-servicos-json');
+        if (divPerm && divPerm.innerText) {
+          permServicos = JSON.parse(divPerm.innerText);
+        }
+      } catch (e) {
+        console.error("Erro ao ler permissões:", e);
+      }
+
+      let canEdit = false;
+      let canCreate = false;
+      let canInactivate = false;
+
+      // Admin Bypass
+      if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+        canEdit = true;
+        canCreate = true;
+        canInactivate = true;
+      } else {
+        // Permissão para Editar
+        if ((permServicos.pode_editar == 1 || permServicos.pode_editar === true) ||
+          (permServicos.tudo == 1 || permServicos.tudo === true)) {
+          canEdit = true;
+        }
+        // Permissão para Criar
+        if ((permServicos.pode_criar == 1 || permServicos.pode_criar === true) ||
+          (permServicos.tudo == 1 || permServicos.tudo === true)) {
+          canCreate = true;
+        }
+        // Permissão para Inativar
+        if ((permServicos.pode_inativar == 1 || permServicos.pode_inativar === true) ||
+          (permServicos.tudo == 1 || permServicos.tudo === true)) {
+          canInactivate = true;
+        }
+      }
+    </script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -133,25 +181,23 @@
             ? '<span class="badge bg-green-500/10 text-green-500">Ativo</span>'
             : '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
 
-          // Lógica Visual: Se o Admin acessar, ele verá "Global" ou o nome da Unidade.
-          // Se o Usuário comum acessar, ele só verá os nomes da unidade dele (o back-end já filtrou o resto).
           const tipoHtml = !s.id_unidade
             ? '<span class="badge bg-purple-500/10 text-purple-500 border border-purple-200">Global</span>'
             : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Local'}</span>`;
 
           tr.innerHTML = `
-          <td></td>
-          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
-          <td>${tipoHtml}</td>
-          <td>${statusHtml}</td>
-          <td>
-            <div class="flex items-center gap-1 relative z-[1]">
-              <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                <span class="icon-[lucide--edit] text-lg"></span>
-              </a>
-            </div>
-          </td>
-        `;
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
+                        <td>${tipoHtml}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
           tbody.appendChild(tr);
         });
 
@@ -160,7 +206,12 @@
           pageLength: 10,
           scrollX: true,
           dom: 'lrtip',
-          language: { emptyTable: "Nenhum serviço encontrado", select: { rows: "" } },
+          language: {
+            emptyTable: "Nenhum serviço encontrado",
+            info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
+            select: { rows: "" }
+          },
           columnDefs: [{ orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }],
           select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
           order: [[1, 'asc']],
@@ -169,44 +220,112 @@
         document.getElementById('servicoSearch').addEventListener('input', e => { table.search(e.target.value).draw(); });
         document.getElementById('statusFilter').addEventListener('change', function () { table.columns(3).search(this.value).draw(); });
 
+        // Botão Inativar (Controle de Visibilidade)
         const inativarBtn = document.getElementById("inativarBtn");
         table.on('select deselect', function () {
           const count = table.rows({ selected: true }).count();
           inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-          inativarBtn.innerText = `Inativar (${count})`;
+          inativarBtn.innerText = `Inativar Selecionados (${count})`;
         });
 
+        // =========================================================================
+        // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+        // =========================================================================
+        document.body.addEventListener('click', function (e) {
+          // LINK EDITAR
+          const linkEditar = e.target.closest('a[href^="/servicos/editar/"]');
+          if (linkEditar && !canEdit) {
+            e.preventDefault();
+            Swal.fire({
+              title: 'Acesso Negado',
+              text: 'Você não tem permissão para editar serviços.',
+              icon: 'warning',
+              confirmButtonColor: '#f59e0b',
+              confirmButtonText: 'Entendido'
+            });
+          }
+
+          // LINK NOVO
+          const linkNovo = e.target.closest('a[href="/servicos/novo"]');
+          if (linkNovo && !canCreate) {
+            e.preventDefault();
+            Swal.fire({
+              title: 'Acesso Negado',
+              text: 'Você não tem permissão para criar novos serviços.',
+              icon: 'warning',
+              confirmButtonColor: '#f59e0b',
+              confirmButtonText: 'Entendido'
+            });
+          }
+        });
+
+        // =========================================================================
+        // 3. AÇÃO INATIVAR (Com Bloqueio de Permissão)
+        // =========================================================================
         inativarBtn.addEventListener('click', () => {
+
+          if (!canInactivate) {
+            Swal.fire({
+              title: 'Acesso Negado',
+              text: 'Você não tem permissão para inativar serviços.',
+              icon: 'warning',
+              confirmButtonColor: '#f59e0b',
+              confirmButtonText: 'Entendido'
+            });
+            return;
+          }
+
           const selectedRows = table.rows({ selected: true }).nodes();
           const ids = [];
           selectedRows.each(function (row) {
             const index = row.getAttribute('data-index');
             if (listaServicos[index]) ids.push(listaServicos[index].id_servico);
           });
+
           if (ids.length === 0) return;
 
           Swal.fire({
-            title: 'Inativar?',
-            text: "Os serviços selecionados não aparecerão em novas OS.",
+            title: 'Tem certeza?',
+            text: `Deseja inativar ${ids.length} serviço(s)?`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Sim, inativar'
+            confirmButtonText: 'Sim, inativar',
+            cancelButtonText: 'Cancelar'
           }).then(async (result) => {
             if (result.isConfirmed) {
-              const res = await fetch('/servicos/inativar-multiplos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ids })
-              });
-              const data = await res.json();
-              if (data.success) location.reload();
+              try {
+                const res = await fetch('/servicos/inativar-multiplos', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ ids })
+                });
+
+                // Tratamento de Erro do Fetch
+                if (!res.ok) {
+                  if (res.status === 403) {
+                    Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                    return;
+                  }
+                  throw new Error(`Erro: ${res.status}`);
+                }
+
+                const data = await res.json();
+                if (data.success) {
+                  Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                } else {
+                  Swal.fire('Erro', data.message, 'error');
+                }
+              } catch (err) {
+                console.error(err);
+                Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+              }
             }
           });
         });
       });
+
+      document.querySelectorAll('.js-select').forEach(s => new TomSelect(s, { create: false }));
     </script>
-    <script src="/vendor/js/tom-select.complete.min.js"></script>
-    <script>document.querySelectorAll('.js-select').forEach(s => new TomSelect(s, { create: false }));</script>
 </body>
 
 </html>
