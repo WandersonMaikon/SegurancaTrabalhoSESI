@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Visualizar Cliente</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+    <%- include('../partials/sidebar') %>
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Visualizar Cliente</h2>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <div class="w-full">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6">
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Empresa</h5>
+                                    </div>
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div class="flex items-end gap-3 w-full max-w-2xl">
+                                            <div class="flex-1">
+                                                <label class="mb-2 block">Nome contratante</label>
+                                                <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                    value="<%= cliente.nome_empresa %>" disabled>
+                                            </div>
+                                            <label class="inline-flex items-center gap-2 mb-1">
+                                                <input type="checkbox" class="input-checkbox" disabled
+                                                    <%=cliente.industria==1 ? 'checked' : '' %>>
+                                                <span>Indústria</span>
+                                            </label>
+                                        </div>
+
+                                        <% if (cliente.industria==1) { %>
+                                            <div>
+                                                <label class="mb-2 block">Desconto Cartão (%)</label>
+                                                <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                    value="<%= cliente.cartao_vantagem %> %" disabled>
+                                            </div>
+                                            <% } %>
+
+                                                <div>
+                                                    <label class="mb-2 block">CNPJ</label>
+                                                    <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                        value="<%= cliente.cnpj %>" disabled>
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">E-mail</label>
+                                                    <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                        value="<%= cliente.email || '-' %>" disabled>
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">Telefone</label>
+                                                    <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                        value="<%= cliente.telefone || '-' %>" disabled>
+                                                </div>
+                                                <div>
+                                                    <label class="mb-2 block">Unidade do Sistema</label>
+                                                    <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                        value="<%= cliente.nome_unidade || 'Não identificada' %>"
+                                                        disabled>
+                                                </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Representante</h5>
+                                    </div>
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div><label class="mb-2 block">Nome</label><input type="text"
+                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.nome_representante || '-' %>" disabled></div>
+                                        <div><label class="mb-2 block">CPF</label><input type="text"
+                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.cpf_mf || '-' %>" disabled></div>
+                                        <div><label class="mb-2 block">RG</label><input type="text"
+                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.rg_ci || '-' %>" disabled></div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Endereço</h5>
+                                    </div>
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div><label class="mb-2 block">Endereço Completo</label>
+                                            <textarea class="input w-full max-w-2xl bg-zinc-100" rows="3" disabled>
+<%= cliente.logradouro %>, <%= cliente.numero %> - <%= cliente.bairro %>
+<%= cliente.cidade %> - <%= cliente.estado %>
+CEP: <%= cliente.cep %>
+                                    </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end pt-2">
+                                    <a href="/clientes"
+                                        class="btn bg-zinc-500 text-white hover:bg-zinc-600 h-11 px-6">Voltar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+        <script src="/js/theme.js"></script>
+</body>
+
+</html>

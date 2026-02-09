@@ -199,8 +199,12 @@
                         <td>${statusHtml}</td>
                         <td>
                             <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/clientes/ver/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Visualizar">
+                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                </a>
+
                                 <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                    <span class=" icon-[lucide--edit] text-lg"></span>
+                                    <span class="icon-[lucide--edit] text-lg"></span>
                                 </a>
                             </div>
                         </td>
