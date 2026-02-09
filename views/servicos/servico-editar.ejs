@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Editar Serviço</title>
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body class="font-theme flex flex-col h-full bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+    <%- include('../partials/sidebar') %>
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Editar Serviço</h2>
+                </div>
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form id="form_edit_servico" class="w-full">
+                        <input type="hidden" id="id_servico" value="<%= servico.id_servico %>">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6 w-full">
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do serviço</h5>
+                                    </div>
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nome do serviço <span
+                                                    class="text-red-500">*</span></label>
+                                            <input id="nome_servico" type="text" class="input h-10 w-full"
+                                                value="<%= servico.nome_servico %>" required>
+                                        </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Quem realiza este serviço?</label>
+                                            <select id="responsaveis" class="w-full" multiple>
+                                                <% usuarios.forEach(u=> { %>
+                                                    <option value="<%= u.id_usuario %>"
+                                                        <%=selecionados.includes(u.id_usuario) ? 'selected' : '' %>>
+                                                        <%= u.nome_completo %>
+                                                    </option>
+                                                    <% }) %>
+                                            </select>
+                                        </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Descrição</label>
+                                            <textarea id="descricao" class="input w-full py-2"
+                                                rows="3"><%= servico.descricao %></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                                    <a href="/servicos"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 text-center">Cancelar</a>
+                                    <button onclick="updateServico(event)" type="submit"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">Salvar
+                                        Alterações</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <%- include('../partials/footer') %>
+        </main>
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script>
+            new TomSelect("#responsaveis", { plugins: ['remove_button'], create: false, maxItems: null });
+
+            async function updateServico(event) {
+                event.preventDefault();
+                const btn = document.querySelector('button[type="submit"]');
+                const id = document.getElementById('id_servico').value;
+                const nome = document.getElementById('nome_servico').value;
+                const descricao = document.getElementById('descricao').value;
+                const select = document.getElementById('responsaveis');
+                const responsaveis = Array.from(select.selectedOptions).map(o => o.value);
+
+                if (!nome) return Swal.fire('Atenção', 'Nome é obrigatório.', 'warning');
+
+                btn.disabled = true;
+                btn.innerHTML = 'Salvando...';
+
+                try {
+                    const response = await fetch('/servicos/editar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_servico: id, nome_servico: nome, descricao, responsaveis })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Sucesso', data.message, 'success').then(() => window.location.href = '/servicos');
+                    } else {
+                        Swal.fire('Erro', data.message, 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = 'Salvar Alterações';
+                    }
+                } catch (error) {
+                    Swal.fire('Erro', 'Falha na comunicação.', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = 'Salvar Alterações';
+                }
+            }
+        </script>
+</body>
+
+</html>

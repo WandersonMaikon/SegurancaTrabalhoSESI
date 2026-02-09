@@ -186,18 +186,21 @@
             : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Local'}</span>`;
 
           tr.innerHTML = `
-                        <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
-                        <td>${tipoHtml}</td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <div class="flex items-center gap-1 relative z-[1]">
-                                <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                </a>
-                            </div>
-                        </td>
-                    `;
+                    <td></td>
+                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
+                    <td>${tipoHtml}</td>
+                    <td>${statusHtml}</td>
+                    <td>
+                        <div class="flex items-center gap-1 relative z-[1]">
+                            <a href="/servicos/ver/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Ver">
+                                <span class="icon-[lucide--eye] text-lg"></span>
+                            </a>
+                            <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                <span class="icon-[lucide--edit] text-lg"></span>
+                            </a>
+                        </div>
+                    </td>
+                `;
           tbody.appendChild(tr);
         });
 

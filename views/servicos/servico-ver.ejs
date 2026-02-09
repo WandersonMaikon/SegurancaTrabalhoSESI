@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Visualizar Serviço</title>
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body class="font-theme flex flex-col h-full bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+    <%- include('../partials/sidebar') %>
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Visualizar Serviço</h2>
+                </div>
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <div class="w-full">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6 w-full">
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Detalhes</h5>
+                                    </div>
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nome do serviço</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= servico.nome_servico %>" disabled>
+                                        </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Status</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= servico.ativo ? 'Ativo' : 'Inativo' %>" disabled>
+                                        </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Responsáveis</label>
+                                            <div class="bg-zinc-100 p-3 rounded border border-zinc-200 min-h-[42px]">
+                                                <% if (listaResponsaveis && listaResponsaveis.length> 0) { %>
+                                                    <ul class="list-disc list-inside">
+                                                        <% listaResponsaveis.forEach(r=> { %>
+                                                            <li>
+                                                                <%= r.nome_completo %>
+                                                            </li>
+                                                            <% }) %>
+                                                    </ul>
+                                                    <% } else { %>
+                                                        <span class="text-zinc-400 italic">Nenhum responsável
+                                                            vinculado.</span>
+                                                        <% } %>
+                                            </div>
+                                        </div>
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Descrição</label>
+                                            <textarea class="input w-full py-2 bg-zinc-100" rows="3"
+                                                disabled><%= servico.descricao %></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2">
+                                    <a href="/servicos"
+                                        class="btn bg-zinc-500 text-white hover:bg-zinc-600 h-11 px-6">Voltar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <%- include('../partials/footer') %>
+        </main>
+        <script src="/js/theme.js"></script>
+</body>
+
+</html>

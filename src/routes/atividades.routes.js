@@ -20,10 +20,11 @@ const humanizarLog = (log) => {
     let cor = "primary"; // primary, green-500, red-500, etc.
     let icone = "file-text";
 
-    // Mapeamento de nomes técnicos para nomes amigáveis
+    // 1. Mapeamento de nomes técnicos de TABELAS
     const tabelas = {
         'ordem_servico': 'Ordem de Serviço',
         'cliente': 'Cliente',
+        'servico': 'Serviço', // Adicionado
         'epi': 'EPI',
         'epc': 'EPC',
         'risco': 'Risco',
@@ -32,8 +33,10 @@ const humanizarLog = (log) => {
         'unidade': 'Unidade'
     };
 
+    // 2. Mapeamento de nomes técnicos de CAMPOS
     const camposLegiveis = {
         'nome': 'Nome',
+        'nome_servico': 'Nome do Serviço',
         'cnpj': 'CNPJ',
         'email': 'E-mail',
         'telefone': 'Telefone',
@@ -41,7 +44,9 @@ const humanizarLog = (log) => {
         'cartao': 'Cartão',
         'unidade': 'Unidade',
         'endereco': 'Endereço',
-        'status': 'Status'
+        'status': 'Status',
+        'descricao': 'Descrição', // Adicionado
+        'responsaveis': 'Responsáveis' // Adicionado
     };
 
     const nomeTabela = tabelas[log.tabela_afetada] ||
@@ -63,7 +68,7 @@ const humanizarLog = (log) => {
         icone = "plus";
 
         // Tenta pegar o nome do item criado para mostrar no título
-        const nomeItem = dados.nome || dados.nome_risco || dados.nome_empresa || dados.titulo;
+        const nomeItem = dados.nome || dados.nome_risco || dados.nome_empresa || dados.titulo || dados.nome_servico;
         if (nomeItem) {
             titulo = `Cadastrou <strong>${nomeItem}</strong> em ${nomeTabela}`;
         }
@@ -87,18 +92,26 @@ const humanizarLog = (log) => {
                     // Se o valor for um objeto com "de" e "para"
                     if (value && typeof value === 'object' && 'para' in value) {
                         const nomeCampo = camposLegiveis[key] || key;
-                        const valorPara = value.para === null || value.para === '' ? 'Vazio' : value.para;
-                        alteracoes.push(`${nomeCampo}`);
+                        let valorPara = value.para === null || value.para === '' ? 'Vazio' : value.para;
+
+                        // Tratamento especial para textos muito longos (como descrição)
+                        if (key === 'descricao' && valorPara.length > 30) {
+                            valorPara = 'Texto atualizado';
+                        }
+
+                        // Formata: "Nome: Novo Valor"
+                        // O uso do <i> deixa o valor em itálico e cinza para destacar
+                        alteracoes.push(`${nomeCampo}: <i class="text-zinc-500 font-normal">"${valorPara}"</i>`);
                     }
-                    // Se for string direta (ex: endereco: "Dados atualizados")
+                    // Se for string direta (fallback)
                     else if (typeof value === 'string') {
                         const nomeCampo = camposLegiveis[key] || key;
-                        alteracoes.push(value); // Ex: "Dados de endereço atualizados"
+                        alteracoes.push(value);
                     }
                 }
 
                 if (alteracoes.length > 0) {
-                    // Exemplo: "Alterou Nome, Telefone em Cliente"
+                    // Junta as alterações com vírgula
                     titulo = `Alterou <strong>${alteracoes.join(', ')}</strong> em ${nomeTabela}`;
                 }
             }
