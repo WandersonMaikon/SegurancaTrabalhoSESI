@@ -60,7 +60,7 @@
                                 <div class="flex items-center flex-wrap justify-end gap-2">
                                     <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
                                         style="display: none;">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
+                                        Inativar Selecionados
                                     </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
@@ -109,6 +109,11 @@
             <%= ordensJson %>
         </div>
 
+        <div id="permissoes-os-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['ordens_servico'] ? user.permissoes['ordens_servico']
+                : {}) %>
+        </div>
+
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
@@ -116,6 +121,49 @@
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
+
+            // LER AS PERMISSÕES DA DIV OCULTA
+            let permOS = {};
+            try {
+                const divPerm = document.getElementById('permissoes-os-json');
+                if (divPerm && divPerm.innerText) {
+                    permOS = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) {
+                console.error("Erro ao ler permissões:", e);
+            }
+
+            let canEdit = false;
+            let canCreate = false;
+            let canInactivate = false;
+
+            // Admin Bypass
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+                canCreate = true;
+                canInactivate = true;
+            } else {
+                // Permissão para Editar
+                if ((permOS.pode_editar == 1 || permOS.pode_editar === true) ||
+                    (permOS.tudo == 1 || permOS.tudo === true)) {
+                    canEdit = true;
+                }
+                // Permissão para Criar
+                if ((permOS.pode_criar == 1 || permOS.pode_criar === true) ||
+                    (permOS.tudo == 1 || permOS.tudo === true)) {
+                    canCreate = true;
+                }
+                // Permissão para Inativar
+                if ((permOS.pode_inativar == 1 || permOS.pode_inativar === true) ||
+                    (permOS.tudo == 1 || permOS.tudo === true)) {
+                    canInactivate = true;
+                }
+            }
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -158,31 +206,31 @@
                     tr.setAttribute('data-index', index);
 
                     tr.innerHTML = `
-          <td></td>
-          <td class="whitespace-nowrap font-semibold text-zinc-900 dark:text-white">
-            ${os.nome_empresa}
-            ${os.nome_unidade ? `<br><small class="text-muted text-xs font-normal">Unidade: ${os.nome_unidade}</small>` : ''}
-          </td>
-          <td class="whitespace-nowrap">
-             ${formatCurrency(os.valor_total_contrato)}
-          </td>
-          <td class="whitespace-nowrap">
-            ${formatDate(os.data_abertura)}
-            <br><small class="text-muted text-xs">Contrato: ${os.contrato_numero}</small>
-          </td>
-          <td>${getStatusBadge(os.status)}</td>
-          <td>
-            <div class="flex items-center gap-1 relative z-[1]">
-              <a href="/ordem-servico/ver/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Visualizar">
-                <span class="icon-[lucide--eye] text-lg"></span>
-              </a>
-              
-              <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Editar">
-                <span class="icon-[lucide--edit] text-lg"></span>
-              </a>
-            </div>
-          </td>
-        `;
+                        <td></td>
+                        <td class="whitespace-nowrap font-semibold text-zinc-900 dark:text-white">
+                            ${os.nome_empresa}
+                            ${os.nome_unidade ? `<br><small class="text-muted text-xs font-normal">Unidade: ${os.nome_unidade}</small>` : ''}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            ${formatCurrency(os.valor_total_contrato)}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            ${formatDate(os.data_abertura)}
+                            <br><small class="text-muted text-xs">Contrato: ${os.contrato_numero}</small>
+                        </td>
+                        <td>${getStatusBadge(os.status)}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/ordem-servico/ver/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Visualizar">
+                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                </a>
+                                
+                                <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
 
@@ -205,7 +253,7 @@
                         selector: 'td:first-child',
                         headerCheckbox: true
                     },
-                    order: [[3, 'desc']] // Ordena pela Data de Abertura (coluna 3) decrescente
+                    order: [[3, 'desc']]
                 });
 
                 // Busca global
@@ -218,7 +266,7 @@
                     table.columns(4).search(this.value).draw();
                 });
 
-                // Lógica de Inativar (igual aos anteriores)
+                // Botão Inativar (Visibilidade)
                 const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
@@ -226,7 +274,53 @@
                     inativarBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
                 });
 
+                // =========================================================================
+                // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+                    // LINK EDITAR
+                    const linkEditar = e.target.closest('a[href^="/ordem-servico/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para editar ordens de serviço.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // LINK NOVO
+                    const linkNovo = e.target.closest('a[href="/ordem-servico/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para criar novas ordens de serviço.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+                });
+
+                // =========================================================================
+                // 3. AÇÃO INATIVAR (Com Bloqueio e Tratamento de Erro)
+                // =========================================================================
                 inativarBtn.addEventListener('click', function () {
+
+                    if (!canInactivate) {
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para inativar ordens de serviço.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
+                    }
+
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
                     selectedRows.each(function (row) {
@@ -241,15 +335,30 @@
                         text: `Deseja inativar ${selectedIds.length} ordem(ns) de serviço?`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonText: 'Sim, inativar'
+                        confirmButtonText: 'Sim, inativar',
+                        cancelButtonText: 'Cancelar'
                     }).then(async (result) => {
                         if (result.isConfirmed) {
                             try {
                                 const response = await fetch('/ordem-servico/inativar-multiplos', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
+
+                                if (!response.ok) {
+                                    if (response.status === 404) throw new Error('Rota não encontrada (404).');
+                                    if (response.status === 500) throw new Error('Erro interno do servidor (500).');
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+                                    throw new Error(`Erro desconhecido: ${response.status}`);
+                                }
+
                                 const data = await response.json();
                                 if (data.success) {
                                     Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
@@ -257,7 +366,7 @@
                                     Swal.fire('Erro', data.message, 'error');
                                 }
                             } catch (error) {
-                                Swal.fire('Erro', 'Falha na comunicação', 'error');
+                                Swal.fire('Erro', error.message || 'Falha na comunicação', 'error');
                             }
                         }
                     });
