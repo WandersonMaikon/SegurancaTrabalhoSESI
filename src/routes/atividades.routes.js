@@ -17,9 +17,10 @@ const formatarHora = (dataISO) => {
 
 const humanizarLog = (log) => {
     let titulo = "";
-    let cor = "primary";
+    let cor = "primary"; // primary, green-500, red-500, etc.
     let icone = "file-text";
 
+    // Mapeamento de nomes técnicos para nomes amigáveis
     const tabelas = {
         'ordem_servico': 'Ordem de Serviço',
         'cliente': 'Cliente',
@@ -31,40 +32,90 @@ const humanizarLog = (log) => {
         'unidade': 'Unidade'
     };
 
+    const camposLegiveis = {
+        'nome': 'Nome',
+        'cnpj': 'CNPJ',
+        'email': 'E-mail',
+        'telefone': 'Telefone',
+        'industria': 'Indústria',
+        'cartao': 'Cartão',
+        'unidade': 'Unidade',
+        'endereco': 'Endereço',
+        'status': 'Status'
+    };
+
     const nomeTabela = tabelas[log.tabela_afetada] ||
         (log.tabela_afetada ? log.tabela_afetada.charAt(0).toUpperCase() + log.tabela_afetada.slice(1) : "Sistema");
+
+    // Parse seguro dos dados
+    let dados = {};
+    if (log.dados_novos) {
+        try {
+            dados = typeof log.dados_novos === 'string' ? JSON.parse(log.dados_novos) : log.dados_novos;
+        } catch (e) { dados = {}; }
+    }
+
+    // --- LÓGICA DE FORMATAÇÃO ---
 
     if (log.acao === 'INSERT') {
         titulo = `Criou um novo registro em <strong>${nomeTabela}</strong>`;
         cor = "green-500";
         icone = "plus";
-        if (log.dados_novos) {
-            try {
-                const dados = typeof log.dados_novos === 'string' ? JSON.parse(log.dados_novos) : log.dados_novos;
-                if (dados.nome || dados.nome_risco || dados.nome_empresa) {
-                    titulo = `Cadastrou <strong>${dados.nome || dados.nome_risco || dados.nome_empresa}</strong> em ${nomeTabela}`;
-                }
-            } catch (e) { }
+
+        // Tenta pegar o nome do item criado para mostrar no título
+        const nomeItem = dados.nome || dados.nome_risco || dados.nome_empresa || dados.titulo;
+        if (nomeItem) {
+            titulo = `Cadastrou <strong>${nomeItem}</strong> em ${nomeTabela}`;
         }
+
     } else if (log.acao === 'UPDATE') {
         titulo = `Atualizou informações em <strong>${nomeTabela}</strong>`;
         cor = "sky-500";
         icone = "edit";
-        if (log.dados_novos) {
-            try {
-                const dados = typeof log.dados_novos === 'string' ? JSON.parse(log.dados_novos) : log.dados_novos;
-                if (dados.status) {
-                    titulo = `Alterou status para <span class="text-${cor} font-bold">${dados.status}</span>`;
+
+        // LÓGICA MELHORADA PARA DETALHES DE EDIÇÃO
+        if (dados && Object.keys(dados).length > 0) {
+            const alteracoes = [];
+
+            // Verifica se é apenas uma mudança de status simples
+            if (dados.status && typeof dados.status === 'string') {
+                titulo = `Alterou status para <span class="text-${cor} font-bold">${dados.status}</span>`;
+            }
+            // Verifica se é o nosso objeto de comparação {de, para}
+            else {
+                for (const [key, value] of Object.entries(dados)) {
+                    // Se o valor for um objeto com "de" e "para"
+                    if (value && typeof value === 'object' && 'para' in value) {
+                        const nomeCampo = camposLegiveis[key] || key;
+                        const valorPara = value.para === null || value.para === '' ? 'Vazio' : value.para;
+                        alteracoes.push(`${nomeCampo}`);
+                    }
+                    // Se for string direta (ex: endereco: "Dados atualizados")
+                    else if (typeof value === 'string') {
+                        const nomeCampo = camposLegiveis[key] || key;
+                        alteracoes.push(value); // Ex: "Dados de endereço atualizados"
+                    }
                 }
-            } catch (e) { }
+
+                if (alteracoes.length > 0) {
+                    // Exemplo: "Alterou Nome, Telefone em Cliente"
+                    titulo = `Alterou <strong>${alteracoes.join(', ')}</strong> em ${nomeTabela}`;
+                }
+            }
         }
+
     } else if (log.acao === 'DELETE' || log.acao === 'INATIVAR') {
-        titulo = `Removeu/Inativou um registro em <strong>${nomeTabela}</strong>`;
+        titulo = `Inativou/Removeu um registro em <strong>${nomeTabela}</strong>`;
         cor = "red-500";
         icone = "trash";
+
+        if (dados && dados.status) {
+            titulo += ` <span class="text-xs text-zinc-400">(${dados.status})</span>`;
+        }
+
     } else if (log.acao === 'LOGIN') {
         titulo = "Realizou login no sistema";
-        cor = "primary";
+        cor = "zinc-500";
         icone = "log-in";
     }
 
@@ -75,7 +126,7 @@ const humanizarLog = (log) => {
         cor: cor,
         icone: icone,
         usuario_nome: log.nome_completo || "Usuário Removido / Sistema",
-        usuario_avatar: null
+        tabela: log.tabela_afetada
     };
 };
 
@@ -111,7 +162,7 @@ router.get("/api/listar", verificarAutenticacao, async (req, res) => {
         const { id_usuario, modulo, data_inicio, page } = req.query;
 
         const paginaAtual = parseInt(page) || 1;
-        const limitePorPagina = 10; // Definido conforme seu pedido
+        const limitePorPagina = 10;
         const offset = (paginaAtual - 1) * limitePorPagina;
 
         // Construção dinâmica do WHERE
@@ -131,14 +182,13 @@ router.get("/api/listar", verificarAutenticacao, async (req, res) => {
             params.push(data_inicio);
         }
 
-        // --- QUERY 1: Buscar o Total de Registros (para calcular páginas) ---
-        // Precisamos saber quantos registros existem no total com esses filtros
+        // QUERY 1: Total (Count)
         const sqlCount = `SELECT COUNT(*) as total FROM log_atividade l ${whereClause}`;
         const [rowsCount] = await db.query(sqlCount, params);
         const totalRegistros = rowsCount[0].total;
         const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
 
-        // --- QUERY 2: Buscar os Dados da Página Atual ---
+        // QUERY 2: Dados (Select)
         const sqlData = `
             SELECT l.*, u.nome_completo 
             FROM log_atividade l
@@ -148,11 +198,8 @@ router.get("/api/listar", verificarAutenticacao, async (req, res) => {
             LIMIT ? OFFSET ?
         `;
 
-        // Adicionamos limit e offset aos parametros
         const paramsData = [...params, limitePorPagina, offset];
         const [logs] = await db.query(sqlData, paramsData);
-
-        //console.log(`[ATIVIDADES] Pág ${paginaAtual}/${totalPaginas} | Registros: ${logs.length}`);
 
         const logsFormatados = logs.map(log => humanizarLog(log));
 
