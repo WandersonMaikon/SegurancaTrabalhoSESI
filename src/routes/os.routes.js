@@ -3,15 +3,20 @@ const router = express.Router();
 const db = require("../database/db");
 const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
+const verificarPermissao = require("../middlewares/permission.middleware");
+const registrarLog = require("../utils/logger"); // IMPORTANTE: O Logger
 
+// Função auxiliar para verificar se é Admin
 const verificarSeEhAdmin = (user) => {
     if (user.email === 'admin@admin.com') return true;
     if (user.nome_perfil === 'Administrador' || user.nome_perfil === 'Super Admin') return true;
     return false;
 };
 
-// --- LISTAR OS (Mantido igual) ---
-router.get("/", verificarAutenticacao, async (req, res) => {
+// =============================================================================
+// 1. LISTAR ORDENS DE SERVIÇO (GET)
+// =============================================================================
+router.get("/", verificarAutenticacao, verificarPermissao('ordem_servico', 'ver'), async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
@@ -24,12 +29,15 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             JOIN unidade u ON os.id_unidade = u.id_unidade
             WHERE os.deleted_at IS NULL
         `;
+
         const params = [];
         if (!ehAdmin) {
             query += ` AND os.id_unidade = ?`;
             params.push(userLogado.id_unidade || userLogado.unidade_id);
         }
-        query += ` ORDER BY os.created_at DESC`;
+
+        query += ` ORDER BY os.data_abertura DESC`;
+
         const [ordens] = await db.query(query, params);
 
         res.render("servicos/os-lista", {
@@ -38,14 +46,17 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             ordensJson: JSON.stringify(ordens),
             ehAdmin: ehAdmin
         });
+
     } catch (error) {
-        console.error(error);
+        console.error("Erro ao listar OS:", error);
         res.status(500).send("Erro ao carregar Ordens de Serviço.");
     }
 });
 
-// --- TELA DE NOVA OS (GET - Mantido igual) ---
-router.get("/novo", verificarAutenticacao, async (req, res) => {
+// =============================================================================
+// 2. TELA DE NOVA OS (GET)
+// =============================================================================
+router.get("/novo", verificarAutenticacao, verificarPermissao('ordem_servico', 'criar'), async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
@@ -58,23 +69,24 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             paramsUnidade.push(userLogado.id_unidade || userLogado.unidade_id);
         }
 
-        // 1. Clientes
+        // 1. Clientes (para o select)
         const [clientes] = await db.query(
             `SELECT id_cliente, nome_empresa, cnpj FROM cliente WHERE deleted_at IS NULL ${filtroUnidade} ORDER BY nome_empresa ASC`,
             paramsUnidade
         );
 
-        // 2. Serviços
+        // 2. Serviços (para o select)
         let sqlServicos = `SELECT id_servico, nome_servico FROM servico WHERE deleted_at IS NULL AND ativo = 1`;
         let paramsServicos = [];
         if (!ehAdmin) {
+            // Mostra serviços globais (NULL) OU da unidade do usuário
             sqlServicos += ` AND (id_unidade IS NULL OR id_unidade = ?)`;
             paramsServicos.push(userLogado.id_unidade || userLogado.unidade_id);
         }
         sqlServicos += ` ORDER BY nome_servico ASC`;
         const [servicos] = await db.query(sqlServicos, paramsServicos);
 
-        // 3. Vínculos
+        // 3. Vínculos (Quem pode fazer o quê - para filtrar dinamicamente no front se quiser)
         let sqlVinculos = `
             SELECT sr.id_servico, u.id_usuario, u.nome_completo
             FROM servico_responsavel sr
@@ -82,12 +94,10 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             WHERE u.ativo = 1 AND u.deleted_at IS NULL
         `;
         let paramsVinculos = [];
-
         if (!ehAdmin) {
             sqlVinculos += ` AND u.id_unidade = ?`;
             paramsVinculos.push(userLogado.id_unidade || userLogado.unidade_id);
         }
-
         const [vinculos] = await db.query(sqlVinculos, paramsVinculos);
 
         res.render("servicos/os-form", {
@@ -104,8 +114,10 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- SALVAR NOVA OS (POST - Alterado) ---
-router.post("/salvar", verificarAutenticacao, async (req, res) => {
+// =============================================================================
+// 3. SALVAR NOVA OS (POST) - COM LOG DETALHADO
+// =============================================================================
+router.post("/salvar", verificarAutenticacao, verificarPermissao('ordem_servico', 'criar'), async (req, res) => {
     let connection;
     try {
         const data = req.body;
@@ -116,21 +128,30 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
             return res.status(400).json({ success: false, message: "Preencha os dados obrigatórios." });
         }
 
+        // Definição da Unidade da OS
         let idUnidadeOS = null;
+        let nomeClienteLog = "Desconhecido"; // Para o log
+
         if (ehAdmin) {
-            const [clienteRows] = await db.query("SELECT id_unidade FROM cliente WHERE id_cliente = ?", [data.contratante_id]);
-            if (clienteRows.length > 0) idUnidadeOS = clienteRows[0].id_unidade;
-            else return res.status(400).json({ success: false, message: "Cliente inválido." });
+            const [clienteRows] = await db.query("SELECT id_unidade, nome_empresa FROM cliente WHERE id_cliente = ?", [data.contratante_id]);
+            if (clienteRows.length > 0) {
+                idUnidadeOS = clienteRows[0].id_unidade;
+                nomeClienteLog = clienteRows[0].nome_empresa;
+            } else {
+                return res.status(400).json({ success: false, message: "Cliente inválido." });
+            }
         } else {
             idUnidadeOS = userLogado.id_unidade || userLogado.unidade_id;
+            // Busca o nome do cliente apenas para o log
+            const [cRows] = await db.query("SELECT nome_empresa FROM cliente WHERE id_cliente = ?", [data.contratante_id]);
+            if (cRows.length > 0) nomeClienteLog = cRows[0].nome_empresa;
         }
 
         let valorLimpo = data.valor_total_contrato.replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
+        const idOS = uuidv4();
 
         connection = await db.getConnection();
         await connection.beginTransaction();
-
-        const idOS = uuidv4();
 
         // 1. Inserir OS Cabeçalho
         await connection.query(
@@ -142,24 +163,47 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         );
 
         // 2. Inserir Itens do Escopo
-        let itens = data.escopo || [];
-        if (!Array.isArray(itens) && typeof itens === 'object') itens = Object.values(itens);
+        // Normaliza para array (caso venha 1 item só ou objeto)
+        let itens = [];
+        if (data.escopo) {
+            if (Array.isArray(data.escopo)) itens = data.escopo;
+            else if (typeof data.escopo === 'object') itens = Object.values(data.escopo);
+        }
 
         for (const item of itens) {
+            // Verifica estrutura do item (pode variar dependendo de como o front envia arrays)
+            // Se o front envia escopo[0][servico_id], o req.body.escopo é um array de objetos.
             if (item.servico_id && item.responsavel_id) {
-                // Se prazo não vier, define 1 dia padrão
                 const prazoDias = item.prazo_execucao_dias ? parseInt(item.prazo_execucao_dias) : 1;
+                const qtd = item.quantidade ? parseFloat(item.quantidade) : 1;
 
                 await connection.query(
                     `INSERT INTO ordem_servico_item (
                         id_item, id_ordem_servico, id_servico, id_responsavel_execucao, quantidade, status_item, prazo_execucao_dias
                     ) VALUES (?, ?, ?, ?, ?, 'Pendente', ?)`,
-                    [uuidv4(), idOS, item.servico_id, item.responsavel_id, item.quantidade || 1, prazoDias]
+                    [uuidv4(), idOS, item.servico_id, item.responsavel_id, qtd, prazoDias]
                 );
             }
         }
 
         await connection.commit();
+
+        // 3. LOG DE CRIAÇÃO
+        // Registramos um log informando que a OS foi criada, para qual cliente e quantos itens.
+        await registrarLog({
+            id_unidade: userLogado.id_unidade || userLogado.unidade_id,
+            id_usuario: userLogado.id_usuario,
+            acao: 'INSERT',
+            tabela: 'ordem_servico',
+            id_registro: idOS,
+            dados_novos: {
+                nome: `OS #${data.contrato_numero} - ${nomeClienteLog}`, // "Nome" genérico para aparecer bonito no título
+                contrato: data.contrato_numero,
+                cliente: nomeClienteLog,
+                qtd_itens: itens.length
+            }
+        });
+
         res.json({ success: true, message: "Ordem de Serviço criada com sucesso!" });
 
     } catch (error) {
@@ -171,36 +215,81 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- Inativar Múltiplos (Mantido igual) ---
-router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
+// =============================================================================
+// 4. INATIVAR MÚLTIPLOS (POST) - COM LOG
+// =============================================================================
+router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('ordem_servico', 'inativar'), async (req, res) => {
     try {
         const { ids } = req.body;
+        const userLogado = req.session.user;
+
         if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: "Nenhum registro selecionado." });
+
         const validIds = ids.map(id => String(id).trim()).filter(id => id.length > 0);
         const placeholders = validIds.map(() => '?').join(',');
+
+        // 1. Busca dados antes de inativar para o log (Opcional, mas bom para saber o que foi apagado)
+        // Como são múltiplos, podemos simplificar e logar apenas os IDs ou fazer um select IN
+        const [osParaDeletar] = await db.query(`SELECT id_ordem_servico, contrato_numero FROM ordem_servico WHERE id_ordem_servico IN (${placeholders})`, validIds);
+
+        // 2. Executa a Inativação (Soft Delete)
         const sql = `UPDATE ordem_servico SET deleted_at = NOW() WHERE id_ordem_servico IN (${placeholders})`;
-        await db.query(sql, validIds);
+        const [result] = await db.query(sql, validIds);
+
+        // 3. LOG EM MASSA
+        if (result.affectedRows > 0) {
+            const promisesLog = osParaDeletar.map(async (os) => {
+                return registrarLog({
+                    id_unidade: userLogado.id_unidade || userLogado.unidade_id,
+                    id_usuario: userLogado.id_usuario,
+                    acao: 'INATIVAR',
+                    tabela: 'ordem_servico',
+                    id_registro: os.id_ordem_servico,
+                    dados_novos: {
+                        status: 'Inativo',
+                        contrato: os.contrato_numero
+                    }
+                });
+            });
+            await Promise.all(promisesLog);
+        }
+
         return res.json({ success: true, message: "Registros inativados." });
+
     } catch (error) {
+        console.error("Erro ao inativar OS:", error);
         return res.status(500).json({ success: false, message: "Erro interno." });
     }
 });
 
-// --- VISUALIZAR OS (Adicionar este bloco) ---
-router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
+// =============================================================================
+// 5. VISUALIZAR OS (GET)
+// =============================================================================
+router.get("/ver/:id", verificarAutenticacao, verificarPermissao('ordem_servico', 'ver'), async (req, res) => {
     try {
         const { id } = req.params;
+        const userLogado = req.session.user;
+        const ehAdmin = verificarSeEhAdmin(userLogado);
 
         // 1. Buscar Cabeçalho da OS
-        const [rows] = await db.query(`
+        // Adicionando verificação de unidade se não for admin
+        let sqlOS = `
             SELECT os.*, c.nome_empresa, c.cnpj
             FROM ordem_servico os
             JOIN cliente c ON os.id_cliente = c.id_cliente
             WHERE os.id_ordem_servico = ?
-        `, [id]);
+        `;
+        const paramsOS = [id];
+
+        if (!ehAdmin) {
+            sqlOS += ` AND os.id_unidade = ?`;
+            paramsOS.push(userLogado.id_unidade || userLogado.unidade_id);
+        }
+
+        const [rows] = await db.query(sqlOS, paramsOS);
 
         if (rows.length === 0) {
-            return res.status(404).send("Ordem de Serviço não encontrada.");
+            return res.status(404).send("Ordem de Serviço não encontrada ou acesso negado.");
         }
         const ordem = rows[0];
 

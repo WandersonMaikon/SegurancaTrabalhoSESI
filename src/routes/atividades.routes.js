@@ -24,7 +24,7 @@ const humanizarLog = (log) => {
     const tabelas = {
         'ordem_servico': 'Ordem de Serviço',
         'cliente': 'Cliente',
-        'servico': 'Serviço', // Adicionado
+        'servico': 'Serviço',
         'epi': 'EPI',
         'epc': 'EPC',
         'risco': 'Risco',
@@ -37,6 +37,7 @@ const humanizarLog = (log) => {
     const camposLegiveis = {
         'nome': 'Nome',
         'nome_servico': 'Nome do Serviço',
+        'nome_empresa': 'Empresa',
         'cnpj': 'CNPJ',
         'email': 'E-mail',
         'telefone': 'Telefone',
@@ -45,14 +46,16 @@ const humanizarLog = (log) => {
         'unidade': 'Unidade',
         'endereco': 'Endereço',
         'status': 'Status',
-        'descricao': 'Descrição', // Adicionado
-        'responsaveis': 'Responsáveis' // Adicionado
+        'descricao': 'Descrição',
+        'responsaveis': 'Responsáveis',
+        'contrato': 'Contrato',
+        'qtd_itens': 'Qtd. Itens'
     };
 
     const nomeTabela = tabelas[log.tabela_afetada] ||
         (log.tabela_afetada ? log.tabela_afetada.charAt(0).toUpperCase() + log.tabela_afetada.slice(1) : "Sistema");
 
-    // Parse seguro dos dados
+    // Parse seguro dos dados (JSON salvo no banco)
     let dados = {};
     if (log.dados_novos) {
         try {
@@ -60,8 +63,9 @@ const humanizarLog = (log) => {
         } catch (e) { dados = {}; }
     }
 
-    // --- LÓGICA DE FORMATAÇÃO ---
+    // --- LÓGICA DE FORMATAÇÃO DO TEXTO ---
 
+    // 1. CREATE (INSERT)
     if (log.acao === 'INSERT') {
         titulo = `Criou um novo registro em <strong>${nomeTabela}</strong>`;
         cor = "green-500";
@@ -73,12 +77,12 @@ const humanizarLog = (log) => {
             titulo = `Cadastrou <strong>${nomeItem}</strong> em ${nomeTabela}`;
         }
 
+        // 2. EDIT (UPDATE)
     } else if (log.acao === 'UPDATE') {
         titulo = `Atualizou informações em <strong>${nomeTabela}</strong>`;
         cor = "sky-500";
         icone = "edit";
 
-        // LÓGICA MELHORADA PARA DETALHES DE EDIÇÃO
         if (dados && Object.keys(dados).length > 0) {
             const alteracoes = [];
 
@@ -94,38 +98,48 @@ const humanizarLog = (log) => {
                         const nomeCampo = camposLegiveis[key] || key;
                         let valorPara = value.para === null || value.para === '' ? 'Vazio' : value.para;
 
-                        // Tratamento especial para textos muito longos (como descrição)
+                        // Encurta textos longos
                         if (key === 'descricao' && valorPara.length > 30) {
                             valorPara = 'Texto atualizado';
                         }
 
                         // Formata: "Nome: Novo Valor"
-                        // O uso do <i> deixa o valor em itálico e cinza para destacar
                         alteracoes.push(`${nomeCampo}: <i class="text-zinc-500 font-normal">"${valorPara}"</i>`);
                     }
                     // Se for string direta (fallback)
                     else if (typeof value === 'string') {
                         const nomeCampo = camposLegiveis[key] || key;
-                        alteracoes.push(value);
+                        alteracoes.push(`${nomeCampo}: ${value}`);
                     }
                 }
 
                 if (alteracoes.length > 0) {
-                    // Junta as alterações com vírgula
                     titulo = `Alterou <strong>${alteracoes.join(', ')}</strong> em ${nomeTabela}`;
                 }
             }
         }
 
+        // 3. DELETE / INATIVAR
     } else if (log.acao === 'DELETE' || log.acao === 'INATIVAR') {
         titulo = `Inativou/Removeu um registro em <strong>${nomeTabela}</strong>`;
         cor = "red-500";
         icone = "trash";
 
-        if (dados && dados.status) {
+        // Tenta identificar O QUE foi apagado
+        const identificador = dados.nome || dados.nome_servico || dados.nome_empresa || dados.titulo || dados.nome_risco;
+        const contrato = dados.contrato || dados.contrato_numero;
+
+        if (contrato) {
+            // Específico para OS
+            titulo = `Inativou a <strong>OS Contrato #${contrato}</strong>`;
+        } else if (identificador) {
+            // Genérico (Serviço, Cliente, Risco)
+            titulo = `Inativou <strong>${identificador}</strong> em ${nomeTabela}`;
+        } else if (dados && dados.status) {
             titulo += ` <span class="text-xs text-zinc-400">(${dados.status})</span>`;
         }
 
+        // 4. LOGIN
     } else if (log.acao === 'LOGIN') {
         titulo = "Realizou login no sistema";
         cor = "zinc-500";
@@ -143,7 +157,7 @@ const humanizarLog = (log) => {
     };
 };
 
-// --- ROTA 1: RENDERIZAÇÃO DA TELA ---
+// --- ROTA 1: RENDERIZAÇÃO DA TELA (HTML) ---
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -165,13 +179,13 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- ROTA 2: API DE DADOS COM PAGINAÇÃO ---
+// --- ROTA 2: API DE DADOS COM PAGINAÇÃO (JSON) ---
 router.get("/api/listar", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
         const idUnidade = userLogado.id_unidade || userLogado.unidade_id;
 
-        // Filtros e Paginação
+        // Filtros e Paginação recebidos do front
         const { id_usuario, modulo, data_inicio, page } = req.query;
 
         const paginaAtual = parseInt(page) || 1;
@@ -195,13 +209,13 @@ router.get("/api/listar", verificarAutenticacao, async (req, res) => {
             params.push(data_inicio);
         }
 
-        // QUERY 1: Total (Count)
+        // QUERY 1: Total (Count) para calcular paginação
         const sqlCount = `SELECT COUNT(*) as total FROM log_atividade l ${whereClause}`;
         const [rowsCount] = await db.query(sqlCount, params);
         const totalRegistros = rowsCount[0].total;
         const totalPaginas = Math.ceil(totalRegistros / limitePorPagina);
 
-        // QUERY 2: Dados (Select)
+        // QUERY 2: Dados (Select) com Limit e Offset
         const sqlData = `
             SELECT l.*, u.nome_completo 
             FROM log_atividade l
@@ -214,6 +228,7 @@ router.get("/api/listar", verificarAutenticacao, async (req, res) => {
         const paramsData = [...params, limitePorPagina, offset];
         const [logs] = await db.query(sqlData, paramsData);
 
+        // Formata os logs usando a função melhorada
         const logsFormatados = logs.map(log => humanizarLog(log));
 
         res.json({
