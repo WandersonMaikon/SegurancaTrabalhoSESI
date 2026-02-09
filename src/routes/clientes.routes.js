@@ -12,18 +12,22 @@ const verificarSeEhAdmin = (user) => {
     return false;
 };
 
-// --- LISTAR CLIENTES (Mantido original) ---
+// --- LISTAR CLIENTES ---
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
+        // SELECT busca c.* (incluindo o novo campo 'ativo')
         let query = `
             SELECT c.*, u.nome_fantasia as nome_unidade
             FROM cliente c
             JOIN unidade u ON c.id_unidade = u.id_unidade
-            WHERE c.deleted_at IS NULL
+            WHERE c.deleted_at IS NULL 
         `;
+        // Nota: Mantivemos o deleted_at IS NULL para que registros "excluídos" não apareçam.
+        // Registros "Inativos" (ativo = 0) vão aparecer normalmente.
+
         const params = [];
 
         if (!ehAdmin) {
@@ -46,7 +50,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- FORMULÁRIO DE NOVO CLIENTE (Mantido original) ---
+// --- FORMULÁRIO DE NOVO CLIENTE ---
 router.get("/novo", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -70,7 +74,7 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- SALVAR NOVO CLIENTE (ALTERADO AQUI) ---
+// --- SALVAR NOVO CLIENTE ---
 router.post("/salvar", verificarAutenticacao, async (req, res) => {
     try {
         const data = req.body;
@@ -92,33 +96,33 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         }
 
         // 3. Validação de Duplicidade (CNPJ)
-        const [existente] = await db.query("SELECT id_cliente FROM cliente WHERE cnpj = ?", [data.cnpj]);
+        // Ignora deletados na verificação de duplicidade? Geralmente sim.
+        const [existente] = await db.query("SELECT id_cliente FROM cliente WHERE cnpj = ? AND deleted_at IS NULL", [data.cnpj]);
 
         if (existente.length > 0) {
-            return res.status(400).json({ success: false, message: "Já existe um cliente cadastrado com este CNPJ." });
+            return res.status(400).json({ success: false, message: "Já existe um cliente ativo cadastrado com este CNPJ." });
         }
 
         const id_cliente = uuidv4();
 
-        // --- LÓGICA NOVA: Indústria e Cartão Vantagem ---
-        // Verifica se é indústria (checkbox html manda 'on' ou true, se vazio é false)
+        // --- LÓGICA: Indústria e Cartão Vantagem ---
         const ehIndustria = (data.empresa_industria === true || data.empresa_industria === 'true' || data.empresa_industria === 'on') ? 1 : 0;
 
         let valorCartao = 0.00;
         if (ehIndustria === 1 && data.cartao_vantagem) {
-            // Converte virgula para ponto e transforma em numero
             valorCartao = parseFloat(data.cartao_vantagem.toString().replace(',', '.'));
             if (isNaN(valorCartao)) valorCartao = 0.00;
         }
-        // ------------------------------------------------
 
+        // --- ATUALIZADO: Incluído campo 'ativo' no INSERT ---
         const sql = `
             INSERT INTO cliente (
                 id_cliente, id_unidade, nome_empresa, industria, cnpj, email, 
-                cartao_vantagem, -- COLUNA NOVA
+                cartao_vantagem,
                 telefone, num_colaboradores, nome_representante, cpf_mf, rg_ci,
-                cep, logradouro, numero, bairro, cidade, estado
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                cep, logradouro, numero, bairro, cidade, estado,
+                ativo 
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         const values = [
@@ -128,7 +132,7 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
             ehIndustria,
             data.cnpj,
             data.email,
-            valorCartao, // VALOR NOVO
+            valorCartao,
             data.telefone,
             data.ncolaboradores || 0,
             data.representante_nome,
@@ -139,7 +143,8 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
             data.numero,
             data.bairro,
             data.cidade,
-            data.estado
+            data.estado,
+            1 // Campo 'ativo' setado como true (1)
         ];
 
         await db.query(sql, values);
@@ -152,17 +157,28 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- Inativar Múltiplos (Mantido igual) ---
+// --- INATIVAR MÚLTIPLOS (ATUALIZADO) ---
+// Alterado para mudar o status 'ativo' para 0, em vez de 'deleted_at'.
+// Assim o cliente continua na lista, mas com badge "Inativo".
 router.post("/inativar-multiplos", verificarAutenticacao, async (req, res) => {
     try {
         const { ids } = req.body;
         if (!ids || !Array.isArray(ids) || ids.length === 0) return res.status(400).json({ success: false, message: "Nenhum cliente selecionado." });
+
         const validIds = ids.map(id => String(id).trim()).filter(id => id.length > 0);
+
+        if (validIds.length === 0) return res.status(400).json({ success: false, message: "IDs inválidos." });
+
         const placeholders = validIds.map(() => '?').join(',');
-        const sql = `UPDATE cliente SET deleted_at = NOW() WHERE id_cliente IN (${placeholders})`;
+
+        // ATENÇÃO: Mudamos para SET ativo = 0
+        const sql = `UPDATE cliente SET ativo = 0 WHERE id_cliente IN (${placeholders})`;
+
         await db.query(sql, validIds);
-        return res.status(200).json({ success: true, message: "Clientes inativados." });
+
+        return res.status(200).json({ success: true, message: "Clientes inativados com sucesso." });
     } catch (error) {
+        console.error("Erro ao inativar clientes:", error);
         return res.status(500).json({ success: false, message: "Erro interno." });
     }
 });

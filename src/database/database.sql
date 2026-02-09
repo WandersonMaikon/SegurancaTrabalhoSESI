@@ -94,7 +94,7 @@ CREATE TABLE cliente (
     bairro VARCHAR(100),
     cidade VARCHAR(100),
     estado VARCHAR(2),
-    
+    ativo BOOLEAN DEFAULT TRUE,
     -- Controle de Auditoria e Sync
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

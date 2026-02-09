@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raven - Clientes</title>
+    <title>ProS - Clientes</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
@@ -108,6 +108,10 @@
             <%= clientesJson %>
         </div>
 
+        <div id="permissoes-clientes-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['clientes'] ? user.permissoes['clientes'] : {}) %>
+        </div>
+
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
@@ -115,6 +119,49 @@
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
+
+            // LER AS PERMISSÕES DA DIV OCULTA (VS Code não reclama e EJS não quebra)
+            let permClientes = {};
+            try {
+                const divPerm = document.getElementById('permissoes-clientes-json');
+                if (divPerm && divPerm.innerText) {
+                    permClientes = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) {
+                console.error("Erro ao ler permissões:", e);
+            }
+
+            let canEdit = false;
+            let canCreate = false;
+            let canInactivate = false;
+
+            // Admin Bypass
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+                canCreate = true;
+                canInactivate = true;
+            } else {
+                // Permissão para Editar
+                if ((permClientes.pode_editar == 1 || permClientes.pode_editar === true) ||
+                    (permClientes.tudo == 1 || permClientes.tudo === true)) {
+                    canEdit = true;
+                }
+                // Permissão para Criar
+                if ((permClientes.pode_criar == 1 || permClientes.pode_criar === true) ||
+                    (permClientes.tudo == 1 || permClientes.tudo === true)) {
+                    canCreate = true;
+                }
+                // Permissão para Inativar
+                if ((permClientes.pode_inativar == 1 || permClientes.pode_inativar === true) ||
+                    (permClientes.tudo == 1 || permClientes.tudo === true)) {
+                    canInactivate = true;
+                }
+            }
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -134,28 +181,30 @@
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-index', index);
 
-                    const statusHtml = '<span class="badge bg-green-500/10 text-green-500">Ativo</span>';
+                    const statusHtml = (Number(cliente.ativo) === 1)
+                        ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
+                        : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
                     const localizacao = (cliente.cidade && cliente.estado)
                         ? `${cliente.cidade} - ${cliente.estado}`
                         : (cliente.cidade || '-');
 
                     tr.innerHTML = `
-          <td></td>
-          <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-            ${cliente.nome_empresa || 'Sem Nome'}
-          </td>
-          <td class="whitespace-nowrap">${cliente.cnpj || '-'}</td>
-          <td class="whitespace-nowrap">${localizacao}</td>
-          <td>${statusHtml}</td>
-          <td>
-            <div class="flex items-center gap-1 relative z-[1]">
-              <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                <span class=" icon-[lucide--edit] text-lg"></span>
-              </a>
-            </div>
-          </td>
-        `;
+                        <td></td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
+                            ${cliente.nome_empresa || 'Sem Nome'}
+                        </td>
+                        <td class="whitespace-nowrap">${cliente.cnpj || '-'}</td>
+                        <td class="whitespace-nowrap">${localizacao}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class=" icon-[lucide--edit] text-lg"></span>
+                                </a>
+                            </div>
+                        </td>
+                    `;
                     tbody.appendChild(tr);
                 });
 
@@ -200,14 +249,62 @@
                     table.columns(4).search(this.value).draw();
                 });
 
-                // Ação Fetch Inativar
+                // =========================================================================
+                // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+                    // LINK EDITAR
+                    const linkEditar = e.target.closest('a[href^="/clientes/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para editar clientes.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // LINK NOVO
+                    const linkNovo = e.target.closest('a[href="/clientes/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para criar novos clientes.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+                });
+
+                // =========================================================================
+                // 3. AÇÃO INATIVAR (Com Bloqueio)
+                // =========================================================================
                 deleteBtn.addEventListener('click', function () {
+
+                    if (!canInactivate) {
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para inativar clientes.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
+                    }
+
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
 
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
-                        if (listaClientes[index]) selectedIds.push(listaClientes[index].id_cliente);
+                        if (index !== null && listaClientes[index]) {
+                            const c = listaClientes[index];
+                            selectedIds.push(c.id_cliente);
+                        }
                     });
 
                     if (selectedIds.length === 0) return;
@@ -224,9 +321,23 @@
                             try {
                                 const response = await fetch('/clientes/inativar-multiplos', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
+                                    },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
+
+                                if (!response.ok) {
+                                    if (response.status === 404) throw new Error('Rota não encontrada (404).');
+                                    if (response.status === 500) throw new Error('Erro interno do servidor (500).');
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+                                    throw new Error(`Erro desconhecido: ${response.status}`);
+                                }
+
                                 const data = await response.json();
                                 if (data.success) {
                                     Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
@@ -234,7 +345,8 @@
                                     Swal.fire('Erro', data.message, 'error');
                                 }
                             } catch (error) {
-                                Swal.fire('Erro', 'Falha na comunicação.', 'error');
+                                console.error(error);
+                                Swal.fire('Erro', error.message || 'Falha na comunicação.', 'error');
                             }
                         }
                     });
