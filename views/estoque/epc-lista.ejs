@@ -7,7 +7,6 @@
     <title>ProS - EPC</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
@@ -16,7 +15,6 @@
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -119,6 +117,10 @@
 
         <div id="epc-data" style="display: none;"><%- epcsJson %></div>
 
+        <div id="permissoes-user" style="display: none;">
+            <%- JSON.stringify(user.permissoes || {}) %>
+        </div>
+
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
@@ -128,37 +130,94 @@
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
         <script>
+            // Variáveis globais de usuário
+            const userEmail = "<%= user.email %>";
+            const userPerfil = "<%= user.nome_perfil %>";
+
+            // 1. LER PERMISSÕES DO JSON OCULTO
+            let permissoesUsuario = {};
+            try {
+                const divPerm = document.getElementById('permissoes-user');
+                if (divPerm && divPerm.innerText.trim()) {
+                    permissoesUsuario = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) { console.error("Erro ao ler permissões", e); }
+
+            // 2. DEFINIR AS FLAGS (Pode Criar? Pode Editar?)
+            let canCreate = false;
+            let canEdit = false;
+            let canInactivate = false;
+
+            // Lógica de Super Admin
+            if (userEmail === 'admin@admin.com' || userPerfil === 'Administrador' || userPerfil === 'Super Admin') {
+                canCreate = true;
+                canEdit = true;
+                canInactivate = true;
+            } else {
+                // Verifica se tem permissão no módulo 'epcs' (ou 'epc' dependendo de como salvou no banco)
+                const permEpc = permissoesUsuario['epcs'] || permissoesUsuario['epc'] || {};
+
+                if (permEpc.criar == 1 || permEpc.criar === true) canCreate = true;
+                if (permEpc.editar == 1 || permEpc.editar === true) canEdit = true;
+                if (permEpc.inativar == 1 || permEpc.inativar === true) canInactivate = true;
+
+                // Se tiver permissão 'tudo', libera
+                if (permEpc.tudo == 1 || permEpc.tudo === true) {
+                    canCreate = true; canEdit = true; canInactivate = true;
+                }
+            }
+
+            // =================================================================
+            // 3. INTERCEPTADOR DE CLIQUES (BLOQUEIO FRONT-END)
+            // =================================================================
             document.addEventListener('DOMContentLoaded', () => {
 
-                // ============================================================
-                // 1. LÓGICA DE ALERTA DE PERMISSÃO (Igual Riscos)
-                // Se o backend redirecionar para /epc?alert=sem_permissao
-                // ============================================================
-                const urlParams = new URLSearchParams(window.location.search);
-                const alertType = urlParams.get('alert');
+                // Monitora cliques no corpo da página (Event Delegation)
+                document.body.addEventListener('click', function (e) {
 
-                if (alertType === 'sem_permissao') {
-                    Swal.fire({
-                        title: 'Acesso Negado',
-                        text: 'Você não tem permissão para acessar a tela de edição/criação.',
-                        icon: 'warning',
-                        confirmButtonColor: '#f59e0b',
-                        confirmButtonText: 'Entendido'
-                    });
-                    // Limpa a URL para não ficar mostrando o alerta se der F5
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
+                    // A) Clicou em "Criar Novo"?
+                    const linkNovo = e.target.closest('a[href="/epc/novo"]');
+                    if (linkNovo) {
+                        if (!canCreate) {
+                            e.preventDefault(); // <--- AQUI A MÁGICA: Não deixa ir para a página 404
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para criar novos EPCs.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    }
+
+                    // B) Clicou em "Editar"?
+                    const linkEditar = e.target.closest('a[href^="/epc/editar/"]');
+                    if (linkEditar) {
+                        if (!canEdit) {
+                            e.preventDefault(); // <--- BLOQUEIA AQUI TAMBÉM
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para editar este EPC.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    }
+                });
 
                 // ============================================================
-                // 2. LER DADOS E MONTAR TABELA
+                // 4. RESTANTE DA LÓGICA (TABELA)
                 // ============================================================
+
+                // Ler JSON da Tabela
                 let listaEpcs = [];
                 try {
                     const divJson = document.getElementById('epc-data');
                     if (divJson && divJson.innerText.trim()) {
                         listaEpcs = JSON.parse(divJson.innerText);
                     }
-                } catch (e) { console.error("Erro ao ler JSON de EPCs:", e); }
+                } catch (e) { }
 
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
@@ -173,12 +232,8 @@
 
                     tr.innerHTML = `
                         <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                            ${epc.nome}
-                        </td>
-                        <td class="whitespace-nowrap">
-                            ${epc.observacoes || '-'}
-                        </td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${epc.nome}</td>
+                        <td class="whitespace-nowrap">${epc.observacoes || '-'}</td>
                         <td>${statusHtml}</td>
                         <td>
                             <div class="flex items-center gap-1 relative z-[1]">
@@ -191,7 +246,7 @@
                     tbody.appendChild(tr);
                 });
 
-                // 3. Inicializar DataTables
+                // Inicializar DataTables
                 const table = new DataTable('#table_epc', {
                     lengthChange: false,
                     pageLength: 9,
@@ -201,11 +256,7 @@
                         { orderable: false, className: 'select-checkbox', targets: 0 },
                         { orderable: false, targets: 4 }
                     ],
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child',
-                        headerCheckbox: true
-                    },
+                    select: { style: 'multi', selector: 'td:first-child', headerCheckbox: true },
                     order: [[1, 'asc']],
                     language: {
                         emptyTable: "Nenhum EPC cadastrado",
@@ -215,20 +266,11 @@
                     }
                 });
 
-                // 4. Busca
-                const searchInput = document.getElementById('epcSearch');
-                searchInput.addEventListener('input', e => {
-                    table.search(e.target.value).draw();
-                });
+                // Filtros
+                document.getElementById('epcSearch').addEventListener('input', e => table.search(e.target.value).draw());
+                document.getElementById('statusFilter').addEventListener('change', function () { table.columns(3).search(this.value).draw(); });
 
-                // 5. Filtro de Status
-                document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(3).search(this.value).draw();
-                });
-
-                // ============================================================
-                // 3. LÓGICA DE INATIVAR (Igual Riscos - Tratamento de 403)
-                // ============================================================
+                // Lógica Botão Inativar (Com bloqueio visual também)
                 const deleteBtn = document.getElementById('deleteBtnEpc');
 
                 table.on('select deselect', function () {
@@ -238,6 +280,19 @@
                 });
 
                 deleteBtn.addEventListener('click', () => {
+                    // Bloqueio extra no botão de excluir
+                    if (!canInactivate) {
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para inativar EPCs.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
+                    }
+
+                    // Se passou, executa a lógica de exclusão normal
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
                     selectedRows.each(function (row) {
@@ -261,28 +316,9 @@
                             try {
                                 const response = await fetch('/epc/inativar-multiplos', {
                                     method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json' // Importante para o middleware saber que é API
-                                    },
+                                    headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
-
-                                // Tratamento de Erro de Permissão (403)
-                                if (response.status === 403) {
-                                    Swal.fire({
-                                        title: 'Acesso Negado',
-                                        text: 'Você não tem permissão para inativar EPCs.',
-                                        icon: 'warning',
-                                        confirmButtonColor: '#f59e0b'
-                                    });
-                                    return;
-                                }
-
-                                if (!response.ok) {
-                                    throw new Error(`Erro no servidor: ${response.status}`);
-                                }
-
                                 const data = await response.json();
                                 if (data.success) {
                                     Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
@@ -290,12 +326,11 @@
                                     Swal.fire('Erro', data.message, 'error');
                                 }
                             } catch (error) {
-                                Swal.fire('Erro', error.message || 'Falha na comunicação.', 'error');
+                                Swal.fire('Erro', 'Falha na comunicação.', 'error');
                             }
                         }
                     });
                 });
-
             });
 
             document.querySelectorAll('.js-select').forEach(select => {
