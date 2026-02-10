@@ -129,6 +129,10 @@
 
         <div id="epi-data" class="hidden"><%- episJson %></div>
 
+        <div id="permissoes-epi-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['epis'] ? user.permissoes['epis'] : {}) %>
+        </div>
+
         <script src="/js/theme.js"></script>
 
         <script src="/vendor/js/jquery.min.js"></script>
@@ -138,6 +142,37 @@
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
+
+            // Ler permissões
+            let permEpi = {};
+            try {
+                const divPerm = document.getElementById('permissoes-epi-json');
+                if (divPerm && divPerm.innerText) {
+                    permEpi = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) {
+                console.error("Erro ao ler permissões de EPI:", e);
+            }
+
+            let canEdit = false;
+            let canCreate = false;
+            let canInactivate = false;
+
+            // Admin Bypass
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+                canCreate = true;
+                canInactivate = true;
+            } else {
+                if ((permEpi.pode_editar == 1 || permEpi.pode_editar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canEdit = true; }
+                if ((permEpi.pode_criar == 1 || permEpi.pode_criar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canCreate = true; }
+                if ((permEpi.pode_inativar == 1 || permEpi.pode_inativar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canInactivate = true; }
+            }
+        </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -156,7 +191,6 @@
                 // Função para formatar data (YYYY-MM-DD -> DD/MM/YYYY)
                 const formatDate = (dateString) => {
                     if (!dateString) return '-';
-                    // Se vier timestamp ou formato ISO completo, cortamos
                     const dataPart = dateString.split('T')[0];
                     const [ano, mes, dia] = dataPart.split('-');
                     return `${dia}/${mes}/${ano}`;
@@ -167,9 +201,7 @@
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-index', index);
 
-                    // Badge Local/Global
                     let escopoBadge = '';
-                    
 
                     tr.innerHTML = `
                         <td></td>
@@ -194,8 +226,8 @@
                         </td>
                         <td>
                             <div class="flex items-center gap-1 relative z-[1]">
-                                <a href="/epi/editar/${epi.id_epi}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                <a href="/epi/ver/${epi.id_epi}" class="btn !p-1.5 hover:!text-sky-500" title="Ver Detalhes">
+                                    <span class="icon-[lucide--eye] text-lg"></span>
                                 </a>
                             </div>
                         </td>
@@ -237,7 +269,7 @@
                     table.search(e.target.value).draw();
                 });
 
-                // 5. Inativar (Delete)
+                // 5. Inativar (Delete) - Controle de Visibilidade
                 const deleteBtn = document.getElementById('deleteBtnEpi');
 
                 table.on('select deselect', function () {
@@ -246,14 +278,60 @@
                     deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
                 });
 
+                // =========================================================================
+                // 6. INTERCEPTADOR DE CLIQUES (NOVO / EDITAR)
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+                    // Proteção do botão NOVO
+                    const linkNovo = e.target.closest('a[href="/epi/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para criar novos EPIs.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // Se no futuro voltar a ter botão editar direto na lista (hoje é VER)
+                    // Deixamos o código pronto caso mude a rota de /ver/ para /editar/
+                    const linkEditar = e.target.closest('a[href^="/epi/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para editar EPIs.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+                });
+
+                // =========================================================================
+                // 7. AÇÃO INATIVAR (Com Bloqueio)
+                // =========================================================================
                 deleteBtn.addEventListener('click', () => {
+                    // Verifica permissão antes de tudo
+                    if (!canInactivate) {
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para inativar EPIs.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                        return;
+                    }
+
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
 
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
                         if (listaEpis[index]) {
-                            // Atenção: Use id_epi aqui (INT)
                             selectedIds.push(listaEpis[index].id_epi);
                         }
                     });
@@ -291,8 +369,7 @@
                     });
                 });
 
-                // 6. Lógica de Consultar CA na Lista (API)
-                // Usamos "event delegation" pois o DataTables recria o DOM
+                // 8. Lógica de Consultar CA na Lista (API)
                 document.querySelector('#table_epi').addEventListener('click', async (e) => {
                     const btn = e.target.closest('.btn-consultar-ca');
                     if (!btn) return;
@@ -301,7 +378,6 @@
                     const tdValidade = btn.closest('tr').querySelector('.validade-cell');
                     const spanStatus = tdValidade.querySelector('.status-api');
 
-                    // Estado de carregando
                     btn.disabled = true;
                     btn.classList.add('opacity-50');
                     spanStatus.textContent = ' Checando...';
@@ -312,10 +388,7 @@
                         if (!response.ok) throw new Error();
                         const data = await response.json();
 
-                        // Atualiza visualmente
                         const hoje = new Date();
-
-                        // Parse da data DD/MM/YYYY para Date object
                         const [d, m, y] = data.validade.split('/');
                         const dataValidade = new Date(`${y}-${m}-${d}`);
 
@@ -327,13 +400,11 @@
                             textoStatus = '(Vencido)';
                         }
 
-                        // Atualiza a célula com a data nova DA API
                         tdValidade.innerHTML = `
                             <span class="validade-text font-bold ${classeCor}">${data.validade}</span>
                             <span class="text-xs ${classeCor}">${textoStatus}</span>
                         `;
 
-                        // Opcional: Feedback suave
                         const Toast = Swal.mixin({
                             toast: true,
                             position: 'top-end',

@@ -16,7 +16,8 @@ const verificarSeEhAdmin = (user) => {
 // =============================================================================
 // 1. LISTAR ORDENS DE SERVIÇO (GET)
 // =============================================================================
-router.get("/", verificarAutenticacao, verificarPermissao('ordem_servico', 'ver'), async (req, res) => {
+// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+router.get("/", verificarAutenticacao, verificarPermissao('ordens_servico', 'ver'), async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
@@ -56,7 +57,8 @@ router.get("/", verificarAutenticacao, verificarPermissao('ordem_servico', 'ver'
 // =============================================================================
 // 2. TELA DE NOVA OS (GET)
 // =============================================================================
-router.get("/novo", verificarAutenticacao, verificarPermissao('ordem_servico', 'criar'), async (req, res) => {
+// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+router.get("/novo", verificarAutenticacao, verificarPermissao('ordens_servico', 'criar'), async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
@@ -117,7 +119,8 @@ router.get("/novo", verificarAutenticacao, verificarPermissao('ordem_servico', '
 // =============================================================================
 // 3. SALVAR NOVA OS (POST) - COM LOG DETALHADO
 // =============================================================================
-router.post("/salvar", verificarAutenticacao, verificarPermissao('ordem_servico', 'criar'), async (req, res) => {
+// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico', 'criar'), async (req, res) => {
     let connection;
     try {
         const data = req.body;
@@ -218,7 +221,8 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordem_servico'
 // =============================================================================
 // 4. INATIVAR MÚLTIPLOS (POST) - COM LOG
 // =============================================================================
-router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('ordem_servico', 'inativar'), async (req, res) => {
+// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('ordens_servico', 'inativar'), async (req, res) => {
     try {
         const { ids } = req.body;
         const userLogado = req.session.user;
@@ -229,7 +233,6 @@ router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('or
         const placeholders = validIds.map(() => '?').join(',');
 
         // 1. Busca dados antes de inativar para o log (Opcional, mas bom para saber o que foi apagado)
-        // Como são múltiplos, podemos simplificar e logar apenas os IDs ou fazer um select IN
         const [osParaDeletar] = await db.query(`SELECT id_ordem_servico, contrato_numero FROM ordem_servico WHERE id_ordem_servico IN (${placeholders})`, validIds);
 
         // 2. Executa a Inativação (Soft Delete)
@@ -265,7 +268,8 @@ router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('or
 // =============================================================================
 // 5. VISUALIZAR OS (GET)
 // =============================================================================
-router.get("/ver/:id", verificarAutenticacao, verificarPermissao('ordem_servico', 'ver'), async (req, res) => {
+// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+router.get("/ver/:id", verificarAutenticacao, verificarPermissao('ordens_servico', 'ver'), async (req, res) => {
     try {
         const { id } = req.params;
         const userLogado = req.session.user;

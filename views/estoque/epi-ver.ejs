@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Visualizar EPI</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Visualizar EPI</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <a href="/epi" class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">EPI</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Detalhes</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <div class="w-full">
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6">
+
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do EPI</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">
+                                            Modo de visualização. Para alterar, inative e cadastre novamente.
+                                        </p>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nº do CA</label>
+                                            <div class="relative">
+                                                <input type="text"
+                                                    class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 cursor-not-allowed"
+                                                    value="<%= epi.ca %>" readonly disabled>
+                                                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400">
+                                                    <span class="icon-[lucide--lock]"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Nome do Equipamento</label>
+                                            <input type="text"
+                                                class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 cursor-not-allowed"
+                                                value="<%= epi.nome_equipamento %>" readonly disabled>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+                                            <div>
+                                                <label class="mb-2 block font-medium text-zinc-500">Validade MTE</label>
+                                                <input type="text"
+                                                    class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 text-zinc-500 cursor-not-allowed border-dashed"
+                                                    value="<%= epi.viewData %>" readonly disabled>
+                                            </div>
+
+                                            <div>
+                                                <label class="mb-2 block font-medium text-zinc-500">Situação</label>
+                                                <div class="relative flex items-center w-full">
+                                                    <input type="text"
+                                                        class="input h-11 w-full bg-zinc-50 dark:bg-zinc-950/50 font-bold cursor-not-allowed border-dashed !pe-12 <%= epi.viewClass %>"
+                                                        value="<%= epi.viewStatus %>" readonly disabled>
+                                                    <div
+                                                        class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center">
+                                                        <span
+                                                            class="icon-[lucide--<%= epi.viewIcon %>] text-xl <%= epi.viewClass %>"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium text-zinc-500">Aprovado p/
+                                                Laudo</label>
+                                            <div
+                                                class="p-3 w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-500 min-h-[80px]">
+                                                <%= epi.aprovado_laudo || "-" %>
+                                            </div>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium text-zinc-500">Observação
+                                                Análise</label>
+                                            <div
+                                                class="p-3 w-full bg-zinc-50 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-md text-zinc-500 min-h-[80px]">
+                                                <%= epi.obs_analise || "-" %>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center justify-end gap-3 pt-4">
+                                    <a href="/epi"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6">
+                                        <span class="icon-[lucide--arrow-left] text-lg me-2"></span>
+                                        Voltar para Lista
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+</body>
+
+</html>
