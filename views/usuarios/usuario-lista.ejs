@@ -75,16 +75,6 @@
                                     </div>
 
                                     <div class="flex items-center gap-2">
-                                        <div class="relative">
-                                            <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto">
-                                                <a href="#!" class="dropdown-item"><span
-                                                        class="icon-[lucide--copy] dropdown-icon"></span> Copiar
-                                                    JSON</a>
-                                                <a href="#!" class="dropdown-item"><img src="/images/files/excel.svg"
-                                                        class="h-4 me-2" alt=""> Baixar Excel</a>
-                                            </div>
-                                        </div>
-
                                         <a href="/usuario/novo"
                                             class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
                                             <span class="icon-[lucide--user-plus] text-lg me-1"></span>
@@ -115,8 +105,10 @@
 
         </main>
 
-        <div id="dados-usuarios-json" style="display: none;">
-            <%= usuariosJson %>
+        <div id="dados-usuarios-json" style="display: none;"><%- usuariosJson %></div>
+
+        <div id="permissoes-user" style="display: none;">
+            <%- JSON.stringify(user.permissoes || {}) %>
         </div>
 
         <script src="/js/theme.js"></script>
@@ -127,10 +119,17 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
+            // 1. LER PERMISSÕES COM SEGURANÇA
             const userEmail = "<%= user.email %>";
             const userPerfilNome = "<%= user.nome_perfil %>";
-            // Pega as permissões do módulo 'usuarios' da sessão
-            const permUsuario = "<% - JSON.stringify(user.permissoes && user.permissoes['usuarios'] ? user.permissoes['usuarios'] : {}) %>";
+
+            let permUsuario = {};
+            try {
+                const divPerm = document.getElementById('permissoes-user');
+                const todasPermissoes = JSON.parse(divPerm.innerText);
+                // Verifica 'usuarios' ou 'usuario'
+                permUsuario = todasPermissoes['usuarios'] || todasPermissoes['usuario'] || {};
+            } catch (e) { console.error(e); }
 
             let canEdit = false;
             let canCreate = false;
@@ -142,28 +141,23 @@
                 canCreate = true;
                 canInactivate = true;
             } else {
-                // Permissão para Editar
-                if ((permUsuario.pode_editar == 1 || permUsuario.pode_editar === true) ||
-                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                const podeTudo = (permUsuario.tudo == 1 || permUsuario.tudo === true);
+
+                if (podeTudo || permUsuario.editar == 1 || permUsuario.editar === true || permUsuario.pode_editar == 1) {
                     canEdit = true;
                 }
-                // Permissão para Criar
-                if ((permUsuario.pode_criar == 1 || permUsuario.pode_criar === true) ||
-                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                if (podeTudo || permUsuario.criar == 1 || permUsuario.criar === true || permUsuario.pode_criar == 1) {
                     canCreate = true;
                 }
-                // Permissão para Inativar
-                if ((permUsuario.pode_inativar == 1 || permUsuario.pode_inativar === true) ||
-                    (permUsuario.tudo == 1 || permUsuario.tudo === true)) {
+                if (podeTudo || permUsuario.inativar == 1 || permUsuario.inativar === true || permUsuario.pode_inativar == 1) {
                     canInactivate = true;
                 }
             }
-            console.log("Permissões Usuário -> Criar:", canCreate, "| Editar:", canEdit, "| Inativar:", canInactivate);
         </script>
 
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                // 1. LER DADOS
+                // 2. LER DADOS
                 let listaUsuarios = [];
                 try {
                     const divJson = document.getElementById('dados-usuarios-json');
@@ -174,7 +168,7 @@
                     console.error("Erro ao ler JSON:", e);
                 }
 
-                // 2. RENDERIZAR TABELA
+                // 3. RENDERIZAR TABELA
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
@@ -222,15 +216,9 @@
                     tbody.appendChild(tr);
                 });
 
-                // 3. INICIALIZAR DATATABLE
+                // 4. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_usuarios', {
                     lengthChange: false, pageLength: 10, scrollX: true, dom: 'lrtip',
-                    language: {
-                        emptyTable: "Nenhum usuário encontrado",
-                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-                        select: { rows: "" }
-                    },
                     columnDefs: [
                         { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
                     ],
@@ -238,17 +226,31 @@
                     order: [[1, 'asc']]
                 });
 
-                // Busca
                 document.getElementById('userSearch').addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                // Filtro Status
                 document.getElementById('statusFilter').addEventListener('change', function () {
                     table.columns(4).search(this.value).draw();
                 });
 
-                // Botão Inativar (Visibilidade)
+                // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
+                document.body.addEventListener('click', function (e) {
+                    // Editar
+                    const linkEditar = e.target.closest('a[href^="/usuario/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para editar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                    }
+                    // Novo
+                    const linkNovo = e.target.closest('a[href="/usuario/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos usuários.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                    }
+                });
+
+                // 6. INATIVAR
                 const inativarBtn = document.getElementById("inativarBtn");
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
@@ -256,40 +258,8 @@
                     inativarBtn.innerHTML = `Inativar Selecionados (${count})`;
                 });
 
-                // =========================================================================
-                // 4. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
-                // =========================================================================
-                document.body.addEventListener('click', function (e) {
-                    // LINK EDITAR
-                    const linkEditar = e.target.closest('a[href^="/usuario/editar/"]');
-                    if (linkEditar && !canEdit) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para editar usuários.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                    }
-
-                    // LINK NOVO
-                    const linkNovo = e.target.closest('a[href="/usuario/novo"]');
-                    if (linkNovo && !canCreate) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para criar novos usuários.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                    }
-                });
-
-                // 5. AÇÃO INATIVAR (Com Depuração de Erros)
                 inativarBtn.addEventListener('click', function () {
-
+                    // Bloqueio no botão
                     if (!canInactivate) {
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b' });
                         return;
@@ -316,36 +286,21 @@
                     if (selectedIds.length === 0) return;
 
                     Swal.fire({
-                        title: 'Tem certeza?',
-                        text: `Deseja inativar ${selectedIds.length} usuário(s)?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar',
-                        customClass: {
-                            confirmButton: 'btn bg-amber-500 text-white hover:bg-amber-600 px-6 py-2 rounded-lg',
-                            cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
-                        },
-                        buttonsStyling: false
+                        title: 'Tem certeza?', text: `Deseja inativar ${selectedIds.length} usuário(s)?`, icon: 'warning',
+                        showCancelButton: true, confirmButtonText: 'Sim, inativar', cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#ef4444', cancelButtonColor: '#3f3f46'
                     }).then(async (result) => {
                         if (result.isConfirmed) {
                             try {
-                                console.log("Enviando IDs:", selectedIds);
                                 const response = await fetch('/usuario/inativar-multiplos', {
                                     method: 'POST',
                                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
 
-                                // AQUI ESTÁ A CORREÇÃO DO ALERT: Verifica o status da resposta
-                                if (!response.ok) {
-                                    if (response.status === 404) throw new Error('Rota não encontrada (404). Verifique se o arquivo de rotas possui /usuario/inativar-multiplos.');
-                                    if (response.status === 500) throw new Error('Erro interno do servidor (500). Verifique os logs do backend.');
-                                    if (response.status === 403) {
-                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                        return;
-                                    }
-                                    throw new Error(`Erro desconhecido: ${response.status}`);
+                                if (response.status === 403) {
+                                    Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                    return;
                                 }
 
                                 const data = await response.json();
@@ -355,7 +310,6 @@
                                     Swal.fire('Erro', data.message, 'error');
                                 }
                             } catch (err) {
-                                console.error(err);
                                 Swal.fire('Erro no Servidor', err.message, 'error');
                             }
                         }

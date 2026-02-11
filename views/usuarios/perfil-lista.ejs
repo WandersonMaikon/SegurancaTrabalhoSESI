@@ -7,18 +7,14 @@
     <title>ProS - Perfis de Acesso</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
@@ -35,7 +31,6 @@
 
                 <div class="px-4 lg:px-8 py-4">
                     <h2 class="text-xl mb-2">Perfis de Acesso</h2>
-
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
                             <a href="/dashboard"
@@ -60,7 +55,6 @@
 
                             <div
                                 class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-
                                 <div class="flex-grow">
                                     <div class="relative">
                                         <input type="search" class="input !ps-9" name="perfilSearch" id="perfilSearch"
@@ -124,12 +118,13 @@
 
         </main>
 
-        <div id="dados-perfis-json" style="display: none;">
-            <%= perfisJson %>
+        <div id="dados-perfis-json" style="display: none;"><%- perfisJson %></div>
+
+        <div id="permissoes-user" style="display: none;">
+            <%- JSON.stringify(user.permissoes || {}) %>
         </div>
 
         <script src="/js/theme.js"></script>
-
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
@@ -137,27 +132,41 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
+            // Variáveis Globais
             const userEmail = "<%= user.email %>";
             const userPerfilNome = "<%= user.nome_perfil %>";
-            const permPerfil = "<% - JSON.stringify(user.permissoes && user.permissoes['perfis'] ? user.permissoes['perfis'] : {}) %>";
+
+            // 1. LER PERMISSÕES
+            let permPerfil = {};
+            try {
+                const divPerm = document.getElementById('permissoes-user');
+                const todasPermissoes = JSON.parse(divPerm.innerText);
+                // Tenta pegar 'perfis' (plural) ou 'perfil' (singular)
+                permPerfil = todasPermissoes['perfis'] || todasPermissoes['perfil'] || {};
+            } catch (e) { console.error(e); }
 
             let canEdit = false;
             let canCreate = false;
+            let canInactivate = false;
 
-            // Admin Bypass ou Verificação Individual
+            // Admin Bypass
             if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
                 canEdit = true;
                 canCreate = true;
+                canInactivate = true;
             } else {
-                // Permissão para Editar
-                if ((permPerfil.pode_editar == 1 || permPerfil.pode_editar === true) ||
-                    (permPerfil.tudo == 1 || permPerfil.tudo === true)) {
+                // Checa permissão "tudo" ou específica
+                // Suporta tanto 'pode_editar' quanto 'editar' para garantir compatibilidade
+                const podeTudo = (permPerfil.tudo == 1 || permPerfil.tudo === true);
+
+                if (podeTudo || permPerfil.editar == 1 || permPerfil.editar === true || permPerfil.pode_editar == 1) {
                     canEdit = true;
                 }
-                // Permissão para Criar Novo
-                if ((permPerfil.pode_criar == 1 || permPerfil.pode_criar === true) ||
-                    (permPerfil.tudo == 1 || permPerfil.tudo === true)) {
+                if (podeTudo || permPerfil.criar == 1 || permPerfil.criar === true || permPerfil.pode_criar == 1) {
                     canCreate = true;
+                }
+                if (podeTudo || permPerfil.inativar == 1 || permPerfil.inativar === true || permPerfil.pode_inativar == 1) {
+                    canInactivate = true;
                 }
             }
         </script>
@@ -165,7 +174,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
 
-                // 1. LER DADOS
+                // 2. LER DADOS JSON
                 let listaPerfis = [];
                 try {
                     const divJson = document.getElementById('dados-perfis-json');
@@ -174,7 +183,7 @@
                     }
                 } catch (e) { console.error("Erro ao ler JSON:", e); }
 
-                // 2. POPULAR TABELA
+                // 3. POPULAR TABELA
                 const tbody = document.getElementById('tableBody');
                 if (listaPerfis.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum perfil encontrado.</td></tr>';
@@ -204,7 +213,7 @@
                     });
                 }
 
-                // 3. DATATABLE
+                // 4. DATATABLE
                 const table = new DataTable('#table_perfis', {
                     lengthChange: false, pageLength: 9, scrollX: true, dom: 'lrtip',
                     columnDefs: [
@@ -215,30 +224,18 @@
                     order: [[1, 'asc']],
                 });
 
-                // Busca e Filtros
                 document.getElementById('perfilSearch').addEventListener('input', e => table.search(e.target.value).draw());
                 document.getElementById('statusFilter').addEventListener('change', function () { table.columns(4).search(this.value).draw(); });
 
-                // Botão Inativar
-                const inativarBtn = document.getElementById("inativarBtn");
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    inativarBtn.style.display = count > 0 ? "inline-block" : "none";
-                    if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
-                });
-
-                // =========================================================================
-                // 4. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
-                // =========================================================================
+                // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
                 document.body.addEventListener('click', function (e) {
-                    // LINK EDITAR
+                    // Editar
                     const linkEditar = e.target.closest('a[href^="/perfil/editar/"]');
                     if (linkEditar && !canEdit) {
                         e.preventDefault();
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para acessar a tela de edição.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
-
-                    // LINK NOVO
+                    // Novo
                     const linkNovo = e.target.closest('a[href="/perfil/novo"]');
                     if (linkNovo && !canCreate) {
                         e.preventDefault();
@@ -246,8 +243,21 @@
                     }
                 });
 
-                // 5. AÇÃO INATIVAR MÚLTIPLOS
+                // 6. INATIVAR MÚLTIPLOS
+                const inativarBtn = document.getElementById("inativarBtn");
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    inativarBtn.style.display = count > 0 ? "inline-block" : "none";
+                    if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
+                });
+
                 inativarBtn.addEventListener('click', function () {
+                    // Bloqueio no botão
+                    if (!canInactivate) {
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                        return;
+                    }
+
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
                     const perfisJaInativos = [];
@@ -278,10 +288,13 @@
                                 method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                                 body: JSON.stringify({ ids: selectedIds })
                             });
+
+                            // Bloqueio Backend
                             if (response.status === 403) {
                                 Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b' });
                                 return;
                             }
+
                             const data = await response.json();
                             if (data.success) Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
                             else Swal.fire('Erro', data.message, 'error');
