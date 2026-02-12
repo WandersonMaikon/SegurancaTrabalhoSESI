@@ -19,12 +19,7 @@
             display: block;
         }
 
-        .step-indicator.active {
-            border-color: #0AA34A;
-            color: #0AA34A;
-            font-weight: bold;
-        }
-
+        /* Estilos específicos para inputs de tabela */
         .table-input {
             width: 100%;
             border: none;
@@ -48,20 +43,24 @@
             <%- include('../partials/header') %>
 
                 <div class="px-4 lg:px-10 py-6">
-                    <h2 class="text-2xl mb-2">Novo Levantamento de Perigos</h2>
+                    <h2 class="text-2xl mb-4 text-zinc-800 dark:text-zinc-100 font-bold">Novo Levantamento de Perigos
+                    </h2>
 
-                    <div
-                        class="flex items-center gap-4 border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto pb-1">
-                        <button type="button"
-                            class="step-indicator active px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
-                            data-step="1">1. Dados & Ambiente</button>
-                        <button type="button"
-                            class="step-indicator px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
-                            data-step="2">2. GES & Químicos</button>
-                        <button type="button"
-                            class="step-indicator px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
-                            data-step="3">3. Identificação de Perigos</button>
-                    </div>
+                    <nav
+                        class="nav-horizontal nav-underline gap-4 flex flex-nowrap mb-6 overflow-x-auto pb-1 border-b border-zinc-200 dark:border-zinc-700">
+                        <a href="#" class="nav-link active whitespace-nowrap" onclick="changeStep(1); return false;"
+                            data-step="1">
+                            <span class="icon-[lucide--file-text] text-lg"></span> Dados & Ambiente
+                        </a>
+                        <a href="#" class="nav-link whitespace-nowrap" onclick="changeStep(2); return false;"
+                            data-step="2">
+                            <span class="icon-[lucide--flask-conical] text-lg"></span> GES & Químicos
+                        </a>
+                        <a href="#" class="nav-link whitespace-nowrap" onclick="changeStep(3); return false;"
+                            data-step="3">
+                            <span class="icon-[lucide--alert-triangle] text-lg"></span> Identificação de Perigos
+                        </a>
+                    </nav>
                 </div>
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
@@ -69,8 +68,11 @@
 
                         <div id="step1" class="step-content active space-y-6">
 
-                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
-                                <h5 class="text-xl mb-4 border-b pb-2">Informações Gerais</h5>
+                            <div
+                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-200 dark:border-zinc-800">
+                                <h5
+                                    class="text-xl mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-2 font-bold text-zinc-800 dark:text-zinc-100">
+                                    Informações Gerais</h5>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     <div>
                                         <label class="block mb-2 text-sm font-medium">Cliente <span
@@ -113,23 +115,29 @@
                                 </div>
                             </div>
 
-                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
-                                <h5 class="text-xl mb-4 border-b pb-2">Caracterização do Ambiente</h5>
+                            <div
+                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-200 dark:border-zinc-800">
+                                <h5
+                                    class="text-xl mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-2 font-bold text-zinc-800 dark:text-zinc-100">
+                                    Caracterização do Ambiente</h5>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Construção</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Construção</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_construcao" value="Alvenaria"
-                                                    class="input-radio"> Alvenaria</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Alvenaria</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_construcao" value="Concreto"
-                                                    class="input-radio"> Concreto</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Concreto</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_construcao" value="Outros"
-                                                    class="input-radio"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_construcao_outro')">
                                                 Outros</label>
                                             <input type="text" id="tipo_construcao_outro" name="tipo_construcao_outro"
@@ -138,16 +146,20 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Piso</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Piso</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_piso" value="Concreto desempenado"
-                                                    class="input-radio"> Concreto</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Concreto</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
-                                                    type="radio" name="tipo_piso" value="Cerâmico" class="input-radio">
+                                                    type="radio" name="tipo_piso" value="Cerâmico"
+                                                    class="input-radio text-primary focus:ring-primary">
                                                 Cerâmico</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
-                                                    type="radio" name="tipo_piso" value="Outros" class="input-radio"
+                                                    type="radio" name="tipo_piso" value="Outros"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_piso_outro')"> Outros</label>
                                             <input type="text" id="tipo_piso_outro" name="tipo_piso_outro"
                                                 class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
@@ -155,16 +167,19 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Paredes</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Paredes</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_paredes" value="Cerâmico"
-                                                    class="input-radio"> Cerâmico</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Cerâmico</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_paredes" value="Pintura"
-                                                    class="input-radio"> Pintura</label>
+                                                    class="input-radio text-primary focus:ring-primary"> Pintura</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
-                                                    type="radio" name="tipo_paredes" value="Outros" class="input-radio"
+                                                    type="radio" name="tipo_paredes" value="Outros"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_paredes_outro')"> Outros</label>
                                             <input type="text" id="tipo_paredes_outro" name="tipo_paredes_outro"
                                                 class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
@@ -172,17 +187,19 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Cobertura</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Cobertura</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_cobertura" value="Madeira"
-                                                    class="input-radio"> Madeira</label>
+                                                    class="input-radio text-primary focus:ring-primary"> Madeira</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_cobertura" value="Metálica"
-                                                    class="input-radio"> Metálica</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Metálica</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_cobertura" value="Outros"
-                                                    class="input-radio"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_cobertura_outro')"> Outros</label>
                                             <input type="text" id="tipo_cobertura_outro" name="tipo_cobertura_outro"
                                                 class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
@@ -190,17 +207,19 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Iluminação</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Iluminação</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_iluminacao" value="Natural"
-                                                    class="input-radio"> Natural</label>
+                                                    class="input-radio text-primary focus:ring-primary"> Natural</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_iluminacao" value="Artificial"
-                                                    class="input-radio"> Artificial</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Artificial</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_iluminacao" value="Outros"
-                                                    class="input-radio"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_iluminacao_outro')">
                                                 Outros</label>
                                             <input type="text" id="tipo_iluminacao_outro" name="tipo_iluminacao_outro"
@@ -209,17 +228,19 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Ventilação</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Ventilação</label>
                                         <div class="flex flex-wrap gap-4">
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_ventilacao" value="Natural"
-                                                    class="input-radio"> Natural</label>
+                                                    class="input-radio text-primary focus:ring-primary"> Natural</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_ventilacao" value="Artificial"
-                                                    class="input-radio"> Artificial</label>
+                                                    class="input-radio text-primary focus:ring-primary">
+                                                Artificial</label>
                                             <label class="inline-flex items-center gap-1 cursor-pointer"><input
                                                     type="radio" name="tipo_ventilacao" value="Outros"
-                                                    class="input-radio"
+                                                    class="input-radio text-primary focus:ring-primary"
                                                     onclick="toggleOutros(this, 'tipo_ventilacao_outro')">
                                                 Outros</label>
                                             <input type="text" id="tipo_ventilacao_outro" name="tipo_ventilacao_outro"
@@ -228,7 +249,8 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-sm font-bold mb-2">Climatização</label>
+                                        <label
+                                            class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Climatização</label>
                                         <label class="inline-flex items-center gap-2 cursor-pointer">
                                             <input type="checkbox" name="possui_climatizacao" class="input-checkbox">
                                             <span>Possui ar condicionado?</span>
@@ -238,22 +260,24 @@
                                 </div>
 
                                 <div class="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                                    <label class="block text-sm font-bold mb-2">Estruturas Auxiliares</label>
+                                    <label
+                                        class="block text-sm font-bold mb-2 text-zinc-700 dark:text-zinc-300">Estruturas
+                                        Auxiliares</label>
                                     <div class="flex flex-wrap gap-4 mb-4">
                                         <label
-                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"><input
                                                 type="checkbox" name="estruturas_auxiliares" value="Escadas"
                                                 class="input-checkbox"> Escadas</label>
                                         <label
-                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"><input
                                                 type="checkbox" name="estruturas_auxiliares" value="Rampas"
                                                 class="input-checkbox"> Rampas</label>
                                         <label
-                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"><input
                                                 type="checkbox" name="estruturas_auxiliares" value="Passarelas"
                                                 class="input-checkbox"> Passarelas</label>
                                         <label
-                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700"><input
                                                 type="checkbox" name="estruturas_auxiliares" value="Mezaninos"
                                                 class="input-checkbox"> Mezaninos</label>
                                     </div>
@@ -278,117 +302,157 @@
 
                             <div class="flex justify-end">
                                 <button type="button" class="btn bg-primary text-white hover:bg-primary-deep"
-                                    onclick="changeStep(2)">Próximo</button>
+                                    onclick="changeStep(2)">Próximo <span
+                                        class="icon-[lucide--arrow-right] ms-2"></span></button>
                             </div>
                         </div>
 
                         <div id="step2" class="step-content space-y-6">
 
-                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
-                                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h5 class="text-xl">Grupo de Exposição Similar (GES)</h5>
-                                    <button type="button" onclick="addGesRow()" class="btn btn-sm bg-zinc-100">+
+                            <div
+                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-200 dark:border-zinc-800">
+                                <div
+                                    class="flex justify-between items-center mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Grupo de Exposição
+                                        Similar (GES)</h5>
+                                    <button type="button" onclick="addGesRow()"
+                                        class="btn btn-sm bg-zinc-100 hover:bg-zinc-200 text-primary font-bold transition-colors">+
                                         Adicionar GES</button>
                                 </div>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left border-collapse" id="tableGes">
-                                        <thead class="bg-zinc-50 text-xs uppercase text-muted">
+                                        <thead class="bg-zinc-50 dark:bg-zinc-800 text-xs uppercase text-zinc-500">
                                             <tr>
-                                                <th class="p-2 border">Nome do Grupo</th>
-                                                <th class="p-2 border">Setor</th>
-                                                <th class="p-2 border">Cargos</th>
-                                                <th class="p-2 border">Exceção (Nome)</th>
-                                                <th class="p-2 border w-10"></th>
+                                                <th
+                                                    class="p-2 border border-zinc-200 dark:border-zinc-700 rounded-tl-lg">
+                                                    Nome do Grupo</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700">Setor</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700">Cargos</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700">Exceção
+                                                    (Nome)</th>
+                                                <th
+                                                    class="p-2 border border-zinc-200 dark:border-zinc-700 w-10 text-center">
+                                                    Ação</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
+                                    <p id="emptyGes" class="text-center text-sm text-zinc-400 mt-4 italic">Nenhum GES
+                                        cadastrado.</p>
                                 </div>
                             </div>
 
-                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
-                                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                                    <h5 class="text-xl">Produtos Químicos</h5>
-                                    <button type="button" onclick="addQuimicoRow()" class="btn btn-sm bg-zinc-100">+
+                            <div
+                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-200 dark:border-zinc-800">
+                                <div
+                                    class="flex justify-between items-center mb-4 border-b border-zinc-100 dark:border-zinc-800 pb-2">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Produtos Químicos
+                                    </h5>
+                                    <button type="button" onclick="addQuimicoRow()"
+                                        class="btn btn-sm bg-zinc-100 hover:bg-zinc-200 text-primary font-bold transition-colors">+
                                         Adicionar Produto</button>
                                 </div>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left border-collapse" id="tableQuimico">
-                                        <thead class="bg-zinc-50 text-xs uppercase text-muted">
+                                        <thead class="bg-zinc-50 dark:bg-zinc-800 text-xs uppercase text-zinc-500">
                                             <tr>
-                                                <th class="p-2 border">Nome Rótulo</th>
-                                                <th class="p-2 border w-32">Estado Físico</th>
-                                                <th class="p-2 border">Tipo Exposição</th>
-                                                <th class="p-2 border">Processo/Qtde</th>
-                                                <th class="p-2 border w-10"></th>
+                                                <th
+                                                    class="p-2 border border-zinc-200 dark:border-zinc-700 rounded-tl-lg">
+                                                    Nome Rótulo</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700 w-32">Estado
+                                                    Físico</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700">Tipo
+                                                    Exposição</th>
+                                                <th class="p-2 border border-zinc-200 dark:border-zinc-700">
+                                                    Processo/Qtde</th>
+                                                <th
+                                                    class="p-2 border border-zinc-200 dark:border-zinc-700 w-10 text-center">
+                                                    Ação</th>
                                             </tr>
                                         </thead>
                                         <tbody></tbody>
                                     </table>
+                                    <p id="emptyQuimico" class="text-center text-sm text-zinc-400 mt-4 italic">Nenhum
+                                        produto químico cadastrado.</p>
                                 </div>
                             </div>
 
                             <div class="flex justify-between mt-4">
-                                <button type="button" class="btn bg-zinc-200 text-zinc-800"
+                                <button type="button" class="btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300"
                                     onclick="changeStep(1)">Anterior</button>
-                                <button type="button" class="btn bg-primary text-white"
-                                    onclick="changeStep(3)">Próximo</button>
+                                <button type="button" class="btn bg-primary text-white hover:bg-primary-deep"
+                                    onclick="changeStep(3)">Próximo <span
+                                        class="icon-[lucide--arrow-right] ms-2"></span></button>
                             </div>
                         </div>
 
                         <div id="step3" class="step-content space-y-6">
 
-                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
-                                <h5 class="text-xl mb-4">Identificação de Perigos</h5>
+                            <div
+                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-200 dark:border-zinc-800">
+                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Identificação de
+                                    Perigos</h5>
 
-                                <div class="flex gap-4 mb-4 p-4 bg-yellow-50 rounded-lg">
-                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
-                                            type="checkbox" name="ausencia_risco_ambiental" class="input-checkbox">
-                                        Ausência Risco Ambiental</label>
-                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
-                                            type="checkbox" name="ausencia_risco_ergonomico" class="input-checkbox">
-                                        Ausência Risco Ergonômico</label>
-                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
-                                            type="checkbox" name="ausencia_risco_mecanico" class="input-checkbox">
-                                        Ausência Risco Mecânico</label>
+                                <div
+                                    class="flex gap-4 mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20">
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500"><input
+                                            type="checkbox" name="ausencia_risco_ambiental"
+                                            class="input-checkbox text-yellow-500 focus:ring-yellow-500"> Ausência Risco
+                                        Ambiental</label>
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500"><input
+                                            type="checkbox" name="ausencia_risco_ergonomico"
+                                            class="input-checkbox text-yellow-500 focus:ring-yellow-500"> Ausência Risco
+                                        Ergonômico</label>
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500"><input
+                                            type="checkbox" name="ausencia_risco_mecanico"
+                                            class="input-checkbox text-yellow-500 focus:ring-yellow-500"> Ausência Risco
+                                        Mecânico</label>
                                 </div>
 
                                 <% Object.keys(riscosPadrao).forEach(function(grupo, idx) { %>
-                                    <div class="border border-zinc-200 rounded-lg mb-4 overflow-hidden">
+                                    <div
+                                        class="border border-zinc-200 dark:border-zinc-700 rounded-lg mb-4 overflow-hidden">
                                         <button type="button"
-                                            class="w-full text-left p-4 bg-zinc-50 font-bold flex justify-between items-center"
+                                            class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
                                             onclick="toggleAccordion('acc_<%= idx %>')">
                                             <%= grupo %>
-                                                <span>▼</span>
+                                                <span class="icon-[lucide--chevron-down]"></span>
                                         </button>
-                                        <div id="acc_<%= idx %>" class="hidden p-4">
+                                        <div id="acc_<%= idx %>" class="hidden p-4 bg-white dark:bg-zinc-900">
                                             <div class="grid grid-cols-1 gap-4">
                                                 <% riscosPadrao[grupo].forEach(function(risco) { %>
-                                                    <div class="risk-item border-b border-zinc-100 last:border-0 pb-4">
+                                                    <div
+                                                        class="risk-item border-b border-zinc-100 dark:border-zinc-800 last:border-0 pb-4">
                                                         <label
                                                             class="inline-flex items-center gap-2 cursor-pointer mb-2">
-                                                            <input type="checkbox" class="input-checkbox risk-checkbox"
+                                                            <input type="checkbox"
+                                                                class="input-checkbox risk-checkbox text-primary focus:ring-primary"
                                                                 data-grupo="<%= grupo %>"
                                                                 data-codigo="<%= risco.codigo %>"
                                                                 data-nome="<%= risco.nome %>"
                                                                 onchange="toggleRiskDetail(this)">
-                                                            <span class="font-medium">
+                                                            <span class="font-medium text-zinc-700 dark:text-zinc-300">
                                                                 <%= risco.codigo %> - <%= risco.nome %>
                                                             </span>
                                                         </label>
 
                                                         <div
-                                                            class="risk-detail hidden pl-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 p-3 rounded">
+                                                            class="risk-detail hidden pl-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 dark:bg-zinc-800 p-3 rounded-lg border border-zinc-100 dark:border-zinc-700">
                                                             <div><label
-                                                                    class="text-xs font-bold text-muted">Fontes</label><input
-                                                                    type="text"
+                                                                    class="text-xs font-bold text-muted uppercase">Fontes
+                                                                    Geradoras</label><input type="text"
                                                                     class="input w-full text-sm risk-fontes"></div>
                                                             <div><label
-                                                                    class="text-xs font-bold text-muted">Tempo/Tipo</label><input
-                                                                    type="text" class="input w-full text-sm risk-tempo">
-                                                            </div>
+                                                                    class="text-xs font-bold text-muted uppercase">Tempo/Tipo
+                                                                    Exp.</label><input type="text"
+                                                                    class="input w-full text-sm risk-tempo"></div>
                                                             <div>
-                                                                <label class="text-xs font-bold text-muted">EPIs</label>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase">EPIs
+                                                                    Recomendados</label>
                                                                 <select class="risk-epis w-full" multiple>
                                                                     <% epis.forEach(function(e) { %>
                                                                         <option value="<%= e.id_epi %>">
@@ -398,7 +462,9 @@
                                                                 </select>
                                                             </div>
                                                             <div>
-                                                                <label class="text-xs font-bold text-muted">EPCs</label>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase">EPCs
+                                                                    Existentes</label>
                                                                 <select class="risk-epcs w-full" multiple>
                                                                     <% epcs.forEach(function(ep) { %>
                                                                         <option value="<%= ep.id_epc %>">
@@ -408,7 +474,7 @@
                                                                 </select>
                                                             </div>
                                                             <div class="md:col-span-2"><label
-                                                                    class="text-xs font-bold text-muted">Obs</label><input
+                                                                    class="text-xs font-bold text-muted uppercase">Observações</label><input
                                                                     type="text" class="input w-full text-sm risk-obs">
                                                             </div>
                                                         </div>
@@ -421,11 +487,12 @@
                             </div>
 
                             <div class="flex justify-between mt-4">
-                                <button type="button" class="btn bg-zinc-200 text-zinc-800"
+                                <button type="button" class="btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300"
                                     onclick="changeStep(2)">Anterior</button>
                                 <button type="submit" id="btnSalvar"
-                                    class="btn bg-green-600 text-white hover:bg-green-700 h-12 px-8">SALVAR
-                                    LEVANTAMENTO</button>
+                                    class="btn bg-green-600 text-white hover:bg-green-700 h-12 px-8 shadow-lg font-bold uppercase tracking-wide">
+                                    <span class="icon-[lucide--save] me-2"></span> Salvar Levantamento
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -439,17 +506,23 @@
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
+            // --- NAVEGAÇÃO ENTRE ABAS ---
             function changeStep(step) {
+                // Esconde todos os conteúdos
                 document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+                // Mostra o conteúdo atual
                 document.getElementById(`step${step}`).classList.add('active');
-                document.querySelectorAll('.step-indicator').forEach(el => {
+
+                // Atualiza a classe 'active' nos links da Nav
+                document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active');
                     if (el.dataset.step == step) el.classList.add('active');
                 });
+
                 window.scrollTo(0, 0);
             }
 
-            document.querySelectorAll('.step-indicator').forEach(btn => btn.addEventListener('click', () => changeStep(btn.dataset.step)));
+            // --- MANIPULAÇÃO DO FORM ---
 
             function toggleOutros(radio, inputId) {
                 const input = document.getElementById(inputId);
@@ -461,26 +534,30 @@
             }
 
             function addGesRow() {
+                document.getElementById('emptyGes').style.display = 'none';
                 const tbody = document.querySelector('#tableGes tbody');
                 const row = document.createElement('tr');
+                row.className = "border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors";
                 row.innerHTML = `
-                <td class="p-1 border"><input type="text" class="table-input ges-nome"></td>
-                <td class="p-1 border"><input type="text" class="table-input ges-setor"></td>
-                <td class="p-1 border"><input type="text" class="table-input ges-cargos"></td>
-                <td class="p-1 border"><input type="text" class="table-input ges-excecao"></td>
-                <td class="p-1 border text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500">X</button></td>`;
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input ges-nome" placeholder="Ex: GHE 01"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input ges-cargos" placeholder="Ex: Operador"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input ges-excecao"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded transition-colors"><span class="icon-[lucide--trash-2]"></span></button></td>`;
                 tbody.appendChild(row);
             }
 
             function addQuimicoRow() {
+                document.getElementById('emptyQuimico').style.display = 'none';
                 const tbody = document.querySelector('#tableQuimico tbody');
                 const row = document.createElement('tr');
+                row.className = "border-b border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors";
                 row.innerHTML = `
-                <td class="p-1 border"><input type="text" class="table-input quim-rotulo"></td>
-                <td class="p-1 border"><select class="table-input quim-estado"><option>Sólido</option><option>Líquido</option><option>Gasoso</option></select></td>
-                <td class="p-1 border"><input type="text" class="table-input quim-exposicao"></td>
-                <td class="p-1 border"><input type="text" class="table-input quim-processo"></td>
-                <td class="p-1 border text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500">X</button></td>`;
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input quim-rotulo"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><select class="table-input quim-estado bg-transparent"><option value="Sólido">Sólido</option><option value="Líquido">Líquido</option><option value="Gasoso">Gasoso</option></select></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input quim-exposicao"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700"><input type="text" class="table-input quim-processo"></td>
+                <td class="p-1 border border-zinc-200 dark:border-zinc-700 text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded transition-colors"><span class="icon-[lucide--trash-2]"></span></button></td>`;
                 tbody.appendChild(row);
             }
 
@@ -493,7 +570,7 @@
                 const detailDiv = checkbox.closest('.risk-item').querySelector('.risk-detail');
                 if (checkbox.checked) {
                     detailDiv.classList.remove('hidden');
-                    detailDiv.querySelectorAll('select').forEach(s => { if (!s.tomselect) new TomSelect(s); });
+                    detailDiv.querySelectorAll('select').forEach(s => { if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] }); });
                 } else {
                     detailDiv.classList.add('hidden');
                 }
@@ -579,7 +656,7 @@
 
                     const btn = document.getElementById('btnSalvar');
                     const oldText = btn.innerHTML;
-                    btn.disabled = true; btn.innerHTML = 'Enviando...';
+                    btn.disabled = true; btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Enviando...';
 
                     try {
                         const res = await fetch('/formularios/levantamento-perigos/salvar', {
