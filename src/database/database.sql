@@ -1,5 +1,5 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4.2
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.3
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
 -- Atualizações: Cartão Vantagem (Cliente) e Prazo em Dias (Escopo OS)
 -- ============================================
@@ -227,4 +227,127 @@ CREATE TABLE notificacao (
     lida BOOLEAN DEFAULT FALSE,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario_destino) REFERENCES usuario(id_usuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ============================================
+-- 6. MÓDULO LEVANTAMENTO DE PERIGOS
+-- ============================================
+
+-- Tabela Principal (Cabeçalho + Caracterização do Ambiente)
+CREATE TABLE levantamento_perigo (
+    id_levantamento CHAR(36) NOT NULL PRIMARY KEY, -- UUID
+    id_unidade CHAR(36) NOT NULL,
+    id_cliente CHAR(36) NOT NULL,
+    
+    -- Cabeçalho
+    data_levantamento DATE NOT NULL,
+    id_responsavel_tecnico CHAR(36) NOT NULL, -- Vínculo com usuário (avaliador)
+    responsavel_empresa_nome VARCHAR(255), -- Nome avulso
+    trabalho_externo BOOLEAN DEFAULT FALSE,
+    
+    -- Caracterização do Ambiente (Arquitetura)
+    -- Armazenaremos as opções selecionadas e o texto "Outros" em JSON para flexibilidade
+    -- Exemplo JSON: { "tipo": "Alvenaria", "outros": null }
+    tipo_construcao JSON, 
+    tipo_piso JSON,
+    tipo_paredes JSON,
+    tipo_cobertura JSON,
+    tipo_iluminacao JSON,
+    tipo_ventilacao JSON,
+    possui_climatizacao BOOLEAN,
+    
+    -- Estruturas Auxiliares (Checkboxes)
+    -- Exemplo JSON: ["Escadas", "Rampas"]
+    estruturas_auxiliares JSON, 
+    
+    -- Dimensões e Observações Gerais
+    area_m2 DECIMAL(10,2),
+    pe_direito_m DECIMAL(10,2),
+    largura_m DECIMAL(10,2),
+    comprimento_m DECIMAL(10,2),
+    obs_condicoes_gerais TEXT,
+    
+    -- Assinaturas (Armazenar Base64 ou Caminho do Arquivo)
+    assinatura_responsavel_empresa LONGTEXT,
+    assinatura_avaliador LONGTEXT,
+
+    -- Flags de Controle de Risco (Para desabilitar seções inteiras no Front)
+    ausencia_risco_ambiental BOOLEAN DEFAULT FALSE, -- Se TRUE, não preenche riscos
+    ausencia_risco_ergonomico BOOLEAN DEFAULT FALSE,
+    ausencia_risco_mecanico BOOLEAN DEFAULT FALSE,
+    
+    -- Auditoria
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    
+    FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
+    FOREIGN KEY (id_responsavel_tecnico) REFERENCES usuario(id_usuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Filha: Grupos de Exposição Similar (GES)
+CREATE TABLE levantamento_ges (
+    id_ges CHAR(36) NOT NULL PRIMARY KEY, -- UUID
+    id_levantamento CHAR(36) NOT NULL,
+    
+    nome_grupo_ges VARCHAR(255),
+    setor VARCHAR(255), -- Nome avulso (com autocomplete no front)
+    cargos TEXT, -- Pode ser lista separada por vírgula
+    nome_trabalhador_excecao VARCHAR(255),
+    observacoes TEXT,
+    
+    FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Filha: Inventário de Produtos Químicos
+CREATE TABLE levantamento_quimico (
+    id_quimico CHAR(36) NOT NULL PRIMARY KEY, -- UUID
+    id_levantamento CHAR(36) NOT NULL,
+    
+    nome_rotulo VARCHAR(255),
+    estado_fisico ENUM('Sólido', 'Líquido', 'Gasoso'),
+    tipo_exposicao VARCHAR(255),
+    processo_quantidade VARCHAR(255),
+    observacoes TEXT,
+    
+    FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabela Filha: Detalhamento dos Perigos Identificados
+-- Aqui armazenamos CADA checkbox marcado na aba de riscos e seus detalhes
+CREATE TABLE levantamento_risco_identificado (
+    id_risco_identificado CHAR(36) NOT NULL PRIMARY KEY, -- UUID
+    id_levantamento CHAR(36) NOT NULL,
+    
+    -- Classificação
+    grupo_perigo VARCHAR(50), -- 'Ergonômico', 'Mecânico', 'Físico', etc.
+    codigo_perigo VARCHAR(20), -- Ex: '1', '24' (Referência do PDF)
+    descricao_perigo VARCHAR(255), -- Ex: 'Ação de puxar e empurrar'
+    
+    -- Detalhamento (Tabela final do PDF)
+    fontes_geradoras TEXT,
+    tipo_tempo_exposicao VARCHAR(255),
+    observacoes TEXT,
+    
+    FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Tabelas de Ligação N:N para EPIs e EPCs nos Riscos
+-- Um risco pode ter vários EPIs recomendados vindos do cadastro global
+
+CREATE TABLE levantamento_risco_has_epi (
+    id_risco_identificado CHAR(36) NOT NULL,
+    id_epi INT NOT NULL,
+    PRIMARY KEY (id_risco_identificado, id_epi),
+    FOREIGN KEY (id_risco_identificado) REFERENCES levantamento_risco_identificado(id_risco_identificado) ON DELETE CASCADE,
+    FOREIGN KEY (id_epi) REFERENCES epi(id_epi)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE levantamento_risco_has_epc (
+    id_risco_identificado CHAR(36) NOT NULL,
+    id_epc INT NOT NULL,
+    PRIMARY KEY (id_risco_identificado, id_epc),
+    FOREIGN KEY (id_risco_identificado) REFERENCES levantamento_risco_identificado(id_risco_identificado) ON DELETE CASCADE,
+    FOREIGN KEY (id_epc) REFERENCES epc(id_epc)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

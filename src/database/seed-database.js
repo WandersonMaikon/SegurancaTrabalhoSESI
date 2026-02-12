@@ -1,8 +1,8 @@
-const db = require('./db');
+const db = require('./db'); // <--- CORRIGIDO AQUI (era ./database/db)
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 
-// --- DADOS DA TABELA 24  ---
+// --- DADOS DA TABELA 24 (COMPLETO) ---
 const tabela24Data = [
     // QUÍMICOS (CHEMICAL)
     { codigo: '01.01.2001', grupo: 'Químico', descricao: 'Arsênio e seus compostos' },
@@ -67,7 +67,7 @@ const tabela24Data = [
     { codigo: '01.19.038', grupo: 'Químico', descricao: 'Benzidina' },
     { codigo: '01.19.039', grupo: 'Químico', descricao: 'Betanaftilamina' },
     { codigo: '01.19.040', grupo: 'Químico', descricao: '1-cloro-2,4-nitrodifenil' },
-    { codigo: '01.19.041', grupo: 'Químico', descricao: '3-poxipro-pano' }, // MANTIDO 7 DÍGITOS CONFORME CSV
+    { codigo: '01.19.041', grupo: 'Químico', descricao: '3-poxipro-pano' },
 
     // FÍSICOS (PHYSICAL)
     { codigo: '02.01.2001', grupo: 'Físico', descricao: 'Ruído' },
@@ -136,7 +136,7 @@ async function seedDatabase() {
         // ---------------------------------------------------------
         // 2. CRIAR UNIDADE (Matriz)
         // ---------------------------------------------------------
-        const [unidadesExistentes] = await connection.query("SELECT id_unidade FROM unidade WHERE cnpj = '00.000.000/0001-00'");
+        const [unidadesExistentes] = await connection.query("SELECT id_unidade FROM unidade WHERE cnpj = '03.783.989/0003-07'");
         let unidadeId;
         if (unidadesExistentes.length > 0) {
             unidadeId = unidadesExistentes[0].id_unidade;
@@ -164,7 +164,7 @@ async function seedDatabase() {
         }
 
         // ---------------------------------------------------------
-        // 3.1. CRIAR MÓDULOS E PERMISSÕES
+        // 3.1. CRIAR MÓDULOS E PERMISSÕES (ATUALIZADO)
         // ---------------------------------------------------------
         const listaModulos = [
             { nome: 'Dashboard', chave: 'dashboard' },
@@ -178,10 +178,14 @@ async function seedDatabase() {
             { nome: 'Riscos', chave: 'riscos' },
             { nome: 'EPIs', chave: 'epis' },
             { nome: 'EPCs', chave: 'epcs' },
-            { nome: 'Gestão de Unidades', chave: 'unidades' }
+            { nome: 'Gestão de Unidades', chave: 'unidades' },
+
+            // --- NOVO MÓDULO ADICIONADO ABAIXO ---
+            { nome: 'Levantamento de Perigos', chave: 'levantamento_perigos' }
         ];
 
         for (const mod of listaModulos) {
+            // 1. Cria ou Busca o Módulo
             const [moduloExistente] = await connection.query("SELECT id_modulo FROM modulo_sistema WHERE chave_sistema = ?", [mod.chave]);
             let moduloId;
             if (moduloExistente.length > 0) {
@@ -189,11 +193,14 @@ async function seedDatabase() {
             } else {
                 moduloId = uuidv4();
                 await connection.query(`INSERT INTO modulo_sistema (id_modulo, nome_modulo, chave_sistema) VALUES (?, ?, ?)`, [moduloId, mod.nome, mod.chave]);
+                console.log(`+ Módulo criado: ${mod.nome}`);
             }
 
+            // 2. Garante permissão TOTAL para o Administrador neste módulo
             const [permExistente] = await connection.query(`SELECT id_permissao FROM perfil_permissao WHERE id_perfil = ? AND id_modulo = ?`, [perfilId, moduloId]);
             if (permExistente.length === 0) {
                 await connection.query(`INSERT INTO perfil_permissao (id_permissao, id_perfil, id_modulo, pode_ver, pode_criar, pode_editar, pode_inativar, tudo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [uuidv4(), perfilId, moduloId, true, true, true, true, true]);
+                console.log(`+ Permissão Admin criada para: ${mod.nome}`);
             }
         }
 

@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Levantamento - ProS</title>
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <style>
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .step-indicator.active {
+            border-color: #0AA34A;
+            color: #0AA34A;
+            font-weight: bold;
+        }
+
+        .table-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 8px;
+            outline: none;
+        }
+
+        .table-input:focus {
+            background: rgba(10, 163, 74, 0.05);
+        }
+    </style>
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Novo Levantamento de Perigos</h2>
+
+                    <div
+                        class="flex items-center gap-4 border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto pb-1">
+                        <button type="button"
+                            class="step-indicator active px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
+                            data-step="1">1. Dados & Ambiente</button>
+                        <button type="button"
+                            class="step-indicator px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
+                            data-step="2">2. GES & Químicos</button>
+                        <button type="button"
+                            class="step-indicator px-4 py-2 border-b-2 border-transparent hover:text-primary whitespace-nowrap"
+                            data-step="3">3. Identificação de Perigos</button>
+                    </div>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form id="formLevantamento" class="w-full">
+
+                        <div id="step1" class="step-content active space-y-6">
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                                <h5 class="text-xl mb-4 border-b pb-2">Informações Gerais</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Cliente <span
+                                                class="text-red-500">*</span></label>
+                                        <select name="id_cliente" class="js-select w-full" required>
+                                            <option value="">Selecione...</option>
+                                            <% clientes.forEach(function(c) { %>
+                                                <option value="<%= c.id_cliente %>">
+                                                    <%= c.nome_empresa %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Data do Levantamento <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="date" name="data_levantamento" class="input w-full" required>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Responsável Técnico</label>
+                                        <select name="id_responsavel_tecnico" class="js-select w-full" required>
+                                            <% usuarios.forEach(function(u) { %>
+                                                <option value="<%= u.id_usuario %>" <%=user.id_usuario===u.id_usuario
+                                                    ? 'selected' : '' %>><%= u.nome_completo %>
+                                                </option>
+                                                <% }); %>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block mb-2 text-sm font-medium">Responsável da Empresa
+                                            (Acompanhante)</label>
+                                        <input type="text" name="responsavel_empresa_nome" class="input w-full">
+                                    </div>
+                                    <div class="flex items-end pb-3">
+                                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="trabalho_externo" class="input-checkbox">
+                                            <span>Trabalho Externo?</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                                <h5 class="text-xl mb-4 border-b pb-2">Caracterização do Ambiente</h5>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Construção</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_construcao" value="Alvenaria"
+                                                    class="input-radio"> Alvenaria</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_construcao" value="Concreto"
+                                                    class="input-radio"> Concreto</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_construcao" value="Outros"
+                                                    class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_construcao_outro')">
+                                                Outros</label>
+                                            <input type="text" id="tipo_construcao_outro" name="tipo_construcao_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Piso</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_piso" value="Concreto desempenado"
+                                                    class="input-radio"> Concreto</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_piso" value="Cerâmico" class="input-radio">
+                                                Cerâmico</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_piso" value="Outros" class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_piso_outro')"> Outros</label>
+                                            <input type="text" id="tipo_piso_outro" name="tipo_piso_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Paredes</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_paredes" value="Cerâmico"
+                                                    class="input-radio"> Cerâmico</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_paredes" value="Pintura"
+                                                    class="input-radio"> Pintura</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_paredes" value="Outros" class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_paredes_outro')"> Outros</label>
+                                            <input type="text" id="tipo_paredes_outro" name="tipo_paredes_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Cobertura</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_cobertura" value="Madeira"
+                                                    class="input-radio"> Madeira</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_cobertura" value="Metálica"
+                                                    class="input-radio"> Metálica</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_cobertura" value="Outros"
+                                                    class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_cobertura_outro')"> Outros</label>
+                                            <input type="text" id="tipo_cobertura_outro" name="tipo_cobertura_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Iluminação</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_iluminacao" value="Natural"
+                                                    class="input-radio"> Natural</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_iluminacao" value="Artificial"
+                                                    class="input-radio"> Artificial</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_iluminacao" value="Outros"
+                                                    class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_iluminacao_outro')">
+                                                Outros</label>
+                                            <input type="text" id="tipo_iluminacao_outro" name="tipo_iluminacao_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Ventilação</label>
+                                        <div class="flex flex-wrap gap-4">
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_ventilacao" value="Natural"
+                                                    class="input-radio"> Natural</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_ventilacao" value="Artificial"
+                                                    class="input-radio"> Artificial</label>
+                                            <label class="inline-flex items-center gap-1 cursor-pointer"><input
+                                                    type="radio" name="tipo_ventilacao" value="Outros"
+                                                    class="input-radio"
+                                                    onclick="toggleOutros(this, 'tipo_ventilacao_outro')">
+                                                Outros</label>
+                                            <input type="text" id="tipo_ventilacao_outro" name="tipo_ventilacao_outro"
+                                                class="input h-8 text-sm w-40 hidden" placeholder="Especifique">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-bold mb-2">Climatização</label>
+                                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="possui_climatizacao" class="input-checkbox">
+                                            <span>Possui ar condicionado?</span>
+                                        </label>
+                                    </div>
+
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                    <label class="block text-sm font-bold mb-2">Estruturas Auxiliares</label>
+                                    <div class="flex flex-wrap gap-4 mb-4">
+                                        <label
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                                type="checkbox" name="estruturas_auxiliares" value="Escadas"
+                                                class="input-checkbox"> Escadas</label>
+                                        <label
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                                type="checkbox" name="estruturas_auxiliares" value="Rampas"
+                                                class="input-checkbox"> Rampas</label>
+                                        <label
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                                type="checkbox" name="estruturas_auxiliares" value="Passarelas"
+                                                class="input-checkbox"> Passarelas</label>
+                                        <label
+                                            class="inline-flex items-center gap-2 cursor-pointer border px-3 py-1 rounded bg-zinc-50"><input
+                                                type="checkbox" name="estruturas_auxiliares" value="Mezaninos"
+                                                class="input-checkbox"> Mezaninos</label>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                                    <div><label class="text-xs">Área (m²)</label><input type="number" step="0.01"
+                                            name="area_m2" class="input w-full"></div>
+                                    <div><label class="text-xs">Pé Direito (m)</label><input type="number" step="0.01"
+                                            name="pe_direito_m" class="input w-full"></div>
+                                    <div><label class="text-xs">Largura (m)</label><input type="number" step="0.01"
+                                            name="largura_m" class="input w-full"></div>
+                                    <div><label class="text-xs">Comprimento (m)</label><input type="number" step="0.01"
+                                            name="comprimento_m" class="input w-full"></div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <label class="block mb-2 text-sm font-medium">Observações Gerais</label>
+                                    <textarea name="obs_condicoes_gerais" rows="3" class="input w-full"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="button" class="btn bg-primary text-white hover:bg-primary-deep"
+                                    onclick="changeStep(2)">Próximo</button>
+                            </div>
+                        </div>
+
+                        <div id="step2" class="step-content space-y-6">
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <h5 class="text-xl">Grupo de Exposição Similar (GES)</h5>
+                                    <button type="button" onclick="addGesRow()" class="btn btn-sm bg-zinc-100">+
+                                        Adicionar GES</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse" id="tableGes">
+                                        <thead class="bg-zinc-50 text-xs uppercase text-muted">
+                                            <tr>
+                                                <th class="p-2 border">Nome do Grupo</th>
+                                                <th class="p-2 border">Setor</th>
+                                                <th class="p-2 border">Cargos</th>
+                                                <th class="p-2 border">Exceção (Nome)</th>
+                                                <th class="p-2 border w-10"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <h5 class="text-xl">Produtos Químicos</h5>
+                                    <button type="button" onclick="addQuimicoRow()" class="btn btn-sm bg-zinc-100">+
+                                        Adicionar Produto</button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse" id="tableQuimico">
+                                        <thead class="bg-zinc-50 text-xs uppercase text-muted">
+                                            <tr>
+                                                <th class="p-2 border">Nome Rótulo</th>
+                                                <th class="p-2 border w-32">Estado Físico</th>
+                                                <th class="p-2 border">Tipo Exposição</th>
+                                                <th class="p-2 border">Processo/Qtde</th>
+                                                <th class="p-2 border w-10"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between mt-4">
+                                <button type="button" class="btn bg-zinc-200 text-zinc-800"
+                                    onclick="changeStep(1)">Anterior</button>
+                                <button type="button" class="btn bg-primary text-white"
+                                    onclick="changeStep(3)">Próximo</button>
+                            </div>
+                        </div>
+
+                        <div id="step3" class="step-content space-y-6">
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6">
+                                <h5 class="text-xl mb-4">Identificação de Perigos</h5>
+
+                                <div class="flex gap-4 mb-4 p-4 bg-yellow-50 rounded-lg">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
+                                            type="checkbox" name="ausencia_risco_ambiental" class="input-checkbox">
+                                        Ausência Risco Ambiental</label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
+                                            type="checkbox" name="ausencia_risco_ergonomico" class="input-checkbox">
+                                        Ausência Risco Ergonômico</label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer text-sm"><input
+                                            type="checkbox" name="ausencia_risco_mecanico" class="input-checkbox">
+                                        Ausência Risco Mecânico</label>
+                                </div>
+
+                                <% Object.keys(riscosPadrao).forEach(function(grupo, idx) { %>
+                                    <div class="border border-zinc-200 rounded-lg mb-4 overflow-hidden">
+                                        <button type="button"
+                                            class="w-full text-left p-4 bg-zinc-50 font-bold flex justify-between items-center"
+                                            onclick="toggleAccordion('acc_<%= idx %>')">
+                                            <%= grupo %>
+                                                <span>▼</span>
+                                        </button>
+                                        <div id="acc_<%= idx %>" class="hidden p-4">
+                                            <div class="grid grid-cols-1 gap-4">
+                                                <% riscosPadrao[grupo].forEach(function(risco) { %>
+                                                    <div class="risk-item border-b border-zinc-100 last:border-0 pb-4">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer mb-2">
+                                                            <input type="checkbox" class="input-checkbox risk-checkbox"
+                                                                data-grupo="<%= grupo %>"
+                                                                data-codigo="<%= risco.codigo %>"
+                                                                data-nome="<%= risco.nome %>"
+                                                                onchange="toggleRiskDetail(this)">
+                                                            <span class="font-medium">
+                                                                <%= risco.codigo %> - <%= risco.nome %>
+                                                            </span>
+                                                        </label>
+
+                                                        <div
+                                                            class="risk-detail hidden pl-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 p-3 rounded">
+                                                            <div><label
+                                                                    class="text-xs font-bold text-muted">Fontes</label><input
+                                                                    type="text"
+                                                                    class="input w-full text-sm risk-fontes"></div>
+                                                            <div><label
+                                                                    class="text-xs font-bold text-muted">Tempo/Tipo</label><input
+                                                                    type="text" class="input w-full text-sm risk-tempo">
+                                                            </div>
+                                                            <div>
+                                                                <label class="text-xs font-bold text-muted">EPIs</label>
+                                                                <select class="risk-epis w-full" multiple>
+                                                                    <% epis.forEach(function(e) { %>
+                                                                        <option value="<%= e.id_epi %>">
+                                                                            <%= e.nome_equipamento %> (CA: <%= e.ca %>)
+                                                                        </option>
+                                                                        <% }); %>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label class="text-xs font-bold text-muted">EPCs</label>
+                                                                <select class="risk-epcs w-full" multiple>
+                                                                    <% epcs.forEach(function(ep) { %>
+                                                                        <option value="<%= ep.id_epc %>">
+                                                                            <%= ep.nome %>
+                                                                        </option>
+                                                                        <% }); %>
+                                                                </select>
+                                                            </div>
+                                                            <div class="md:col-span-2"><label
+                                                                    class="text-xs font-bold text-muted">Obs</label><input
+                                                                    type="text" class="input w-full text-sm risk-obs">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% }); %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+
+                            <div class="flex justify-between mt-4">
+                                <button type="button" class="btn bg-zinc-200 text-zinc-800"
+                                    onclick="changeStep(2)">Anterior</button>
+                                <button type="submit" id="btnSalvar"
+                                    class="btn bg-green-600 text-white hover:bg-green-700 h-12 px-8">SALVAR
+                                    LEVANTAMENTO</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            function changeStep(step) {
+                document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+                document.getElementById(`step${step}`).classList.add('active');
+                document.querySelectorAll('.step-indicator').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.step == step) el.classList.add('active');
+                });
+                window.scrollTo(0, 0);
+            }
+
+            document.querySelectorAll('.step-indicator').forEach(btn => btn.addEventListener('click', () => changeStep(btn.dataset.step)));
+
+            function toggleOutros(radio, inputId) {
+                const input = document.getElementById(inputId);
+                if (radio.value === 'Outros') {
+                    input.classList.remove('hidden'); input.focus();
+                } else {
+                    input.classList.add('hidden'); input.value = '';
+                }
+            }
+
+            function addGesRow() {
+                const tbody = document.querySelector('#tableGes tbody');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="p-1 border"><input type="text" class="table-input ges-nome"></td>
+                <td class="p-1 border"><input type="text" class="table-input ges-setor"></td>
+                <td class="p-1 border"><input type="text" class="table-input ges-cargos"></td>
+                <td class="p-1 border"><input type="text" class="table-input ges-excecao"></td>
+                <td class="p-1 border text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500">X</button></td>`;
+                tbody.appendChild(row);
+            }
+
+            function addQuimicoRow() {
+                const tbody = document.querySelector('#tableQuimico tbody');
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                <td class="p-1 border"><input type="text" class="table-input quim-rotulo"></td>
+                <td class="p-1 border"><select class="table-input quim-estado"><option>Sólido</option><option>Líquido</option><option>Gasoso</option></select></td>
+                <td class="p-1 border"><input type="text" class="table-input quim-exposicao"></td>
+                <td class="p-1 border"><input type="text" class="table-input quim-processo"></td>
+                <td class="p-1 border text-center"><button type="button" onclick="this.closest('tr').remove()" class="text-red-500">X</button></td>`;
+                tbody.appendChild(row);
+            }
+
+            function toggleAccordion(id) {
+                const el = document.getElementById(id);
+                el.classList.toggle('hidden');
+            }
+
+            function toggleRiskDetail(checkbox) {
+                const detailDiv = checkbox.closest('.risk-item').querySelector('.risk-detail');
+                if (checkbox.checked) {
+                    detailDiv.classList.remove('hidden');
+                    detailDiv.querySelectorAll('select').forEach(s => { if (!s.tomselect) new TomSelect(s); });
+                } else {
+                    detailDiv.classList.add('hidden');
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.js-select').forEach(el => new TomSelect(el));
+
+                document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const getRadioVal = (name) => {
+                        const checked = document.querySelector(`input[name="${name}"]:checked`);
+                        if (!checked) return null;
+                        const val = checked.value;
+                        return { selecionado: val, outros: (val === 'Outros' ? document.getElementById(`${name}_outro`).value : '') };
+                    };
+
+                    const gesData = [];
+                    document.querySelectorAll('#tableGes tbody tr').forEach(tr => {
+                        if (tr.querySelector('.ges-nome').value) {
+                            gesData.push({
+                                nome: tr.querySelector('.ges-nome').value,
+                                setor: tr.querySelector('.ges-setor').value,
+                                cargos: tr.querySelector('.ges-cargos').value,
+                                excecao: tr.querySelector('.ges-excecao').value
+                            });
+                        }
+                    });
+
+                    const quimData = [];
+                    document.querySelectorAll('#tableQuimico tbody tr').forEach(tr => {
+                        if (tr.querySelector('.quim-rotulo').value) {
+                            quimData.push({
+                                rotulo: tr.querySelector('.quim-rotulo').value,
+                                estado: tr.querySelector('.quim-estado').value,
+                                exposicao: tr.querySelector('.quim-exposicao').value,
+                                processo: tr.querySelector('.quim-processo').value
+                            });
+                        }
+                    });
+
+                    const riscosData = [];
+                    document.querySelectorAll('.risk-checkbox:checked').forEach(cb => {
+                        const item = cb.closest('.risk-item');
+                        const episSelect = item.querySelector('.risk-epis');
+                        const epcsSelect = item.querySelector('.risk-epcs');
+                        riscosData.push({
+                            grupo: cb.dataset.grupo,
+                            codigo: cb.dataset.codigo,
+                            nome: cb.dataset.nome,
+                            fontes: item.querySelector('.risk-fontes').value,
+                            tempo: item.querySelector('.risk-tempo').value,
+                            obs: item.querySelector('.risk-obs').value,
+                            epis: episSelect.tomselect ? episSelect.tomselect.getValue() : [],
+                            epcs: epcsSelect.tomselect ? epcsSelect.tomselect.getValue() : []
+                        });
+                    });
+
+                    const formData = new FormData(e.target);
+                    const payload = Object.fromEntries(formData.entries());
+
+                    payload.tipo_construcao = getRadioVal('tipo_construcao');
+                    payload.tipo_piso = getRadioVal('tipo_piso');
+                    payload.tipo_paredes = getRadioVal('tipo_paredes');
+                    payload.tipo_cobertura = getRadioVal('tipo_cobertura');
+                    payload.tipo_iluminacao = getRadioVal('tipo_iluminacao');
+                    payload.tipo_ventilacao = getRadioVal('tipo_ventilacao');
+
+                    const estruturas = [];
+                    document.querySelectorAll('input[name="estruturas_auxiliares"]:checked').forEach(el => estruturas.push(el.value));
+                    payload.estruturas_auxiliares = estruturas;
+
+                    payload.ausencia_risco_ambiental = document.querySelector('input[name="ausencia_risco_ambiental"]').checked;
+                    payload.ausencia_risco_ergonomico = document.querySelector('input[name="ausencia_risco_ergonomico"]').checked;
+                    payload.ausencia_risco_mecanico = document.querySelector('input[name="ausencia_risco_mecanico"]').checked;
+                    payload.trabalho_externo = document.querySelector('input[name="trabalho_externo"]').checked;
+                    payload.possui_climatizacao = document.querySelector('input[name="possui_climatizacao"]').checked;
+
+                    payload.ges = gesData;
+                    payload.quimicos = quimData;
+                    payload.riscos = riscosData;
+
+                    const btn = document.getElementById('btnSalvar');
+                    const oldText = btn.innerHTML;
+                    btn.disabled = true; btn.innerHTML = 'Enviando...';
+
+                    try {
+                        const res = await fetch('/formularios/levantamento-perigos/salvar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/formularios/levantamento-perigos');
+                        } else {
+                            Swal.fire('Erro', result.message, 'error');
+                        }
+                    } catch (err) {
+                        Swal.fire('Erro', 'Falha na comunicação', 'error');
+                    } finally {
+                        btn.disabled = false; btn.innerHTML = oldText;
+                    }
+                });
+            });
+        </script>
+</body>
+
+</html>

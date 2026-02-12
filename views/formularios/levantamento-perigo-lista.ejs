@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Levantamento de Perigos</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">Levantamento de Perigos</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Formulários</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Levantamento de Perigos</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9" name="searchLevantamento"
+                                            id="searchLevantamento" placeholder="Buscar por cliente...">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <a href="/levantamento-perigo/novo"
+                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep" id="btnNovo">
+                                        <span class="icon-[lucide--plus] text-lg me-1"></span> Criar Novo
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table id="table_levantamentos" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">Data</th>
+                                            <th class="text-nowrap">Cliente</th>
+                                            <th class="text-nowrap">Responsável Técnico</th>
+                                            <th class="text-nowrap text-end" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <div id="dados-levantamentos-json" style="display: none;">
+            <%= levantamentosJson %>
+        </div>
+        <div id="permissoes-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['levantamento_perigos'] ?
+                user.permissoes['levantamento_perigos'] : {}) %>
+        </div>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            // Lógica de Permissões
+            let perm = {};
+            try {
+                const divPerm = document.getElementById('permissoes-json');
+                if (divPerm && divPerm.innerText) perm = JSON.parse(divPerm.innerText);
+            } catch (e) { }
+
+            // Verifica se pode criar (se não puder, bloqueia o clique no botão Novo)
+            const canCreate = (perm.criar == 1 || perm.criar === true || perm.pode_criar == 1 || perm.tudo == 1);
+
+            document.addEventListener('DOMContentLoaded', () => {
+                let lista = [];
+                try {
+                    const divJson = document.getElementById('dados-levantamentos-json');
+                    if (divJson && divJson.innerText.trim()) lista = JSON.parse(divJson.innerText);
+                } catch (e) { console.error(e); }
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                lista.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                        <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                            ${item.data_formatada}
+                        </td>
+                        <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300">
+                            ${item.nome_empresa || '-'}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <span class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                    ${(item.nome_responsavel || 'U').substring(0, 1)}
+                                </span>
+                                <span>${item.nome_responsavel || '-'}</span>
+                            </div>
+                        </td>
+                        <td class="text-end">
+                             <a href="/formularios/levantamento-perigos/ver/${item.id_levantamento}" 
+                                class="btn !p-1.5 hover:!text-primary" title="Visualizar Detalhes">
+                                <span class="icon-[lucide--eye] text-lg"></span>
+                             </a>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Inicializa DataTables
+                const table = new DataTable('#table_levantamentos', {
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    order: [[0, 'desc']], // Ordena pela data
+                    language: {
+                        emptyTable: "Nenhum levantamento encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                // Busca
+                document.getElementById('searchLevantamento').addEventListener('input', e => table.search(e.target.value).draw());
+
+                // Bloqueio do Botão Novo no Front
+                const btnNovo = document.getElementById('btnNovo');
+                if (btnNovo) {
+                    btnNovo.addEventListener('click', (e) => {
+                        if (!canCreate) {
+                            e.preventDefault();
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para criar novos levantamentos.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+</body>
+
+</html>

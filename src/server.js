@@ -54,6 +54,7 @@ const riscoRoutes = require('./routes/risco.routes');
 const epiRoutes = require('./routes/epi.routes');
 const epcRoutes = require('./routes/epc.routes');
 const unidadeRoutes = require('./routes/unidade.routes');
+const levantamentoPerigoRoutes = require('./routes/levantamento_perigo.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
 const verificarPermissao = require("./middlewares/permission.middleware");
 
@@ -69,7 +70,7 @@ app.use('/risco', riscoRoutes);
 app.use('/epi', epiRoutes);
 app.use('/epc', epcRoutes);
 app.use('/unidade', unidadeRoutes);
-
+app.use('/levantamento-perigo', levantamentoPerigoRoutes);
 app.get("/relatorio", verificarAutenticacao, (req, res) => {
     res.render("relatorio", { currentPage: 'relatorio' });
 });
