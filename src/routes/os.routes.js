@@ -73,7 +73,7 @@ router.get("/novo", verificarAutenticacao, verificarPermissao('ordens_servico', 
 
         // 1. Clientes (para o select)
         const [clientes] = await db.query(
-            `SELECT id_cliente, nome_empresa, cnpj FROM cliente WHERE deleted_at IS NULL ${filtroUnidade} ORDER BY nome_empresa ASC`,
+            `SELECT id_cliente, nome_empresa, cnpj, industria FROM cliente WHERE deleted_at IS NULL ${filtroUnidade} ORDER BY nome_empresa ASC`,
             paramsUnidade
         );
 
@@ -151,6 +151,8 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         }
 
         let valorLimpo = data.valor_total_contrato.replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
+        let valorFomentoLimpo = data.valor_previsto_fomento ? data.valor_previsto_fomento.replace("R$", "").replace(/\./g, "").replace(",", ".").trim() : null;
+
         const idOS = uuidv4();
 
         connection = await db.getConnection();
@@ -160,9 +162,9 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         await connection.query(
             `INSERT INTO ordem_servico (
                 id_ordem_servico, id_unidade, contrato_numero, id_cliente, 
-                valor_total_contrato, data_abertura, status, criado_por
-            ) VALUES (?, ?, ?, ?, ?, NOW(), 'Aberta', ?)`,
-            [idOS, idUnidadeOS, data.contrato_numero, data.contratante_id, valorLimpo, userLogado.id_usuario]
+                valor_total_contrato, valor_previsto_fomento, data_abertura, status, criado_por
+            ) VALUES (?, ?, ?, ?, ?, ?, NOW(), 'Aberta', ?)`,
+            [idOS, idUnidadeOS, data.contrato_numero, data.contratante_id, valorLimpo, valorFomentoLimpo, userLogado.id_usuario]
         );
 
         // 2. Inserir Itens do Escopo

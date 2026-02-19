@@ -100,6 +100,7 @@
                                             <input name="valor_total_contrato" id="valorTotal" type="text"
                                                 class="input h-10 w-full" placeholder="R$ 0,00" required>
                                         </div>
+                                        
 
                                         <div class="md:col-span-2">
                                             <label class="mb-2 block">EMPRESA CONTRATANTE <span
@@ -122,6 +123,13 @@
                                             </div>
                                             <p class="text-sm text-zinc-400 mt-2">Clique no campo ou na lupa para
                                                 pesquisar a empresa contratante.</p>
+                                        </div>
+                                        <div id="containerFomento" class="md:col-span-12" style="display: none;">
+                                            <label class="mb-2 block">VALOR PREVISTO DE FOMENTO
+                                            </label>
+                                            <input name="valor_previsto_fomento" id="valorFomento" type="text"
+                                                class="input h-10 w-full md:w-1/2 border-primary/30 focus:border-primary"
+                                                placeholder="R$ 0,00">
                                         </div>
                                     </div>
                                 </div>
@@ -181,10 +189,11 @@
 
         <div id="vinculos-data" class="hidden"><%- vinculosJson %></div>
 
-        <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
-            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+        <div id="modal_contratante" class="modal fade" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered w-full max-w-[40rem]">
                 <div
-                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh]">
+                    class="modal-content bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+
                     <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                         <h5 class="text-lg">Selecione a Empresa</h5>
                         <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
@@ -210,7 +219,8 @@
                                 <tbody>
                                     <% clientes.forEach((c)=> { %>
                                         <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
-                                            data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
+                                            data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>"
+                                            data-industria="<%= c.industria %>">
                                             <td class="py-3">
                                                 <div class="font-semibold text-zinc-900 dark:text-white">
                                                     <%= c.nome_empresa %>
@@ -324,6 +334,12 @@
                 // --- 2. MÁSCARA MOEDA ---
                 $('#valorTotal').on('input', function (e) {
                     let value = e.target.value.replace(/\D/g, "");
+                    value = (Number(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    e.target.value = value;
+                });
+                $('#valorFomento').on('input', function (e) {
+                    let value = e.target.value.replace(/\D/g, "");
+                    if (value === "") { e.target.value = ""; return; }
                     value = (Number(value) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                     e.target.value = value;
                 });
@@ -479,10 +495,38 @@
                 $('#table_contratante_modal tbody').on('click', 'tr', function () {
                     const id = $(this).attr('data-id');
                     const nome = $(this).attr('data-nome');
+                    const rawIndustria = $(this).attr('data-industria');
+
+                    // DEBUG: Isso vai mostrar no console do navegador o que o banco enviou
+                    console.log("Valor recebido do banco (data-industria):", rawIndustria);
+
+                    const valIndustria = String(rawIndustria).trim().toLowerCase();
+                    const isIndustria = (valIndustria === '1' || valIndustria === 'true');
+
                     if (id) {
                         $('#contratante_id').val(id);
                         $('#contratante_nome').val(nome);
-                        bootstrap.Modal.getInstance(document.getElementById('modal_contratante')).hide();
+
+                        // Exibe ou oculta o campo dependendo se é indústria
+                        if (isIndustria) {
+                            $('#containerFomento').show();
+                        } else {
+                            $('#containerFomento').hide();
+                            $('#valorFomento').val('');
+                        }
+
+                        // CORREÇÃO CRÍTICA PARA O ERRO ARIA-HIDDEN:
+                        // Tira o foco de qualquer elemento ativo (incluindo o próprio modal ou linha clicada)
+                        if (document.activeElement) {
+                            document.activeElement.blur();
+                        }
+
+                        // Fecha o modal em seguida
+                        const modalEl = document.getElementById('modal_contratante');
+                        const modalInst = bootstrap.Modal.getInstance(modalEl);
+                        if (modalInst) {
+                            modalInst.hide();
+                        }
                     }
                 });
 

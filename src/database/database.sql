@@ -131,6 +131,7 @@ CREATE TABLE ordem_servico (
     contrato_numero VARCHAR(50) NOT NULL,
     id_cliente CHAR(36) NOT NULL,
     valor_total_contrato DECIMAL(15, 2) NOT NULL,
+    valor_previsto_fomento DECIMAL(15, 2) NULL,
     data_abertura DATE NOT NULL,
     status ENUM('Aberta', 'Em Andamento', 'Concluída', 'Cancelada') DEFAULT 'Aberta',
     criado_por CHAR(36) NOT NULL,

@@ -4,32 +4,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProS - Novo Perfil de Acesso</title>
-    <!-- Seus links de CSS aqui... -->
-    <link rel="stylesheet" href="/css/style.css" />
+    <title>Novo Levantamento - ProS</title>
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
 
     <style>
-        /* Seus estilos de checkbox aqui... */
-        .checkbox-custom,
-        .master-checker {
+        .step-content {
+            display: none;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Estilo Checkbox Customizado (Igual ao Perfil) */
+        .checkbox-custom {
             appearance: none;
-            width: 1.15em;
-            height: 1.15em;
-            border: 1px solid #e4e4e7;
+            width: 1.25em;
+            height: 1.25em;
+            border: 1px solid #d4d4d8;
+            /* zinc-300 */
             border-radius: 0.25rem;
             display: grid;
             place-content: center;
             cursor: pointer;
+            transition: all 0.2s;
+            background-color: white;
         }
 
-        .checkbox-custom:checked::before,
-        .master-checker:checked::before {
+        .dark .checkbox-custom {
+            border-color: #3f3f46;
+            background-color: #18181b;
+        }
+
+        .checkbox-custom:checked {
+            border-color: var(--primary-color, #0AA34A);
+            background-color: var(--primary-color, #0AA34A);
+        }
+
+        .checkbox-custom:checked::before {
             content: "";
             width: 0.65em;
             height: 0.65em;
-            box-shadow: inset 1em 1em var(--primary-color, #0AA34A);
+            box-shadow: inset 1em 1em white;
             clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        /* Estilo para Radio ficar parecido com o checkbox do perfil, mas redondo */
+        .radio-custom {
+            appearance: none;
+            width: 1.25em;
+            height: 1.25em;
+            border: 1px solid #d4d4d8;
+            border-radius: 50%;
+            display: grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-custom:checked {
+            border-color: var(--primary-color, #0AA34A);
+        }
+
+        .radio-custom:checked::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            border-radius: 50%;
+            background-color: var(--primary-color, #0AA34A);
+        }
+
+        /* Inputs de tabela limpos */
+        .table-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #e4e4e7;
+            padding: 4px 0;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .table-input:focus {
+            border-bottom-color: var(--primary-color, #0AA34A);
+        }
+
+        /* Hover nas linhas */
+        .hover-row:hover {
+            background-color: #f8fafc;
+        }
+
+        .dark .hover-row:hover {
+            background-color: #18181b;
         }
     </style>
 </head>
@@ -42,206 +118,1041 @@
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
             <%- include('../partials/header') %>
 
-                <div class="px-4 lg:px-8 py-4">
-                    <h2 class="text-xl mb-2 text-zinc-800 dark:text-white font-bold">Novo Perfil de Acesso</h2>
-                    <!-- Breadcrumbs... -->
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-4 text-zinc-800 dark:text-zinc-100 font-bold">Novo Levantamento de Perigos
+                    </h2>
+
+                    <nav
+                        class="nav-horizontal nav-underline gap-4 flex flex-nowrap mb-6 overflow-x-auto pb-1 border-b border-zinc-200 dark:border-zinc-700">
+                        <a href="#" class="nav-link active whitespace-nowrap" onclick="changeStep(1); return false;"
+                            data-step="1">
+                            <span class="icon-[lucide--file-text] text-lg"></span> Dados & Ambiente
+                        </a>
+                        <a href="#" class="nav-link whitespace-nowrap" onclick="changeStep(2); return false;"
+                            data-step="2">
+                            <span class="icon-[lucide--flask-conical] text-lg"></span> GES & Químicos
+                        </a>
+                        <a href="#" class="nav-link whitespace-nowrap" onclick="changeStep(3); return false;"
+                            data-step="3">
+                            <span class="icon-[lucide--alert-triangle] text-lg"></span> Identificação de Perigos
+                        </a>
+                    </nav>
                 </div>
 
-                <div class="content flex-grow lg:px-8 px-4 pb-8">
-                    <form id="form-novo-perfil">
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form id="formLevantamento" class="w-full">
 
-                        <div class="grid grid-cols-1 gap-6">
-                            <!-- Card de Informações Básicas -->
+                        <div id="step1" class="step-content active space-y-6">
+
                             <div
-                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Nome do
-                                            Perfil</label>
-                                        <input type="text" name="nome" id="perfilNome" required
-                                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-4 py-2.5 outline-none focus:border-primary"
-                                            placeholder="Ex: Supervisor de Vendas">
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800">
+                                <div class="p-6 border-b border-zinc-100 dark:border-zinc-800">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Informações Gerais
+                                    </h5>
+                                </div>
+                                <div class="p-6 grid grid-cols-2 md:grid-cols-12 gap-6">
+                                    <div class="md:col-span-6">
+                                        <label class="mb-2 block font-medium">Empresa <span
+                                                class="text-red-500">*</span></label>
+                                        <div class="relative w-full">
+                                            <input type="hidden" name="id_cliente" id="id_cliente" required>
+                                            <input id="nome_cliente" type="text"
+                                                class="input h-10 w-full !pe-11 bg-white dark:bg-zinc-900 cursor-pointer font-semibold"
+                                                placeholder="Clique para selecionar a empresa..." readonly required
+                                                data-bs-toggle="modal" data-bs-target="#modal_cliente">
+                                            <button type="button" data-bs-toggle="modal" data-bs-target="#modal_cliente"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 size-8 flex items-center justify-center text-zinc-500 hover:text-primary">
+                                                <span class="icon-[lucide--search] text-lg"></span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Descrição
-                                            (Opcional)</label>
-                                        <input type="text" name="descricao" id="perfilDescricao"
-                                            class="w-full rounded-lg border border-zinc-200 bg-transparent px-4 py-2.5 outline-none"
-                                            placeholder="Breve descrição da função">
+                                    <div class="md:col-span-4">
+                                        <label class="mb-2 block font-medium">Data do Levantamento</label>
+                                        <input type="date" name="data_levantamento"
+                                            class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed text-center"
+                                            value="<%= new Date().toISOString().split('T')[0] %>" disabled>
+                                    </div>
+                                    <div class="md:col-span-6">
+                                        <label class="mb-2 block font-medium">Responsável Técnico</label>
+                                        <input type="hidden" name="id_responsavel_tecnico"
+                                            value="<%= (typeof user !== 'undefined' && user) ? user.id_usuario : '' %>">
+                                        <input type="text"
+                                            class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 font-bold cursor-not-allowed"
+                                            value="<%= (typeof user !== 'undefined' && user) ? (user.nome_completo || user.nome) : 'Usuário não identificado' %>"
+                                            disabled>
+                                    </div>
+                                    <div class="md:col-span-8">
+                                        <label class="mb-2 block font-medium">Responsável da Empresa</label>
+                                        <input type="text" name="responsavel_empresa_nome" class="input h-10 w-full"
+                                            placeholder="Nome de quem forneceu as informações">
+                                    </div>
+                                    <div class="md:col-span-4">
+                                        <label class="mb-2 block font-medium">Cargo</label>
+                                        <input type="text" name="responsavel_empresa_cargo" class="input h-10 w-full"
+                                            placeholder="Cargo do informante">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Card da Tabela de Permissões -->
                             <div
                                 class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                                <div class="overflow-x-auto">
-                                    <table class="table-default table-hover whitespace-nowrap border-collapse w-full">
-                                        <thead>
-                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
-                                                <th
-                                                    class="py-5 text-xs font-bold text-zinc-500 uppercase tracking-wider pl-8 text-left">
-                                                    Módulo</th>
-                                                <th
-                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
-                                                    Ver</th>
-                                                <th
-                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
-                                                    Criar</th>
-                                                <th
-                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
-                                                    Editar</th>
-                                                <th
-                                                    class="px-4 py-5 text-center text-xs font-bold text-zinc-500 uppercase">
-                                                    Inativar</th>
-                                                <th
-                                                    class="px-4 py-5 text-center text-xs font-bold text-primary uppercase bg-primary/5">
-                                                    Tudo</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-zinc-50 dark:divide-zinc-800/50">
+                                <div
+                                    class="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Caracterização do
+                                        Ambiente</h5>
+                                </div>
 
-                                            <% if (typeof modulos !=='undefined' ) { %>
-                                                <% modulos.forEach(function(mod) { %>
-                                                    <tr>
-                                                        <td class="pl-8 py-4">
-                                                            <div
-                                                                class="flex items-center gap-3 text-zinc-700 dark:text-zinc-200 font-medium">
-                                                                <!-- Ícone genérico ou baseado no nome -->
-                                                                <span class="icon-[lucide--box] text-zinc-400"></span>
-                                                                <%= mod.nome_modulo %>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse">
+                                        <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 w-48 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Trabalho Externo?</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-6">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="radio" name="trabalho_externo" value="1"
+                                                                class="radio-custom">
+                                                            <span>Sim</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="radio" name="trabalho_externo" value="0"
+                                                                class="radio-custom" checked>
+                                                            <span>Não</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Construção</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_construcao"
+                                                                value="Alvenaria" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Alvenaria</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_construcao"
+                                                                value="Concreto" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Concreto</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_construcao"
+                                                                value="Madeira" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Madeira</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_construcao"
+                                                                value="Metálica" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Metálica</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_construcao"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_construcao_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_construcao_outro"
+                                                                name="tipo_construcao_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Paredes</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_paredes" value="Cerâmico"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Cerâmico</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_paredes" value="Pintura"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Pintura</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_paredes"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_paredes_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_paredes_outro"
+                                                                name="tipo_paredes_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                        <div
+                                                            class="flex items-center gap-2 border-l pl-4 ml-2 border-zinc-200">
+                                                            <span
+                                                                class="text-sm font-semibold text-zinc-500">Cor:</span>
+                                                            <input type="text" name="cor_paredes"
+                                                                class="table-input w-32" placeholder="Ex: Branca">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-middle font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Divisões Internas</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="text-sm text-zinc-500">Material:</span>
+                                                        <input type="text" name="divisoes_internas_material"
+                                                            class="table-input max-w-md"
+                                                            placeholder="Ex: Drywall, Vidro, etc.">
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Piso</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_piso"
+                                                                value="Concreto desempenado" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Concreto Desemp.</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_piso" value="Cerâmico"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Cerâmico</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_piso" value="Pintura"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Pintura</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_piso" value="Outros"
+                                                                    class="checkbox-custom"
+                                                                    data-target="input_piso_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_piso_outro"
+                                                                name="tipo_piso_outro" class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-middle font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Cobertura</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-6">
+                                                        <div class="flex items-center gap-2">
+                                                            <span
+                                                                class="text-sm font-semibold text-zinc-500">Estrutura:</span>
+                                                            <input type="text" name="cobertura_tipo_estrutura"
+                                                                class="table-input w-40" placeholder="Ex: Metálica">
+                                                        </div>
+                                                        <div class="flex items-center gap-2">
+                                                            <span
+                                                                class="text-sm font-semibold text-zinc-500">Telha:</span>
+                                                            <input type="text" name="cobertura_tipo_telha"
+                                                                class="table-input w-40" placeholder="Ex: Fibrocimento">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Forro</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_forro" value="Laje"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Laje</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_forro" value="Forro PVC"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>PVC</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_forro"
+                                                                value="Forro madeira" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Madeira</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_forro" value="Outros"
+                                                                    class="checkbox-custom"
+                                                                    data-target="input_forro_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_forro_outro"
+                                                                name="tipo_forro_outro" class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Iluminação</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_iluminacao"
+                                                                value="Natural" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Natural</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_iluminacao"
+                                                                value="Artificial" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Artificial</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_iluminacao"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_iluminacao_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_iluminacao_outro"
+                                                                name="tipo_iluminacao_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Ventilação</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_ventilacao"
+                                                                value="Natural" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Natural</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tipo_ventilacao"
+                                                                value="Artificial" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Artificial</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tipo_ventilacao"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_ventilacao_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_ventilacao_outro"
+                                                                name="tipo_ventilacao_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Climatização</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-6">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="possui_climatizacao" value="1"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Sim</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="possui_climatizacao" value="0"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Não</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Escadas</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="escadas_tipo" value="Alvenaria"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Alvenaria</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="escadas_tipo"
+                                                                value="Metálica degraus" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Metálica Degraus</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="escadas_tipo"
+                                                                value="Metálica marinheiro" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Marinheiro</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="escadas_tipo"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_escada_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_escada_outro"
+                                                                name="escadas_tipo_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Passarelas</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="passarelas_tipo"
+                                                                value="Alvenaria" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Alvenaria</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="passarelas_tipo"
+                                                                value="Concreto" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Concreto</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="passarelas_tipo"
+                                                                value="Metálica" class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Metálica</span>
+                                                        </label>
+                                                        <div class="flex items-center gap-2">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="passarelas_tipo"
+                                                                    value="Outros" class="checkbox-custom"
+                                                                    data-target="input_passarela_outro"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Outros</span>
+                                                            </label>
+                                                            <input type="text" id="input_passarela_outro"
+                                                                name="passarelas_tipo_outro"
+                                                                class="table-input w-40 hidden"
+                                                                placeholder="Especifique">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr class="hover-row transition-colors">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Rampas</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex items-center gap-6">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tem_rampas" value="1"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Sim</span>
+                                                        </label>
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                            <input type="checkbox" name="tem_rampas" value="0"
+                                                                class="checkbox-custom"
+                                                                onclick="handleCheckRadio(this)">
+                                                            <span>Não</span>
+                                                        </label>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            <tr
+                                                class="hover-row transition-colors border-b border-zinc-100 dark:border-zinc-800">
+                                                <td
+                                                    class="py-4 pl-6 pr-4 align-top font-bold text-zinc-700 dark:text-zinc-300">
+                                                    Mezaninos</td>
+                                                <td class="py-4 px-4">
+                                                    <div class="flex flex-col gap-4">
+                                                        <div class="flex items-center gap-6">
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tem_mezaninos" value="1"
+                                                                    class="checkbox-custom"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Sim</span>
+                                                            </label>
+                                                            <label
+                                                                class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
+                                                                <input type="checkbox" name="tem_mezaninos" value="0"
+                                                                    class="checkbox-custom"
+                                                                    onclick="handleCheckRadio(this)">
+                                                                <span>Não</span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="flex flex-wrap items-center gap-6">
+                                                            <div class="flex items-center gap-2">
+                                                                <span
+                                                                    class="text-sm font-semibold text-zinc-500">Área(m²):</span>
+                                                                <input type="number" step="0.01" name="area_m2"
+                                                                    class="table-input w-20">
                                                             </div>
-                                                        </td>
-                                                        <!-- Note o name dos inputs: permissoes[ID_MODULO][ACAO] -->
-                                                        <td class="px-4 py-4 text-center">
-                                                            <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][ver]"
-                                                                class="checkbox-custom">
-                                                        </td>
-                                                        <td class="px-4 py-4 text-center">
-                                                            <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][criar]"
-                                                                class="checkbox-custom">
-                                                        </td>
-                                                        <td class="px-4 py-4 text-center">
-                                                            <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][editar]"
-                                                                class="checkbox-custom">
-                                                        </td>
-                                                        <td class="px-4 py-4 text-center">
-                                                            <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][inativar]"
-                                                                class="checkbox-custom">
-                                                        </td>
-                                                        <td class="px-4 py-4 text-center bg-primary/5">
-                                                            <input type="checkbox"
-                                                                name="permissoes[<%= mod.id_modulo %>][tudo]"
-                                                                class="master-checker">
-                                                        </td>
-                                                    </tr>
-                                                    <% }); %>
-                                                        <% } %>
+                                                            <div class="flex items-center gap-2">
+                                                                <span
+                                                                    class="text-sm font-semibold text-zinc-500">Larg.(m):</span>
+                                                                <input type="number" step="0.01" name="largura_m"
+                                                                    class="table-input w-20">
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <span
+                                                                    class="text-sm font-semibold text-zinc-500">Compr.(m):</span>
+                                                                <input type="number" step="0.01" name="comprimento_m"
+                                                                    class="table-input w-20">
+                                                            </div>
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="text-sm font-semibold text-zinc-500">Pé
+                                                                    dir.(m):</span>
+                                                                <input type="number" step="0.01" name="pe_direito_m"
+                                                                    class="table-input w-20">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
 
                                         </tbody>
                                     </table>
                                 </div>
 
                                 <div
-                                    class="p-6 border-t border-zinc-100 dark:border-zinc-800 flex justify-end gap-3 bg-zinc-50/50 dark:bg-zinc-900">
-                                    <a href="/perfis"
-                                        class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors text-sm font-medium">Cancelar</a>
-                                    <button type="submit"
-                                        class="btn px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary-deep transition-colors shadow-lg shadow-primary/20 text-sm font-medium">Salvar
-                                        Perfil</button>
+                                    class="p-6 bg-zinc-50/50 dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800">
+                                    <label class="block text-sm font-bold text-zinc-700 mb-2">Observações sobre as
+                                        condições gerais:</label>
+                                    <textarea name="obs_condicoes_gerais" rows="3" class="input w-full text-sm bg-white"
+                                        placeholder="Descreva aqui observações adicionais..."></textarea>
                                 </div>
+
+                                <div class="p-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
+                                    <button type="button"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6 shadow-lg shadow-primary/20"
+                                        onclick="changeStep(2)">
+                                        Próximo <span class="icon-[lucide--arrow-right] ms-2"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="step2" class="step-content space-y-6">
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                                <div
+                                    class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Grupo de Exposição
+                                        Similar (GES)</h5>
+                                    <button type="button" onclick="addGesRow()"
+                                        class="btn btn-sm bg-white border border-zinc-200 hover:bg-zinc-50 text-primary font-bold shadow-sm transition-all">
+                                        <span class="icon-[lucide--plus] me-1"></span> Adicionar GES
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse" id="tableGes">
+                                        <thead>
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                                                <th
+                                                    class="py-4 pl-6 pr-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Nome do Grupo</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Setor</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Cargos</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Exceção (Nome)</th>
+                                                <th
+                                                    class="py-4 pr-6 pl-2 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider w-16">
+                                                    Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-zinc-50 dark:divide-zinc-800/50">
+                                        </tbody>
+                                    </table>
+                                    <div id="emptyGes" class="p-8 text-center text-zinc-400 italic bg-zinc-50/30">
+                                        Nenhum GES cadastrado. Clique em adicionar.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                                <div
+                                    class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900">
+                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Produtos Químicos
+                                    </h5>
+                                    <button type="button" onclick="addQuimicoRow()"
+                                        class="btn btn-sm bg-white border border-zinc-200 hover:bg-zinc-50 text-primary font-bold shadow-sm transition-all">
+                                        <span class="icon-[lucide--plus] me-1"></span> Adicionar Produto
+                                    </button>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse" id="tableQuimico">
+                                        <thead>
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                                                <th
+                                                    class="py-4 pl-6 pr-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Nome Rótulo</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider w-32">
+                                                    Estado Físico</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Tipo Exposição</th>
+                                                <th
+                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+                                                    Processo/Qtde</th>
+                                                <th
+                                                    class="py-4 pr-6 pl-2 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider w-16">
+                                                    Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-zinc-50 dark:divide-zinc-800/50">
+                                        </tbody>
+                                    </table>
+                                    <div id="emptyQuimico" class="p-8 text-center text-zinc-400 italic bg-zinc-50/30">
+                                        Nenhum produto químico cadastrado.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between mt-4">
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
+                                    onclick="changeStep(1)">Anterior</button>
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary-deep transition-colors shadow-lg shadow-primary/20 font-medium"
+                                    onclick="changeStep(3)">Próximo <span
+                                        class="icon-[lucide--arrow-right] ms-2"></span></button>
+                            </div>
+                        </div>
+
+                        <div id="step3" class="step-content space-y-6">
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Identificação de
+                                    Perigos</h5>
+
+                                <div
+                                    class="flex gap-4 mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20">
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
+                                        <input type="checkbox" name="ausencia_risco_ambiental"
+                                            class="checkbox-custom text-yellow-500"> Ausência Risco Ambiental
+                                    </label>
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
+                                        <input type="checkbox" name="ausencia_risco_ergonomico"
+                                            class="checkbox-custom text-yellow-500"> Ausência Risco Ergonômico
+                                    </label>
+                                    <label
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
+                                        <input type="checkbox" name="ausencia_risco_mecanico"
+                                            class="checkbox-custom text-yellow-500"> Ausência Risco Mecânico
+                                    </label>
+                                </div>
+
+                                <% Object.keys(riscosPadrao).forEach(function(grupo, idx) { %>
+                                    <div
+                                        class="border border-zinc-200 dark:border-zinc-800 rounded-lg mb-4 overflow-hidden">
+                                        <button type="button"
+                                            class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                                            onclick="toggleAccordion('acc_<%= idx %>')">
+                                            <%= grupo %> <span class="icon-[lucide--chevron-down]"></span>
+                                        </button>
+                                        <div id="acc_<%= idx %>" class="hidden p-4 bg-white dark:bg-zinc-900">
+                                            <div class="grid grid-cols-1 gap-4">
+                                                <% riscosPadrao[grupo].forEach(function(risco) { %>
+                                                    <div
+                                                        class="risk-item border-b border-zinc-100 dark:border-zinc-800 last:border-0 pb-4">
+                                                        <label
+                                                            class="inline-flex items-center gap-2 cursor-pointer mb-2">
+                                                            <input type="checkbox" class="checkbox-custom risk-checkbox"
+                                                                data-grupo="<%= grupo %>"
+                                                                data-codigo="<%= risco.codigo %>"
+                                                                data-nome="<%= risco.nome %>"
+                                                                onchange="toggleRiskDetail(this)">
+                                                            <span class="font-medium text-zinc-700 dark:text-zinc-300">
+                                                                <%= risco.codigo %> - <%= risco.nome %>
+                                                            </span>
+                                                        </label>
+                                                        <div
+                                                            class="risk-detail hidden pl-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg border border-zinc-100 dark:border-zinc-700">
+                                                            <div>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes
+                                                                    Geradoras</label>
+                                                                <input type="text"
+                                                                    class="table-input w-full text-sm risk-fontes">
+                                                            </div>
+                                                            <div>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo
+                                                                    Exp.</label>
+                                                                <input type="text"
+                                                                    class="table-input w-full text-sm risk-tempo">
+                                                            </div>
+                                                            <div>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs
+                                                                    Recomendados</label>
+                                                                <select class="risk-epis w-full" multiple>
+                                                                    <% epis.forEach(function(e) { %>
+                                                                        <option value="<%= e.id_epi %>">
+                                                                            <%= e.nome_equipamento %> (CA: <%= e.ca %>)
+                                                                        </option>
+                                                                        <% }); %>
+                                                                </select>
+                                                            </div>
+                                                            <div>
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs
+                                                                    Existentes</label>
+                                                                <select class="risk-epcs w-full" multiple>
+                                                                    <% epcs.forEach(function(ep) { %>
+                                                                        <option value="<%= ep.id_epc %>">
+                                                                            <%= ep.nome %>
+                                                                        </option>
+                                                                        <% }); %>
+                                                                </select>
+                                                            </div>
+                                                            <div class="md:col-span-2">
+                                                                <label
+                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
+                                                                <input type="text"
+                                                                    class="table-input w-full text-sm risk-obs">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <% }); %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                            </div>
+
+                            <div class="flex justify-between mt-4">
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
+                                    onclick="changeStep(2)">Anterior</button>
+                                <button type="submit" id="btnSalvar"
+                                    class="btn px-8 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-600/20 font-bold uppercase tracking-wide transition-all">
+                                    <span class="icon-[lucide--save] me-2"></span> Salvar Levantamento
+                                </button>
                             </div>
                         </div>
                     </form>
                 </div>
-
                 <%- include('../partials/footer') %>
         </main>
 
+        <div id="modal_cliente" role="dialog" class="modal fade fixed inset-0 z-[70] hidden" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh] shadow-2xl">
+                    <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <h5 class="text-lg font-bold">Selecione o Cliente</h5>
+                        <button type="button" class="btn !p-2 hover:bg-zinc-100 rounded-full"
+                            data-bs-dismiss="modal"><span class="icon-[lucide--x] text-lg"></span></button>
+                    </div>
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
+                        <div class="relative mb-3">
+                            <input id="clienteSearch" type="search" class="input !ps-9 w-full h-10 rounded-lg"
+                                placeholder="Buscar empresa...">
+                            <span
+                                class="icon-[lucide--search] absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                        </div>
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_cliente_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
+                                    <tr>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500">Empresa / CNPJ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% clientes.forEach((c)=> { %>
+                                        <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover:bg-zinc-50 transition-colors"
+                                            data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
+                                            <td class="py-3 px-2">
+                                                <div class="font-semibold text-zinc-900 dark:text-white">
+                                                    <%= c.nome_empresa %>
+                                                </div>
+                                                <div class="text-xs text-zinc-400 font-normal">
+                                                    <%= c.cnpj %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            // 1. Lógica do Checkbox "Tudo"
-            document.querySelectorAll('.master-checker').forEach(master => {
-                master.addEventListener('change', function () {
-                    const row = this.closest('tr');
-                    const checkboxes = row.querySelectorAll('.checkbox-custom');
-                    checkboxes.forEach(cb => cb.checked = this.checked);
+            $(document).ready(function () {
+                const dtCliente = $('#table_cliente_modal').DataTable({ dom: 'rtip', paging: true, pageLength: 5, ordering: false, language: { emptyTable: "Nenhum registro" } });
+                $('#clienteSearch').on('keyup', function () { dtCliente.search(this.value).draw(); });
+                $('#table_cliente_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id'); const nome = $(this).attr('data-nome');
+                    if (id) { $('#id_cliente').val(id); $('#nome_cliente').val(nome); bootstrap.Modal.getInstance(document.getElementById('modal_cliente')).hide(); }
                 });
             });
 
-            // 2. Envio do Formulário
-            document.getElementById('form-novo-perfil').addEventListener('submit', async function (e) {
-                e.preventDefault();
+            function changeStep(step) {
+                document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+                document.getElementById(`step${step}`).classList.add('active');
+                document.querySelectorAll('.nav-link').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.step == step) el.classList.add('active');
+                });
+                window.scrollTo(0, 0);
+            }
 
-                const payload = {
-                    nome: document.getElementById('perfilNome').value,
-                    descricao: document.getElementById('perfilDescricao').value || '',
-                    permissoes: {}
-                };
+            // --- FUNÇÕES DE TABELA AJUSTADAS ---
+            function addGesRow() {
+                document.getElementById('emptyGes').style.display = 'none';
+                const tbody = document.querySelector('#tableGes tbody');
+                const row = document.createElement('tr');
+                row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
+                row.innerHTML = `
+                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
+                <td class="pr-6 pl-2 py-3 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+                </td>`;
+                tbody.appendChild(row);
+                row.querySelector('input').focus();
+            }
 
-                const rows = document.querySelectorAll('tbody tr');
+            function addQuimicoRow() {
+                document.getElementById('emptyQuimico').style.display = 'none';
+                const tbody = document.querySelector('#tableQuimico tbody');
+                const row = document.createElement('tr');
+                row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
+                row.innerHTML = `
+                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
+                <td class="px-2 py-3">
+                    <select class="table-input quim-estado cursor-pointer bg-transparent">
+                        <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option><option value="Névoa">Névoa</option>
+                    </select>
+                </td>
+                <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input quim-processo" placeholder="Ex: Limpeza/500ml"></td>
+                <td class="pr-6 pl-2 py-3 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+                </td>`;
+                tbody.appendChild(row);
+                row.querySelector('input').focus();
+            }
 
-                rows.forEach(row => {
-                    const masterInput = row.querySelector('.master-checker');
+            function toggleAccordion(id) { document.getElementById(id)?.classList.toggle('hidden'); }
 
-                    if (masterInput) {
-                        const match = masterInput.name.match(/permissoes\[(.*?)\]/);
+            function toggleRiskDetail(checkbox) {
+                const detailDiv = checkbox.closest('.risk-item').querySelector('.risk-detail');
+                if (checkbox.checked) {
+                    detailDiv.classList.remove('hidden');
+                    detailDiv.querySelectorAll('select').forEach(s => { if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] }); });
+                } else { detailDiv.classList.add('hidden'); }
+            }
 
-                        if (match && match[1]) {
-                            const idModulo = match[1];
+            function handleCheckRadio(clickedCheckbox) {
+                const groupName = clickedCheckbox.name;
+                const allCheckboxes = document.querySelectorAll(`input[name="${groupName}"]`);
+                allCheckboxes.forEach(cb => { if (cb !== clickedCheckbox) cb.checked = false; });
 
-                            // MUDANÇA AQUI: Retorna 1 se true, 0 se false
-                            const isChecked = (tipo) => {
-                                const el = row.querySelector(`input[name="permissoes[${idModulo}][${tipo}]"]`);
-                                return (el && el.checked) ? 1 : 0;
-                            };
-
-                            payload.permissoes[idModulo] = {
-                                ver: isChecked('ver'),
-                                criar: isChecked('criar'),
-                                editar: isChecked('editar'),
-                                inativar: isChecked('inativar'),
-                                tudo: masterInput.checked ? 1 : 0 // Também converte o master
-                            };
+                allCheckboxes.forEach(cb => {
+                    const targetId = cb.getAttribute('data-target');
+                    if (targetId) {
+                        const inputEl = document.getElementById(targetId);
+                        if (inputEl) {
+                            if (cb.checked) { inputEl.classList.remove('hidden'); inputEl.focus(); }
+                            else { inputEl.classList.add('hidden'); inputEl.value = ''; }
                         }
                     }
                 });
+            }
 
-                console.log("Payload sendo enviado:", payload); // Agora deve aparecer 1 e 0
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.js-select').forEach(el => new TomSelect(el));
 
-                try {
-                    const response = await fetch('/perfil/novo', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!document.getElementById('id_cliente').value) { Swal.fire('Atenção', 'Selecione um cliente.', 'warning'); changeStep(1); return; }
+
+                    const getRadioVal = (n) => {
+                        const c = document.querySelector(`input[name="${n}"]:checked`);
+                        if (!c) return null;
+                        const t = c.getAttribute('data-target');
+                        return { selecionado: c.value, outros: t ? document.getElementById(t).value : '' };
+                    };
+
+                    const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
+                        nome: tr.querySelector('.ges-nome').value, setor: tr.querySelector('.ges-setor').value,
+                        cargos: tr.querySelector('.ges-cargos').value, excecao: tr.querySelector('.ges-excecao').value
+                    })).filter(g => g.nome);
+
+                    const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
+                        rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
+                        exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value
+                    })).filter(q => q.rotulo);
+
+                    const riscosData = [];
+                    document.querySelectorAll('.risk-checkbox:checked').forEach(cb => {
+                        const item = cb.closest('.risk-item');
+                        const sEpi = item.querySelector('.risk-epis'); const sEpc = item.querySelector('.risk-epcs');
+                        riscosData.push({
+                            grupo: cb.dataset.grupo, codigo: cb.dataset.codigo, nome: cb.dataset.nome,
+                            fontes: item.querySelector('.risk-fontes').value, tempo: item.querySelector('.risk-tempo').value,
+                            obs: item.querySelector('.risk-obs').value,
+                            epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [], epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
+                        });
                     });
 
-                    const result = await response.json();
+                    const formData = new FormData(e.target);
+                    const payload = Object.fromEntries(formData.entries());
 
-                    if (response.ok && result.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sucesso!',
-                            text: 'Perfil criado com sucesso.',
-                            showConfirmButton: false,
-                            timer: 1500
-                        }).then(() => {
-                            window.location.href = '/perfil';
-                        });
-                    } else {
-                        Swal.fire('Erro', result.message || 'Erro ao salvar.', 'error');
-                    }
+                    Object.assign(payload, {
+                        tipo_construcao: getRadioVal('tipo_construcao'),
+                        tipo_piso: getRadioVal('tipo_piso'),
+                        tipo_paredes: getRadioVal('tipo_paredes'),
+                        // Adicione outros conforme necessário
+                        ausencia_risco_ambiental: document.querySelector('input[name="ausencia_risco_ambiental"]').checked,
+                        ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]').checked,
+                        ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]').checked,
+                        trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',
+                        possui_climatizacao: document.querySelector('input[name="possui_climatizacao"]:checked')?.value === '1',
+                        ges: gesData, quimicos: quimData, riscos: riscosData
+                    });
 
-                } catch (error) {
-                    console.error("Erro na requisição:", error);
-                    Swal.fire('Erro', 'O servidor não respondeu. Verifique o terminal do Node.', 'error');
-                }
+                    const btn = document.getElementById('btnSalvar');
+                    const oldHtml = btn.innerHTML;
+                    btn.disabled = true; btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Enviando...';
+
+                    try {
+                        const res = await fetch('/formularios/levantamento-perigos/salvar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        const result = await res.json();
+                        if (result.success) Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/formularios/levantamento-perigos');
+                        else Swal.fire('Erro', result.message, 'error');
+                    } catch (err) { Swal.fire('Erro', 'Falha na comunicação', 'error'); }
+                    finally { btn.disabled = false; btn.innerHTML = oldHtml; }
+                });
             });
         </script>
 </body>
