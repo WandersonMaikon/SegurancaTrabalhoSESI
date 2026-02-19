@@ -105,7 +105,7 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         const id_cliente = uuidv4();
 
         // --- LÓGICA: Indústria e Cartão Vantagem ---
-        const ehIndustria = (data.empresa_industria === true || data.empresa_industria === 'true' || data.empresa_industria === 'on') ? 1 : 0;
+        const ehIndustria = (data.empresa_industria == 1 || data.empresa_industria === true || data.empresa_industria === 'true' || data.empresa_industria === 'on') ? 1 : 0;
 
         let valorCartao = 0.00;
         if (ehIndustria === 1 && data.cartao_vantagem) {
