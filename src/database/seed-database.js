@@ -84,7 +84,7 @@ const tabela24Data = [
     { codigo: '02.01.008', grupo: 'Físicos', descricao: 'Atividades em minerações com exposição ao radônio' },
     { codigo: '02.01.011', grupo: 'Físicos', descricao: 'Trabalhos realizados com exposição aos raios Alfa, Beta, Gama e X, aos nêutrons e às substâncias radioativas para fins industriais, terapêuticos e diagnósticos' },
     { codigo: '02.01.007', grupo: 'Físicos', descricao: 'Extração e beneficiamento de minerais radioativos' },
-    { codigo: '02.01.012', grupo: 'Físicos', descricao: 'Fabricação e manipulação de produtos radioativos' },
+    { codigo: '02.01.012', পঞ্চাশ: 'Físicos', descricao: 'Fabricação e manipulação de produtos radioativos' },
     { codigo: '02.01.010', grupo: 'Físicos', descricao: 'Operações com reatores nucleares ou com fontes radioativas' },
     { codigo: '02.01.013', grupo: 'Físicos', descricao: 'Pesquisas e estudos com radiações ionizantes em laboratórios' },
     { codigo: '02.01.009', grupo: 'Físicos', descricao: 'Realização de manutenção e supervisão em unidades de extração, tratamento e beneficiamento de minerais radioativos com exposição às radiações ionizantes' },
@@ -288,6 +288,63 @@ async function seedDatabase() {
             console.log(`⚠️ ATENÇÃO: O arquivo CSV não foi encontrado no caminho: ${csvPath}`);
             console.log("   Coloque o arquivo na mesma pasta do 'seed-database.js' para importar os riscos automaticamente.");
         }
+
+        // ---------------------------------------------------------
+        // 6. POPULAR EPCs (Equipamentos de Proteção Coletiva)
+        // ---------------------------------------------------------
+        console.log("\n🧰 Iniciando inserção dos EPCs...");
+        const listaEPCs = [
+            "Autoclave",
+            "Banqueta isolante",
+            "Barreiras contra fogo e respingos",
+            "Barreiras de proteção contra luminosidade",
+            "Cabines para Pintura",
+            "Caixa de Perfurocortante",
+            "Capela Química",
+            "Chuveiro de emergência",
+            "Cone de sinalização",
+            "Corrimão de escada",
+            "Cortina anti-chama",
+            "Detectores de fumaça e sprinkle",
+            "Enclausuramento",
+            "Exaustores",
+            "Exaustores para gases, névoas e vapores",
+            "Filtros",
+            "Fita de sinalização",
+            "Grade metálica",
+            "Guarda-corpos",
+            "Hidrantes e mangueiras",
+            "Isolamento de áreas de risco",
+            "Kit de primeiros socorros",
+            "Kit para limpeza em caso de derramamento",
+            "Lava – olhos de emergência",
+            "Manta isolante",
+            "Proteção de partes móveis de máquina",
+            "Proteção de partes móveis de máquinas e equipamentos",
+            "Redes de proteção",
+            "Sensores de máquinas",
+            "Sinalização de Segurança",
+            "Sinalização sonora",
+            "Sistema de combate a incêndio"
+        ];
+
+        let epcsInseridos = 0;
+
+        for (const nomeEpc of listaEPCs) {
+            // Nota: Se a sua tabela utiliza 'nome' ao invés de 'nome_epc', basta alterar na linha abaixo:
+            const [existeEpc] = await connection.query("SELECT id_epc FROM epc WHERE nome = ?", [nomeEpc]);
+
+            if (existeEpc.length === 0) {
+                // Inserindo como registro global (id_unidade = NULL), assim como os riscos
+                await connection.query(
+                    "INSERT INTO epc (nome, id_unidade) VALUES (?, ?)",
+                    [nomeEpc, null]
+                );
+                epcsInseridos++;
+            }
+        }
+        console.log(`+ ${epcsInseridos} novos EPCs inseridos com sucesso!`);
+
 
         await connection.commit();
         console.log("\n✅ BANCO DE DADOS SINCRONIZADO COM SUCESSO!");
