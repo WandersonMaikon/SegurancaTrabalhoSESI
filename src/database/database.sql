@@ -1,7 +1,7 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4.3
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.5
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
--- Atualizações: Cartão Vantagem (Cliente) e Prazo em Dias (Escopo OS)
+-- Atualizações: Cartão Vantagem, Prazo OS, e Estrutura Relacional de Riscos (eSocial)
 -- ============================================
 
 CREATE DATABASE IF NOT EXISTS seguranca_trabalho;
@@ -168,7 +168,7 @@ CREATE TABLE ordem_servico_item (
 CREATE TABLE epi (
     id_epi INT AUTO_INCREMENT PRIMARY KEY,
     id_unidade CHAR(36) NULL, -- NULL = Global, Preenchido = Exclusivo da Unidade
-    ca VARCHAR(50) NOT NULL, -- Removi UNIQUE global, pois unidades diferentes podem cadastrar o mesmo CA se quiserem personalizar
+    ca VARCHAR(50) NOT NULL, 
     nome_equipamento VARCHAR(255) NOT NULL,
     validade_ca DATE,
     ativo BOOLEAN DEFAULT TRUE,
@@ -186,7 +186,7 @@ CREATE TABLE epc (
 
 CREATE TABLE tabela_24_esocial (
     id_tabela_24 INT AUTO_INCREMENT PRIMARY KEY,
-    codigo VARCHAR(20) NOT NULL UNIQUE,
+    codigo VARCHAR(20),
     grupo VARCHAR(100),
     descricao TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -195,6 +195,7 @@ CREATE TABLE risco (
     id_risco INT AUTO_INCREMENT PRIMARY KEY,
     id_unidade CHAR(36) NULL, -- Híbrido: Se NULL, todos veem. Se preenchido, é customizado.
     id_tabela_24 INT,
+    codigo_interno VARCHAR(50), -- NOVO: Guarda o código original da planilha (Ex: '686', '774')
     nome_risco VARCHAR(255) NOT NULL,
     tipo_risco VARCHAR(50),
     deleted_at DATETIME DEFAULT NULL,
@@ -247,8 +248,6 @@ CREATE TABLE levantamento_perigo (
     trabalho_externo BOOLEAN DEFAULT FALSE,
     
     -- Caracterização do Ambiente (Arquitetura)
-    -- Armazenaremos as opções selecionadas e o texto "Outros" em JSON para flexibilidade
-    -- Exemplo JSON: { "tipo": "Alvenaria", "outros": null }
     tipo_construcao JSON, 
     tipo_piso JSON,
     tipo_paredes JSON,
@@ -258,7 +257,6 @@ CREATE TABLE levantamento_perigo (
     possui_climatizacao BOOLEAN,
     
     -- Estruturas Auxiliares (Checkboxes)
-    -- Exemplo JSON: ["Escadas", "Rampas"]
     estruturas_auxiliares JSON, 
     
     -- Dimensões e Observações Gerais
@@ -272,8 +270,8 @@ CREATE TABLE levantamento_perigo (
     assinatura_responsavel_empresa LONGTEXT,
     assinatura_avaliador LONGTEXT,
 
-    -- Flags de Controle de Risco (Para desabilitar seções inteiras no Front)
-    ausencia_risco_ambiental BOOLEAN DEFAULT FALSE, -- Se TRUE, não preenche riscos
+    -- Flags de Controle de Risco
+    ausencia_risco_ambiental BOOLEAN DEFAULT FALSE,
     ausencia_risco_ergonomico BOOLEAN DEFAULT FALSE,
     ausencia_risco_mecanico BOOLEAN DEFAULT FALSE,
     
@@ -290,11 +288,10 @@ CREATE TABLE levantamento_perigo (
 -- Tabela Filha: Grupos de Exposição Similar (GES)
 CREATE TABLE levantamento_ges (
     id_ges CHAR(36) NOT NULL PRIMARY KEY, -- UUID
-    id_levantamento CHAR(36) NOT NULL,
-    
+    id_levantamento CHAR(36) NOT NULL,   
     nome_grupo_ges VARCHAR(255),
-    setor VARCHAR(255), -- Nome avulso (com autocomplete no front)
-    cargos TEXT, -- Pode ser lista separada por vírgula
+    setor VARCHAR(255),
+    cargos TEXT,
     nome_trabalhador_excecao VARCHAR(255),
     observacoes TEXT,
     
@@ -304,8 +301,7 @@ CREATE TABLE levantamento_ges (
 -- Tabela Filha: Inventário de Produtos Químicos
 CREATE TABLE levantamento_quimico (
     id_quimico CHAR(36) NOT NULL PRIMARY KEY, -- UUID
-    id_levantamento CHAR(36) NOT NULL,
-    
+    id_levantamento CHAR(36) NOT NULL, 
     nome_rotulo VARCHAR(255),
     estado_fisico ENUM('Sólido', 'Líquido', 'Gasoso'),
     tipo_exposicao VARCHAR(255),
@@ -316,27 +312,26 @@ CREATE TABLE levantamento_quimico (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabela Filha: Detalhamento dos Perigos Identificados
--- Aqui armazenamos CADA checkbox marcado na aba de riscos e seus detalhes
 CREATE TABLE levantamento_risco_identificado (
     id_risco_identificado CHAR(36) NOT NULL PRIMARY KEY, -- UUID
     id_levantamento CHAR(36) NOT NULL,
+    id_risco INT, -- NOVO: Chave estrangeira ligando ao cadastro matriz de riscos
     
-    -- Classificação
-    grupo_perigo VARCHAR(50), -- 'Ergonômico', 'Mecânico', 'Físico', etc.
-    codigo_perigo VARCHAR(20), -- Ex: '1', '24' (Referência do PDF)
-    descricao_perigo VARCHAR(255), -- Ex: 'Ação de puxar e empurrar'
+    -- Classificação (Mantidos para histórico de laudo)
+    grupo_perigo VARCHAR(50), 
+    codigo_perigo VARCHAR(20), 
+    descricao_perigo VARCHAR(255),
     
     -- Detalhamento (Tabela final do PDF)
     fontes_geradoras TEXT,
     tipo_tempo_exposicao VARCHAR(255),
     observacoes TEXT,
     
-    FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE
+    FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE,
+    FOREIGN KEY (id_risco) REFERENCES risco(id_risco) -- NOVO: Trava relacional
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Tabelas de Ligação N:N para EPIs e EPCs nos Riscos
--- Um risco pode ter vários EPIs recomendados vindos do cadastro global
-
 CREATE TABLE levantamento_risco_has_epi (
     id_risco_identificado CHAR(36) NOT NULL,
     id_epi INT NOT NULL,

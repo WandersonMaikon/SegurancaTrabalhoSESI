@@ -74,14 +74,15 @@
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="tipoFilter" class="js-select w-full sm:w-56">
                                             <option value="" selected>Todos os tipos</option>
-                                            <option value="Físico">Físico</option>
-                                            <option value="Químico">Químico</option>
-                                            <option value="Biológico">Biológico</option>
-                                            <option value="Ergonômico">Ergonômico</option>
-                                            <option value="Mecânico">Mecânico</option>
-                                            <option value="Associação">Associação</option>
+                                            <option value="Físicos">Físicos</option>
+                                            <option value="Químicos">Químicos</option>
+                                            <option value="Biológicos">Biológicos</option>
+                                            <option value="Ergonômicos">Ergonômicos</option>
+                                            <option value="Mecânicos">Mecânicos</option>
+                                            <option value="Inespecífico">Inespecífico</option>
+                                            <option value="Associações">Associações</option>
                                             <option value="Outros">Outros</option>
-                                            <option value="Ausência de Risco">Ausência de Risco</option>
+                                            <option value="Ausência de Risco">Ausência de Riscos</option>
                                         </select>
                                     </div>
 
@@ -166,14 +167,15 @@
 
                 const getRiskBadge = (tipo) => {
                     switch (tipo) {
-                        case 'Físico': return '<span class="badge bg-green-500/10 text-green-500">Físico</span>';
-                        case 'Químico': return '<span class="badge bg-red-500/10 text-red-500">Químico</span>';
-                        case 'Biológico': return '<span class="badge bg-yellow-600/10 text-yellow-600">Biológico</span>';
-                        case 'Ergonômico': return '<span class="badge bg-yellow-500/10 text-yellow-500">Ergonômico</span>';
-                        case 'Mecânico': return '<span class="badge bg-sky-500/10 text-sky-500">Mecânico</span>';
-                        case 'Associação': return '<span class="badge bg-zinc-500/10 text-zinc-500">Associação</span>';
+                        case 'Físicos': return '<span class="badge bg-green-500/10 text-green-500">Físicos</span>';
+                        case 'Químicos': return '<span class="badge bg-red-500/10 text-red-500">Químicos</span>';
+                        case 'Biológicos': return '<span class="badge bg-yellow-600/10 text-yellow-600">Biológicos</span>';
+                        case 'Ergonômicos': return '<span class="badge bg-yellow-500/10 text-yellow-500">Ergonômicos</span>';
+                        case 'Mecânicos': return '<span class="badge bg-sky-500/10 text-sky-500">Mecânicos</span>';
+                        case 'Inespecífico': return '<span class="badge bg-purple-500/10 text-purple-500">Inespecífico</span>';
+                        case 'Associações': return '<span class="badge bg-zinc-500/10 text-zinc-500">Associações</span>';
                         case 'Outros': return '<span class="badge bg-zinc-500/10 text-zinc-500">Outros</span>';
-                        case 'Ausência de Risco': return '<span class="badge bg-slate-500/10 text-slate-500">Ausência</span>';
+                        case 'Ausência de Riscos': return '<span class="badge bg-slate-500/10 text-slate-500">Ausência de Riscos</span>';
                         default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo}</span>`;
                     }
                 };
