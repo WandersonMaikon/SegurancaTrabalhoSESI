@@ -70,17 +70,47 @@
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados do risco</h5>
                                         <p class="text-sm text-zinc-400 mt-1">
-                                            Edite as informações abaixo.
+                                            Edite o nome do risco, tipo e a associação (opcional) ao eSocial.
                                         </p>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
 
                                         <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Código eSocial tabela 24</label>
+                                            <label class="mb-2 block font-medium">Nome do risco (Interno) <span
+                                                    class="text-red-500">*</span></label>
+                                            <input id="nome_risco" name="nome_risco" type="text"
+                                                class="input h-11 w-full"
+                                                placeholder="Digite o nome de controle interno..." required
+                                                maxlength="255" value="<%= risco.nome_risco %>">
+                                            <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Tipo de risco <span
+                                                    class="text-red-500">*</span></label>
+                                            <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required
+                                                data-selected="<%= risco.tipo_risco %>">
+                                                <option value="" disabled>Selecione...</option>
+                                                <option value="Físico">Físicos</option>
+                                                <option value="Químico">Químicos</option>
+                                                <option value="Biológico">Biológicos</option>
+                                                <option value="Ergonômico">Ergonômicos</option>
+                                                <option value="Mecânico">Mecânicos</option>
+                                                <option value="Associação">Associações</option>
+                                                <option value="Inespecífico">Inespecíficos</option>
+                                                <option value="Outros">Outros</option>
+                                                <option value="Ausência de Risco">Ausência de Riscos</option>
+                                            </select>
+                                        </div>
+
+                                        <div
+                                            class="w-full max-w-2xl mt-4 border-t border-zinc-200 dark:border-zinc-800 pt-6">
+                                            <label class="mb-2 block font-medium">Código eSocial tabela 24 <span
+                                                    class="text-zinc-400 font-normal text-sm ml-1">(Opcional)</span></label>
                                             <div class="relative">
                                                 <input id="codigo_esocial" name="codigo_esocial_visual" type="text"
-                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.2001"
+                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.001"
                                                     inputmode="numeric" autocomplete="off"
                                                     value="<%= risco.codigo_esocial_visual || '' %>">
 
@@ -93,28 +123,13 @@
                                             <p id="codigoMsg" class="text-sm mt-2 hidden"></p>
                                         </div>
 
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Nome do risco</label>
-                                            <input id="nome_risco" name="nome_risco" type="text"
-                                                class="input h-11 w-full" placeholder="Nome do risco..." required
-                                                maxlength="255" value="<%= risco.nome_risco %>">
-                                            <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
-                                        </div>
-
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Tipo de risco</label>
-                                            <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required
-                                                data-selected="<%= risco.tipo_risco %>">
-                                                <option value="" disabled>Selecione...</option>
-                                                <option value="Físicos">Físicos</option>
-                                                <option value="Químicos">Químicos</option>
-                                                <option value="Biológicos">Biológicos</option>
-                                                <option value="Ergonômicos">Ergonômicos</option>
-                                                <option value="Mecânicos">Mecânicos</option>
-                                                <option value="Associações">Associações</option>
-                                                <option value="Outros">Outros</option>
-                                                <option value="Ausência de Riscos">Ausência de Riscos</option>
-                                            </select>
+                                        <div id="container_descricao_esocial" class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium text-zinc-500">Descrição oficial
+                                                (eSocial)</label>
+                                            <textarea id="descricao_esocial"
+                                                class="input w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed py-2"
+                                                rows="3" readonly
+                                                placeholder="A descrição oficial do eSocial aparecerá aqui se um código for vinculado..."></textarea>
                                         </div>
 
                                     </div>
@@ -158,38 +173,79 @@
 
                 // --- SELECIONAR O VALOR QUE VEIO DO BACKEND ---
                 const selectedVal = select.getAttribute('data-selected');
+
+                // Tratamento especial: O BD pode estar com "Físicos" mas a option value é "Físico" 
+                // Garantimos a seleção baseada no value do select
                 if (selectedVal) {
-                    tomSelectTipo.setValue(selectedVal);
+                    const matchValue = selectedVal.endsWith('s') && selectedVal !== 'Outros' && selectedVal !== 'Ausência de Riscos' ? selectedVal.slice(0, -1) : selectedVal;
+                    tomSelectTipo.setValue(matchValue || selectedVal);
                 }
+
+                // Monitora a mudança no select para validar o formulário
+                tomSelectTipo.on('change', function () {
+                    if (canEdit === 'true') verificarFormularioParaSalvar();
+                });
             });
 
             const formRisco = document.getElementById("formRisco");
-            const elCodigo = document.getElementById("codigo_esocial");
             const elNome = document.getElementById("nome_risco");
+            const elCodigo = document.getElementById("codigo_esocial");
             const elIdTabela = document.getElementById("id_tabela_24");
+            const elDescricaoEsocial = document.getElementById("descricao_esocial");
             const elMsg = document.getElementById("codigoMsg");
+
             const btnConsultar = document.getElementById("btnConsultarCodigo");
             const btnSalvar = document.getElementById("btnSalvar");
             const alertNoPermission = document.getElementById("alertNoPermission");
 
             // --- LÓGICA DE BLOQUEIO POR PERMISSÃO ---
-            if (!canEdit) {
-                // 1. Mostra o alerta
+            if (canEdit !== 'true') {
                 alertNoPermission.classList.remove('hidden');
-
-                // 2. Desabilita todos os inputs do form
-                const inputs = formRisco.querySelectorAll('input, select, button');
+                const inputs = formRisco.querySelectorAll('input, select, button, textarea');
                 inputs.forEach(el => {
-                    el.disabled = true;
-                    el.classList.add('cursor-not-allowed', 'opacity-60');
+                    if (el.id !== 'btnConsultarCodigo') { // Permite ver a mensagem
+                        el.disabled = true;
+                        el.classList.add('cursor-not-allowed', 'opacity-60');
+                    }
                 });
-
-                // 3. Remove o botão de salvar do DOM para evitar submissão forçada
                 if (btnSalvar) btnSalvar.remove();
-
-                // 4. Bloqueia o TomSelect especificamente
                 if (tomSelectTipo) tomSelectTipo.disable();
+                btnConsultar.disabled = true;
             }
+
+            // --- FUNÇÃO DE VALIDAÇÃO GERAL (Liberar Botão de Salvar) ---
+            function verificarFormularioParaSalvar() {
+                if (canEdit !== 'true') return;
+
+                const nomePreenchido = elNome.value.trim().length > 0;
+                const tipoPreenchido = tomSelectTipo && tomSelectTipo.getValue() !== "";
+
+                if (nomePreenchido && tipoPreenchido) {
+                    btnSalvar.disabled = false;
+                    btnSalvar.classList.remove("opacity-50", "cursor-not-allowed");
+                } else {
+                    btnSalvar.disabled = true;
+                    btnSalvar.classList.add("opacity-50", "cursor-not-allowed");
+                }
+            }
+
+            // --- AUTO-BUSCAR DESCRIÇÃO ESOCIAL AO CARREGAR A PÁGINA ---
+            window.addEventListener('DOMContentLoaded', async () => {
+                const codigo = elCodigo.value;
+                if (codigo && elIdTabela.value) {
+                    try {
+                        const response = await fetch(`/risco/buscar-esocial/${codigo}`);
+                        const json = await response.json();
+                        if (json.success) {
+                            elDescricaoEsocial.value = json.data.descricao;
+                            setMsg("success", "Risco vinculado ao eSocial.");
+                        }
+                    } catch (e) {
+                        console.error("Não foi possível buscar a descrição no carregamento.");
+                    }
+                }
+                verificarFormularioParaSalvar();
+            });
 
             // --- FUNÇÃO AUXILIAR: LIMITAR PALAVRAS ---
             function limitarPalavras(texto, max) {
@@ -201,34 +257,21 @@
                 return texto;
             }
 
+            // --- EVENTOS NOME DO RISCO ---
             elNome.addEventListener("input", function () {
                 const textoAtual = this.value;
                 const textoLimitado = limitarPalavras(textoAtual, 9);
                 if (textoAtual !== textoLimitado) {
                     this.value = textoLimitado;
                 }
+                verificarFormularioParaSalvar();
             });
 
-            // --- FUNÇÕES DE CONTROLE VISUAL ---
-            function lockFields() {
-                elNome.setAttribute("readonly", "true");
-                elNome.classList.add("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
-                if (tomSelectTipo) {
-                    tomSelectTipo.disable();
-                    tomSelectTipo.wrapper.classList.add("opacity-60", "cursor-not-allowed");
-                }
-            }
-
-            function unlockFields() {
-                // Só destrava se o usuário tiver permissão global de edição
-                if (!canEdit) return;
-
-                elNome.removeAttribute("readonly");
-                elNome.classList.remove("bg-zinc-100", "dark:bg-zinc-800", "text-zinc-500", "cursor-not-allowed");
-                if (tomSelectTipo) {
-                    tomSelectTipo.enable();
-                    tomSelectTipo.wrapper.classList.remove("opacity-60", "cursor-not-allowed");
-                }
+            // --- FUNÇÕES DE CONTROLE DE MENSAGENS E CAMPOS ---
+            function clearEsocialLink() {
+                elDescricaoEsocial.value = "";
+                elIdTabela.value = "";
+                setMsg("clear");
             }
 
             function setMsg(type, text) {
@@ -240,13 +283,7 @@
                 else elMsg.classList.add("hidden");
             }
 
-            // --- ESTADO INICIAL (CRÍTICO PARA EDIÇÃO) ---
-            if (elIdTabela.value) {
-                lockFields();
-                if (canEdit) setMsg("success", "Risco vinculado ao eSocial.");
-            }
-
-            // --- MÁSCARA INTELIGENTE ---
+            // --- MÁSCARA INTELIGENTE DO CÓDIGO ---
             elCodigo.addEventListener("input", function () {
                 let v = this.value.replace(/\D/g, "");
                 if (v.length > 8) v = v.slice(0, 8);
@@ -254,23 +291,21 @@
                 else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
                 this.value = v;
 
-                setMsg("clear");
-                unlockFields();
+                // Se modificar, desvincula
+                clearEsocialLink();
             });
 
             // --- CONSULTA ---
             async function runConsulta() {
-                // Bloqueia se não tiver permissão
-                if (!canEdit) return;
+                if (canEdit !== 'true') return;
 
                 const codigo = elCodigo.value;
                 if (!codigo) { setMsg("error", "Informe o código eSocial."); return; }
-                if (codigo.length < 9) { setMsg("error", "Formato inválido."); return; }
+                if (codigo.length < 9) { setMsg("error", "Formato numérico incompleto."); return; }
 
                 btnConsultar.disabled = true;
                 btnConsultar.textContent = "Buscando...";
                 setMsg("info", "Consultando tabela...");
-                unlockFields();
 
                 try {
                     const response = await fetch(`/risco/buscar-esocial/${codigo}`);
@@ -278,17 +313,23 @@
 
                     if (json.success) {
                         const dados = json.data;
-                        elNome.value = limitarPalavras(dados.descricao, 9);
+
+                        elDescricaoEsocial.value = dados.descricao;
                         elIdTabela.value = dados.id_tabela_24;
-                        if (tomSelectTipo) tomSelectTipo.setValue(dados.grupo);
-                        lockFields();
-                        setMsg("success", "Código Tabela 24 encontrado!");
+
+                        if (tomSelectTipo && dados.grupo) {
+                            tomSelectTipo.setValue(dados.grupo);
+                        }
+
+                        setMsg("success", "Código Tabela 24 vinculado com sucesso!");
+                        verificarFormularioParaSalvar();
                     } else {
+                        clearEsocialLink();
                         setMsg("error", "Código não encontrado na Tabela 24.");
-                        elIdTabela.value = ""; // Limpa ID se não achou
                     }
                 } catch (error) {
                     console.error(error);
+                    clearEsocialLink();
                     setMsg("error", "Erro ao comunicar com o servidor.");
                 } finally {
                     btnConsultar.disabled = false;
@@ -309,9 +350,8 @@
                 formRisco.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
-                    if (!canEdit) return; // Bloqueio final
+                    if (canEdit !== 'true') return;
 
-                    // Destrava TomSelect para o FormData pegar o valor
                     if (tomSelectTipo) tomSelectTipo.enable();
 
                     const textoOriginal = btnSalvar.innerHTML;
@@ -349,7 +389,6 @@
                             });
                             btnSalvar.disabled = false;
                             btnSalvar.innerHTML = textoOriginal;
-                            if (elIdTabela.value) lockFields();
                         }
                     } catch (error) {
                         console.error(error);
@@ -361,7 +400,6 @@
                         });
                         btnSalvar.disabled = false;
                         btnSalvar.innerHTML = textoOriginal;
-                        if (elIdTabela.value) lockFields();
                     }
                 });
             }
