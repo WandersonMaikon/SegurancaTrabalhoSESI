@@ -923,10 +923,28 @@
                                                                     <%= r.nome %>
                                                                 </td>
                                                                 <td class="py-3 px-3 col-grupo">
-                                                                    <span
-                                                                        class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-xs font-semibold text-zinc-500">
-                                                                        <%= r.grupo %>
-                                                                    </span>
+                                                                    <% let badgeClass='bg-zinc-100 text-zinc-500' ; if
+                                                                        (r.grupo==='Físicos' )
+                                                                        badgeClass='bg-green-500/10 text-green-500' ;
+                                                                        else if (r.grupo==='Químicos' )
+                                                                        badgeClass='bg-red-500/10 text-red-500' ; else
+                                                                        if (r.grupo==='Biológicos' )
+                                                                        badgeClass='bg-yellow-600/10 text-yellow-600' ;
+                                                                        else if (r.grupo==='Ergonômicos' )
+                                                                        badgeClass='bg-yellow-500/10 text-yellow-500' ;
+                                                                        else if (r.grupo==='Mecânicos' )
+                                                                        badgeClass='bg-sky-500/10 text-sky-500' ; else
+                                                                        if (r.grupo==='Inespecífico' )
+                                                                        badgeClass='bg-purple-500/10 text-purple-500' ;
+                                                                        else if (r.grupo==='Associações' ||
+                                                                        r.grupo==='Outros' )
+                                                                        badgeClass='bg-zinc-500/10 text-zinc-500' ; else
+                                                                        if (r.grupo==='Ausência de Riscos' )
+                                                                        badgeClass='bg-slate-500/10 text-slate-500' ; %>
+                                                                        <span
+                                                                            class="badge px-2 py-1 rounded text-xs font-semibold <%= badgeClass %>">
+                                                                            <%= r.grupo %>
+                                                                        </span>
                                                                 </td>
                                                                 <td class="py-3 px-3 text-center">
                                                                     <button type="button"
@@ -1030,10 +1048,9 @@
         <script>
             $(document).ready(function () {
                 const modalEl = document.getElementById('modal_cliente');
-                let dtCliente;
 
-                // Configuração idêntica à tela de OS
-                const dtConfig = {
+                // 1. Inicializa o DataTable IMEDIATAMENTE no fundo, antes do modal abrir
+                const dtCliente = $('#table_cliente_modal').DataTable({
                     dom: 'rtip',
                     paging: true,
                     pageLength: 6,
@@ -1047,52 +1064,36 @@
                         zeroRecords: "Nada encontrado",
                         paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                     }
-                };
+                });
 
+                // 2. Já vincula o campo de busca
+                $('#clienteSearch').on('keyup', function () {
+                    dtCliente.search(this.value).draw();
+                });
+
+                // 3. Quando o modal abrir, apenas ajusta as colunas e foca no input
                 modalEl.addEventListener('shown.bs.modal', function () {
-                    if (!$.fn.DataTable.isDataTable('#table_cliente_modal')) {
-                        dtCliente = $('#table_cliente_modal').DataTable(dtConfig);
-
-                        $('#clienteSearch').on('keyup', function () {
-                            dtCliente.search(this.value).draw();
-                        });
-                    }
-
-                    $('#table_cliente_modal').DataTable().columns.adjust().draw();
+                    dtCliente.columns.adjust().draw();
                     $('#clienteSearch').focus();
                 });
 
+                // Evento de clique na linha da tabela (MANTÉM O SEU IGUAL)
                 $('#table_cliente_modal tbody').on('click', 'tr', function () {
                     const id = $(this).attr('data-id');
                     const nome = $(this).attr('data-nome');
 
                     if (id) {
-                        // 1. Preenche os inputs na tela por trás do modal
                         $('#id_cliente').val(id);
                         $('#nome_cliente').val(nome);
 
-                        // 2. Tira o foco para evitar o erro de ARIA-HIDDEN no console
-                        if (document.activeElement) {
-                            document.activeElement.blur();
-                        }
+                        if (document.activeElement) document.activeElement.blur();
 
-                        // 3. Método 100% seguro de fechar: Simular o clique no botão "X" do modal.
-                        // O Bootstrap tem rotinas nativas amarradas a esse botão que limpam o fundo perfeitamente.
                         const btnFechar = modalEl.querySelector('[data-bs-dismiss="modal"]');
-                        if (btnFechar) {
-                            btnFechar.click();
-                        } else {
-                            // Caso não ache o botão por algum motivo, usa a API
-                            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-                        }
+                        if (btnFechar) btnFechar.click();
+                        else bootstrap.Modal.getOrCreateInstance(modalEl).hide();
 
-                        // 4. FAIL-SAFE: Limpeza forçada após a animação (400ms)
-                        // Garante que, mesmo que o Bootstrap se perca, a tela não vai ficar travada
                         setTimeout(() => {
-                            // Remove qualquer fundo escuro órfão
                             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-
-                            // Remove as travas de rolagem do body
                             document.body.classList.remove('modal-open');
                             document.body.style.overflow = '';
                             document.body.style.paddingRight = '';
@@ -1275,33 +1276,31 @@
             $(document).ready(function () {
                 const modalRiscosEl = document.getElementById('modalRiscos');
 
-                // Inicializa o DataTable dos Riscos quando o modal for aberto
-                modalRiscosEl.addEventListener('shown.bs.modal', function () {
-                    if (!$.fn.DataTable.isDataTable('#tabelaRiscosModal')) {
-                        dtRiscos = $('#tabelaRiscosModal').DataTable({
-                            dom: 'rtip', // Esconde a barra nativa do datatable, usaremos o nosso input
-                            paging: true,
-                            pageLength: 10, // Limita a 10 registros por página!
-                            ordering: false,
-                            autoWidth: false,
-                            language: {
-                                emptyTable: "Nenhum registro encontrado",
-                                info: "Exibindo _START_ a _END_ de _TOTAL_ riscos",
-                                infoEmpty: "Nenhum registro",
-                                infoFiltered: "(filtrado de _MAX_)",
-                                zeroRecords: "Nenhum risco encontrado",
-                                paginate: { first: "«", last: "»", next: "›", previous: "‹" }
-                            }
-                        });
-
-                        // Conecta o nosso input de busca customizado ao DataTable
-                        $('#inputBuscaRisco').on('keyup', function () {
-                            dtRiscos.search(this.value).draw();
-                        });
+                // 1. Inicializa o DataTable de Riscos IMEDIATAMENTE
+                dtRiscos = $('#tabelaRiscosModal').DataTable({
+                    dom: 'rtip',
+                    paging: true,
+                    pageLength: 10,
+                    ordering: false,
+                    autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado",
+                        info: "Exibindo _START_ a _END_ de _TOTAL_ riscos",
+                        infoEmpty: "Nenhum registro",
+                        infoFiltered: "(filtrado de _MAX_)",
+                        zeroRecords: "Nenhum risco encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                     }
+                });
 
-                    // Ajusta as colunas e foca no input toda vez que o modal abre
-                    $('#tabelaRiscosModal').DataTable().columns.adjust().draw();
+                // 2. Vincula a busca customizada
+                $('#inputBuscaRisco').on('keyup', function () {
+                    dtRiscos.search(this.value).draw();
+                });
+
+                // 3. Quando o modal abrir, apenas recalcula as larguras e foca
+                modalRiscosEl.addEventListener('shown.bs.modal', function () {
+                    dtRiscos.columns.adjust().draw();
                     $('#inputBuscaRisco').focus();
                 });
             });
@@ -1386,7 +1385,6 @@
                     data-grupo="${grupo}" 
                     data-codigo="${codigo}" 
                     data-nome="${nome}" 
-                    checked
                     onchange="toggleRiskDetail(this)">
                 <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">
                     ${codigo} - ${nome}
@@ -1397,7 +1395,7 @@
             </button>
         </div>
         
-        <div class="risk-detail block grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="risk-detail hidden grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
                 <input type="text" placeholder="Ex: Máquina de solda, Furadeira..." class="table-input w-full text-sm risk-fontes">
