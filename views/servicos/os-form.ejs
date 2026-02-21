@@ -100,7 +100,7 @@
                                             <input name="valor_total_contrato" id="valorTotal" type="text"
                                                 class="input h-10 w-full" placeholder="R$ 0,00" required>
                                         </div>
-                                        
+
 
                                         <div class="md:col-span-2">
                                             <label class="mb-2 block">EMPRESA CONTRATANTE <span
@@ -189,10 +189,10 @@
 
         <div id="vinculos-data" class="hidden"><%- vinculosJson %></div>
 
-        <div id="modal_contratante" class="modal fade" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered w-full max-w-[40rem]">
+        <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                 <div
-                    class="modal-content bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
 
                     <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
                         <h5 class="text-lg">Selecione a Empresa</h5>

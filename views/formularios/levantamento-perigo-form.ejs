@@ -926,65 +926,45 @@
                 <%- include('../partials/footer') %>
         </main>
 
-        <div id="modal_cliente" class="modal fade" tabindex="-1" style="z-index: 1060;">
-            <div class="modal-dialog modal-dialog-centered w-full max-w-2xl">
+        <div id="modal_cliente" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                 <div
-                    class="modal-content bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
 
-                    <div
-                        class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-900">
-                        <div>
-                            <h5 class="text-lg font-bold text-zinc-800 dark:text-zinc-100">Selecionar Empresa</h5>
-                            <p class="text-xs text-zinc-500 mt-0.5">Clique na empresa desejada para vincular ao
-                                levantamento</p>
-                        </div>
-                        <button type="button"
-                            class="btn p-2 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-full transition-colors text-zinc-500"
-                            data-bs-dismiss="modal">
+                    <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <h5 class="text-lg">Selecione a Empresa</h5>
+                        <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
                             <span class="icon-[lucide--x] text-lg"></span>
                         </button>
                     </div>
 
-                    <div class="p-6 flex flex-col h-[500px]">
-                        <div class="relative mb-4 flex-shrink-0">
-                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="icon-[lucide--search] text-zinc-400 text-lg"></span>
-                            </span>
-                            <input id="clienteSearch" type="text"
-                                class="w-full pl-10 pr-4 py-3 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all placeholder-zinc-400"
-                                placeholder="Buscar por nome ou CNPJ..." autocomplete="off">
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
+                        <div class="relative mb-3">
+                            <input id="clienteSearch" type="search" class="input !ps-9 w-full"
+                                placeholder="Buscar empresa...">
+                            <span
+                                class="icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted text-zinc-400"></span>
                         </div>
 
-                        <div
-                            class="flex-grow overflow-hidden rounded-lg border border-zinc-100 dark:border-zinc-800 relative">
-                            <table id="table_cliente_modal" class="w-full text-left border-collapse"
-                                style="width: 100% !important;">
-                                <thead class="bg-zinc-50 dark:bg-zinc-800 sticky top-0 z-10">
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_cliente_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
                                     <tr>
-                                        <th
-                                            class="py-3 px-4 text-xs font-bold text-zinc-500 uppercase tracking-wider text-left border-b border-zinc-200 dark:border-zinc-700">
-                                            Empresas
-                                        </th>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Empresa
+                                            / CNPJ</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                <tbody>
                                     <% if (typeof clientes !=='undefined' ) { %>
                                         <% clientes.forEach((c)=> { %>
-                                            <tr class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/80 transition-colors group"
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
                                                 data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
-                                                <td class="py-3 px-4">
-                                                    <div class="flex justify-between items-center w-full">
-                                                        <div>
-                                                            <div
-                                                                class="font-bold text-zinc-800 dark:text-zinc-100 text-base group-hover:text-primary transition-colors">
-                                                                <%= c.nome_empresa %>
-                                                            </div>
-                                                            <div class="text-xs text-zinc-400 mt-1 font-mono">
-                                                                <%= c.cnpj %>
-                                                            </div>
-                                                        </div>
-                                                        <span
-                                                            class="icon-[lucide--chevron-right] text-zinc-300 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1"></span>
+                                                <td class="py-3">
+                                                    <div class="font-semibold text-zinc-900 dark:text-white">
+                                                        <%= c.nome_empresa %>
+                                                    </div>
+                                                    <div class="text-xs text-zinc-400 font-normal">
+                                                        <%= c.cnpj %>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1011,18 +991,26 @@
                 const modalEl = document.getElementById('modal_cliente');
                 let dtCliente;
 
+                // Configuração idêntica à tela de OS
+                const dtConfig = {
+                    dom: 'rtip',
+                    paging: true,
+                    pageLength: 6,
+                    ordering: false,
+                    autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado",
+                        info: "Exibindo _START_ a _END_ de _TOTAL_",
+                        infoEmpty: "Nenhum registro",
+                        infoFiltered: "(filtrado de _MAX_)",
+                        zeroRecords: "Nada encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                };
+
                 modalEl.addEventListener('shown.bs.modal', function () {
                     if (!$.fn.DataTable.isDataTable('#table_cliente_modal')) {
-                        dtCliente = $('#table_cliente_modal').DataTable({
-                            dom: 't',
-                            paging: false,
-                            scrollY: '350px',
-                            scrollCollapse: true,
-                            ordering: false,
-                            info: false,
-                            autoWidth: false,
-                            language: { zeroRecords: "<div class='p-4 text-center text-zinc-400'>Nenhuma empresa encontrada</div>" }
-                        });
+                        dtCliente = $('#table_cliente_modal').DataTable(dtConfig);
 
                         $('#clienteSearch').on('keyup', function () {
                             dtCliente.search(this.value).draw();
@@ -1038,11 +1026,36 @@
                     const nome = $(this).attr('data-nome');
 
                     if (id) {
+                        // 1. Preenche os inputs na tela por trás do modal
                         $('#id_cliente').val(id);
                         $('#nome_cliente').val(nome);
 
-                        const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                        modalInstance.hide();
+                        // 2. Tira o foco para evitar o erro de ARIA-HIDDEN no console
+                        if (document.activeElement) {
+                            document.activeElement.blur();
+                        }
+
+                        // 3. Método 100% seguro de fechar: Simular o clique no botão "X" do modal.
+                        // O Bootstrap tem rotinas nativas amarradas a esse botão que limpam o fundo perfeitamente.
+                        const btnFechar = modalEl.querySelector('[data-bs-dismiss="modal"]');
+                        if (btnFechar) {
+                            btnFechar.click();
+                        } else {
+                            // Caso não ache o botão por algum motivo, usa a API
+                            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+                        }
+
+                        // 4. FAIL-SAFE: Limpeza forçada após a animação (400ms)
+                        // Garante que, mesmo que o Bootstrap se perca, a tela não vai ficar travada
+                        setTimeout(() => {
+                            // Remove qualquer fundo escuro órfão
+                            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+                            // Remove as travas de rolagem do body
+                            document.body.classList.remove('modal-open');
+                            document.body.style.overflow = '';
+                            document.body.style.paddingRight = '';
+                        }, 400);
                     }
                 });
             });
