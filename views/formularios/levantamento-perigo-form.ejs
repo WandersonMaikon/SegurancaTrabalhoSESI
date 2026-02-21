@@ -701,83 +701,82 @@
                         </div>
 
                         <div id="step2" class="step-content space-y-6">
-                            <div
-                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                 <div
-                                    class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900">
-                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Grupo de Exposição
-                                        Similar (GES)</h5>
+                                    class="p-6 border-b border-zinc-500/10 dark:border-zinc-800 flex items-center justify-between gap-3">
+                                    <h5 class="text-xl">Grupo de Exposição Similar (GES)</h5>
                                     <button type="button" onclick="addGesRow()"
-                                        class="btn btn-sm bg-white border border-zinc-200 hover:bg-zinc-50 text-primary font-bold shadow-sm transition-all">
-                                        <span class="icon-[lucide--plus] me-1"></span> Adicionar GES
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
+                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
+                                        Adicionar GES
                                     </button>
                                 </div>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse" id="tableGes">
+
+                                <div class="p-6 overflow-x-auto">
+                                    <table id="tableGes" class="table-default whitespace-nowrap w-full">
                                         <thead>
-                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
-                                                <th
-                                                    class="py-4 pl-6 pr-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Nome do Grupo</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Setor</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Cargos</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Exceção (Nome)</th>
-                                                <th
-                                                    class="py-4 pr-6 pl-2 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider w-16">
-                                                    Ação</th>
+                                            <tr>
+                                                <th class="text-nowrap">Nome do Grupo</th>
+                                                <th class="text-nowrap">Setor</th>
+                                                <th class="text-nowrap">Cargos</th>
+                                                <th class="text-nowrap">Exceção (Nome)</th>
+                                                <th class="text-nowrap w-20">
+                                                    <div class="flex items-center justify-center">Ações</div>
+                                                </th>
                                             </tr>
                                         </thead>
-                                        <tbody class="divide-y divide-zinc-5 dark:divide-zinc-800/50"></tbody>
+                                        <tbody></tbody>
                                     </table>
-                                    <div id="emptyGes" class="p-8 text-center text-zinc-400 italic bg-zinc-50/30">
+
+                                    <div id="emptyGes"
+                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700">
                                         Nenhum GES cadastrado. Clique em adicionar.
                                     </div>
+
+                                    <p class="text-sm text-zinc-400 mt-4">
+                                        Dica: Adicione os Grupos de Exposição Similar (GES) para poder associar os
+                                        riscos a eles na próxima etapa.
+                                    </p>
                                 </div>
                             </div>
 
-                            <div
-                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                 <div
-                                    class="p-6 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-900">
-                                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Produtos Químicos
-                                    </h5>
+                                    class="p-6 border-b border-zinc-500/10 dark:border-zinc-800 flex items-center justify-between gap-3">
+                                    <h5 class="text-xl">Produtos Químicos</h5>
                                     <button type="button" onclick="addQuimicoRow()"
-                                        class="btn btn-sm bg-white border border-zinc-200 hover:bg-zinc-50 text-primary font-bold shadow-sm transition-all">
-                                        <span class="icon-[lucide--plus] me-1"></span> Adicionar Produto
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
+                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
+                                        Adicionar Produto
                                     </button>
                                 </div>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse" id="tableQuimico">
+
+                                <div class="p-6 overflow-x-auto">
+                                    <table id="tableQuimico" class="table-default whitespace-nowrap w-full">
                                         <thead>
-                                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
-                                                <th
-                                                    class="py-4 pl-6 pr-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Nome Rótulo</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider w-32">
-                                                    Estado Físico</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Tipo Exposição</th>
-                                                <th
-                                                    class="py-4 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-                                                    Processo/Qtde</th>
-                                                <th
-                                                    class="py-4 pr-6 pl-2 text-center text-xs font-bold text-zinc-500 uppercase tracking-wider w-16">
-                                                    Ação</th>
+                                            <tr>
+                                                <th class="text-nowrap">Nome Rótulo</th>
+                                                <th class="text-nowrap w-32">Estado Físico</th>
+                                                <th class="text-nowrap">Tipo Exposição</th>
+                                                <th class="text-nowrap">Processo/Qtde</th>
+                                                <th class="text-nowrap w-20">
+                                                    <div class="flex items-center justify-center">Ações</div>
+                                                </th>
                                             </tr>
                                         </thead>
-                                        <tbody class="divide-y divide-zinc-5 dark:divide-zinc-800/50"></tbody>
+                                        <tbody></tbody>
                                     </table>
-                                    <div id="emptyQuimico" class="p-8 text-center text-zinc-400 italic bg-zinc-50/30">
+
+                                    <div id="emptyQuimico"
+                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700">
                                         Nenhum produto químico cadastrado.
                                     </div>
+
+                                    <p class="text-sm text-zinc-400 mt-4">
+                                        Dica: Liste os produtos químicos manipulados no ambiente para facilitar a
+                                        avaliação e vinculação de riscos.
+                                    </p>
                                 </div>
                             </div>
 
@@ -799,7 +798,7 @@
                                     Perigos</h5>
 
                                 <div
-                                    class="flex gap-4 mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20">
+                                    class="flex gap-4 mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20 flex-wrap">
                                     <label
                                         class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_ambiental"
@@ -832,95 +831,137 @@
                                     </label>
                                 </div>
 
-                                <% Object.keys(riscosPadrao).forEach(function(grupo, idx) { %>
-                                    <div
-                                        class="border border-zinc-200 dark:border-zinc-800 rounded-lg mb-4 overflow-hidden">
-                                        <button type="button"
-                                            class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
-                                            onclick="toggleAccordion('acc_<%= idx %>')">
-                                            <%= grupo %> <span class="icon-[lucide--chevron-down]"></span>
-                                        </button>
-                                        <div id="acc_<%= idx %>" class="hidden p-4 bg-white dark:bg-zinc-900">
-                                            <div class="grid grid-cols-1 gap-4">
-                                                <% riscosPadrao[grupo].forEach(function(risco) { %>
-                                                    <div
-                                                        class="risk-item border-b border-zinc-100 dark:border-zinc-800 last:border-0 pb-4">
-                                                        <label
-                                                            class="inline-flex items-center gap-2 cursor-pointer mb-2">
-                                                            <input type="checkbox" class="input-checkbox risk-checkbox"
-                                                                data-grupo="<%= grupo %>"
-                                                                data-codigo="<%= risco.codigo %>"
-                                                                data-nome="<%= risco.nome %>"
-                                                                onchange="toggleRiskDetail(this)">
-                                                            <span class="font-medium text-zinc-700 dark:text-zinc-300">
-                                                                <%= risco.codigo %> - <%= risco.nome %>
-                                                            </span>
-                                                        </label>
-                                                        <div
-                                                            class="risk-detail hidden pl-6 mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-zinc-50 dark:bg-zinc-800 p-4 rounded-lg border border-zinc-100 dark:border-zinc-700">
-                                                            <div>
-                                                                <label
-                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes
-                                                                    Geradoras</label>
-                                                                <input type="text"
-                                                                    class="table-input w-full text-sm risk-fontes">
-                                                            </div>
-                                                            <div>
-                                                                <label
-                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo
-                                                                    Exp.</label>
-                                                                <input type="text"
-                                                                    class="table-input w-full text-sm risk-tempo">
-                                                            </div>
-                                                            <div>
-                                                                <label
-                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs
-                                                                    Recomendados</label>
-                                                                <select class="risk-epis w-full" multiple>
-                                                                    <% epis.forEach(function(e) { %>
-                                                                        <option value="<%= e.id_epi %>">
-                                                                            <%= e.nome_equipamento %> (CA: <%= e.ca %>)
-                                                                        </option>
-                                                                        <% }); %>
-                                                                </select>
-                                                            </div>
-                                                            <div>
-                                                                <label
-                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs
-                                                                    Existentes</label>
-                                                                <select class="risk-epcs w-full" multiple>
-                                                                    <% epcs.forEach(function(ep) { %>
-                                                                        <option value="<%= ep.id_epc %>">
-                                                                            <%= ep.nome %>
-                                                                        </option>
-                                                                        <% }); %>
-                                                                </select>
-                                                            </div>
-                                                            <div class="md:col-span-2">
-                                                                <label
-                                                                    class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
-                                                                <input type="text"
-                                                                    class="table-input w-full text-sm risk-obs">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <% }); %>
-                                            </div>
-                                        </div>
+                                <div
+                                    class="mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl border border-zinc-200 dark:border-zinc-700 flex justify-between items-center">
+                                    <div>
+                                        <h6
+                                            class="text-sm font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">
+                                            Adicionar Novo Risco</h6>
+                                        <p class="text-xs text-muted mt-1">Pesquise e adicione riscos ao levantamento
+                                            atual.</p>
                                     </div>
-                                    <% }); %>
-                            </div>
+                                    <button type="button" data-bs-toggle="modal" data-bs-target="#modalRiscos"
+                                        onclick="limparBuscaRiscos()"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
+                                        <span class="icon-[lucide--search] text-lg me-1 leading-none"></span> Adicionar
+                                        Risco
+                                    </button>
+                                </div>
 
-                            <div class="flex justify-between mt-4">
+                                <div id="container_riscos_dinamicos" class="space-y-4">
+                                </div>
+
+
+                            </div>
+                            <div class="flex justify-between mt-6">
                                 <button type="button"
                                     class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
                                     onclick="changeStep(2)">Anterior</button>
                                 <button type="submit" id="btnSalvar"
-                                    class="btn px-8 py-3 rounded-lg bg-green-600 text-white hover:bg-green-700 shadow-lg shadow-green-600/20 font-bold uppercase tracking-wide transition-all">
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium">
                                     <span class="icon-[lucide--save] me-2"></span> Salvar Levantamento
                                 </button>
                             </div>
                         </div>
+
+                        <div id="modalRiscos" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+                            <div
+                                class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                                <div
+                                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+
+                                    <div
+                                        class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                                        <h5 class="text-lg flex items-center gap-2">
+                                            <span class="icon-[lucide--search] text-blue-600"></span> Pesquisar Riscos
+                                        </h5>
+                                        <button type="button" class="btn !p-2" data-bs-dismiss="modal"
+                                            aria-label="Fechar">
+                                            <span class="icon-[lucide--x] text-lg"></span>
+                                        </button>
+                                    </div>
+
+                                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
+                                        <div class="relative mb-3">
+                                            <input id="inputBuscaRisco" type="search" class="input !ps-9 w-full"
+                                                placeholder="Buscar risco..." onkeyup="filtrarRiscosModal()">
+                                            <span
+                                                class="icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted text-zinc-400"></span>
+                                        </div>
+
+                                        <div
+                                            class="flex-grow overflow-auto border border-zinc-100 dark:border-zinc-800 rounded-lg">
+                                            <table class="w-full text-left border-collapse" id="tabelaRiscosModal">
+                                                <thead
+                                                    class="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 sticky top-0 z-10">
+                                                    <tr>
+                                                        <th
+                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                                                            Código</th>
+                                                        <th
+                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                                                            Risco</th>
+                                                        <th
+                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                                                            Grupo</th>
+                                                        <th
+                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 text-center">
+                                                            Ação</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% if (typeof todosRiscos !=='undefined' ) { %>
+                                                        <% todosRiscos.forEach(function(r) { %>
+                                                            <tr
+                                                                class="border-b border-zinc-100 dark:border-zinc-800 hover-row transition-colors linha-risco">
+                                                                <td
+                                                                    class="py-3 px-3 text-sm font-semibold text-zinc-900 dark:text-white col-codigo">
+                                                                    <%= r.codigo %>
+                                                                </td>
+                                                                <td
+                                                                    class="py-3 px-3 text-sm text-zinc-600 dark:text-zinc-300 col-nome">
+                                                                    <%= r.nome %>
+                                                                </td>
+                                                                <td class="py-3 px-3 col-grupo">
+                                                                    <span
+                                                                        class="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded text-xs font-semibold text-zinc-500">
+                                                                        <%= r.grupo %>
+                                                                    </span>
+                                                                </td>
+                                                                <td class="py-3 px-3 text-center">
+                                                                    <button type="button"
+                                                                        onclick="selecionarRiscoParaTela('<%= r.id_risco %>', '<%= r.codigo %>', '<%= r.nome %>', '<%= r.grupo %>')"
+                                                                        class="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 rounded-md text-xs font-bold transition-all">
+                                                                        Adicionar
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                            <% }); %>
+                                                                <% } %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <template id="tpl-epis">
+                            <% if(typeof epis !=='undefined' ){ epis.forEach(function(e) { %>
+                                <option value="<%= e.id_epi %>">
+                                    <%= e.nome_equipamento %> (CA: <%= e.ca %>)
+                                </option>
+                                <% }); } %>
+                        </template>
+
+                        <template id="tpl-epcs">
+                            <% if(typeof epcs !=='undefined' ){ epcs.forEach(function(ep) { %>
+                                <option value="<%= ep.id_epc %>">
+                                    <%= ep.nome %>
+                                </option>
+                                <% }); } %>
+                        </template>
                     </form>
                 </div>
                 <%- include('../partials/footer') %>
@@ -1171,10 +1212,15 @@
                         const item = cb.closest('.risk-item');
                         const sEpi = item.querySelector('.risk-epis'); const sEpc = item.querySelector('.risk-epcs');
                         riscosData.push({
-                            grupo: cb.dataset.grupo, codigo: cb.dataset.codigo, nome: cb.dataset.nome,
-                            fontes: item.querySelector('.risk-fontes').value, tempo: item.querySelector('.risk-tempo').value,
+                            id_risco: cb.dataset.id_risco, // Pega a PK da tabela matriz
+                            grupo: cb.dataset.grupo,
+                            codigo: cb.dataset.codigo,
+                            nome: cb.dataset.nome,
+                            fontes: item.querySelector('.risk-fontes').value,
+                            tempo: item.querySelector('.risk-tempo').value,
                             obs: item.querySelector('.risk-obs').value,
-                            epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [], epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
+                            epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
+                            epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
                         });
                     });
 
@@ -1214,6 +1260,194 @@
                     finally { btn.disabled = false; btn.innerHTML = oldHtml; }
                 });
             });
+        </script>
+        <script>
+            // ==========================================
+            // FUNÇÕES DO MODAL DE RISCOS
+            // ==========================================
+            // Limpa a busca toda vez que clicar no botão de Pesquisar
+            // ==========================================
+            // FUNÇÕES DO MODAL DE RISCOS (COM DATATABLES)
+            // ==========================================
+
+            let dtRiscos;
+
+            $(document).ready(function () {
+                const modalRiscosEl = document.getElementById('modalRiscos');
+
+                // Inicializa o DataTable dos Riscos quando o modal for aberto
+                modalRiscosEl.addEventListener('shown.bs.modal', function () {
+                    if (!$.fn.DataTable.isDataTable('#tabelaRiscosModal')) {
+                        dtRiscos = $('#tabelaRiscosModal').DataTable({
+                            dom: 'rtip', // Esconde a barra nativa do datatable, usaremos o nosso input
+                            paging: true,
+                            pageLength: 10, // Limita a 10 registros por página!
+                            ordering: false,
+                            autoWidth: false,
+                            language: {
+                                emptyTable: "Nenhum registro encontrado",
+                                info: "Exibindo _START_ a _END_ de _TOTAL_ riscos",
+                                infoEmpty: "Nenhum registro",
+                                infoFiltered: "(filtrado de _MAX_)",
+                                zeroRecords: "Nenhum risco encontrado",
+                                paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                            }
+                        });
+
+                        // Conecta o nosso input de busca customizado ao DataTable
+                        $('#inputBuscaRisco').on('keyup', function () {
+                            dtRiscos.search(this.value).draw();
+                        });
+                    }
+
+                    // Ajusta as colunas e foca no input toda vez que o modal abre
+                    $('#tabelaRiscosModal').DataTable().columns.adjust().draw();
+                    $('#inputBuscaRisco').focus();
+                });
+            });
+
+            // Limpa a busca toda vez que clicar no botão de Pesquisar (agora usando a API do DataTable)
+            function limparBuscaRiscos() {
+                document.getElementById('inputBuscaRisco').value = '';
+                if (dtRiscos) {
+                    dtRiscos.search('').draw(); // Reseta o filtro do datatable
+                }
+            }
+
+            // Fechamento seguro do modal
+            function fecharModalRiscos() {
+                const modalEl = document.getElementById('modalRiscos');
+                const btnFechar = modalEl.querySelector('[data-bs-dismiss="modal"]');
+                if (btnFechar) btnFechar.click();
+            }
+
+            // ==========================================
+            // FUNÇÃO QUE RECEBE O CLIQUE NO MODAL E MONTA A TELA
+            // ==========================================
+            function selecionarRiscoParaTela(id_risco, codigo, nome, grupo) {
+                // 1. Fecha o modal
+                fecharModalRiscos();
+
+                // 2. Converte o nome do grupo num ID sem acentos (ex: "Físicos" -> "grupo_fisicos")
+                const grupoId = 'grupo_' + grupo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
+
+                let containerDinamico = document.getElementById('container_riscos_dinamicos');
+                let accordionGrupo = document.getElementById(grupoId);
+
+                // 3. Se o grupo (Acordeão) ainda não existe, cria ele
+                if (!accordionGrupo) {
+                    accordionGrupo = document.createElement('div');
+                    accordionGrupo.id = grupoId;
+                    accordionGrupo.className = 'border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mt-4';
+
+                    // Define uma cor de borda lateral dependendo do grupo (opcional, mas fica lindo)
+                    let corBorda = 'border-zinc-500';
+                    if (grupo.toLowerCase().includes('físico')) corBorda = 'border-green-500';
+                    else if (grupo.toLowerCase().includes('químico')) corBorda = 'border-red-500';
+                    else if (grupo.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
+                    else if (grupo.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
+                    else if (grupo.toLowerCase().includes('acidente')) corBorda = 'border-blue-500';
+
+                    accordionGrupo.innerHTML = `
+            <button type="button" 
+                class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
+                onclick="toggleAccordion('acc_${grupoId}')">
+                 ${grupo.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+            </button>
+            <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
+                <div class="grid grid-cols-1 gap-4 grid-riscos">
+                    </div>
+            </div>
+        `;
+                    containerDinamico.appendChild(accordionGrupo);
+                }
+
+                const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
+
+                // 4. Verifica se o risco já foi adicionado
+                if (gridRiscos.querySelector(`[data-codigo="${codigo}"]`)) {
+                    alert("Este risco já foi adicionado ao levantamento!");
+                    return; // Sai da função sem adicionar duplicado
+                }
+
+                // 5. Captura o HTML dos templates de EPIs e EPCs
+                const optionsEPI = document.getElementById('tpl-epis').innerHTML;
+                const optionsEPC = document.getElementById('tpl-epcs').innerHTML;
+
+                // 6. Cria a estrutura do Risco selecionado
+                const riskItem = document.createElement('div');
+                riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-800/20';
+
+                riskItem.innerHTML = `
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="input-checkbox risk-checkbox" 
+                    data-id_risco="${id_risco}" 
+                    data-grupo="${grupo}" 
+                    data-codigo="${codigo}" 
+                    data-nome="${nome}" 
+                    checked
+                    onchange="toggleRiskDetail(this)">
+                <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">
+                    ${codigo} - ${nome}
+                </span>
+            </label>
+            <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
+                <span class="icon-[lucide--trash]"></span> Remover
+            </button>
+        </div>
+        
+        <div class="risk-detail block grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
+                <input type="text" placeholder="Ex: Máquina de solda, Furadeira..." class="table-input w-full text-sm risk-fontes">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
+                <input type="text" placeholder="Ex: Intermitente, 4h diárias..." class="table-input w-full text-sm risk-tempo">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
+                <select class="risk-epis w-full table-input select-plugin" multiple>
+                    ${optionsEPI}
+                </select>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
+                <select class="risk-epcs w-full table-input select-plugin" multiple>
+                    ${optionsEPC}
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
+                <input type="text" placeholder="Observações adicionais sobre este risco..." class="table-input w-full text-sm risk-obs">
+            </div>
+        </div>
+    `;
+
+                gridRiscos.appendChild(riskItem);
+
+                // Força a renderização inicial do TomSelect para os selects de EPI e EPC recém-adicionados
+                riskItem.querySelectorAll('select.select-plugin').forEach(s => {
+                    if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
+                });
+
+                // Animação suave para focar no novo risco
+                riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+
+            function removerRiscoDaTela(botao, grupoId) {
+                const riskItem = botao.closest('.risk-item');
+                const gridRiscos = riskItem.parentNode;
+
+                // Remove o risco específico
+                riskItem.remove();
+
+                // Se era o último risco do grupo, remove o Accordion do grupo inteiro
+                if (gridRiscos.children.length === 0) {
+                    document.getElementById(grupoId).remove();
+                }
+            }
         </script>
 </body>
 

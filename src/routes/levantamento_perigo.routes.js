@@ -156,6 +156,14 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
         const [epis] = await db.query("SELECT id_epi, nome_equipamento, ca FROM epi WHERE ativo = 1");
         const [epcs] = await db.query("SELECT id_epc, nome FROM epc WHERE ativo = 1");
 
+        // 4. BUSCAR RISCOS (NOVO!)
+        // O "AS" converte os nomes das colunas para os nomes que o HTML espera
+        const [riscos] = await db.query(`
+            SELECT id_risco, codigo_interno AS codigo, nome_risco AS nome, tipo_risco AS grupo 
+            FROM risco 
+            WHERE deleted_at IS NULL
+        `);
+
         res.render("formularios/levantamento-perigo-form", {
             user: userLogado,
             currentPage: 'levantamento-perigos',
@@ -163,18 +171,18 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             usuarios,
             epis,
             epcs,
-            riscosPadrao: RISCOS_PADRAO
+            todosRiscos: riscos // <-- Envia para o HTML ler e montar o modal
         });
 
     } catch (error) {
         console.error("Erro ao abrir formulário novo:", error);
-        res.redirect("/formularios/levantamento-perigos"); // Ajuste conforme sua rota base
+        res.redirect("/formularios/levantamento-perigos");
     }
 });
 
 // --- 3. SALVAR (POST) ---
 router.post("/salvar", verificarAutenticacao, async (req, res) => {
-    const conn = await db.getConnection(); 
+    const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
 
@@ -197,7 +205,7 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
                 ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-        
+
         await conn.query(sqlLevantamento, [
             id_levantamento, id_unidade, data.id_cliente, data.data_levantamento,
             data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.trabalho_externo ? 1 : 0,
@@ -232,24 +240,29 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
         // 4. INSERIR RISCOS
         if (data.riscos && Array.isArray(data.riscos)) {
             for (const r of data.riscos) {
-                const id_risco = uuidv4();
-                
+                const id_risco_identificado = uuidv4(); // O ID desta linha de levantamento
+
                 await conn.query(`
                     INSERT INTO levantamento_risco_identificado (
-                        id_risco_identificado, id_levantamento, grupo_perigo, codigo_perigo, 
+                        id_risco_identificado, id_levantamento, id_risco, grupo_perigo, codigo_perigo, 
                         descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                `, [id_risco, id_levantamento, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs]);
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    id_risco_identificado, id_levantamento,
+                    r.id_risco, // A CHAVE ESTRANGEIRA DA TABELA RISCO!
+                    r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs
+                ]);
 
+                // As suas lógicas de EPI e EPC aqui abaixo estão perfeitas!
                 if (r.epis && Array.isArray(r.epis)) {
                     for (const epiId of r.epis) {
-                        await conn.query('INSERT INTO levantamento_risco_has_epi (id_risco_identificado, id_epi) VALUES (?, ?)', [id_risco, epiId]);
+                        await conn.query('INSERT INTO levantamento_risco_has_epi (id_risco_identificado, id_epi) VALUES (?, ?)', [id_risco_identificado, epiId]);
                     }
                 }
 
                 if (r.epcs && Array.isArray(r.epcs)) {
                     for (const epcId of r.epcs) {
-                        await conn.query('INSERT INTO levantamento_risco_has_epc (id_risco_identificado, id_epc) VALUES (?, ?)', [id_risco, epcId]);
+                        await conn.query('INSERT INTO levantamento_risco_has_epc (id_risco_identificado, id_epc) VALUES (?, ?)', [id_risco_identificado, epcId]);
                     }
                 }
             }
