@@ -127,8 +127,8 @@
 77;Acroleína;Químicos;-
 79;Adiponitrila;Químicos;-
 80;Aflatoxinas;Químicos;-
-874;Afogamento;Acidentes;-
-1015;Agarramento/ Enroscamento;Acidentes;-
+874;Afogamento;Mecânicos;-
+1015;Agarramento/ Enroscamento;Mecânicos;-
 81;Aguarrás mineral (Solvente de Stoddard);Químicos;-
 82;Alaclor;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 83;Álcalis cáusticos;Químicos;-
@@ -170,7 +170,7 @@
 115;Anilina;Químicos;-
 118;Antimônio e seus compostos;Químicos;-
 119;Antraceno;Químicos;01.07.001 - Carvão mineral e seus derivados
-1016;Arco elétrico/voltáico;Acidentes;-
+1016;Arco elétrico/voltáico;Mecânicos;-
 952;Argamassa de Cimento;Químicos;-
 121;Argônio;Químicos;-
 1125;Arseneto de cádmio;Químicos;01.06.001 - Cádmio e seus compostos tóxicos
@@ -179,7 +179,7 @@
 124;Arsina (Tri-hidreto de arsênio);Químicos;01.01.001 - Arsênio e seus compostos
 125;Asbestos, todas as formas;Químicos;01.02.001 - Asbestos (ou amianto)
 126;Asfalto (betume), fumos, como aerossol solúvel em benzeno;Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
-896;Ataque de animais não peçonhentos;Acidentes;-
+896;Ataque de animais não peçonhentos;Mecânicos;-
 974;Atividades e Operações Perigosas com Energia Elétrica;Inespecífico;-
 970;Atividades e Operações Perigosas com explosivos;Inespecífico;-
 975;Atividades e Operações Perigosas com Exposição a Roubos ou Outras Espécies de Violência Física nas Atividades Profissionais de Segurança Pessoal ou Patrimonial;Inespecífico;-
@@ -187,15 +187,15 @@
 973;Atividades e Operações Perigosas com Radiações Ionizantes ou Substâncias Radioativas;Inespecífico;-
 972;Atividades Perigosas em Motocicleta;Inespecífico;-
 127;Atrazine (e triazinas simétricas relacionadas);Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
-1017;Atropelamento;Acidentes;-
+1017;Atropelamento;Mecânicos;-
 128;Auramina;Químicos;01.19.009 - Auramina
 1133;Ausência de agente nocivo ou de atividades previstas no Anexo IV do Decreto 3.048/1999;Inespecífico;09.01.001 - Ausência de agente nocivo ou de atividades previstas no Anexo IV do Decreto 3.048/1999
-885;Ausência de exposição a riscos ambientais, ergonômicos e mecânicos (acidentes);Inespecífico;09.01.001 - Ausência de agente nocivo ou de atividades previstas no Anexo IV do Decreto 3.048/1999
+885;Ausência de exposição a riscos ambientais, ergonômicos e mecânicos (Mecânicos);Inespecífico;09.01.001 - Ausência de agente nocivo ou de atividades previstas no Anexo IV do Decreto 3.048/1999
 1073;Ausência de exposição a riscos biológicos;Biológicos;-
 992;Ausência de exposição a riscos ergonômicos;Ergonômicos;-
 1071;Ausência de exposição a riscos físicos;Físicos;-
 984;Ausência de exposição a riscos físicos, químicos e biológicos;Inespecífico;09.01.001 - Ausência de agente nocivo ou de atividades previstas no Anexo IV do Decreto 3.048/1999
-993;Ausência de exposição a riscos mecânicos (acidentes);Acidentes;-
+993;Ausência de exposição a riscos mecânicos (Mecânicos);Mecânicos;-
 1072;Ausência de exposição a riscos químicos;Químicos;-
 994;Ausência de Periculosidade;Inespecífico;-
 129;Azatioprina;Químicos;01.19.010 - Azatioprina
@@ -203,7 +203,7 @@
 130;Azida de sódio (como Azida de Sódio, como Vapor de ácido hidrazoico);Químicos;-
 131;Azinfos metil;Químicos;-
 132;Bário e compostos solúveis;Químicos;-
-905;Batidas contra;Acidentes;-
+905;Batidas contra;Mecânicos;-
 1045;Bendiocarbe;Químicos;-
 133;Benomil;Químicos;-
 1093;Benzeno;Químicos;01.03.001 - Benzeno e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
@@ -270,7 +270,7 @@
 180;Celulose;Químicos;-
 181;Cereais, poeira (aveia, cevada, trigo);Químicos;-
 182;Ceteno;Químicos;-
-869;Choque elétrico;Acidentes;-
+869;Choque elétrico;Mecânicos;-
 1097;Chumbo;Químicos;01.08.001 - Chumbo e seus compostos tóxicos
 184;Chumbo tetraetila;Químicos;01.08.001 - Chumbo e seus compostos tóxicos
 185;Chumbo tetrametila;Químicos;01.08.001 - Chumbo e seus compostos tóxicos
@@ -340,15 +340,15 @@
 253;Cobre;Químicos;-
 1074;Cobre (fumos);Químicos;-
 1090;Cobre (poeiras e névoas);Químicos;-
-1018;Colisão e/ou Abalroamento;Acidentes;-
+1018;Colisão e/ou Abalroamento;Mecânicos;-
 977;Compostos Orgânicos Voláteis;Químicos;-
 848;Condições ambientais de trabalho quanto a temperatura, velocidade do ar e/ou umidade que causam desconforto;Ergonômicos;-
 851;Condições de trabalho com iluminação inadequada;Ergonômicos;-
 847;Condições de trabalho com ruído que causam desconforto;Ergonômicos;-
-902;Condução de veículos de qualquer natureza em vias públicas;Acidentes;-
-1019;Contato acidental por fonte radioativa;Acidentes;-
-881;Contato com superfícies em temperatura extrema;Acidentes;-
-1020;Corte/ Cisalhamento/ Perfuração;Acidentes;-
+902;Condução de veículos de qualquer natureza em vias públicas;Mecânicos;-
+1019;Contato acidental por fonte radioativa;Mecânicos;-
+881;Contato com superfícies em temperatura extrema;Mecânicos;-
+1020;Corte/ Cisalhamento/ Perfuração;Mecânicos;-
 254;Coumafos;Químicos;-
 256;Creosoto;Químicos;01.19.036 - Creosoto
 255;Cresol, todos os isômeros;Químicos;-
@@ -368,7 +368,7 @@
 268;DDD (diclorodifenildicloretano);Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 269;DDT;Químicos;-
 270;Decaborano;Químicos;-
-1021;Deficiência de oxigênio;Acidentes;-
+1021;Deficiência de oxigênio;Mecânicos;-
 271;Demeton (Systox);Químicos;-
 272;Demeton-S-metila;Químicos;-
 273;Destilação do alcatrão de hulha;Químicos;-
@@ -435,7 +435,7 @@
 344;Dióxido de vinil ciclohexano;Químicos;-
 345;Dipropil cetona;Químicos;-
 346;Diquat;Químicos;-
-965;Disparo acidental de projétil;Acidentes;-
+965;Disparo acidental de projétil;Mecânicos;-
 347;Dissulfeto de alil propila;Químicos;-
 1114;Dissulfeto de arsênio;Químicos;01.01.001 - Arsênio e seus compostos
 348;Dissulfeto de carbono;Químicos;01.11.001 - Dissulfeto de carbono
@@ -448,14 +448,14 @@
 355;Endosulfan;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 356;Endrin;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 357;Enflurano;Químicos;-
-873;Engolfamento;Acidentes;-
-904;Entrada e trabalho em Espaço confinado;Acidentes;-
+873;Engolfamento;Mecânicos;-
+904;Entrada e trabalho em Espaço confinado;Mecânicos;-
 1086;Enxofre;Químicos;-
 358;Epicloridrina;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 359;EPN;Químicos;-
 830;Equipamentos, máquinas e/ou ferramentas inadequadas;Ergonômicos;-
 360;Erionita;Químicos;-
-1022;Esmagamento/ Prensamento;Acidentes;-
+1022;Esmagamento/ Prensamento;Mecânicos;-
 363;Estanho - Compostos inorgânicos e óxido, exceto hidreto de estanho;Químicos;-
 362;Estanho - Metal;Químicos;-
 361;Estanho e seus compostos orgânicos;Químicos;-
@@ -501,7 +501,7 @@
 403;Etoposide;Químicos;-
 404;Etoposide em associação com cisplatina e bleomicina;Químicos;-
 815;Execução de movimentos repetitivos;Ergonômicos;-
-883;Exercício de trabalho em condições periculosas previstas na legislação trabalhista;Acidentes;-
+883;Exercício de trabalho em condições periculosas previstas na legislação trabalhista;Mecânicos;-
 819;Exigência de condições inadequadas para a coluna vertebral;Ergonômicos;-
 820;Exigência de condições inadequadas para os membros inferiores;Ergonômicos;-
 822;Exigência de condições inadequadas para os membros superiores;Ergonômicos;-
@@ -509,7 +509,7 @@
 810;Exigência de postura em pé por longos períodos;Ergonômicos;-
 809;Exigência de postura sentada por longos períodos;Ergonômicos;-
 838;Exigência de ritmos intensos de trabalho;Ergonômicos;-
-1023;Explosão;Acidentes;-
+1023;Explosão;Mecânicos;-
 406;Farinha (poeiras);Químicos;-
 407;Fenacetina;Químicos;01.19.026 - Fenacetina
 408;Fenamifos;Químicos;-
@@ -563,7 +563,7 @@
 453;Fosfito de trimetila;Químicos;01.12.001 - Fósforo e seus compostos tóxicos
 1099;Fósforo;Químicos;01.12.001 - Fósforo e seus compostos tóxicos
 455;Fosgênio (Cloreto de carbonila);Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
-1024;Fricção ou Abrasão;Acidentes;-
+1024;Fricção ou Abrasão;Mecânicos;-
 17;Frio;Físicos;-
 458;Ftalato de di(2-etilhexila);Químicos;-
 457;Ftalato de dibutila;Químicos;-
@@ -578,7 +578,7 @@
 470;Glioxal;Químicos;-
 471;GLP (gás liquefeito do petróleo);Químicos;-
 472;Glutaraldeído, ativado e não ativado;Químicos;-
-1051;Golpeamento;Acidentes;-
+1051;Golpeamento;Mecânicos;-
 473;Grafite (todas as formas, exceto fibras de grafite);Químicos;-
 474;Grãos, poeira (aveia, cevada, trigo);Químicos;-
 918;Graxas (mistura);Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
@@ -622,13 +622,13 @@
 951;Hipoclorito de Sódio;Químicos;-
 805;Hormônios sexuais femininos (apenas para homens);Químicos;-
 1067;Imazosulfurom;Químicos;-
-1025;Incêndio;Acidentes;-
+1025;Incêndio;Mecânicos;-
 512;Indeno;Químicos;-
 514;Índio e seus compostos;Químicos;-
 1;Infrassom e sons de baixa frequência;Físicos;-
 953;Inseticida do grupo fenil Pirazol;Químicos;-
 842;Insuficiência de capacitação para execução da tarefa;Ergonômicos;-
-895;Intempéries;Acidentes;-
+895;Intempéries;Mecânicos;-
 1122;Iodeto de cádmio;Químicos;01.06.001 - Cádmio e seus compostos tóxicos
 513;Iodeto de metila;Químicos;01.19.027 - Iodeto de metila
 516;Iodetos;Químicos;01.13.001 - Iodo
@@ -657,7 +657,7 @@
 1100;Manganês (fumos);Químicos;01.14.001 - Manganês e seus compostos
 1101;Manganês (poeira);Químicos;01.14.001 - Manganês e seus compostos
 816;Manuseio de ferramentas e/ou objetos pesados por longos períodos;Ergonômicos;-
-964;Manuseio ou contato acidental com plantas perigosas/ venenosas;Acidentes;-
+964;Manuseio ou contato acidental com plantas perigosas/ venenosas;Mecânicos;-
 823;Manuseio ou movimentação de cargas e volumes sem pega ou com pega pobre;Ergonômicos;-
 533;Melfalano;Químicos;-
 534;Mercaptanos;Químicos;01.19.004 - Mercaptanos (tióis)
@@ -772,7 +772,7 @@
 621;Óleo mineral refinação fraca ou média, excluídos os fluidos de trabalho com metais;Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
 622;Óleo queimado;Químicos;-
 957;Óleo Vegetal;Químicos;-
-978;Operação de equipamento de transporte motorizado (NR 11);Acidentes;-
+978;Operação de equipamento de transporte motorizado (NR 11);Mecânicos;-
 1060;Organoclorados;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 948;Organofosforados;Químicos;01.12.001 - Fósforo e seus compostos tóxicos
 623;Ortotoluidina (o-toluidina);Químicos;01.19.030 - Ortotoluidina
@@ -825,14 +825,14 @@
 658;Perfluorisobutileno;Químicos;-
 657;Perfluorobutil etileno;Químicos;-
 659;Perfluoroctanoato de amônio;Químicos;-
-941;Perfuração por objetos perfurocortantes;Acidentes;-
+941;Perfuração por objetos perfurocortantes;Mecânicos;-
 924;Permanganato de Potássio;Químicos;01.14.001 - Manganês e seus compostos
 660;Peróxido de benzoíla;Químicos;-
 661;Peróxido de hidrogênio;Químicos;-
 662;Peróxido de metil etil cetona;Químicos;-
 663;Persulfatos, como persulfato;Químicos;-
 664;Petróleo, xisto betuminoso, gás natural e seus derivados;Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
-878;Picada de animais peçonhentos;Acidentes;-
+878;Picada de animais peçonhentos;Mecânicos;-
 665;Picloram;Químicos;01.09.001 - Cloro e seus compostos tóxicos (exceto os abaixo especificados, que constam expressamente no Anexo IV do Decreto 3.048/1999)
 1129;Picrato de chumbo;Químicos;01.08.001 - Chumbo e seus compostos tóxicos
 666;Pindone;Químicos;-
@@ -862,7 +862,7 @@
 20;Pressão Hipobárica;Físicos;-
 679;Procarbazina;Químicos;01.19.032 - Procarbazina
 958;Produtos Saneantes e Domissanitários;Químicos;-
-912;Projeção de partículas ou objetos;Acidentes;-
+912;Projeção de partículas ou objetos;Mecânicos;-
 1070;Prometrina;Químicos;-
 680;Propano;Químicos;-
 682;Propanosultona (Propano sultone);Químicos;01.19.033 - Propanosultona
@@ -872,11 +872,11 @@
 687;Propionaldeído;Químicos;-
 688;Propoxur;Químicos;-
 689;PVC (poli cloreto de vinila);Químicos;-
-1082;Queda de aeronave;Acidentes;-
-1135;Queda de objetos com baixo potencial lesivo;Acidentes;-
-1136;Queda de objetos com potencial lesivo moderado ou alto;Acidentes;-
-868;Queda por diferença de nível (Inferior a 2m) / Queda do mesmo nível;Acidentes;-
-867;Queda por diferença de nível (Superior a 2m de altura);Acidentes;-
+1082;Queda de aeronave;Mecânicos;-
+1135;Queda de objetos com baixo potencial lesivo;Mecânicos;-
+1136;Queda de objetos com potencial lesivo moderado ou alto;Mecânicos;-
+868;Queda por diferença de nível (Inferior a 2m) / Queda do mesmo nível;Mecânicos;-
+867;Queda por diferença de nível (Superior a 2m de altura);Mecânicos;-
 690;Querosene;Químicos;-
 1102;Quimioterápicos Antineoplásicos;Químicos;-
 691;Quinona;Químicos;-
@@ -899,7 +899,7 @@
 696;Resina de vareta (eletrodo arame) de solda, produtos da decomposição térmica (breu);Químicos;-
 959;Resinas Epóxi;Químicos;-
 697;Resorcinol;Químicos;-
-967;Respingos de produtos químicos;Acidentes;-
+967;Respingos de produtos químicos;Mecânicos;-
 699;Ródio - Compostos solúveis;Químicos;-
 698;Ródio - Metal e compostos insolúveis;Químicos;-
 700;Ronel;Químicos;-
@@ -923,7 +923,7 @@
 712;Silicatos;Químicos;-
 960;Silicone;Químicos;-
 713;Simazina;Químicos;-
-877;Soterramento/ Desmoronamento;Acidentes;-
+877;Soterramento/ Desmoronamento;Mecânicos;-
 7;Sub-Radiofrequência (30 kHz e abaixo) e campos eletrostáticos;Físicos;-
 714;Subtilisinas, como enzima pura ativa 100% cristalina [CAS 1395-21-7, 9014-01-1];Químicos;-
 715;Sulfamato de amônio;Químicos;-
@@ -995,7 +995,7 @@
 758;Tiotepa;Químicos;-
 759;Titânio;Químicos;-
 762;Tolueno;Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
-1026;Tombamento de máquinas ou equipamentos;Acidentes;-
+1026;Tombamento de máquinas ou equipamentos;Mecânicos;-
 765;Tório-232 e seus produtos de decaimento;Químicos;-
 841;Trabalho com exigência de variação de turnos;Ergonômicos;-
 843;Trabalho com utilização rigorosa de metas de produção ou remunerado por produção;Ergonômicos;-
@@ -1033,14 +1033,14 @@
 884;Umidade;Físicos;-
 794;Urânio (natural) Compostos solúveis e insolúveis;Químicos;-
 915;Uso excessivo da voz;Ergonômicos;-
-968;Vazamento/ derramamento de produtos perigosos;Acidentes;-
+968;Vazamento/ derramamento de produtos perigosos;Mecânicos;-
 926;Vermelho de metila;Químicos;-
 1035;Vibração - Trabalhos com perfuratrizes e marteletes pneumáticos;Físicos;02.01.005 - Trabalhos com perfuratrizes e marteletes pneumáticos
 16;Vibração de corpo inteiro (aceleração resultante de exposição normalizada - aren);Físicos;02.01.003 - Vibração de corpo inteiro (aceleração resultante de exposição normalizada - aren)
 938;Vibração de corpo inteiro (Valor da Dose de Vibração Resultante - VDVR);Físicos;02.01.004 - Vibração de corpo inteiro (Valor da Dose de Vibração Resultante - VDVR)
 15;Vibração Localizada (Mão-Braço);Físicos;02.01.002 - Vibrações localizadas (mão-braço)
 798;Vinil tolueno;Químicos;-
-922;Violência ou agressão física;Acidentes;-
+922;Violência ou agressão física;Mecânicos;-
 799;Warfarin (Varfarina);Químicos;-
 800;Xilenos (mistura de isômeros);Químicos;01.17.001 - Petróleo, xisto betuminoso, gás natural e seus derivados
 801;Xilidina (mistura de isômeros);Químicos;-
