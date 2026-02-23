@@ -161,6 +161,12 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
 
         // Extrai o payload JSON enviado pelo Front-end via FormData
         const data = JSON.parse(req.body.dados_json);
+        if (!data.assinatura_avaliador || !data.assinatura_responsavel_empresa) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "As assinaturas são obrigatórias e não foram recebidas pelo servidor." 
+            });
+        }
         const userLogado = req.session.user;
         const id_levantamento = uuidv4();
         const id_unidade = userLogado.id_unidade || userLogado.unidade_id;
@@ -175,8 +181,9 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
                 tipo_construcao, tipo_piso, tipo_paredes, tipo_cobertura, 
                 tipo_iluminacao, tipo_ventilacao, possui_climatizacao, estruturas_auxiliares,
                 area_m2, pe_direito_m, largura_m, comprimento_m, obs_condicoes_gerais,
-                ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico,
+                assinatura_avaliador, assinatura_responsavel_empresa
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await conn.query(sqlLevantamento, [
@@ -187,7 +194,9 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
             data.possui_climatizacao ? 1 : 0, JSON.stringify(data.estruturas_auxiliares || []),
             data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, data.comprimento_m || 0,
             data.obs_condicoes_gerais,
-            data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0, data.ausencia_risco_mecanico ? 1 : 0
+            data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0, data.ausencia_risco_mecanico ? 1 : 0,
+            data.assinatura_avaliador || null,
+            data.assinatura_responsavel_empresa || null
         ]);
 
         // 2. INSERIR GES

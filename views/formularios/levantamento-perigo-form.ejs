@@ -98,6 +98,10 @@
                             data-step="3">
                             <span class="icon-[lucide--alert-triangle] text-lg"></span> Identificação de Perigos
                         </a>
+                        <a href="#" class="nav-link whitespace-nowrap" onclick="changeStep(4); return false;"
+                            data-step="4">
+                            <span class="icon-[lucide--pen-tool] text-lg"></span> Assinaturas
+                        </a>
                     </nav>
                 </div>
 
@@ -857,12 +861,65 @@
                                 <button type="button"
                                     class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
                                     onclick="changeStep(2)">Anterior</button>
-                                <button type="submit" id="btnSalvar"
-                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium">
-                                    <span class="icon-[lucide--save] me-2"></span> Salvar Levantamento
+
+                                <button type="button"
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium"
+                                    onclick="changeStep(4)">
+                                    Próximo <span class="icon-[lucide--arrow-right] ms-2"></span>
                                 </button>
                             </div>
                         </div>
+                        <div id="step4" class="step-content space-y-6">
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Coleta de
+                                    Assinaturas</h5>
+                                <p class="text-sm text-zinc-500 mb-6">Assine abaixo para validar as informações deste
+                                    levantamento.</p>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="flex flex-col items-center">
+                                        <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável
+                                            Técnico (Avaliador)</label>
+                                        <div
+                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
+                                            <canvas id="canvasTecnico" width="400" height="200"
+                                                class="touch-none cursor-crosshair"></canvas>
+                                        </div>
+                                        <button type="button" id="btnLimparTecnico"
+                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
+                                            <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
+                                        </button>
+                                    </div>
+
+                                    <div class="flex flex-col items-center">
+                                        <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável da
+                                            Empresa</label>
+                                        <div
+                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
+                                            <canvas id="canvasEmpresa" width="400" height="200"
+                                                class="touch-none cursor-crosshair"></canvas>
+                                        </div>
+                                        <button type="button" id="btnLimparEmpresa"
+                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
+                                            <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between mt-6">
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
+                                    onclick="changeStep(3)">Anterior</button>
+                                <button type="submit" id="btnSalvar"
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium">
+                                    <span class="icon-[lucide--save] me-2"></span> Finalizar e Salvar
+                                </button>
+                            </div>
+                        </div>
+
+
 
                         <div id="modalRiscos" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
                             <div
@@ -1037,12 +1094,32 @@
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
         <script>
+            let padTecnico, padEmpresa;
+            let dtRiscos; // Variável do datatable de riscos
+
             $(document).ready(function () {
+                // ==========================================
+                // CONFIGURAÇÃO DOS QUADROS DE ASSINATURA
+                // ==========================================
+                const canvasT = document.getElementById('canvasTecnico');
+                const canvasE = document.getElementById('canvasEmpresa');
+
+                // Configura fundo branco para não exportar PNG transparente
+                padTecnico = new SignaturePad(canvasT, { backgroundColor: 'rgb(255, 255, 255)' });
+                padEmpresa = new SignaturePad(canvasE, { backgroundColor: 'rgb(255, 255, 255)' });
+
+                // Ações dos botões de limpar
+                document.getElementById('btnLimparTecnico').addEventListener('click', () => padTecnico.clear());
+                document.getElementById('btnLimparEmpresa').addEventListener('click', () => padEmpresa.clear());
+
+                // ==========================================
+                // MODAL DE CLIENTES
+                // ==========================================
                 const modalEl = document.getElementById('modal_cliente');
 
-                // 1. Inicializa o DataTable IMEDIATAMENTE no fundo, antes do modal abrir
                 const dtCliente = $('#table_cliente_modal').DataTable({
                     dom: 'rtip',
                     paging: true,
@@ -1059,18 +1136,15 @@
                     }
                 });
 
-                // 2. Já vincula o campo de busca
                 $('#clienteSearch').on('keyup', function () {
                     dtCliente.search(this.value).draw();
                 });
 
-                // 3. Quando o modal abrir, apenas ajusta as colunas e foca no input
                 modalEl.addEventListener('shown.bs.modal', function () {
                     dtCliente.columns.adjust().draw();
                     $('#clienteSearch').focus();
                 });
 
-                // Evento de clique na linha da tabela (MANTÉM O SEU IGUAL)
                 $('#table_cliente_modal tbody').on('click', 'tr', function () {
                     const id = $(this).attr('data-id');
                     const nome = $(this).attr('data-nome');
@@ -1093,15 +1167,61 @@
                         }, 400);
                     }
                 });
+
+                // ==========================================
+                // MODAL DE RISCOS (DATATABLES)
+                // ==========================================
+                const modalRiscosEl = document.getElementById('modalRiscos');
+
+                dtRiscos = $('#tabelaRiscosModal').DataTable({
+                    dom: 'rtip',
+                    paging: true,
+                    pageLength: 10,
+                    ordering: false,
+                    autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado",
+                        info: "Exibindo _START_ a _END_ de _TOTAL_ riscos",
+                        infoEmpty: "Nenhum registro",
+                        infoFiltered: "(filtrado de _MAX_)",
+                        zeroRecords: "Nenhum risco encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                $('#inputBuscaRisco').on('keyup', function () {
+                    dtRiscos.search(this.value).draw();
+                });
+
+                modalRiscosEl.addEventListener('shown.bs.modal', function () {
+                    dtRiscos.columns.adjust().draw();
+                    $('#inputBuscaRisco').focus();
+                });
+
+                $('#tabelaRiscosModal tbody').on('click', 'tr', function () {
+                    const id_risco = $(this).attr('data-id_risco');
+                    const codigo = $(this).attr('data-codigo');
+                    const nome = $(this).attr('data-nome');
+                    const grupo = $(this).attr('data-grupo');
+
+                    if (id_risco) {
+                        selecionarRiscoParaTela(id_risco, codigo, nome, grupo);
+                    }
+                });
             });
 
+            // ==========================================
+            // FUNÇÕES GERAIS DA TELA
+            // ==========================================
             function changeStep(step) {
                 document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
                 document.getElementById(`step${step}`).classList.add('active');
+
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active');
                     if (el.dataset.step == step) el.classList.add('active');
                 });
+
                 window.scrollTo(0, 0);
             }
 
@@ -1111,13 +1231,13 @@
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
                 row.innerHTML = `
-                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
-                <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
-                <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
-                <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
-                <td class="pr-6 pl-2 py-3 text-center">
-                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
-                </td>`;
+        <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
+        <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
+        <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
+        <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
+        <td class="pr-6 pl-2 py-3 text-center">
+            <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+        </td>`;
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1128,17 +1248,17 @@
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
                 row.innerHTML = `
-                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
-                <td class="px-2 py-3">
-                    <select class="table-input quim-estado cursor-pointer bg-transparent">
-                        <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option><option value="Névoa">Névoa</option>
-                    </select>
-                </td>
-                <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
-                <td class="px-2 py-3"><input type="text" class="table-input quim-processo" placeholder="Ex: Limpeza/500ml"></td>
-                <td class="pr-6 pl-2 py-3 text-center">
-                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
-                </td>`;
+        <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
+        <td class="px-2 py-3">
+            <select class="table-input quim-estado cursor-pointer bg-transparent">
+                <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option><option value="Névoa">Névoa</option>
+            </select>
+        </td>
+        <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
+        <td class="px-2 py-3"><input type="text" class="table-input quim-processo" placeholder="Ex: Limpeza/500ml"></td>
+        <td class="pr-6 pl-2 py-3 text-center">
+            <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+        </td>`;
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1153,7 +1273,6 @@
                 } else { detailDiv.classList.add('hidden'); }
             }
 
-            /* NOVA FUNÇÃO: Substituído HIDDEN por INVISIBLE OPACITY-0 para reservar o espaço e não dar pulos */
             function handleCheckRadio(clickedCheckbox) {
                 const groupName = clickedCheckbox.name;
                 const allCheckboxes = document.querySelectorAll(`input[name="${groupName}"]`);
@@ -1177,183 +1296,31 @@
                 });
             }
 
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.js-select').forEach(el => new TomSelect(el));
-
-                document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if (!document.getElementById('id_cliente').value) { Swal.fire('Atenção', 'Selecione um cliente.', 'warning'); changeStep(1); return; }
-
-                    const getRadioVal = (n) => {
-                        const c = document.querySelector(`input[name="${n}"]:checked`);
-                        if (!c) return null;
-                        const t = c.getAttribute('data-target');
-                        return { selecionado: c.value, outros: t ? document.getElementById(t).value : '' };
-                    };
-
-                    const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
-                        nome: tr.querySelector('.ges-nome').value, setor: tr.querySelector('.ges-setor').value,
-                        cargos: tr.querySelector('.ges-cargos').value, excecao: tr.querySelector('.ges-excecao').value
-                    })).filter(g => g.nome);
-
-                    const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
-                        rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
-                        exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value
-                    })).filter(q => q.rotulo);
-
-                    const riscosData = [];
-                    const formDataEnvio = new FormData(); // <-- NOVO: O "Pacotão" de dados e arquivos
-                    let indexRisco = 0;
-
-                    document.querySelectorAll('.risk-checkbox:checked').forEach(cb => {
-                        const item = cb.closest('.risk-item');
-                        const sEpi = item.querySelector('.risk-epis');
-                        const sEpc = item.querySelector('.risk-epcs');
-                        const fileInput = item.querySelector('.risk-imagem');
-
-                        riscosData.push({
-                            id_risco: cb.dataset.id_risco,
-                            grupo: cb.dataset.grupo,
-                            codigo: cb.dataset.codigo,
-                            nome: cb.dataset.nome,
-                            fontes: item.querySelector('.risk-fontes').value,
-                            tempo: item.querySelector('.risk-tempo').value,
-                            obs: item.querySelector('.risk-obs').value,
-                            epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
-                            epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
-                        });
-
-                        // Se o usuário selecionou uma imagem, anexa ela no FormData vinculada a este risco específico
-                        if (fileInput.files.length > 0) {
-                            formDataEnvio.append('imagem_' + indexRisco, fileInput.files[0]);
-                        }
-                        indexRisco++;
-                    });
-
-                    // Captura os dados básicos do formulário
-                    const formData = new FormData(e.target);
-                    const payload = Object.fromEntries(formData.entries());
-
-                    // Atribui os dados dos arrays ao payload principal
-                    Object.assign(payload, {
-                        tipo_construcao: getRadioVal('tipo_construcao'),
-                        tipo_piso: getRadioVal('tipo_piso'),
-                        tipo_paredes: getRadioVal('tipo_paredes'),
-                        tipo_forro: getRadioVal('tipo_forro'),
-                        tipo_iluminacao: getRadioVal('tipo_iluminacao'),
-                        tipo_ventilacao: getRadioVal('tipo_ventilacao'),
-                        escadas_tipo: getRadioVal('escadas_tipo'),
-                        passarelas_tipo: getRadioVal('passarelas_tipo'),
-
-                        ausencia_risco_ambiental: document.querySelector('input[name="ausencia_risco_ambiental"]').checked,
-                        ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]').checked,
-                        ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]').checked,
-                        trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',
-                        possui_climatizacao: document.querySelector('input[name="possui_climatizacao"]:checked')?.value === '1',
-                        tem_rampas: document.querySelector('input[name="tem_rampas"]:checked')?.value === '1',
-                        tem_mezaninos: document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1',
-                        ges: gesData, quimicos: quimData, riscos: riscosData
-                    });
-
-                    // Transforma todo o JSON em texto e joga dentro do pacotão
-                    formDataEnvio.append('dados_json', JSON.stringify(payload));
-
-                    const btn = document.getElementById('btnSalvar');
-                    const oldHtml = btn.innerHTML;
-                    btn.disabled = true; btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Enviando...';
-
-                    try {
-                        // ATENÇÃO: Nunca defina 'Content-Type' manualmente ao enviar FormData. O navegador faz isso sozinho.
-                        const res = await fetch('/levantamento-perigo/salvar', {
-                            method: 'POST',
-                            body: formDataEnvio
-                        });
-                        const result = await res.json();
-                        if (result.success) Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/levantamento-perigo');
-                        else Swal.fire('Erro', result.message, 'error');
-                    } catch (err) { Swal.fire('Erro', 'Falha na comunicação', 'error'); }
-                    finally { btn.disabled = false; btn.innerHTML = oldHtml; }
-                });
-            });
-        </script>
-        <script>
-            // ==========================================
-            // FUNÇÕES DO MODAL DE RISCOS
-            // ==========================================
-            // Limpa a busca toda vez que clicar no botão de Pesquisar
-            // ==========================================
-            // FUNÇÕES DO MODAL DE RISCOS (COM DATATABLES)
-            // ==========================================
-
-            let dtRiscos;
-
-            $(document).ready(function () {
-                const modalRiscosEl = document.getElementById('modalRiscos');
-
-                // 1. Inicializa o DataTable de Riscos IMEDIATAMENTE
-                dtRiscos = $('#tabelaRiscosModal').DataTable({
-                    dom: 'rtip',
-                    paging: true,
-                    pageLength: 10,
-                    ordering: false,
-                    autoWidth: false,
-                    language: {
-                        emptyTable: "Nenhum registro encontrado",
-                        info: "Exibindo _START_ a _END_ de _TOTAL_ riscos",
-                        infoEmpty: "Nenhum registro",
-                        infoFiltered: "(filtrado de _MAX_)",
-                        zeroRecords: "Nenhum risco encontrado",
-                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
-                    }
-                });
-
-                // 2. Vincula a busca customizada
-                $('#inputBuscaRisco').on('keyup', function () {
-                    dtRiscos.search(this.value).draw();
-                });
-
-                // 3. Quando o modal abrir, apenas recalcula as larguras e foca
-                modalRiscosEl.addEventListener('shown.bs.modal', function () {
-                    dtRiscos.columns.adjust().draw();
-                    $('#inputBuscaRisco').focus();
-                });
-            });
-
-            // Limpa a busca toda vez que clicar no botão de Pesquisar (agora usando a API do DataTable)
             function limparBuscaRiscos() {
                 document.getElementById('inputBuscaRisco').value = '';
                 if (dtRiscos) {
-                    dtRiscos.search('').draw(); // Reseta o filtro do datatable
+                    dtRiscos.search('').draw();
                 }
             }
 
-            // Fechamento seguro do modal
             function fecharModalRiscos() {
                 const modalEl = document.getElementById('modalRiscos');
                 const btnFechar = modalEl.querySelector('[data-bs-dismiss="modal"]');
                 if (btnFechar) btnFechar.click();
             }
 
-            // ==========================================
-            // FUNÇÃO QUE RECEBE O CLIQUE NO MODAL E MONTA A TELA
-            // ==========================================
             function selecionarRiscoParaTela(id_risco, codigo, nome, grupo) {
-                // 1. Fecha o modal
                 fecharModalRiscos();
 
-                // 2. Converte o nome do grupo num ID sem acentos (ex: "Físicos" -> "grupo_fisicos")
                 const grupoId = 'grupo_' + grupo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
-
                 let containerDinamico = document.getElementById('container_riscos_dinamicos');
                 let accordionGrupo = document.getElementById(grupoId);
 
-                // 3. Se o grupo (Acordeão) ainda não existe, cria ele
                 if (!accordionGrupo) {
                     accordionGrupo = document.createElement('div');
                     accordionGrupo.id = grupoId;
                     accordionGrupo.className = 'border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mt-4';
 
-                    // Define uma cor de borda lateral dependendo do grupo (opcional, mas fica lindo)
                     let corBorda = 'border-zinc-500';
                     if (grupo.toLowerCase().includes('físico')) corBorda = 'border-green-500';
                     else if (grupo.toLowerCase().includes('químico')) corBorda = 'border-red-500';
@@ -1368,26 +1335,22 @@
                  ${grupo.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
             </button>
             <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
-                <div class="grid grid-cols-1 gap-4 grid-riscos">
-                    </div>
+                <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
             </div>
-        `;
+            `;
                     containerDinamico.appendChild(accordionGrupo);
                 }
 
                 const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
 
-                // 4. Verifica se o risco já foi adicionado
                 if (gridRiscos.querySelector(`[data-codigo="${codigo}"]`)) {
                     alert("Este risco já foi adicionado ao levantamento!");
-                    return; // Sai da função sem adicionar duplicado
+                    return;
                 }
 
-                // 5. Captura o HTML dos templates de EPIs e EPCs
                 const optionsEPI = document.getElementById('tpl-epis').innerHTML;
                 const optionsEPC = document.getElementById('tpl-epcs').innerHTML;
 
-                // 6. Cria a estrutura do Risco selecionado
                 const riskItem = document.createElement('div');
                 riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-800/20';
 
@@ -1395,14 +1358,9 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
             <label class="inline-flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" class="input-checkbox risk-checkbox" 
-                    data-id_risco="${id_risco}" 
-                    data-grupo="${grupo}" 
-                    data-codigo="${codigo}" 
-                    data-nome="${nome}" 
+                    data-id_risco="${id_risco}" data-grupo="${grupo}" data-codigo="${codigo}" data-nome="${nome}" 
                     onchange="toggleRiskDetail(this)">
-                <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">
-                ${nome}
-                </span>
+                <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
             </label>
             <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
                 <span class="icon-[lucide--trash]"></span> Remover
@@ -1431,7 +1389,6 @@
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
                 <label class="flex items-center justify-center w-full px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded cursor-pointer hover:bg-slate-200 transition-colors text-sm font-semibold text-center overflow-hidden">
                     <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
-                    
                     <input type="file" accept="image/*" class="hidden risk-imagem" 
                         onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
                 </label>
@@ -1445,40 +1402,164 @@
 
                 gridRiscos.appendChild(riskItem);
 
-                // Força a renderização inicial do TomSelect para os selects de EPI e EPC recém-adicionados
                 riskItem.querySelectorAll('select.select-plugin').forEach(s => {
                     if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
                 });
 
-                // Animação suave para focar no novo risco
                 riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
 
             function removerRiscoDaTela(botao, grupoId) {
                 const riskItem = botao.closest('.risk-item');
                 const gridRiscos = riskItem.parentNode;
-
-                // Remove o risco específico
                 riskItem.remove();
 
-                // Se era o último risco do grupo, remove o Accordion do grupo inteiro
                 if (gridRiscos.children.length === 0) {
                     document.getElementById(grupoId).remove();
                 }
             }
-        </script>
-        <script>// Evento de clique na linha da tabela de Riscos
-            $('#tabelaRiscosModal tbody').on('click', 'tr', function () {
-                const id_risco = $(this).attr('data-id_risco');
-                const codigo = $(this).attr('data-codigo');
-                const nome = $(this).attr('data-nome');
-                const grupo = $(this).attr('data-grupo');
 
-                // Se a linha tem um ID válido, dispara a função que você já criou
-                if (id_risco) {
-                    selecionarRiscoParaTela(id_risco, codigo, nome, grupo);
-                }
-            });</script>
+            // ==========================================
+            // ENVIO DO FORMULÁRIO (SUBMIT) E ASSINATURAS
+            // ==========================================
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.js-select').forEach(el => new TomSelect(el));
+
+                document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    // 1. Validação de Cliente
+                    if (!document.getElementById('id_cliente').value) {
+                        Swal.fire('Atenção', 'Selecione um cliente.', 'warning');
+                        changeStep(1);
+                        return;
+                    }
+
+                    // ========================================================
+                    // 2. NOVA TRAVA: VALIDAÇÃO DAS ASSINATURAS OBRIGATÓRIAS
+                    // ========================================================
+                    if (padTecnico.isEmpty() || padEmpresa.isEmpty()) {
+                        Swal.fire({
+                            title: 'Assinaturas Pendentes',
+                            text: 'As assinaturas do Responsável Técnico e da Empresa são obrigatórias para finalizar.',
+                            icon: 'warning',
+                            confirmButtonColor: '#0AA34A' // Cor verde para manter o padrão
+                        });
+                        changeStep(4); // Direciona o usuário para a última aba
+                        return; // Interrompe o envio para o banco de dados
+                    }
+
+                    // Se passou da trava, transforma as assinaturas em imagem Base64
+                    const assinatura_avaliador = padTecnico.toDataURL('image/png');
+                    const assinatura_responsavel_empresa = padEmpresa.toDataURL('image/png');
+                    // ========================================================
+
+                    const getRadioVal = (n) => {
+                        const c = document.querySelector(`input[name="${n}"]:checked`);
+                        if (!c) return null;
+                        const t = c.getAttribute('data-target');
+                        return { selecionado: c.value, outros: t ? document.getElementById(t).value : '' };
+                    };
+
+                    const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
+                        nome: tr.querySelector('.ges-nome').value, setor: tr.querySelector('.ges-setor').value,
+                        cargos: tr.querySelector('.ges-cargos').value, excecao: tr.querySelector('.ges-excecao').value
+                    })).filter(g => g.nome);
+
+                    const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
+                        rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
+                        exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value
+                    })).filter(q => q.rotulo);
+
+                    const riscosData = [];
+                    const formDataEnvio = new FormData();
+                    let indexRisco = 0;
+
+                    document.querySelectorAll('.risk-checkbox:checked').forEach(cb => {
+                        const item = cb.closest('.risk-item');
+                        const sEpi = item.querySelector('.risk-epis');
+                        const sEpc = item.querySelector('.risk-epcs');
+                        const fileInput = item.querySelector('.risk-imagem');
+
+                        riscosData.push({
+                            id_risco: cb.dataset.id_risco,
+                            grupo: cb.dataset.grupo,
+                            codigo: cb.dataset.codigo,
+                            nome: cb.dataset.nome,
+                            fontes: item.querySelector('.risk-fontes').value,
+                            tempo: item.querySelector('.risk-tempo').value,
+                            obs: item.querySelector('.risk-obs').value,
+                            epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
+                            epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
+                        });
+
+                        if (fileInput.files.length > 0) {
+                            formDataEnvio.append('imagem_' + indexRisco, fileInput.files[0]);
+                        }
+                        indexRisco++;
+                    });
+
+                    const formData = new FormData(e.target);
+                    const payload = Object.fromEntries(formData.entries());
+
+                    Object.assign(payload, {
+                        tipo_construcao: getRadioVal('tipo_construcao'),
+                        tipo_piso: getRadioVal('tipo_piso'),
+                        tipo_paredes: getRadioVal('tipo_paredes'),
+                        tipo_forro: getRadioVal('tipo_forro'),
+                        tipo_iluminacao: getRadioVal('tipo_iluminacao'),
+                        tipo_ventilacao: getRadioVal('tipo_ventilacao'),
+                        escadas_tipo: getRadioVal('escadas_tipo'),
+                        passarelas_tipo: getRadioVal('passarelas_tipo'),
+
+                        ausencia_risco_ambiental: document.querySelector('input[name="ausencia_risco_ambiental"]').checked,
+                        ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]').checked,
+                        ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]').checked,
+                        trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',
+                        possui_climatizacao: document.querySelector('input[name="possui_climatizacao"]:checked')?.value === '1',
+                        tem_rampas: document.querySelector('input[name="tem_rampas"]:checked')?.value === '1',
+                        tem_mezaninos: document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1',
+
+                        // Dados das tabelas dinâmicas
+                        ges: gesData,
+                        quimicos: quimData,
+                        riscos: riscosData,
+
+                        // ========================================================
+                        // 3. ENVIANDO AS ASSINATURAS NO JSON
+                        // ========================================================
+                        assinatura_avaliador: assinatura_avaliador,
+                        assinatura_responsavel_empresa: assinatura_responsavel_empresa
+                    });
+
+                    formDataEnvio.append('dados_json', JSON.stringify(payload));
+
+                    const btn = document.getElementById('btnSalvar');
+                    const oldHtml = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Enviando...';
+
+                    try {
+                        const res = await fetch('/levantamento-perigo/salvar', {
+                            method: 'POST',
+                            body: formDataEnvio
+                        });
+                        const result = await res.json();
+
+                        if (result.success) {
+                            Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/levantamento-perigo');
+                        } else {
+                            Swal.fire('Erro', result.message, 'error');
+                        }
+                    } catch (err) {
+                        Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = oldHtml;
+                    }
+                });
+            });
+        </script>
 </body>
 
 </html>
