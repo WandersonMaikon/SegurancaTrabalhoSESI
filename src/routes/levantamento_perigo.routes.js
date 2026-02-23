@@ -4,6 +4,31 @@ const db = require("../database/db");
 const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
 
+// =========================================================================
+// CONFIGURAÇÃO DE UPLOAD DE ARQUIVOS (MULTER)
+// =========================================================================
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        // Define a pasta onde as imagens dos riscos serão salvas
+        const dir = 'public/uploads/riscos';
+        // Cria a pasta automaticamente se ela não existir
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        // Cria um nome único para o arquivo para evitar que um sobrescreva o outro
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, 'risco-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
 // Se você tiver o sistema de logs, mantenha essa linha. Se não, pode comentar.
 // const registrarLog = require("../utils/logger"); 
 
@@ -16,63 +41,6 @@ const verificarSeEhAdmin = (user) => {
     if (user.email === 'admin@admin.com') return true;
     if (user.nome_perfil === 'Administrador' || user.nome_perfil === 'Super Admin') return true;
     return false;
-};
-
-// Lista de Riscos para o Formulário (Baseado no PDF)
-const RISCOS_PADRAO = {
-    "Acidentes / Mecânicos": [
-        { codigo: "11", nome: "Corte/Cisalhamento/Perfuração" },
-        { codigo: "12", nome: "Deficiência de oxigênio" },
-        { codigo: "13", nome: "Disparo acidental de projétil" },
-        { codigo: "14", nome: "Engolfamento" },
-        { codigo: "15", nome: "Esmagamento/Prensamento" },
-        { codigo: "16", nome: "Explosão" },
-        { codigo: "17", nome: "Fricção ou Abrasão" },
-        { codigo: "18", nome: "Golpeamento" },
-        { codigo: "19", nome: "Incêndio" },
-        { codigo: "20", nome: "Intempéries" },
-        { codigo: "21", nome: "Manuseio/contato com plantas perigosas" },
-        { codigo: "22", nome: "Perfuração por objetos perfurocortantes" },
-        { codigo: "23", nome: "Picada de animais peçonhentos" },
-        { codigo: "24", nome: "Projeção de partículas ou objetos" },
-        { codigo: "25", nome: "Queda de objetos e/ou materiais" },
-        { codigo: "26", nome: "Queda nível inferior (< 2m) / mesmo nível" },
-        { codigo: "27", nome: "Queda nível inferior (> 2m)" },
-        { codigo: "28", nome: "Respingos de produtos perigosos" },
-        { codigo: "29", nome: "Soterramento / Desmoronamento" },
-        { codigo: "30", nome: "Tombamento de máquinas" },
-        { codigo: "31", nome: "Vazamento/derramamento de produtos" }
-    ],
-    "Ergonômicos": [
-        { codigo: "01", nome: "Esforço físico intenso" },
-        { codigo: "02", nome: "Levantamento e transporte manual de peso" },
-        { codigo: "03", nome: "Exigência de postura inadequada" },
-        { codigo: "04", nome: "Controle rígido de produtividade" },
-        { codigo: "05", nome: "Imposição de ritmos excessivos" },
-        { codigo: "06", nome: "Trabalho em turno e noturno" },
-        { codigo: "07", nome: "Jornadas de trabalho prolongadas" },
-        { codigo: "08", nome: "Monotonia e repetitividade" },
-        { codigo: "27", nome: "Situações de estresse organizacional" },
-        { codigo: "28", nome: "Sobrecarga de trabalho mental" }
-    ],
-    "Físicos": [
-        { codigo: "F1", nome: "Ruído" },
-        { codigo: "F2", nome: "Calor" },
-        { codigo: "F3", nome: "Radiações Ionizantes" },
-        { codigo: "F4", nome: "Vibração" },
-        { codigo: "F5", nome: "Umidade" }
-    ],
-    "Químicos": [
-        { codigo: "Q1", nome: "Poeiras" },
-        { codigo: "Q2", nome: "Fumos" },
-        { codigo: "Q3", nome: "Névoas" },
-        { codigo: "Q4", nome: "Gases e Vapores" }
-    ],
-    "Biológicos": [
-        { codigo: "B1", nome: "Vírus" },
-        { codigo: "B2", nome: "Bactérias" },
-        { codigo: "B3", nome: "Fungos" }
-    ]
 };
 
 // =========================================================================
@@ -114,7 +82,6 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             data_formatada: new Date(l.data_levantamento).toLocaleDateString('pt-BR')
         }));
 
-        // ATENÇÃO: Verifique se o nome do arquivo na pasta views é com hifen ou underline
         res.render("formularios/levantamento-perigo-lista", {
             user: req.session.user,
             currentPage: 'levantamento-perigos',
@@ -156,12 +123,17 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
         const [epis] = await db.query("SELECT id_epi, nome_equipamento, ca FROM epi WHERE ativo = 1");
         const [epcs] = await db.query("SELECT id_epc, nome FROM epc WHERE ativo = 1");
 
-        // 4. BUSCAR RISCOS (NOVO!)
-        // O "AS" converte os nomes das colunas para os nomes que o HTML espera
+        // 4. BUSCAR RISCOS 
         const [riscos] = await db.query(`
-            SELECT id_risco, codigo_interno AS codigo, nome_risco AS nome, tipo_risco AS grupo 
-            FROM risco 
-            WHERE deleted_at IS NULL
+        SELECT 
+        r.id_risco, 
+        r.codigo_interno AS codigo, 
+        r.nome_risco AS nome, 
+        r.tipo_risco AS grupo,
+        t24.codigo AS esocial
+        FROM risco r
+        LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
+        WHERE r.deleted_at IS NULL
         `);
 
         res.render("formularios/levantamento-perigo-form", {
@@ -171,27 +143,28 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
             usuarios,
             epis,
             epcs,
-            todosRiscos: riscos // <-- Envia para o HTML ler e montar o modal
+            todosRiscos: riscos
         });
 
     } catch (error) {
         console.error("Erro ao abrir formulário novo:", error);
-        res.redirect("/formularios/levantamento-perigos");
+        res.redirect("/formularios/levantamento-perigo");
     }
 });
 
 // --- 3. SALVAR (POST) ---
-router.post("/salvar", verificarAutenticacao, async (req, res) => {
+// Adicionamos upload.any() para capturar as imagens
+router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => {
     const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
 
-        const data = req.body;
+        // Extrai o payload JSON enviado pelo Front-end via FormData
+        const data = JSON.parse(req.body.dados_json);
         const userLogado = req.session.user;
         const id_levantamento = uuidv4();
         const id_unidade = userLogado.id_unidade || userLogado.unidade_id;
 
-        // Helper para garantir JSON válido ou null
         const toJson = (obj) => JSON.stringify(obj || {});
 
         // 1. INSERIR CABEÇALHO
@@ -237,23 +210,27 @@ router.post("/salvar", verificarAutenticacao, async (req, res) => {
             }
         }
 
-        // 4. INSERIR RISCOS
+        // 4. INSERIR RISCOS (AGORA COM IMAGENS)
         if (data.riscos && Array.isArray(data.riscos)) {
-            for (const r of data.riscos) {
-                const id_risco_identificado = uuidv4(); // O ID desta linha de levantamento
+            for (let i = 0; i < data.riscos.length; i++) {
+                const r = data.riscos[i];
+                const id_risco_identificado = uuidv4();
+
+                // Procura a imagem enviada para este risco específico (imagem_0, imagem_1, etc.)
+                const fileField = 'imagem_' + i;
+                const file = req.files ? req.files.find(f => f.fieldname === fileField) : null;
+                const anexo_imagem = file ? '/uploads/riscos/' + file.filename : null;
 
                 await conn.query(`
                     INSERT INTO levantamento_risco_identificado (
                         id_risco_identificado, id_levantamento, id_risco, grupo_perigo, codigo_perigo, 
-                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
                     id_risco_identificado, id_levantamento,
-                    r.id_risco, // A CHAVE ESTRANGEIRA DA TABELA RISCO!
-                    r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs
+                    r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem
                 ]);
 
-                // As suas lógicas de EPI e EPC aqui abaixo estão perfeitas!
                 if (r.epis && Array.isArray(r.epis)) {
                     for (const epiId of r.epis) {
                         await conn.query('INSERT INTO levantamento_risco_has_epi (id_risco_identificado, id_epi) VALUES (?, ?)', [id_risco_identificado, epiId]);
@@ -304,7 +281,20 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
 
         const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ?", [id]);
         const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ?", [id]);
-        const [riscos] = await db.query("SELECT * FROM levantamento_risco_identificado WHERE id_levantamento = ?", [id]);
+
+        // Ajuste feito: agora busca os riscos especificamente associados ao levantamento!
+        const [riscos] = await db.query(`
+            SELECT 
+                lri.id_risco_identificado, lri.id_risco, lri.grupo_perigo AS grupo, 
+                lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome, 
+                lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo, 
+                lri.observacoes AS obs, lri.anexo_imagem,
+                t24.codigo AS esocial
+            FROM levantamento_risco_identificado lri
+            LEFT JOIN risco r ON lri.id_risco = r.id_risco
+            LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
+            WHERE lri.id_levantamento = ?
+        `, [id]);
 
         for (let risco of riscos) {
             const [epis] = await db.query(`

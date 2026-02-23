@@ -135,7 +135,7 @@
                                         <label class="mb-2 block font-medium">Data do Levantamento</label>
                                         <input type="date" name="data_levantamento"
                                             class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed text-center"
-                                            value="<%= new Date().toISOString().split('T')[0] %>" disabled>
+                                            value="<%= new Date().toISOString().split('T')[0] %>" readonly>
                                     </div>
                                     <div class="md:col-span-6">
                                         <label class="mb-2 block font-medium">Responsável Técnico</label>
@@ -897,29 +897,25 @@
                                                     <tr>
                                                         <th
                                                             class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                                                            Código</th>
-                                                        <th
-                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                                                             Risco</th>
                                                         <th
                                                             class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
                                                             Grupo</th>
                                                         <th
-                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 text-center">
-                                                            Ação</th>
+                                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+                                                            eSocial</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <% if (typeof todosRiscos !=='undefined' ) { %>
                                                         <% todosRiscos.forEach(function(r) { %>
-                                                            <tr
-                                                                class="border-b border-zinc-100 dark:border-zinc-800 hover-row transition-colors linha-risco">
+                                                            <tr class="border-b border-zinc-100 dark:border-zinc-800 hover-row transition-colors linha-risco cursor-pointer"
+                                                                data-id_risco="<%= r.id_risco %>"
+                                                                data-codigo="<%= r.codigo %>" data-nome="<%= r.nome %>"
+                                                                data-grupo="<%= r.grupo %>">
+
                                                                 <td
-                                                                    class="py-3 px-3 text-sm font-semibold text-zinc-900 dark:text-white col-codigo">
-                                                                    <%= r.codigo %>
-                                                                </td>
-                                                                <td
-                                                                    class="py-3 px-3 text-sm text-zinc-600 dark:text-zinc-300 col-nome">
+                                                                    class="py-3 px-3 text-sm font-semibold text-zinc-900 dark:text-white col-nome">
                                                                     <%= r.nome %>
                                                                 </td>
                                                                 <td class="py-3 px-3 col-grupo">
@@ -946,12 +942,9 @@
                                                                             <%= r.grupo %>
                                                                         </span>
                                                                 </td>
-                                                                <td class="py-3 px-3 text-center">
-                                                                    <button type="button"
-                                                                        onclick="selecionarRiscoParaTela('<%= r.id_risco %>', '<%= r.codigo %>', '<%= r.nome %>', '<%= r.grupo %>')"
-                                                                        class="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 rounded-md text-xs font-bold transition-all">
-                                                                        Adicionar
-                                                                    </button>
+                                                                <td
+                                                                    class="py-3 px-3 text-sm text-zinc-600 dark:text-zinc-300">
+                                                                    <%= r.esocial ? r.esocial : '-' %>
                                                                 </td>
                                                             </tr>
                                                             <% }); %>
@@ -1209,11 +1202,17 @@
                     })).filter(q => q.rotulo);
 
                     const riscosData = [];
+                    const formDataEnvio = new FormData(); // <-- NOVO: O "Pacotão" de dados e arquivos
+                    let indexRisco = 0;
+
                     document.querySelectorAll('.risk-checkbox:checked').forEach(cb => {
                         const item = cb.closest('.risk-item');
-                        const sEpi = item.querySelector('.risk-epis'); const sEpc = item.querySelector('.risk-epcs');
+                        const sEpi = item.querySelector('.risk-epis');
+                        const sEpc = item.querySelector('.risk-epcs');
+                        const fileInput = item.querySelector('.risk-imagem');
+
                         riscosData.push({
-                            id_risco: cb.dataset.id_risco, // Pega a PK da tabela matriz
+                            id_risco: cb.dataset.id_risco,
                             grupo: cb.dataset.grupo,
                             codigo: cb.dataset.codigo,
                             nome: cb.dataset.nome,
@@ -1223,11 +1222,19 @@
                             epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
                             epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
                         });
+
+                        // Se o usuário selecionou uma imagem, anexa ela no FormData vinculada a este risco específico
+                        if (fileInput.files.length > 0) {
+                            formDataEnvio.append('imagem_' + indexRisco, fileInput.files[0]);
+                        }
+                        indexRisco++;
                     });
 
+                    // Captura os dados básicos do formulário
                     const formData = new FormData(e.target);
                     const payload = Object.fromEntries(formData.entries());
 
+                    // Atribui os dados dos arrays ao payload principal
                     Object.assign(payload, {
                         tipo_construcao: getRadioVal('tipo_construcao'),
                         tipo_piso: getRadioVal('tipo_piso'),
@@ -1248,14 +1255,21 @@
                         ges: gesData, quimicos: quimData, riscos: riscosData
                     });
 
+                    // Transforma todo o JSON em texto e joga dentro do pacotão
+                    formDataEnvio.append('dados_json', JSON.stringify(payload));
+
                     const btn = document.getElementById('btnSalvar');
                     const oldHtml = btn.innerHTML;
                     btn.disabled = true; btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Enviando...';
 
                     try {
-                        const res = await fetch('/formularios/levantamento-perigos/salvar', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        // ATENÇÃO: Nunca defina 'Content-Type' manualmente ao enviar FormData. O navegador faz isso sozinho.
+                        const res = await fetch('/levantamento-perigo/salvar', {
+                            method: 'POST',
+                            body: formDataEnvio
+                        });
                         const result = await res.json();
-                        if (result.success) Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/formularios/levantamento-perigos');
+                        if (result.success) Swal.fire('Sucesso', result.message, 'success').then(() => window.location.href = '/levantamento-perigo');
                         else Swal.fire('Erro', result.message, 'error');
                     } catch (err) { Swal.fire('Erro', 'Falha na comunicação', 'error'); }
                     finally { btn.disabled = false; btn.innerHTML = oldHtml; }
@@ -1387,7 +1401,7 @@
                     data-nome="${nome}" 
                     onchange="toggleRiskDetail(this)">
                 <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">
-                    ${codigo} - ${nome}
+                ${nome}
                 </span>
             </label>
             <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
@@ -1398,30 +1412,36 @@
         <div class="risk-detail hidden grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
-                <input type="text" placeholder="Ex: Máquina de solda, Furadeira..." class="table-input w-full text-sm risk-fontes">
+                <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
             </div>
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
-                <input type="text" placeholder="Ex: Intermitente, 4h diárias..." class="table-input w-full text-sm risk-tempo">
+                <input type="text" placeholder="Ex: Intermitente..." class="table-input w-full text-sm risk-tempo">
             </div>
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
-                <select class="risk-epis w-full table-input select-plugin" multiple>
-                    ${optionsEPI}
-                </select>
+                <select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select>
             </div>
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
-                <select class="risk-epcs w-full table-input select-plugin" multiple>
-                    ${optionsEPC}
-                </select>
+                <select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select>
+            </div>
+            
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
+                <label class="flex items-center justify-center w-full px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded cursor-pointer hover:bg-slate-200 transition-colors text-sm font-semibold text-center overflow-hidden">
+                    <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
+                    
+                    <input type="file" accept="image/*" class="hidden risk-imagem" 
+                        onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
+                </label>
             </div>
             <div class="md:col-span-2">
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
-                <input type="text" placeholder="Observações adicionais sobre este risco..." class="table-input w-full text-sm risk-obs">
+                <input type="text" placeholder="Observações adicionais..." class="table-input w-full text-sm risk-obs">
             </div>
         </div>
-    `;
+        `;
 
                 gridRiscos.appendChild(riskItem);
 
@@ -1447,6 +1467,18 @@
                 }
             }
         </script>
+        <script>// Evento de clique na linha da tabela de Riscos
+            $('#tabelaRiscosModal tbody').on('click', 'tr', function () {
+                const id_risco = $(this).attr('data-id_risco');
+                const codigo = $(this).attr('data-codigo');
+                const nome = $(this).attr('data-nome');
+                const grupo = $(this).attr('data-grupo');
+
+                // Se a linha tem um ID válido, dispara a função que você já criou
+                if (id_risco) {
+                    selecionarRiscoParaTela(id_risco, codigo, nome, grupo);
+                }
+            });</script>
 </body>
 
 </html>

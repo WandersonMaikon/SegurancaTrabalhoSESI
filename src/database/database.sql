@@ -325,6 +325,7 @@ CREATE TABLE levantamento_risco_identificado (
     -- Detalhamento (Tabela final do PDF)
     fontes_geradoras TEXT,
     tipo_tempo_exposicao VARCHAR(255),
+    anexo_imagem VARCHAR(255) NULL,
     observacoes TEXT,
     
     FOREIGN KEY (id_levantamento) REFERENCES levantamento_perigo(id_levantamento) ON DELETE CASCADE,
