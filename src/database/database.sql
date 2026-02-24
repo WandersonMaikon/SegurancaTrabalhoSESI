@@ -280,6 +280,8 @@ CREATE TABLE levantamento_perigo (
     ausencia_risco_ambiental BOOLEAN DEFAULT FALSE,
     ausencia_risco_ergonomico BOOLEAN DEFAULT FALSE,
     ausencia_risco_mecanico BOOLEAN DEFAULT FALSE,
+    ausencia_risco_quimico BOOLEAN DEFAULT FALSE,
+    ausencia_risco_biologico BOOLEAN DEFAULT FALSE;
     
     -- Auditoria
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

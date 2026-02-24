@@ -1663,14 +1663,12 @@
                             document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1' ? 'Mezaninos' : null
                         ].filter(Boolean),
 
-                        // --- 4. RISCOS (O banco só tem 3 campos, então unificamos Físico/Químico/Biológico no Ambiental) ---
-                        ausencia_risco_ambiental:
-                            (document.querySelector('input[name="ausencia_risco_ambiental"]')?.checked ||
-                                document.querySelector('input[name="ausencia_risco_quimico"]')?.checked ||
-                                document.querySelector('input[name="ausencia_risco_biologico"]')?.checked) ? true : false,
-
+                        // --- 4. RISCOS ---
+                        ausencia_risco_ambiental: document.querySelector('input[name="ausencia_risco_ambiental"]')?.checked || false, // Na sua tela este é o Físico
                         ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]')?.checked || false,
                         ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]')?.checked || false,
+                        ausencia_risco_quimico: document.querySelector('input[name="ausencia_risco_quimico"]')?.checked || false,
+                        ausencia_risco_biologico: document.querySelector('input[name="ausencia_risco_biologico"]')?.checked || false,
 
                         // Campos booleanos simples
                         trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',

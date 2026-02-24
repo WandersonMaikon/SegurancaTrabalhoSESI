@@ -172,7 +172,7 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
 
         const toJson = (obj) => JSON.stringify(obj || {});
 
-        // 1. INSERIR CABEÇALHO (Agora com os campos novos)
+        // 1. INSERIR CABEÇALHO DO LEVANTAMENTO
         const sqlLevantamento = `
             INSERT INTO levantamento_perigo (
                 id_levantamento, id_unidade, id_cliente, data_levantamento, 
@@ -182,8 +182,9 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
                 escadas_tipo, passarelas_tipo, estruturas_auxiliares,
                 area_m2, pe_direito_m, largura_m, comprimento_m, obs_condicoes_gerais,
                 ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico,
+                ausencia_risco_quimico, ausencia_risco_biologico,
                 assinatura_avaliador, assinatura_responsavel_empresa
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await conn.query(sqlLevantamento, [
@@ -193,8 +194,13 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
             toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0,
             toJson(data.escadas_tipo), toJson(data.passarelas_tipo), JSON.stringify(data.estruturas_auxiliares || []),
             data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, data.comprimento_m || 0, data.obs_condicoes_gerais,
-            data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0, data.ausencia_risco_mecanico ? 1 : 0,
-            data.assinatura_avaliador || null, data.assinatura_responsavel_empresa || null
+            data.ausencia_risco_ambiental ? 1 : 0, 
+            data.ausencia_risco_ergonomico ? 1 : 0, 
+            data.ausencia_risco_mecanico ? 1 : 0,
+            data.ausencia_risco_quimico ? 1 : 0,   
+            data.ausencia_risco_biologico ? 1 : 0, 
+            data.assinatura_avaliador || null, 
+            data.assinatura_responsavel_empresa || null
         ]);
 
         // 2. INSERIR GES
