@@ -245,16 +245,22 @@ CREATE TABLE levantamento_perigo (
     data_levantamento DATE NOT NULL,
     id_responsavel_tecnico CHAR(36) NOT NULL, -- Vínculo com usuário (avaliador)
     responsavel_empresa_nome VARCHAR(255), -- Nome avulso
+    responsavel_empresa_cargo VARCHAR(255),
     trabalho_externo BOOLEAN DEFAULT FALSE,
     
     -- Caracterização do Ambiente (Arquitetura)
     tipo_construcao JSON, 
     tipo_piso JSON,
+    divisoes_internas_material JSON,
     tipo_paredes JSON,
     tipo_cobertura JSON,
+    tipo_forro JSON,
     tipo_iluminacao JSON,
+    cor_paredes VARCHAR(100),
     tipo_ventilacao JSON,
+    escadas_tipo JSON,
     possui_climatizacao BOOLEAN,
+    passarelas_tipo JSON,
     
     -- Estruturas Auxiliares (Checkboxes)
     estruturas_auxiliares JSON, 

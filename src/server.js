@@ -32,7 +32,7 @@ app.use(
         },
     })
 );
-    
+
 // ---- Middleware Global ----
 app.use((req, res, next) => {
     res.locals.user = req.session.user || null;
@@ -89,6 +89,51 @@ app.use((req, res) => {
         res.status(404).send("Página não encontrada (404)");
     }
 });
+
+// Substitua a função no seu app.js / server.js
+app.locals.fmt = function (val) {
+    if (val === null || val === undefined || val === 'null' || val === '[]' || val === '""' || val === '') return '-';
+
+    let p = val;
+
+    // Tenta converter de String para Objeto/Array se for um JSON válido
+    if (typeof val === 'string') {
+        let t = val.trim();
+        if (t.startsWith('[') || t.startsWith('{')) {
+            try { p = JSON.parse(t); } catch (e) { }
+        }
+    }
+
+    // Função interna para extrair o texto certinho de dentro do objeto
+    const extrairTexto = (obj) => {
+        if (typeof obj === 'object' && obj !== null) {
+            // Verifica se tem a chave "selecionado" (que é o seu caso agora!)
+            if (obj.selecionado) {
+                // Se a pessoa marcou "Outros" mas digitou algo no campo "outros"
+                if (String(obj.selecionado).toLowerCase() === 'outros' && obj.outros) {
+                    return obj.outros;
+                }
+                return obj.selecionado; // Retorna só "Alvenaria", "Pintura", etc.
+            }
+            // Fallbacks para outras telas que usem Tagify ou Selects normais
+            return obj.value || obj.nome || obj.texto || obj.name || JSON.stringify(obj);
+        }
+        return obj;
+    };
+
+    // Se for um Array (múltiplas escolhas)
+    if (Array.isArray(p)) {
+        if (p.length === 0) return '-';
+        return p.map(item => extrairTexto(item)).join(', ');
+    }
+
+    // Se for um Objeto único
+    if (typeof p === 'object' && p !== null) {
+        return extrairTexto(p);
+    }
+
+    return String(p);
+};
 
 // ---- INICIALIZAÇÃO DO SERVIDOR ----
 app.listen(PORT, () => {

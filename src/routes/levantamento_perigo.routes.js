@@ -153,50 +153,48 @@ router.get("/novo", verificarAutenticacao, async (req, res) => {
 });
 
 // --- 3. SALVAR (POST) ---
-// Adicionamos upload.any() para capturar as imagens
 router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => {
     const conn = await db.getConnection();
     try {
         await conn.beginTransaction();
 
-        // Extrai o payload JSON enviado pelo Front-end via FormData
         const data = JSON.parse(req.body.dados_json);
         if (!data.assinatura_avaliador || !data.assinatura_responsavel_empresa) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "As assinaturas são obrigatórias e não foram recebidas pelo servidor." 
+            return res.status(400).json({
+                success: false,
+                message: "As assinaturas são obrigatórias e não foram recebidas pelo servidor."
             });
         }
+
         const userLogado = req.session.user;
         const id_levantamento = uuidv4();
         const id_unidade = userLogado.id_unidade || userLogado.unidade_id;
 
         const toJson = (obj) => JSON.stringify(obj || {});
 
-        // 1. INSERIR CABEÇALHO
+        // 1. INSERIR CABEÇALHO (Agora com os campos novos)
         const sqlLevantamento = `
             INSERT INTO levantamento_perigo (
                 id_levantamento, id_unidade, id_cliente, data_levantamento, 
-                id_responsavel_tecnico, responsavel_empresa_nome, trabalho_externo,
-                tipo_construcao, tipo_piso, tipo_paredes, tipo_cobertura, 
-                tipo_iluminacao, tipo_ventilacao, possui_climatizacao, estruturas_auxiliares,
+                id_responsavel_tecnico, responsavel_empresa_nome, responsavel_empresa_cargo, trabalho_externo,
+                tipo_construcao, tipo_piso, tipo_paredes, cor_paredes, divisoes_internas_material, 
+                tipo_cobertura, tipo_forro, tipo_iluminacao, tipo_ventilacao, possui_climatizacao, 
+                escadas_tipo, passarelas_tipo, estruturas_auxiliares,
                 area_m2, pe_direito_m, largura_m, comprimento_m, obs_condicoes_gerais,
                 ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico,
                 assinatura_avaliador, assinatura_responsavel_empresa
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await conn.query(sqlLevantamento, [
             id_levantamento, id_unidade, data.id_cliente, data.data_levantamento,
-            data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.trabalho_externo ? 1 : 0,
-            toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes),
-            toJson(data.tipo_cobertura), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao),
-            data.possui_climatizacao ? 1 : 0, JSON.stringify(data.estruturas_auxiliares || []),
-            data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, data.comprimento_m || 0,
-            data.obs_condicoes_gerais,
+            data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
+            toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, toJson(data.divisoes_internas_material),
+            toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0,
+            toJson(data.escadas_tipo), toJson(data.passarelas_tipo), JSON.stringify(data.estruturas_auxiliares || []),
+            data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, data.comprimento_m || 0, data.obs_condicoes_gerais,
             data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0, data.ausencia_risco_mecanico ? 1 : 0,
-            data.assinatura_avaliador || null,
-            data.assinatura_responsavel_empresa || null
+            data.assinatura_avaliador || null, data.assinatura_responsavel_empresa || null
         ]);
 
         // 2. INSERIR GES
@@ -219,13 +217,12 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
             }
         }
 
-        // 4. INSERIR RISCOS (AGORA COM IMAGENS)
+        // 4. INSERIR RISCOS
         if (data.riscos && Array.isArray(data.riscos)) {
             for (let i = 0; i < data.riscos.length; i++) {
                 const r = data.riscos[i];
                 const id_risco_identificado = uuidv4();
 
-                // Procura a imagem enviada para este risco específico (imagem_0, imagem_1, etc.)
                 const fileField = 'imagem_' + i;
                 const file = req.files ? req.files.find(f => f.fieldname === fileField) : null;
                 const anexo_imagem = file ? '/uploads/riscos/' + file.filename : null;
@@ -274,7 +271,7 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
         const [rows] = await db.query(`
-            SELECT l.*, c.nome_empresa, c.cnpj, u.nome_completo as nome_responsavel_tecnico
+            SELECT l.*, c.nome_empresa, c.cnpj, u.nome_completo as nome_avaliador
             FROM levantamento_perigo l
             JOIN cliente c ON l.id_cliente = c.id_cliente
             JOIN usuario u ON l.id_responsavel_tecnico = u.id_usuario
@@ -288,17 +285,26 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
             return res.status(403).send("Acesso negado.");
         }
 
-        const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ?", [id]);
-        const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ?", [id]);
 
-        // Ajuste feito: agora busca os riscos especificamente associados ao levantamento!
+        const [ges] = await db.query(`
+            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao 
+            FROM levantamento_ges 
+            WHERE id_levantamento = ?
+        `, [id]);
+
+        const [quimicos] = await db.query(`
+            SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo 
+            FROM levantamento_quimico 
+            WHERE id_levantamento = ?
+        `, [id]);
+
         const [riscos] = await db.query(`
             SELECT 
                 lri.id_risco_identificado, lri.id_risco, lri.grupo_perigo AS grupo, 
-                lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome, 
+                lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome_risco, 
                 lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo, 
-                lri.observacoes AS obs, lri.anexo_imagem,
-                t24.codigo AS esocial
+                lri.observacoes AS obs, lri.anexo_imagem AS caminho_imagem,
+                t24.codigo AS codigo_esocial
             FROM levantamento_risco_identificado lri
             LEFT JOIN risco r ON lri.id_risco = r.id_risco
             LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24

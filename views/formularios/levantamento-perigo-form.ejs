@@ -151,7 +151,7 @@
                                             disabled>
                                     </div>
                                     <div class="md:col-span-8">
-                                        <label class="mb-2 block font-medium">Responsável da Empresa</label>
+                                        <label class="mb-2 block font-medium">Responsável pelas informações</label>
                                         <input type="text" name="responsavel_empresa_nome" class="input h-10 w-full"
                                             placeholder="Nome de quem forneceu as informações">
                                     </div>
@@ -1428,7 +1428,9 @@
                 document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    // 1. Validação de Cliente
+                    // ========================================================
+                    // 1. VALIDAÇÃO DE CLIENTE
+                    // ========================================================
                     if (!document.getElementById('id_cliente').value) {
                         Swal.fire('Atenção', 'Selecione um cliente.', 'warning');
                         changeStep(1);
@@ -1436,24 +1438,156 @@
                     }
 
                     // ========================================================
-                    // 2. NOVA TRAVA: VALIDAÇÃO DAS ASSINATURAS OBRIGATÓRIAS
+                    // 2. VALIDAÇÕES DA ABA 1 (DADOS E AMBIENTE)
+                    // ========================================================
+                    const step1CamposTexto = [
+                        { name: 'responsavel_empresa_nome', label: 'Responsável pelas informações' },
+                        { name: 'responsavel_empresa_cargo', label: 'Cargo do informante' },
+                        { name: 'divisoes_internas_material', label: 'Divisões Internas (Material)' },
+                        { name: 'cor_paredes', label: 'Cor das Paredes' },
+                        { name: 'cobertura_tipo_estrutura', label: 'Cobertura (Estrutura)' },
+                        { name: 'cobertura_tipo_telha', label: 'Cobertura (Telha)' },
+                        { name: 'area_m2', label: 'Área (m²)' },
+                        { name: 'largura_m', label: 'Largura (m)' },
+                        { name: 'comprimento_m', label: 'Comprimento (m)' },
+                        { name: 'pe_direito_m', label: 'Pé Direito (m)' }
+                    ];
+
+                    for (const campo of step1CamposTexto) {
+                        const val = document.querySelector(`input[name="${campo.name}"]`).value.trim();
+                        if (!val) {
+                            Swal.fire('Atenção', `O campo "${campo.label}" em Dados & Ambiente é obrigatório.`, 'warning');
+                            changeStep(1);
+                            return;
+                        }
+                    }
+
+                    const step1CheckboxesGroup = [
+                        { name: 'trabalho_externo', label: 'Trabalho Externo' },
+                        { name: 'tipo_construcao', label: 'Construção' },
+                        { name: 'tipo_paredes', label: 'Paredes' },
+                        { name: 'tipo_piso', label: 'Piso' },
+                        { name: 'tipo_forro', label: 'Forro' },
+                        { name: 'tipo_iluminacao', label: 'Iluminação' },
+                        { name: 'tipo_ventilacao', label: 'Ventilação' },
+                        { name: 'possui_climatizacao', label: 'Climatização' },
+                        { name: 'escadas_tipo', label: 'Escadas' },
+                        { name: 'passarelas_tipo', label: 'Passarelas' },
+                        { name: 'tem_rampas', label: 'Rampas' },
+                        { name: 'tem_mezaninos', label: 'Mezaninos' }
+                    ];
+
+                    for (const cbGroup of step1CheckboxesGroup) {
+                        const checked = document.querySelector(`input[name="${cbGroup.name}"]:checked`);
+                        if (!checked) {
+                            Swal.fire('Atenção', `Selecione pelo menos uma opção para "${cbGroup.label}" na aba Dados & Ambiente.`, 'warning');
+                            changeStep(1);
+                            return;
+                        }
+
+                        if (checked.value === 'Outros') {
+                            const targetId = checked.getAttribute('data-target');
+                            if (targetId && !document.getElementById(targetId).value.trim()) {
+                                Swal.fire('Atenção', `Especifique o campo "Outros" em "${cbGroup.label}".`, 'warning');
+                                changeStep(1);
+                                return;
+                            }
+                        }
+                    }
+
+                    // ========================================================
+                    // 3. VALIDAÇÕES DA ABA 2 (GES E PRODUTOS QUÍMICOS)
+                    // ========================================================
+                    const gesRows = document.querySelectorAll('#tableGes tbody tr');
+                    let hasValidGes = false;
+                    gesRows.forEach(tr => {
+                        const v1 = tr.querySelector('.ges-nome').value.trim();
+                        const v2 = tr.querySelector('.ges-setor').value.trim();
+                        const v3 = tr.querySelector('.ges-cargos').value.trim();
+                        const v4 = tr.querySelector('.ges-excecao').value.trim();
+                        if (v1 || v2 || v3 || v4) hasValidGes = true;
+                    });
+
+                    if (!hasValidGes) {
+                        Swal.fire('Atenção', 'Preencha pelo menos um campo de um GES na aba GES & Químicos.', 'warning');
+                        changeStep(2);
+                        return;
+                    }
+
+                    const quimRows = document.querySelectorAll('#tableQuimico tbody tr');
+                    let hasValidQuim = false;
+                    quimRows.forEach(tr => {
+                        const v1 = tr.querySelector('.quim-rotulo').value.trim();
+                        const v2 = tr.querySelector('.quim-estado').value.trim();
+                        const v3 = tr.querySelector('.quim-exposicao').value.trim();
+                        const v4 = tr.querySelector('.quim-processo').value.trim();
+                        if (v1 || v2 || v3 || v4) hasValidQuim = true;
+                    });
+
+                    if (!hasValidQuim) {
+                        Swal.fire('Atenção', 'Preencha pelo menos um campo de um Produto Químico.', 'warning');
+                        changeStep(2);
+                        return;
+                    }
+
+                    // ========================================================
+                    // 4. VALIDAÇÕES DA ABA 3 (IDENTIFICAÇÃO DE PERIGOS)
+                    // ========================================================
+                    const riscosSelecionados = document.querySelectorAll('.risk-checkbox:checked');
+                    for (let i = 0; i < riscosSelecionados.length; i++) {
+                        const cb = riscosSelecionados[i];
+                        const item = cb.closest('.risk-item');
+                        const nomeRisco = cb.dataset.nome;
+
+                        const fontes = item.querySelector('.risk-fontes').value.trim();
+                        const tempo = item.querySelector('.risk-tempo').value.trim();
+                        const tomEpi = item.querySelector('.risk-epis').tomselect;
+                        const tomEpc = item.querySelector('.risk-epcs').tomselect;
+                        const epis = tomEpi ? tomEpi.getValue() : [];
+                        const epcs = tomEpc ? tomEpc.getValue() : [];
+
+                        if (!fontes) {
+                            Swal.fire('Atenção', `Preencha "Fontes Geradoras" no risco: ${nomeRisco}`, 'warning');
+                            changeStep(3);
+                            return;
+                        }
+                        if (!tempo) {
+                            Swal.fire('Atenção', `Preencha "Tempo/Tipo Exp." no risco: ${nomeRisco}`, 'warning');
+                            changeStep(3);
+                            return;
+                        }
+                        if (epis.length === 0) {
+                            Swal.fire('Atenção', `Selecione os "EPIs Recomendados" no risco: ${nomeRisco}`, 'warning');
+                            changeStep(3);
+                            return;
+                        }
+                        if (epcs.length === 0) {
+                            Swal.fire('Atenção', `Selecione os "EPCs Existentes" no risco: ${nomeRisco}`, 'warning');
+                            changeStep(3);
+                            return;
+                        }
+                    }
+
+                    // ========================================================
+                    // 5. VALIDAÇÃO DAS ASSINATURAS (ABA 4)
                     // ========================================================
                     if (padTecnico.isEmpty() || padEmpresa.isEmpty()) {
                         Swal.fire({
                             title: 'Assinaturas Pendentes',
                             text: 'As assinaturas do Responsável Técnico e da Empresa são obrigatórias para finalizar.',
                             icon: 'warning',
-                            confirmButtonColor: '#0AA34A' // Cor verde para manter o padrão
+                            confirmButtonColor: '#0AA34A'
                         });
-                        changeStep(4); // Direciona o usuário para a última aba
-                        return; // Interrompe o envio para o banco de dados
+                        changeStep(4);
+                        return;
                     }
 
-                    // Se passou da trava, transforma as assinaturas em imagem Base64
                     const assinatura_avaliador = padTecnico.toDataURL('image/png');
                     const assinatura_responsavel_empresa = padEmpresa.toDataURL('image/png');
-                    // ========================================================
 
+                    // ========================================================
+                    // PROCESSO DE ENVIO (TUDO VALIDADO)
+                    // ========================================================
                     const getRadioVal = (n) => {
                         const c = document.querySelector(`input[name="${n}"]:checked`);
                         if (!c) return null;
@@ -1464,12 +1598,12 @@
                     const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
                         nome: tr.querySelector('.ges-nome').value, setor: tr.querySelector('.ges-setor').value,
                         cargos: tr.querySelector('.ges-cargos').value, excecao: tr.querySelector('.ges-excecao').value
-                    })).filter(g => g.nome);
+                    })).filter(g => g.nome || g.setor || g.cargos || g.excecao);
 
                     const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
                         rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
                         exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value
-                    })).filter(q => q.rotulo);
+                    })).filter(q => q.rotulo || q.estado || q.exposicao || q.processo);
 
                     const riscosData = [];
                     const formDataEnvio = new FormData();
@@ -1512,22 +1646,42 @@
                         escadas_tipo: getRadioVal('escadas_tipo'),
                         passarelas_tipo: getRadioVal('passarelas_tipo'),
 
-                        ausencia_risco_ambiental: document.querySelector('input[name="ausencia_risco_ambiental"]').checked,
-                        ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]').checked,
-                        ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]').checked,
+                        // --- 1. COBERTURA (Juntando estrutura e telha no formato JSON) ---
+                        tipo_cobertura: {
+                            selecionado: [payload.cobertura_tipo_estrutura, payload.cobertura_tipo_telha]
+                                .filter(Boolean).join(' - ') || '-'
+                        },
+
+                        // --- 2. DIVISÕES INTERNAS (Formatando como JSON para a tela de Ver) ---
+                        divisoes_internas_material: {
+                            selecionado: payload.divisoes_internas_material || '-'
+                        },
+
+                        // --- 3. ESTRUTURAS AUXILIARES (Transformando os Sim/Não em Array) ---
+                        estruturas_auxiliares: [
+                            document.querySelector('input[name="tem_rampas"]:checked')?.value === '1' ? 'Rampas' : null,
+                            document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1' ? 'Mezaninos' : null
+                        ].filter(Boolean),
+
+                        // --- 4. RISCOS (O banco só tem 3 campos, então unificamos Físico/Químico/Biológico no Ambiental) ---
+                        ausencia_risco_ambiental:
+                            (document.querySelector('input[name="ausencia_risco_ambiental"]')?.checked ||
+                                document.querySelector('input[name="ausencia_risco_quimico"]')?.checked ||
+                                document.querySelector('input[name="ausencia_risco_biologico"]')?.checked) ? true : false,
+
+                        ausencia_risco_ergonomico: document.querySelector('input[name="ausencia_risco_ergonomico"]')?.checked || false,
+                        ausencia_risco_mecanico: document.querySelector('input[name="ausencia_risco_mecanico"]')?.checked || false,
+
+                        // Campos booleanos simples
                         trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',
                         possui_climatizacao: document.querySelector('input[name="possui_climatizacao"]:checked')?.value === '1',
-                        tem_rampas: document.querySelector('input[name="tem_rampas"]:checked')?.value === '1',
-                        tem_mezaninos: document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1',
 
-                        // Dados das tabelas dinâmicas
+                        // Listas
                         ges: gesData,
                         quimicos: quimData,
                         riscos: riscosData,
 
-                        // ========================================================
-                        // 3. ENVIANDO AS ASSINATURAS NO JSON
-                        // ========================================================
+                        // Assinaturas
                         assinatura_avaliador: assinatura_avaliador,
                         assinatura_responsavel_empresa: assinatura_responsavel_empresa
                     });
