@@ -262,149 +262,121 @@
                                 <div class="view-block text-center">
                                     <span class="view-label">Área</span>
                                     <span class="view-value">
-                                        <%= fmt(levantamento.area_m2) !=='-' ? fmt(levantamento.area_m2) + ' m²' : '-'
-                                            %>
+                                        <%= fmt(levantamento.area_m2) !=='-' ? fmt(levantamento.area_m2) + ' m²' : '-' %>
                                     </span>
                                 </div>
                                 <div class="view-block text-center">
                                     <span class="view-label">Largura</span>
                                     <span class="view-value">
-                                        <%= fmt(levantamento.largura_m) !=='-' ? fmt(levantamento.largura_m) + ' m'
-                                            : '-' %>
+                                        <%= fmt(levantamento.largura_m) !=='-' ? fmt(levantamento.largura_m) + ' m' : '-' %>
                                     </span>
                                 </div>
                                 <div class="view-block text-center">
                                     <span class="view-label">Comprimento</span>
                                     <span class="view-value">
-                                        <%= fmt(levantamento.comprimento_m) !=='-' ? fmt(levantamento.comprimento_m)
-                                            + ' m' : '-' %>
+                                        <%= fmt(levantamento.comprimento_m) !=='-' ? fmt(levantamento.comprimento_m) + ' m' : '-' %>
                                     </span>
                                 </div>
                                 <div class="view-block text-center">
                                     <span class="view-label">Pé Direito</span>
                                     <span class="view-value">
-                                        <%= fmt(levantamento.pe_direito_m) !=='-' ? fmt(levantamento.pe_direito_m)
-                                            + ' m' : '-' %>
+                                        <%= fmt(levantamento.pe_direito_m) !=='-' ? fmt(levantamento.pe_direito_m) + ' m' : '-' %>
                                     </span>
                                 </div>
                             </div>
-
-                            <% if (levantamento.obs_condicoes_gerais && levantamento.obs_condicoes_gerais !=='null' ) {
-                                %>
-                                <div
-                                    class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20">
-                                    <span class="view-label text-yellow-800 dark:text-yellow-500">Observações
-                                        Gerais</span>
-                                    <p class="text-sm text-zinc-700 dark:text-zinc-300 mt-1">
+                            
+                            <% if (levantamento.obs_condicoes_gerais && levantamento.obs_condicoes_gerais !== 'null') { %>
+                            <h6 class="text-sm font-bold text-zinc-500 uppercase tracking-wider mt-8 mb-4">Observações gerais</h6>    
+                                <div class="view-block mt-8">
+                                    
+                                    <span class="view-value block mt-1">
                                         <%= fmt(levantamento.obs_condicoes_gerais) %>
-                                    </p>
+                                    </span>
                                 </div>
-                                <% } %>
+                            <% } %>
                         </div>
-                    </div>
+                    </div> 
+                </div>
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                <div id="step2" class="step-content space-y-6">
 
-                    <div id="step2" class="step-content space-y-6">
-                        <div
-                            class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                            <div
-                                class="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900">
-                                <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Grupos de Exposição
-                                    Similar (GES)</h5>
-                            </div>
-                            <div class="p-0 overflow-x-auto">
-                                <table class="w-full text-left">
-                                    <thead
-                                        class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700">
-                                        <tr>
-                                            <th class="py-3 px-6 font-semibold text-sm text-zinc-500">Nome do Grupo</th>
-                                            <th class="py-3 px-4 font-semibold text-sm text-zinc-500">Setor</th>
-                                            <th class="py-3 px-4 font-semibold text-sm text-zinc-500">Cargos</th>
-                                            <th class="py-3 px-6 font-semibold text-sm text-zinc-500">Exceção</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                        <% if (typeof ges !=='undefined' && ges.length> 0) { %>
-                                            <% ges.forEach(function(g) { %>
-                                                <tr
-                                                    class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                    <td class="py-3 px-6 font-medium text-zinc-900 dark:text-white">
-                                                        <%= fmt(g.nome) %>
-                                                    </td>
-                                                    <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300">
-                                                        <%= fmt(g.setor) %>
-                                                    </td>
-                                                    <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300">
-                                                        <%= fmt(g.cargos) %>
-                                                    </td>
-                                                    <td class="py-3 px-6 text-zinc-600 dark:text-zinc-300">
-                                                        <%= fmt(g.excecao) %>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% } else { %>
-                                                        <tr>
-                                                            <td colspan="4"
-                                                                class="py-8 text-center text-zinc-400 italic">Nenhum GES
-                                                                foi cadastrado neste levantamento.</td>
-                                                        </tr>
-                                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+        <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            Grupos de Exposição Similar (GES)
+        </h5>
 
-                        <div
-                            class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                            <div
-                                class="p-6 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900">
-                                <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100">Produtos Químicos</h5>
-                            </div>
-                            <div class="p-0 overflow-x-auto">
-                                <table class="w-full text-left">
-                                    <thead
-                                        class="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-200 dark:border-zinc-700">
-                                        <tr>
-                                            <th class="py-3 px-6 font-semibold text-sm text-zinc-500">Nome (Rótulo)</th>
-                                            <th class="py-3 px-4 font-semibold text-sm text-zinc-500">Estado Físico</th>
-                                            <th class="py-3 px-4 font-semibold text-sm text-zinc-500">Tipo de Exposição
-                                            </th>
-                                            <th class="py-3 px-6 font-semibold text-sm text-zinc-500">Processo / Qtde
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                        <% if (typeof quimicos !=='undefined' && quimicos.length> 0) { %>
-                                            <% quimicos.forEach(function(q) { %>
-                                                <tr
-                                                    class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                    <td class="py-3 px-6 font-medium text-zinc-900 dark:text-white">
-                                                        <%= fmt(q.rotulo) %>
-                                                    </td>
-                                                    <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300"><span
-                                                            class="badge bg-zinc-100 text-zinc-600 px-2 py-1 rounded">
-                                                            <%= fmt(q.estado) %>
-                                                        </span></td>
-                                                    <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300">
-                                                        <%= fmt(q.exposicao) %>
-                                                    </td>
-                                                    <td class="py-3 px-6 text-zinc-600 dark:text-zinc-300">
-                                                        <%= fmt(q.processo) %>
-                                                    </td>
-                                                </tr>
-                                                <% }) %>
-                                                    <% } else { %>
-                                                        <tr>
-                                                            <td colspan="4"
-                                                                class="py-8 text-center text-zinc-400 italic">Nenhum
-                                                                Produto Químico foi cadastrado.</td>
-                                                        </tr>
-                                                        <% } %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+        <div class="overflow-x-auto">
+            <table id="tableGes" class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                <thead>
+                    <tr>
+                        <th class="text-left font-semibold text-zinc-500">Nome do Grupo</th>
+                        <th class="text-left font-semibold text-zinc-500">Setor</th>
+                        <th class="text-left font-semibold text-zinc-500">Cargos</th>
+                        <th class="text-left font-semibold text-zinc-500">Exceção (Nome)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof ges !== 'undefined' && ges.length > 0) { %>
+                        <% ges.forEach(function(g) { %>
+                            <tr>
+                                <td><%= fmt(g.nome) %></td>
+                                <td><%= fmt(g.setor) %></td>
+                                <td><%= fmt(g.cargos) %></td>
+                                <td><%= fmt(g.excecao) %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="text-center text-zinc-400 italic py-6">Nenhum GES cadastrado neste levantamento.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
+    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+        <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            Produtos Químicos
+        </h5>
+
+        <div class="overflow-x-auto">
+            <table id="tableQuimico" class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                <thead>
+                    <tr>
+                        <th class="text-left font-semibold text-zinc-500">Nome Rótulo</th>
+                        <th class="text-left font-semibold text-zinc-500 w-32">Estado Físico</th>
+                        <th class="text-left font-semibold text-zinc-500">Tipo Exposição</th>
+                        <th class="text-left font-semibold text-zinc-500">Processo / Qtde</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (typeof quimicos !== 'undefined' && quimicos.length > 0) { %>
+                        <% quimicos.forEach(function(q) { %>
+                            <tr>
+                                <td><%= fmt(q.rotulo) %></td>
+                                <td>
+                                    <span class="badge bg-zinc-100 text-zinc-600 px-2 py-1 rounded">
+                                        <%= fmt(q.estado) %>
+                                    </span>
+                                </td>
+                                <td><%= fmt(q.exposicao) %></td>
+                                <td><%= fmt(q.processo) %></td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="text-center text-zinc-400 italic py-6">Nenhum produto químico cadastrado.</td>
+                        </tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
                     <div id="step3" class="step-content space-y-6">
                         <div
                             class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
@@ -476,7 +448,7 @@
 
                                             <div
                                                 class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-zinc-900">
-                                                <div class="space-y-4">
+                                                <div class="space-y-4 p-6">
                                                     <div>
                                                         <span class="view-label">Fontes Geradoras</span>
                                                         <p class="text-sm text-zinc-700 dark:text-zinc-300 font-medium">
@@ -500,7 +472,7 @@
                                                 </div>
 
                                                 <div
-                                                    class="space-y-4 border-l border-zinc-100 dark:border-zinc-800 pl-6">
+                                                    class="space-y-4 p-6 border-l border-zinc-100 dark:border-zinc-800 pl-6">
                                                     <div>
                                                         <span class="view-label">EPIs Recomendados</span>
                                                         <% if (r.epis && r.epis.length> 0) { %>
@@ -558,17 +530,18 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
 
                     <div id="step4" class="step-content space-y-6">
                         <div
                             class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6 text-center">
-                            <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">Assinaturas Coletadas
+                            <h5 class="text-xl p-6 font-bold text-zinc-800 dark:text-zinc-100 mb-2">Assinaturas Coletadas
                             </h5>
-                            <p class="text-sm text-zinc-500 mb-8">Este documento foi validado eletronicamente pelas
-                                partes responsáveis.</p>
+                            <p class="text-sm p-6 text-zinc-500 mb-8">Este documento foi validado eletronicamente pelas partes responsáveis.</p>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-                                <div class="flex flex-col items-center">
+                            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+                                <div class="flex p-6 flex-col items-center">
                                     <div
                                         class="w-full max-w-[350px] h-40 border-b-2 border-zinc-800 flex items-end justify-center pb-2 relative">
                                         <% if (levantamento.assinatura_avaliador) { %>
@@ -586,7 +559,7 @@
                                         Técnico</span>
                                 </div>
 
-                                <div class="flex flex-col items-center">
+                                <div class="flex p-6 flex-col items-center">
                                     <div
                                         class="w-full max-w-[350px] h-40 border-b-2 border-zinc-800 flex items-end justify-center pb-2 relative">
                                         <% if (levantamento.assinatura_responsavel_empresa) { %>
