@@ -11,12 +11,12 @@
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -65,6 +65,12 @@
                                 </div>
 
                                 <div class="flex items-center gap-2">
+                                    <button id="btnImprimirSel"
+                                        class="btn bg-amber-500 text-white hover:bg-amber-600 shadow-lg shadow-amber-500/20"
+                                        style="display: none;">
+                                        <span class="icon-[lucide--printer] text-lg me-1"></span> Imprimir Selecionado
+                                    </button>
+
                                     <a href="/levantamento-perigo/novo"
                                         class="btn bg-primary shrink-0 text-white hover:bg-primary-deep" id="btnNovo">
                                         <span class="icon-[lucide--plus] text-lg me-1"></span> Criar Novo
@@ -76,6 +82,7 @@
                                 <table id="table_levantamentos" class="table-default w-full">
                                     <thead>
                                         <tr>
+                                            <th></th>
                                             <th class="text-nowrap">Data</th>
                                             <th class="text-nowrap">Cliente</th>
                                             <th class="text-nowrap">Responsável Técnico</th>
@@ -104,17 +111,18 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
-            // Lógica de Permissões
             let perm = {};
             try {
                 const divPerm = document.getElementById('permissoes-json');
                 if (divPerm && divPerm.innerText) perm = JSON.parse(divPerm.innerText);
             } catch (e) { }
 
-            // Verifica se pode criar (se não puder, bloqueia o clique no botão Novo)
             const canCreate = (perm.criar == 1 || perm.criar === true || perm.pode_criar == 1 || perm.tudo == 1);
 
             document.addEventListener('DOMContentLoaded', () => {
@@ -129,39 +137,49 @@
 
                 lista.forEach((item, index) => {
                     const tr = document.createElement('tr');
+                    tr.setAttribute('data-id', item.id_levantamento);
 
                     tr.innerHTML = `
-                        <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
-                            ${item.data_formatada}
-                        </td>
-                        <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300">
-                            ${item.nome_empresa || '-'}
-                        </td>
-                        <td class="whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <span class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                                    ${(item.nome_responsavel || 'U').substring(0, 1)}
-                                </span>
-                                <span>${item.nome_responsavel || '-'}</span>
-                            </div>
-                        </td>
-                        <td class="text-end">
-                             <a href="/levantamento-perigo/ver/${item.id_levantamento}" 
-                                class="btn !p-1.5 hover:!text-primary" title="Visualizar Detalhes">
-                                <span class="icon-[lucide--eye] text-lg"></span>
-                             </a>
-                        </td>
-                    `;
+                    <td></td> 
+                    <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100">
+                        ${item.data_formatada}
+                    </td>
+                    <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300">
+                        ${item.nome_empresa || '-'}
+                    </td>
+                    <td class="whitespace-nowrap">
+                        <div class="flex items-center gap-2">
+                            <span class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                                ${(item.nome_responsavel || 'U').substring(0, 1)}
+                            </span>
+                            <span>${item.nome_responsavel || '-'}</span>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                         <a href="/levantamento-perigo/ver/${item.id_levantamento}" 
+                            class="btn !p-1.5 hover:!text-primary" title="Visualizar Detalhes">
+                            <span class="icon-[lucide--eye] text-lg"></span>
+                         </a>
+                    </td>
+                `;
                     tbody.appendChild(tr);
                 });
 
-                // Inicializa DataTables
                 const table = new DataTable('#table_levantamentos', {
                     lengthChange: false,
                     pageLength: 10,
                     scrollX: true,
                     dom: 'lrtip',
-                    order: [[0, 'desc']], // Ordena pela data
+                    columnDefs: [
+                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
+                    ],
+                    // A MÁGICA ACONTECE AQUI: style 'single' e headerCheckbox false
+                    select: {
+                        style: 'single',
+                        selector: 'td:first-child',
+                        headerCheckbox: false
+                    },
+                    order: [[1, 'desc']],
                     language: {
                         emptyTable: "Nenhum levantamento encontrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
@@ -169,10 +187,30 @@
                     }
                 });
 
-                // Busca
                 document.getElementById('searchLevantamento').addEventListener('input', e => table.search(e.target.value).draw());
 
-                // Bloqueio do Botão Novo no Front
+                const btnImprimirSel = document.getElementById("btnImprimirSel");
+
+                // Controle de exibição do botão
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    // Como é 'single', o count vai ser no máximo 1
+                    btnImprimirSel.style.display = count === 1 ? "inline-flex" : "none";
+                });
+
+                // Ação de clique para imprimir
+                btnImprimirSel.addEventListener('click', function () {
+                    const selectedRow = table.row({ selected: true }).node();
+
+                    if (selectedRow) {
+                        const id = selectedRow.getAttribute('data-id');
+                        if (id) {
+                            window.open(`/levantamento-perigo/imprimir/${id}`, '_blank');
+                            table.rows().deselect(); // Desmarca a linha após o clique
+                        }
+                    }
+                });
+
                 const btnNovo = document.getElementById('btnNovo');
                 if (btnNovo) {
                     btnNovo.addEventListener('click', (e) => {
