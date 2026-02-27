@@ -372,17 +372,34 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         `, [id]);
 
         const [riscos] = await db.query(`
-            SELECT lri.id_risco_identificado, lri.grupo_perigo AS grupo, lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome_risco, 
-                   lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo, lri.observacoes AS obs
+            SELECT 
+                lri.id_risco_identificado, lri.id_risco, lri.grupo_perigo AS grupo, 
+                lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome_risco, 
+                lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo, 
+                lri.observacoes AS obs, lri.anexo_imagem AS caminho_imagem,
+                t24.codigo AS codigo_esocial
             FROM levantamento_risco_identificado lri
+            LEFT JOIN risco r ON lri.id_risco = r.id_risco
+            LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
             WHERE lri.id_levantamento = ?
         `, [id]);
 
         for (let risco of riscos) {
-            const [epis] = await db.query(`SELECT e.nome_equipamento FROM levantamento_risco_has_epi re JOIN epi e ON re.id_epi = e.id_epi WHERE re.id_risco_identificado = ?`, [risco.id_risco_identificado]);
-            const [epcs] = await db.query(`SELECT ep.nome FROM levantamento_risco_has_epc rec JOIN epc ep ON rec.id_epc = ep.id_epc WHERE rec.id_risco_identificado = ?`, [risco.id_risco_identificado]);
-            risco.epis = epis.map(e => e.nome_equipamento);
-            risco.epcs = epcs.map(e => e.nome);
+            const [epis] = await db.query(`
+                SELECT e.nome_equipamento, e.ca 
+                FROM levantamento_risco_has_epi re
+                JOIN epi e ON re.id_epi = e.id_epi
+                WHERE re.id_risco_identificado = ?
+            `, [risco.id_risco_identificado]);
+            risco.epis = epis;
+
+            const [epcs] = await db.query(`
+                SELECT ep.nome 
+                FROM levantamento_risco_has_epc rec
+                JOIN epc ep ON rec.id_epc = ep.id_epc
+                WHERE rec.id_risco_identificado = ?
+            `, [risco.id_risco_identificado]);
+            risco.epcs = epcs;
         }
 
         const dataFormatada = new Date(levantamento.data_levantamento).toLocaleDateString('pt-BR');
@@ -536,7 +553,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.rect(startX, doc.y, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Grupo de Exposição Similar (GES)', startX, doc.y + 5, { width: width, align: 'center' });
         doc.fillColor('black');
-        doc.y += 20;
 
         const gesCols = [
             { label: "Nome do Grupo (GES)", width: 120 },
@@ -545,8 +561,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             { label: "Trabalhador (exceção)", width: 120 }
         ];
 
-        // --- CABEÇALHO DA TABELA GES (FIXADO) ---
-        let yCabecalhoGes = doc.y; // Congela o Y inicial da linha
+        let yCabecalhoGes = doc.y;
         doc.rect(startX, yCabecalhoGes, width, rowHeight).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(9);
 
@@ -556,9 +571,8 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             doc.text(col.label, currX + 5, yCabecalhoGes + 5, { width: col.width - 10, align: 'center' });
             currX += col.width;
         });
-        doc.y = yCabecalhoGes + rowHeight; // Só agora avança o Y oficial do documento
+        doc.y = yCabecalhoGes + rowHeight;
 
-        // --- LINHAS DA TABELA GES (FIXADO) ---
         doc.font('Helvetica').fontSize(9);
         const gesRows = ges.length > 0 ? ges : [{ nome: '-', setor: 'Nenhum GES cadastrado', cargos: '-', excecao: '-' }];
 
@@ -572,7 +586,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             if (doc.y + maxH > 800) doc.addPage();
 
             let cx = startX;
-            let yLinhaGes = doc.y; // Congela o Y inicial dessa linha
+            let yLinhaGes = doc.y;
             const valores = [g.nome || '-', g.setor || '-', g.cargos || '-', g.excecao || '-'];
 
             valores.forEach((val, i) => {
@@ -581,7 +595,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 doc.text(val, cx + 5, yLinhaGes + 5, { width: w - 10, align: 'left' });
                 cx += w;
             });
-            doc.y = yLinhaGes + maxH; // Avança o Y para a próxima linha
+            doc.y = yLinhaGes + maxH;
         });
         doc.moveDown(1);
 
@@ -593,7 +607,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.rect(startX, doc.y, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Inventário de Produtos Químicos', startX, doc.y + 5, { width: width, align: 'center' });
         doc.fillColor('black');
-        doc.y += 20;
 
         const quimCols = [
             { label: "Nome Rótulo", width: 155 },
@@ -602,7 +615,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             { label: "Processo utilizado/Quantidade", width: 200 }
         ];
 
-        // --- CABEÇALHO QUÍMICOS (FIXADO) ---
         let yCabecalhoQuim = doc.y;
         doc.rect(startX, yCabecalhoQuim, width, rowHeight).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(9);
@@ -615,7 +627,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         });
         doc.y = yCabecalhoQuim + rowHeight;
 
-        // --- LINHAS QUÍMICOS (FIXADO) ---
         doc.font('Helvetica').fontSize(9);
         const quimRows = quimicos.length > 0 ? quimicos : [{ rotulo: '-', estado: '-', exposicao: 'Nenhum produto', processo: '-' }];
 
@@ -641,7 +652,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             doc.y = yLinhaQuim + maxH;
         });
 
-        // LEGENDA
         let yLegenda = doc.y;
         doc.rect(startX, yLegenda, width, 15).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica').fontSize(9).text('Legenda: EF - Estado Físico (S - Sólido; L - Líquido; G - Gasoso)', startX + 5, yLegenda + 3);
@@ -660,81 +670,204 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.y = yObs + 20;
 
         let yChecklist = doc.y;
-        doc.rect(startX, yChecklist, width, 60).fillAndStroke('#e4e4e7', 'black');
-        doc.fillColor('black').font('Helvetica').fontSize(9);
-        doc.text('1    Checar as descrições de atividade encaminhadas pela empresa e anotar as divergências encontradas que possam impactar na exposição.', startX + 5, yChecklist + 5);
-        doc.text('2    Solicitar as FISPQs dos produtos químicos.', startX + 5, yChecklist + 18);
-        doc.text('3    Existem outras legislações (legislação estadual / municipal / requisitos clientes) aplicáveis aos riscos da empresa?', startX + 5, yChecklist + 31);
-        doc.text('4    Verifique os requisitos inerentes à eficácia das medidas de controle', startX + 5, yChecklist + 44);
+        doc.font('Helvetica').fontSize(9);
 
-        doc.y = yChecklist + 60;
+        const obs1 = '1    Checar as descrições de atividade encaminhadas pela empresa e anotar as divergências encontradas que possam impactar na exposição.';
+        const obs2 = '2    Solicitar as FISPQs dos produtos químicos.';
+        const obs3 = '3    Existem outras legislações (legislação estadual / municipal / requisitos clientes) aplicáveis aos riscos da empresa?';
+        const obs4 = '4    Verifique os requisitos inerentes à eficácia das medidas de controle';
+
+        const txtOpts = { width: width - 10, align: 'justify' };
+
+        const h1 = doc.heightOfString(obs1, txtOpts);
+        const h2 = doc.heightOfString(obs2, txtOpts);
+        const h3 = doc.heightOfString(obs3, txtOpts);
+        const h4 = doc.heightOfString(obs4, txtOpts);
+
+        const espaco = 6;
+        const padding = 5;
+        const alturaCaixaCheck = padding * 2 + h1 + h2 + h3 + h4 + (espaco * 3);
+
+        doc.rect(startX, yChecklist, width, alturaCaixaCheck).fillAndStroke('#e4e4e7', 'black');
+        doc.fillColor('black');
+
+        let currentY = yChecklist + padding;
+        doc.text(obs1, startX + 5, currentY, txtOpts);
+        currentY += h1 + espaco;
+
+        doc.text(obs2, startX + 5, currentY, txtOpts);
+        currentY += h2 + espaco;
+
+        doc.text(obs3, startX + 5, currentY, txtOpts);
+        currentY += h3 + espaco;
+
+        doc.text(obs4, startX + 5, currentY, txtOpts);
+
+        doc.y = yChecklist + alturaCaixaCheck;
         doc.moveDown(2);
 
 
         // =================================================================
-        // LISTA DE RISCOS COM TABELAS LINDAS
+        // NOVO BLOCO: DETALHAMENTO DOS PERIGOS (TABELA COMPLETA COM 7 COLUNAS GRUDADAS)
         // =================================================================
+        if (doc.y > 650) doc.addPage();
+
+        // 1. Título Principal (Preto)
+        doc.rect(startX, doc.y, width, 20).fillAndStroke('black', 'black');
+        doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Detalhamento dos Perigos', startX, doc.y + 5, { width: width, align: 'center' });
+        doc.fillColor('black');
+
+        // 2. Linha de Ausência de Riscos (Abaixo do Título Preto, grudado!)
+        const ausente = (levantamento.ausencia_risco_ambiental && levantamento.ausencia_risco_ergonomico && levantamento.ausencia_risco_mecanico)
+            ? 'Sim ( X )   Não (   )'
+            : 'Sim (   )   Não ( X )';
+
+        doc.rect(startX, doc.y, width, 22).stroke();
+        doc.font('Helvetica-Bold').fontSize(9).text('Ausência de exposição a riscos ambientais, ergonômicos e mecânicos (acidentes): ', startX + 5, doc.y + 6, { continued: true });
+        doc.font('Helvetica').text(ausente);
+        
+
+        // 3. Cabeçalho da Tabela (Cinza) - Mais alto para caber o texto longo!
+        const detCols = [
+            { label: "GP", width: 25 },
+            { label: "Perigo / Número", width: 100 },
+            { label: "Fontes geradoras", width: 95 },
+            { label: "Tipo e Tempo de Exposição", width: 85 },
+            { label: "EPI/CA existente", width: 80 },
+            { label: "MA/ EPC existente", width: 70 },
+            { label: "Observações", width: 60 }
+        ];
+
+        let yCabecalhoDet = doc.y;
+        const alturaCabecalhoDet = 28; // Maior para o texto respirar em 2 linhas
+        doc.rect(startX, yCabecalhoDet, width, alturaCabecalhoDet).fillAndStroke('#e4e4e7', 'black');
+        doc.fillColor('black').font('Helvetica-Bold').fontSize(8);
+
+        currX = startX;
+        detCols.forEach(col => {
+            doc.rect(currX, yCabecalhoDet, col.width, alturaCabecalhoDet).stroke();
+            doc.text(col.label, currX + 2, yCabecalhoDet + 6, { width: col.width - 4, align: 'center' });
+            currX += col.width;
+        });
+        doc.y = yCabecalhoDet + alturaCabecalhoDet;
+
+        // Função para descobrir a sigla do Grupo de Perigo (GP)
+        const getSiglaGP = (grupoBanco) => {
+            if (!grupoBanco) return '-';
+            const g = grupoBanco.toLowerCase();
+            if (g.includes('físico')) return 'F';
+            if (g.includes('químico')) return 'Q';
+            if (g.includes('biológico')) return 'B';
+            if (g.includes('ergonômico')) return 'E';
+            if (g.includes('mecânico') || g.includes('acidente')) return 'M';
+            return grupoBanco.charAt(0).toUpperCase();
+        };
+
+        // 4. Linhas de Dados
+        doc.font('Helvetica').fontSize(8);
+
         if (riscos.length > 0) {
-            doc.fontSize(14).font('Helvetica-Bold').text('Riscos Identificados');
-            doc.moveDown();
+            riscos.forEach(r => {
+                let epiStr = '-';
+                if (r.epis && r.epis.length > 0) {
+                    epiStr = r.epis.map(e => e.ca ? `${e.nome_equipamento} (CA: ${e.ca})` : e.nome_equipamento).join(', ');
+                }
 
-            for (let i = 0; i < riscos.length; i++) {
-                const r = riscos[i];
-                const tableData = {
-                    title: `Perigo ${i + 1}: ${r.nome_risco || '-'}`,
-                    headers: ["Informação", "Detalhe"],
-                    rows: [
-                        ["Fontes Geradoras:", r.fontes || '-'],
-                        ["Exposição:", r.tempo || '-'],
-                        ["EPIs:", r.epis.length > 0 ? r.epis.join(', ') : 'Nenhum'],
-                        ["EPCs:", r.epcs.length > 0 ? r.epcs.join(', ') : 'Nenhum']
-                    ]
-                };
+                let epcStr = '-';
+                if (r.epcs && r.epcs.length > 0) {
+                    epcStr = r.epcs.map(e => e.nome).join(', ');
+                }
 
-                await doc.table(tableData, {
-                    width: 500,
-                    columnsSize: [120, 380],
-                    hideHeader: true,
-                    prepareRow: (row, indexColumn) => {
-                        doc.font("Helvetica").fontSize(10);
-                        if (indexColumn === 0) doc.font("Helvetica-Bold");
-                    }
+                const gpStr = getSiglaGP(r.grupo);
+                const perigoStr = r.nome_risco || '-';
+                const fontesStr = r.fontes || '-';
+                const tempoStr = r.tempo || '-';
+                const obsStr = r.obs || '-';
+
+                const hGP = doc.heightOfString(gpStr, { width: detCols[0].width - 4 });
+                const hPerigo = doc.heightOfString(perigoStr, { width: detCols[1].width - 4 });
+                const hFontes = doc.heightOfString(fontesStr, { width: detCols[2].width - 4 });
+                const hTempo = doc.heightOfString(tempoStr, { width: detCols[3].width - 4 });
+                const hEPI = doc.heightOfString(epiStr, { width: detCols[4].width - 4 });
+                const hEPC = doc.heightOfString(epcStr, { width: detCols[5].width - 4 });
+                const hObs = doc.heightOfString(obsStr, { width: detCols[6].width - 4 });
+
+                const maxH = Math.max(hGP, hPerigo, hFontes, hTempo, hEPI, hEPC, hObs, 15) + 10;
+
+                if (doc.y + maxH > 800) doc.addPage();
+
+                let cx = startX;
+                let yLinhaDet = doc.y;
+
+                const valoresLinha = [
+                    { str: gpStr, align: 'center' },
+                    { str: perigoStr, align: 'left' },
+                    { str: fontesStr, align: 'left' },
+                    { str: tempoStr, align: 'left' },
+                    { str: epiStr, align: 'left' },
+                    { str: epcStr, align: 'left' },
+                    { str: obsStr, align: 'left' }
+                ];
+
+                valoresLinha.forEach((val, i) => {
+                    const w = detCols[i].width;
+                    doc.rect(cx, yLinhaDet, w, maxH).stroke();
+                    doc.text(val.str, cx + 2, yLinhaDet + 5, { width: w - 4, align: val.align });
+                    cx += w;
                 });
-                doc.moveDown();
-            }
+
+                doc.y = yLinhaDet + maxH;
+            });
         } else {
-            doc.fontSize(10).font('Helvetica-Oblique').text('Nenhum risco identificado no banco de dados.');
-            doc.moveDown();
+            doc.rect(startX, doc.y, width, 20).stroke();
+            doc.font('Helvetica-Oblique').fontSize(9).text('Nenhum risco identificado no levantamento.', startX + 5, doc.y + 5);
+            doc.y += 20;
         }
 
         // =================================================================
-        // ASSINATURAS
+        // ASSINATURAS - NOVO LAYOUT (REGISTRO FINAL)
         // =================================================================
-        if (levantamento.assinatura_avaliador || levantamento.assinatura_responsavel_empresa) {
-            doc.moveDown(4);
+        doc.moveDown(2);
 
-            if (doc.y > 700) doc.addPage();
+        if (doc.y > 650) doc.addPage();
 
-            const yPosition = doc.y;
+        let yReg = doc.y;
 
-            if (levantamento.assinatura_avaliador && levantamento.assinatura_avaliador.includes('base64')) {
-                const base64Data = levantamento.assinatura_avaliador.split(';base64,').pop();
-                const imgBuffer = Buffer.from(base64Data, 'base64');
-                doc.image(imgBuffer, 50, yPosition - 60, { width: 150, align: 'center' });
-            }
-            doc.font('Helvetica').fontSize(10);
-            doc.text('__________________________________', 50, yPosition, { width: 200, align: 'center' });
-            doc.font('Helvetica-Bold').text(levantamento.nome_avaliador || 'Responsável Técnico', 50, yPosition + 15, { width: 200, align: 'center' });
+        // Título "Registro Final" (Preto)
+        doc.rect(startX, yReg, width, 20).fillAndStroke('black', 'black');
+        doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Registro Final', startX, yReg + 5, { width: width, align: 'center' });
+        doc.fillColor('black');
+        yReg += 20;
 
-            if (levantamento.assinatura_responsavel_empresa && levantamento.assinatura_responsavel_empresa.includes('base64')) {
-                const base64DataEmpresa = levantamento.assinatura_responsavel_empresa.split(';base64,').pop();
-                const imgBufferEmpresa = Buffer.from(base64DataEmpresa, 'base64');
-                doc.image(imgBufferEmpresa, 330, yPosition - 60, { width: 150, align: 'center' });
-            }
-            doc.font('Helvetica').fontSize(10);
-            doc.text('__________________________________', 310, yPosition, { width: 200, align: 'center' });
-            doc.font('Helvetica-Bold').text(levantamento.responsavel_empresa_nome || 'Resp. da Empresa', 310, yPosition + 15, { width: 200, align: 'center' });
+        // Caixa branca das assinaturas
+        const boxHeight = 110;
+        doc.rect(startX, yReg, width, boxHeight).stroke();
+
+        const yLine = yReg + 80;
+        const leftCenterX = startX + (width / 4);
+        const rightCenterX = startX + (width * 0.75);
+
+        // --- LADO ESQUERDO: RESPONSÁVEL DA EMPRESA ---
+        if (levantamento.assinatura_responsavel_empresa && levantamento.assinatura_responsavel_empresa.includes('base64')) {
+            const base64DataEmpresa = levantamento.assinatura_responsavel_empresa.split(';base64,').pop();
+            const imgBufferEmpresa = Buffer.from(base64DataEmpresa, 'base64');
+            doc.image(imgBufferEmpresa, leftCenterX - 75, yLine - 65, { width: 150, align: 'center' });
         }
+        doc.font('Helvetica').fontSize(10);
+        doc.text('__________________________________________', leftCenterX - 110, yLine, { width: 220, align: 'center' });
+        doc.font('Helvetica-Bold').fontSize(9).text(levantamento.responsavel_empresa_nome || 'Resp. da Empresa', leftCenterX - 110, yLine + 12, { width: 220, align: 'center' });
+        doc.font('Helvetica').fontSize(8).text('Assinatura do Responsável pelas informações da empresa', leftCenterX - 110, yLine + 22, { width: 220, align: 'center' });
+
+        // --- LADO DIREITO: AVALIADOR ---
+        if (levantamento.assinatura_avaliador && levantamento.assinatura_avaliador.includes('base64')) {
+            const base64Data = levantamento.assinatura_avaliador.split(';base64,').pop();
+            const imgBuffer = Buffer.from(base64Data, 'base64');
+            doc.image(imgBuffer, rightCenterX - 75, yLine - 65, { width: 150, align: 'center' });
+        }
+        doc.font('Helvetica').fontSize(10);
+        doc.text('__________________________________________', rightCenterX - 110, yLine, { width: 220, align: 'center' });
+        doc.font('Helvetica-Bold').fontSize(9).text(levantamento.nome_avaliador || 'Responsável Técnico', rightCenterX - 110, yLine + 12, { width: 220, align: 'center' });
+        doc.font('Helvetica').fontSize(8).text('Assinatura do Avaliador', rightCenterX - 110, yLine + 22, { width: 220, align: 'center' });
 
         doc.end();
 
