@@ -404,20 +404,77 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         const dataFormatada = new Date(levantamento.data_levantamento).toLocaleDateString('pt-BR');
 
-        // INICIA O ARQUIVO PDF
-        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+        // INICIA O ARQUIVO PDF (Note a margem top de 90 para o cabeçalho respirar)
+        const doc = new PDFDocument({ margins: { top: 110, bottom: 40, left: 40, right: 40 }, size: 'A4' });
+        const fs = require('fs');
+        const path = require('path');
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="Levantamento_${id}.pdf"`);
 
         doc.pipe(res);
 
-        // --- TÍTULO PRINCIPAL ---
-        doc.fontSize(16).font('Helvetica-Bold').text('LEVANTAMENTO DE PERIGOS E RISCOS', { align: 'center' });
-        doc.moveDown(1.5);
+        // =================================================================
+        // FUNÇÃO DO CABEÇALHO PADRÃO OURO (BARRA CINZA COM LOGO E PAGINAÇÃO)
+        // =================================================================
+        let pageCount = 0;
+        
+        const drawHeader = () => {
+            pageCount++;
+            const startX = 40;
+            const width = 515;
+            const headerY = 30; // Posição fixa no topo absoluto da página
+            const headerH = 45; // Altura da barra cinza
+
+            // 1. Desenha o Fundo Cinza
+            doc.rect(startX, headerY, width, headerH).fill('#e4e4e7');
+
+            // 2. Tenta carregar a Imagem (Múltiplas tentativas de rota)
+            try {
+                // Tentativa 1: Partindo da raiz do projeto (Certeiro 99% das vezes)
+                const logoPath1 = path.join(process.cwd(), 'public', 'images', 'logo', 'sesi.png');
+                // Tentativa 2: Partindo da pasta atual do arquivo da rota
+                const logoPath2 = path.join(__dirname, '../public/images/logo/sesi.png');
+                const logoPath3 = path.join(__dirname, '../../public/images/logo/sesi.png');
+
+                if (fs.existsSync(logoPath1)) {
+                    doc.image(logoPath1, startX - 10, headerY - 32, { height: 110 });
+                } else if (fs.existsSync(logoPath2)) {
+                    doc.image(logoPath2, startX - 10, headerY - 32, { height: 110 });
+                } else if (fs.existsSync(logoPath3)) {
+                    doc.image(logoPath3, startX - 10, headerY - 32, { height: 110 });
+                } else {
+                    console.error("🚨 AVISO: Nenhuma das rotas de imagem funcionou!");
+                }
+            } catch (err) {
+                console.error("Aviso: Falha ao desenhar imagem.", err);
+            }
+
+            // 3. Título Centralizado
+            doc.fillColor('black').font('Helvetica-Bold').fontSize(22)
+               .text('Levantamento de Perigos', startX, headerY + 12, { width: width, align: 'center' });
+
+            // 4. Paginação e Versão (Lado Direito, dentro da caixa)
+            doc.font('Helvetica-Bold').fontSize(11)
+               .text(`Pág ${pageCount}`, startX, headerY + 20, { width: width - 10, align: 'right' });
+        };
+
+        // Desenha na Primeira Página
+        drawHeader();
+        doc.y = 90;
+
+        // Faz o PDFKit desenhar automaticamente nas próximas páginas
+        doc.on('pageAdded', () => {
+            drawHeader();
+            doc.y = 90;
+        });
+
+        // =================================================================
+        // CORPO DO DOCUMENTO (INTACTO DA VERSÃO ANTERIOR)
+        // =================================================================
 
         const startX = 40;
-        let posY = doc.y;
+        let posY = doc.y; // Como a margem top é 90, ele começa perfeitamente embaixo do cabeçalho
         const width = 515;
         const rowHeight = 20;
 
@@ -484,7 +541,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.lineWidth(1);
         doc.fontSize(11);
 
-        // CABEÇALHO DO LEVANTAMENTO
+        // CABEÇALHO DO LEVANTAMENTO (DE VOLTA AO ORIGINAL!)
         doc.rect(startX, posY, width, rowHeight).stroke();
         doc.font('Helvetica-Bold').text('Empresa: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.nome_empresa || '-');
         doc.font('Helvetica-Bold').text('Data: ', startX + 410, posY + 6, { continued: true }).font('Helvetica').text(dataFormatada);
@@ -610,9 +667,9 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         const quimCols = [
             { label: "Nome Rótulo", width: 155 },
-            { label: "EF", width: 40 },
+            { label: "EF", width: 50 },
             { label: "Tipo Exposição", width: 120 },
-            { label: "Processo utilizado/Quantidade", width: 200 }
+            { label: "Processo utilizado/Quantidade", width: 190 }
         ];
 
         let yCabecalhoQuim = doc.y;
@@ -708,7 +765,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
 
         // =================================================================
-        // NOVO BLOCO: DETALHAMENTO DOS PERIGOS (TABELA COMPLETA COM 7 COLUNAS GRUDADAS)
+        // BLOCO: DETALHAMENTO DOS PERIGOS (TABELA COMPLETA COM 7 COLUNAS GRUDADAS)
         // =================================================================
         if (doc.y > 650) doc.addPage();
 
@@ -725,9 +782,8 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.rect(startX, doc.y, width, 22).stroke();
         doc.font('Helvetica-Bold').fontSize(9).text('Ausência de exposição a riscos ambientais, ergonômicos e mecânicos (acidentes): ', startX + 5, doc.y + 6, { continued: true });
         doc.font('Helvetica').text(ausente);
-        
 
-        // 3. Cabeçalho da Tabela (Cinza) - Mais alto para caber o texto longo!
+        // 3. Cabeçalho da Tabela (Cinza)
         const detCols = [
             { label: "GP", width: 25 },
             { label: "Perigo / Número", width: 100 },
@@ -739,7 +795,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         ];
 
         let yCabecalhoDet = doc.y;
-        const alturaCabecalhoDet = 28; // Maior para o texto respirar em 2 linhas
+        const alturaCabecalhoDet = 28;
         doc.rect(startX, yCabecalhoDet, width, alturaCabecalhoDet).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(8);
 
@@ -825,7 +881,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         }
 
         // =================================================================
-        // ASSINATURAS - NOVO LAYOUT (REGISTRO FINAL)
+        // ASSINATURAS - REGISTRO FINAL
         // =================================================================
         doc.moveDown(2);
 
