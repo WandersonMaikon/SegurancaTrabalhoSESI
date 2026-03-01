@@ -300,81 +300,84 @@
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
                 <div id="step2" class="step-content space-y-6">
 
-    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
-        <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
-            Grupos de Exposição Similar (GES)
-        </h5>
+                <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                    Grupos de Exposição Similar (GES)
+                </h5>
 
-        <div class="overflow-x-auto">
-            <table id="tableGes" class="table-default table-hover whitespace-nowrap border-collapse w-full">
-                <thead>
-                    <tr>
-                        <th class="text-left font-semibold text-zinc-500">Nome do Grupo</th>
-                        <th class="text-left font-semibold text-zinc-500">Setor</th>
-                        <th class="text-left font-semibold text-zinc-500">Cargos</th>
-                        <th class="text-left font-semibold text-zinc-500">Exceção (Nome)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (typeof ges !== 'undefined' && ges.length > 0) { %>
-                        <% ges.forEach(function(g) { %>
+                <div class="overflow-x-auto">
+                    <table id="tableGes" class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                        <thead>
                             <tr>
-                                <td><%= fmt(g.nome) %></td>
-                                <td><%= fmt(g.setor) %></td>
-                                <td><%= fmt(g.cargos) %></td>
-                                <td><%= fmt(g.excecao) %></td>
+                                <th class="text-left font-semibold text-zinc-500">Nome do Grupo</th>
+                                <th class="text-left font-semibold text-zinc-500">Setor</th>
+                                <th class="text-left font-semibold text-zinc-500">Cargos</th>
+                                <th class="text-left font-semibold text-zinc-500">Exceção (Nome)</th>
+                                <th class="text-left font-semibold text-zinc-500">Observações</th>
                             </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="4" class="text-center text-zinc-400 italic py-6">Nenhum GES cadastrado neste levantamento.</td>
-                        </tr>
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
-        <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
-            Produtos Químicos
-        </h5>
-
-        <div class="overflow-x-auto">
-            <table id="tableQuimico" class="table-default table-hover whitespace-nowrap border-collapse w-full">
-                <thead>
-                    <tr>
-                        <th class="text-left font-semibold text-zinc-500">Nome Rótulo</th>
-                        <th class="text-left font-semibold text-zinc-500 w-32">Estado Físico</th>
-                        <th class="text-left font-semibold text-zinc-500">Tipo Exposição</th>
-                        <th class="text-left font-semibold text-zinc-500">Processo / Qtde</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (typeof quimicos !== 'undefined' && quimicos.length > 0) { %>
-                        <% quimicos.forEach(function(q) { %>
-                            <tr>
-                                <td><%= fmt(q.rotulo) %></td>
-                                <td>
-                                    <span class="badge bg-zinc-100 text-zinc-600 px-2 py-1 rounded">
-                                        <%= fmt(q.estado) %>
-                                    </span>
-                                </td>
-                                <td><%= fmt(q.exposicao) %></td>
-                                <td><%= fmt(q.processo) %></td>
-                            </tr>
-                        <% }) %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="4" class="text-center text-zinc-400 italic py-6">Nenhum produto químico cadastrado.</td>
-                        </tr>
-                    <% } %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% if (typeof ges !== 'undefined' && ges.length > 0) { %>
+                                <% ges.forEach(function(g) { %>
+                                    <tr>
+                                        <td><%= fmt(g.nome) %></td>
+                                        <td><%= fmt(g.setor) %></td>
+                                        <td><%= fmt(g.cargos) %></td>
+                                        <td><%= fmt(g.excecao) %></td>
+                                        <td><%= fmt(g.obs) %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="text-center text-zinc-400 italic py-6">Nenhum GES cadastrado neste levantamento.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
+
+            <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6 mt-6">
+                <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                    Produtos Químicos
+                </h5>
+
+                <div class="overflow-x-auto">
+                    <table id="tableQuimico" class="table-default table-hover whitespace-nowrap border-collapse w-full">
+                        <thead>
+                            <tr>
+                                <th class="text-left font-semibold text-zinc-500">Nome Rótulo</th>
+                                <th class="text-left font-semibold text-zinc-500 w-32">Estado Físico</th>
+                                <th class="text-left font-semibold text-zinc-500">Tipo Exposição</th>
+                                <th class="text-left font-semibold text-zinc-500">Processo / Qtde</th>
+                                <th class="text-left font-semibold text-zinc-500">Observações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (typeof quimicos !== 'undefined' && quimicos.length > 0) { %>
+                                <% quimicos.forEach(function(q) { %>
+                                    <tr>
+                                        <td><%= fmt(q.rotulo) %></td>
+                                        <td>
+                                            <span class="badge bg-zinc-100 text-zinc-600 px-2 py-1 rounded">
+                                                <%= fmt(q.estado) %>
+                                            </span>
+                                        </td>
+                                        <td><%= fmt(q.exposicao) %></td>
+                                        <td><%= fmt(q.processo) %></td>
+                                        <td><%= fmt(q.obs) %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="text-center text-zinc-400 italic py-6">Nenhum produto químico cadastrado.</td>
+                                </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
                     <div id="step3" class="step-content space-y-6">

@@ -198,18 +198,18 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
         if (data.ges && Array.isArray(data.ges)) {
             for (const g of data.ges) {
                 await conn.query(`
-                    INSERT INTO levantamento_ges (id_ges, id_levantamento, nome_grupo_ges, setor, cargos, nome_trabalhador_excecao)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, g.nome, g.setor, g.cargos, g.excecao]);
+                    INSERT INTO levantamento_ges (id_ges, id_levantamento, nome_grupo_ges, setor, cargos, nome_trabalhador_excecao, observacoes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id_levantamento, g.nome, g.setor, g.cargos, g.excecao, g.obs || null]); // <-- ADICIONADO
             }
         }
 
         if (data.quimicos && Array.isArray(data.quimicos)) {
             for (const q of data.quimicos) {
                 await conn.query(`
-                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo]);
+                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]); // <-- ADICIONADO
             }
         }
 
@@ -281,13 +281,13 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
         }
 
         const [ges] = await db.query(`
-            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao 
+            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
             FROM levantamento_ges 
             WHERE id_levantamento = ?
         `, [id]);
 
         const [quimicos] = await db.query(`
-            SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo 
+            SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo, observacoes AS obs 
             FROM levantamento_quimico 
             WHERE id_levantamento = ?
         `, [id]);
@@ -362,12 +362,12 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         }
 
         const [ges] = await db.query(`
-            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao 
+            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
             FROM levantamento_ges WHERE id_levantamento = ?
         `, [id]);
 
         const [quimicos] = await db.query(`
-            SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo 
+            SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo, observacoes AS obs 
             FROM levantamento_quimico WHERE id_levantamento = ?
         `, [id]);
 
@@ -612,39 +612,44 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.fillColor('black');
 
         const gesCols = [
-            { label: "Nome do Grupo (GES)", width: 120 },
-            { label: "Setor", width: 110 },
-            { label: "Cargos", width: 165 },
-            { label: "Trabalhador (exceção)", width: 120 }
+            { label: "Nome do Grupo (GES)", width: 95 },
+            { label: "Setor", width: 90 },
+            { label: "Cargos", width: 130 },
+            { label: "Trabalhador (exceção)", width: 100 },
+            { label: "Observações", width: 100 } 
         ];
 
         let yCabecalhoGes = doc.y;
-        doc.rect(startX, yCabecalhoGes, width, rowHeight).fillAndStroke('#e4e4e7', 'black');
+        const alturaCabecalhoGes = 28; // 🔥 Altura maior para caber as duas linhas
+
+        doc.rect(startX, yCabecalhoGes, width, alturaCabecalhoGes).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(9);
 
         let currX = startX;
         gesCols.forEach(col => {
-            doc.rect(currX, yCabecalhoGes, col.width, rowHeight).stroke();
-            doc.text(col.label, currX + 5, yCabecalhoGes + 5, { width: col.width - 10, align: 'center' });
+            doc.rect(currX, yCabecalhoGes, col.width, alturaCabecalhoGes).stroke();
+            // yCabecalhoGes + 4 centraliza bem o texto nessas duas linhas
+            doc.text(col.label, currX + 5, yCabecalhoGes + 4, { width: col.width - 10, align: 'center' });
             currX += col.width;
         });
-        doc.y = yCabecalhoGes + rowHeight;
+        doc.y = yCabecalhoGes + alturaCabecalhoGes;
 
         doc.font('Helvetica').fontSize(9);
-        const gesRows = ges.length > 0 ? ges : [{ nome: '-', setor: 'Nenhum GES cadastrado', cargos: '-', excecao: '-' }];
+        const gesRows = ges.length > 0 ? ges : [{ nome: '-', setor: 'Nenhum GES cadastrado', cargos: '-', excecao: '-', obs: '-' }];
 
         gesRows.forEach(g => {
-            const hNome = doc.heightOfString(g.nome || '-', { width: 110 });
-            const hSetor = doc.heightOfString(g.setor || '-', { width: 100 });
-            const hCargos = doc.heightOfString(g.cargos || '-', { width: 155 });
-            const hExcecao = doc.heightOfString(g.excecao || '-', { width: 110 });
-            const maxH = Math.max(hNome, hSetor, hCargos, hExcecao, 10) + 10;
+            const hNome = doc.heightOfString(g.nome || '-', { width: gesCols[0].width - 10 });
+            const hSetor = doc.heightOfString(g.setor || '-', { width: gesCols[1].width - 10 });
+            const hCargos = doc.heightOfString(g.cargos || '-', { width: gesCols[2].width - 10 });
+            const hExcecao = doc.heightOfString(g.excecao || '-', { width: gesCols[3].width - 10 });
+            const hObs = doc.heightOfString(g.obs || '-', { width: gesCols[4].width - 10 });
+            const maxH = Math.max(hNome, hSetor, hCargos, hExcecao, hObs, 10) + 10;
 
             if (doc.y + maxH > 800) doc.addPage();
 
             let cx = startX;
             let yLinhaGes = doc.y;
-            const valores = [g.nome || '-', g.setor || '-', g.cargos || '-', g.excecao || '-'];
+            const valores = [g.nome || '-', g.setor || '-', g.cargos || '-', g.excecao || '-', g.obs || '-']; // <-- ADICIONADO g.obs
 
             valores.forEach((val, i) => {
                 const w = gesCols[i].width;
@@ -654,7 +659,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             });
             doc.y = yLinhaGes + maxH;
         });
-        doc.moveDown(1);
 
         // =================================================================
         // BLOCO: INVENTÁRIO DE PRODUTOS QUÍMICOS
@@ -666,10 +670,11 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.fillColor('black');
 
         const quimCols = [
-            { label: "Nome Rótulo", width: 155 },
-            { label: "EF", width: 50 },
-            { label: "Tipo Exposição", width: 120 },
-            { label: "Processo utilizado/Quantidade", width: 190 }
+            { label: "Nome Rótulo", width: 125 },
+            { label: "EF", width: 40 },
+            { label: "Tipo Exposição", width: 100 },
+            { label: "Processo utilizado/Quantidade", width: 150 },
+            { label: "Observações", width: 100 } // <-- NOVA COLUNA
         ];
 
         let yCabecalhoQuim = doc.y;
@@ -685,20 +690,21 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.y = yCabecalhoQuim + rowHeight;
 
         doc.font('Helvetica').fontSize(9);
-        const quimRows = quimicos.length > 0 ? quimicos : [{ rotulo: '-', estado: '-', exposicao: 'Nenhum produto', processo: '-' }];
+        const quimRows = quimicos.length > 0 ? quimicos : [{ rotulo: '-', estado: '-', exposicao: 'Nenhum produto', processo: '-', obs: '-' }];
 
         quimRows.forEach(q => {
-            const hRotulo = doc.heightOfString(q.rotulo || '-', { width: 145 });
-            const hEstado = doc.heightOfString(q.estado || '-', { width: 30 });
-            const hExposicao = doc.heightOfString(q.exposicao || '-', { width: 110 });
-            const hProcesso = doc.heightOfString(q.processo || '-', { width: 190 });
-            const maxH = Math.max(hRotulo, hEstado, hExposicao, hProcesso, 10) + 10;
+            const hRotulo = doc.heightOfString(q.rotulo || '-', { width: quimCols[0].width - 10 });
+            const hEstado = doc.heightOfString(q.estado || '-', { width: quimCols[1].width - 10 });
+            const hExposicao = doc.heightOfString(q.exposicao || '-', { width: quimCols[2].width - 10 });
+            const hProcesso = doc.heightOfString(q.processo || '-', { width: quimCols[3].width - 10 });
+            const hObs = doc.heightOfString(q.obs || '-', { width: quimCols[4].width - 10 });
+            const maxH = Math.max(hRotulo, hEstado, hExposicao, hProcesso, hObs, 10) + 10;
 
             if (doc.y + maxH > 800) doc.addPage();
 
             let cx = startX;
             let yLinhaQuim = doc.y;
-            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-'];
+            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-', q.obs || '-']; // <-- ADICIONADO q.obs
 
             valores.forEach((val, i) => {
                 const w = quimCols[i].width;
@@ -709,12 +715,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             doc.y = yLinhaQuim + maxH;
         });
 
-        let yLegenda = doc.y;
-        doc.rect(startX, yLegenda, width, 15).fillAndStroke('#e4e4e7', 'black');
-        doc.fillColor('black').font('Helvetica').fontSize(9).text('Legenda: EF - Estado Físico (S - Sólido; L - Líquido; G - Gasoso)', startX + 5, yLegenda + 3);
-        doc.y = yLegenda + 15;
-        doc.moveDown(1);
-
         // =================================================================
         // BLOCO: OBSERVAÇÕES (CHECKLIST)
         // =================================================================
@@ -724,7 +724,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.rect(startX, yObs, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Observações', startX, yObs + 5, { width: width, align: 'center' });
         doc.fillColor('black');
-        doc.y = yObs + 20;
 
         let yChecklist = doc.y;
         doc.font('Helvetica').fontSize(9);

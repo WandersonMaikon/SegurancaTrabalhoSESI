@@ -725,6 +725,7 @@
                                                 <th class="text-nowrap">Setor</th>
                                                 <th class="text-nowrap">Cargos</th>
                                                 <th class="text-nowrap">Exceção (Nome)</th>
+                                                <th class="text-nowrap">Observações</th>
                                                 <th class="text-nowrap w-20">
                                                     <div class="flex items-center justify-center">Ações</div>
                                                 </th>
@@ -764,6 +765,7 @@
                                                 <th class="text-nowrap w-32">Estado Físico</th>
                                                 <th class="text-nowrap">Tipo Exposição</th>
                                                 <th class="text-nowrap">Processo/Qtde</th>
+                                                <th class="text-nowrap">Observações</th>
                                                 <th class="text-nowrap w-20">
                                                     <div class="flex items-center justify-center">Ações</div>
                                                 </th>
@@ -1231,13 +1233,14 @@
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
                 row.innerHTML = `
-        <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
-        <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
-        <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
-        <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
-        <td class="pr-6 pl-2 py-3 text-center">
-            <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
-        </td>`;
+                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input ges-obs" placeholder="Opcional"></td>
+                <td class="pr-6 pl-2 py-3 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+                </td>`;
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1248,17 +1251,18 @@
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
                 row.innerHTML = `
-        <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
-        <td class="px-2 py-3">
-            <select class="table-input quim-estado cursor-pointer bg-transparent">
-                <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option>
-            </select>
-        </td>
-        <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
-        <td class="px-2 py-3"><input type="text" class="table-input quim-processo" placeholder="Ex: Limpeza/500ml"></td>
-        <td class="pr-6 pl-2 py-3 text-center">
-            <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
-        </td>`;
+                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
+                <td class="px-2 py-3">
+                    <select class="table-input quim-estado cursor-pointer bg-transparent">
+                        <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option>
+                    </select>
+                </td>
+                <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input quim-processo" placeholder="Ex: Limpeza/500ml"></td>
+                <td class="px-2 py-3"><input type="text" class="table-input quim-obs" placeholder="Opcional"></td>
+                <td class="pr-6 pl-2 py-3 text-center">
+                    <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
+                </td>`;
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1596,14 +1600,20 @@
                     };
 
                     const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
-                        nome: tr.querySelector('.ges-nome').value, setor: tr.querySelector('.ges-setor').value,
-                        cargos: tr.querySelector('.ges-cargos').value, excecao: tr.querySelector('.ges-excecao').value
-                    })).filter(g => g.nome || g.setor || g.cargos || g.excecao);
+                        nome: tr.querySelector('.ges-nome').value, 
+                        setor: tr.querySelector('.ges-setor').value,
+                        cargos: tr.querySelector('.ges-cargos').value, 
+                        excecao: tr.querySelector('.ges-excecao').value,
+                        obs: tr.querySelector('.ges-obs').value 
+                    })).filter(g => g.nome || g.setor || g.cargos || g.excecao || g.obs);
 
                     const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
-                        rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
-                        exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value
-                    })).filter(q => q.rotulo || q.estado || q.exposicao || q.processo);
+                        rotulo: tr.querySelector('.quim-rotulo').value, 
+                        estado: tr.querySelector('.quim-estado').value,
+                        exposicao: tr.querySelector('.quim-exposicao').value, 
+                        processo: tr.querySelector('.quim-processo').value,
+                        obs: tr.querySelector('.quim-obs').value // <-- ADICIONADO
+                    })).filter(q => q.rotulo || q.estado || q.exposicao || q.processo || q.obs);
 
                     const riscosData = [];
                     const formDataEnvio = new FormData();
