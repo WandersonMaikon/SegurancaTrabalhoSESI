@@ -1,5 +1,5 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4.5
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.6
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
 -- Atualizações: Cartão Vantagem, Prazo OS, e Estrutura Relacional de Riscos (eSocial)
 -- ============================================
@@ -271,7 +271,8 @@ CREATE TABLE levantamento_perigo (
     largura_m DECIMAL(10,2),
     comprimento_m DECIMAL(10,2),
     obs_condicoes_gerais TEXT,
-    
+    -- nome do grupo ges (campo avulso para facilitar busca e identificação, mas o detalhamento fica na tabela levantamento_ges)
+    nome_grupo_ges VARCHAR(255),
     -- Assinaturas (Armazenar Base64 ou Caminho do Arquivo)
     assinatura_responsavel_empresa LONGTEXT,
     assinatura_avaliador LONGTEXT,
@@ -281,7 +282,7 @@ CREATE TABLE levantamento_perigo (
     ausencia_risco_ergonomico BOOLEAN DEFAULT FALSE,
     ausencia_risco_mecanico BOOLEAN DEFAULT FALSE,
     ausencia_risco_quimico BOOLEAN DEFAULT FALSE,
-    ausencia_risco_biologico BOOLEAN DEFAULT FALSE;
+    ausencia_risco_biologico BOOLEAN DEFAULT FALSE,
     
     -- Auditoria
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -297,7 +298,6 @@ CREATE TABLE levantamento_perigo (
 CREATE TABLE levantamento_ges (
     id_ges CHAR(36) NOT NULL PRIMARY KEY, -- UUID
     id_levantamento CHAR(36) NOT NULL,   
-    nome_grupo_ges VARCHAR(255),
     setor VARCHAR(255),
     cargos TEXT,
     nome_trabalhador_excecao VARCHAR(255),

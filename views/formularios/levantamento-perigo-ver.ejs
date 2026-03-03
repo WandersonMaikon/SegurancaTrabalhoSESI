@@ -298,19 +298,24 @@
                     </div> 
                 </div>
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
-                <div id="step2" class="step-content space-y-6">
-
-                <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
-                <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
-                    Grupos de Exposição Similar (GES)
-                </h5>
+            <div id="step2" class="step-content space-y-6">
+            <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                
+                <div class="flex flex-col mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+                    <h5 class="text-xl font-bold text-zinc-800 dark:text-zinc-100 mb-1">
+                        Grupos de Exposição Similar (GES)
+                    </h5>
+                    <span class="text-sm text-zinc-500 uppercase tracking-widest font-semibold mt-2">Nome do Grupo</span>
+                    <p class="text-lg font-bold text-primary dark:text-zinc-300">
+                        <%= levantamento.nome_grupo_ges || 'Nome não cadastrado' %>
+                    </p>
+                </div>
 
                 <div class="overflow-x-auto">
                     <table id="tableGes" class="table-default table-hover whitespace-nowrap border-collapse w-full">
                         <thead>
                             <tr>
-                                <th class="text-left font-semibold text-zinc-500">Nome do Grupo</th>
-                                <th class="text-left font-semibold text-zinc-500">Setor</th>
+                                <th class="text-left font-semibold text-zinc-500 pl-4">Setor</th>
                                 <th class="text-left font-semibold text-zinc-500">Cargos</th>
                                 <th class="text-left font-semibold text-zinc-500">Exceção (Nome)</th>
                                 <th class="text-left font-semibold text-zinc-500">Observações</th>
@@ -320,8 +325,7 @@
                             <% if (typeof ges !== 'undefined' && ges.length > 0) { %>
                                 <% ges.forEach(function(g) { %>
                                     <tr>
-                                        <td><%= fmt(g.nome) %></td>
-                                        <td><%= fmt(g.setor) %></td>
+                                        <td class="pl-4"><%= fmt(g.setor) %></td>
                                         <td><%= fmt(g.cargos) %></td>
                                         <td><%= fmt(g.excecao) %></td>
                                         <td><%= fmt(g.obs) %></td>
@@ -329,7 +333,7 @@
                                 <% }) %>
                             <% } else { %>
                                 <tr>
-                                    <td colspan="5" class="text-center text-zinc-400 italic py-6">Nenhum GES cadastrado neste levantamento.</td>
+                                    <td colspan="4" class="text-center text-zinc-400 italic py-6">Nenhum setor/cargo cadastrado neste levantamento.</td>
                                 </tr>
                             <% } %>
                         </tbody>

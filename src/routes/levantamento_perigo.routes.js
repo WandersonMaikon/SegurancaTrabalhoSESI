@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../database/db");
 const { v4: uuidv4 } = require('uuid');
 const verificarAutenticacao = require("../middlewares/auth.middleware");
+const registrarLog = require("../utils/logger");
 
 // =========================================================================
 // CONFIGURAÇÃO DE UPLOAD DE ARQUIVOS (MULTER)
@@ -165,10 +166,12 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
 
         const toJson = (obj) => JSON.stringify(obj || {});
 
+        // 🔥 Tabela principal recebendo o nome_grupo_ges
         const sqlLevantamento = `
             INSERT INTO levantamento_perigo (
                 id_levantamento, id_unidade, id_cliente, data_levantamento, 
                 id_responsavel_tecnico, responsavel_empresa_nome, responsavel_empresa_cargo, trabalho_externo,
+                nome_grupo_ges,
                 tipo_construcao, tipo_piso, tipo_paredes, cor_paredes, divisoes_internas_material, 
                 tipo_cobertura, tipo_forro, tipo_iluminacao, tipo_ventilacao, possui_climatizacao, 
                 escadas_tipo, passarelas_tipo, estruturas_auxiliares,
@@ -176,12 +179,13 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
                 ausencia_risco_ambiental, ausencia_risco_ergonomico, ausencia_risco_mecanico,
                 ausencia_risco_quimico, ausencia_risco_biologico,
                 assinatura_avaliador, assinatura_responsavel_empresa
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
         await conn.query(sqlLevantamento, [
             id_levantamento, id_unidade, data.id_cliente, data.data_levantamento,
             data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
+            data.nome_grupo_ges || null, // Recebendo o valor
             toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, toJson(data.divisoes_internas_material),
             toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0,
             toJson(data.escadas_tipo), toJson(data.passarelas_tipo), JSON.stringify(data.estruturas_auxiliares || []),
@@ -198,9 +202,9 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
         if (data.ges && Array.isArray(data.ges)) {
             for (const g of data.ges) {
                 await conn.query(`
-                    INSERT INTO levantamento_ges (id_ges, id_levantamento, nome_grupo_ges, setor, cargos, nome_trabalhador_excecao, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, g.nome, g.setor, g.cargos, g.excecao, g.obs || null]); // <-- ADICIONADO
+                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id_levantamento, g.setor, g.cargos, g.excecao, g.obs || null]);
             }
         }
 
@@ -209,7 +213,7 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
                 await conn.query(`
                     INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]); // <-- ADICIONADO
+                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]); 
             }
         }
 
@@ -246,6 +250,26 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
             }
         }
 
+        const [clienteResult] = await conn.query('SELECT nome_empresa FROM cliente WHERE id_cliente = ?', [data.id_cliente]);
+        const nomeEmpresaLog = clienteResult.length > 0 ? clienteResult[0].nome_empresa : 'Cliente Desconhecido';
+
+        await registrarLog({
+            id_unidade: id_unidade,
+            id_usuario: userLogado.id_usuario,
+            acao: 'INSERT',
+            tabela: 'levantamento_perigo',
+            id_registro: id_levantamento,
+            dados_novos: {
+                id_cliente: data.id_cliente,
+                nome_cliente: nomeEmpresaLog,
+                data_levantamento: data.data_levantamento,
+                nome_grupo_ges: data.nome_grupo_ges || null,
+                total_setores_cadastrados: data.ges ? data.ges.length : 0,
+                total_produtos_quimicos: data.quimicos ? data.quimicos.length : 0,
+                total_riscos_identificados: data.riscos ? data.riscos.length : 0
+            }
+        });
+
         await conn.commit();
         res.json({ success: true, message: "Levantamento cadastrado com sucesso!" });
 
@@ -256,6 +280,7 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
     } finally {
         conn.release();
     }
+    
 });
 
 // --- 4. VISUALIZAR DETALHES (GET) ---
@@ -281,7 +306,7 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
         }
 
         const [ges] = await db.query(`
-            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
+            SELECT setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
             FROM levantamento_ges 
             WHERE id_levantamento = ?
         `, [id]);
@@ -338,8 +363,7 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
     }
 });
 
-
-// --- 5. IMPRIMIR PDF (GET) --- MÁGICA NOVA DO PDFKIT-TABLE
+// --- 5. IMPRIMIR PDF ---
 router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
     try {
         const { id } = req.params;
@@ -362,7 +386,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         }
 
         const [ges] = await db.query(`
-            SELECT nome_grupo_ges AS nome, setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
+            SELECT setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
             FROM levantamento_ges WHERE id_levantamento = ?
         `, [id]);
 
@@ -404,8 +428,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         const dataFormatada = new Date(levantamento.data_levantamento).toLocaleDateString('pt-BR');
 
-        // INICIA O ARQUIVO PDF (Note a margem top de 90 para o cabeçalho respirar)
-        const doc = new PDFDocument({ margins: { top: 110, bottom: 40, left: 40, right: 40 }, size: 'A4' });
+        const doc = new PDFDocument({ margins: { top: 90, bottom: 40, left: 40, right: 40 }, size: 'A4' });
         const fs = require('fs');
         const path = require('path');
 
@@ -414,26 +437,19 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         doc.pipe(res);
 
-        // =================================================================
-        // FUNÇÃO DO CABEÇALHO PADRÃO OURO (BARRA CINZA COM LOGO E PAGINAÇÃO)
-        // =================================================================
         let pageCount = 0;
         
         const drawHeader = () => {
             pageCount++;
             const startX = 40;
             const width = 515;
-            const headerY = 30; // Posição fixa no topo absoluto da página
-            const headerH = 45; // Altura da barra cinza
+            const headerY = 30; 
+            const headerH = 40; 
 
-            // 1. Desenha o Fundo Cinza
             doc.rect(startX, headerY, width, headerH).fill('#e4e4e7');
 
-            // 2. Tenta carregar a Imagem (Múltiplas tentativas de rota)
             try {
-                // Tentativa 1: Partindo da raiz do projeto (Certeiro 99% das vezes)
                 const logoPath1 = path.join(process.cwd(), 'public', 'images', 'logo', 'sesi.png');
-                // Tentativa 2: Partindo da pasta atual do arquivo da rota
                 const logoPath2 = path.join(__dirname, '../public/images/logo/sesi.png');
                 const logoPath3 = path.join(__dirname, '../../public/images/logo/sesi.png');
 
@@ -443,105 +459,73 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                     doc.image(logoPath2, startX - 10, headerY - 32, { height: 110 });
                 } else if (fs.existsSync(logoPath3)) {
                     doc.image(logoPath3, startX - 10, headerY - 32, { height: 110 });
-                } else {
-                    console.error("🚨 AVISO: Nenhuma das rotas de imagem funcionou!");
                 }
-            } catch (err) {
-                console.error("Aviso: Falha ao desenhar imagem.", err);
-            }
+            } catch (err) { }
 
-            // 3. Título Centralizado
             doc.fillColor('black').font('Helvetica-Bold').fontSize(22)
-               .text('Levantamento de Perigos', startX, headerY + 12, { width: width, align: 'center' });
+               .text('Levantamento de Perigos', startX, headerY + 10, { width: width, align: 'center' });
 
-            // 4. Paginação e Versão (Lado Direito, dentro da caixa)
-            doc.font('Helvetica-Bold').fontSize(11)
-               .text(`Pág ${pageCount}`, startX, headerY + 20, { width: width - 10, align: 'right' });
+            doc.font('Helvetica-Bold').fontSize(10)
+               .text(`Pág ${pageCount}`, startX, headerY + 8, { width: width - 10, align: 'right' });
+            doc.font('Helvetica').fontSize(9)
+               .text(`Versão 6`, startX, headerY + 22, { width: width - 10, align: 'right' });
         };
 
-        // Desenha na Primeira Página
         drawHeader();
-        doc.y = 90;
+        doc.y = 75;
 
-        // Faz o PDFKit desenhar automaticamente nas próximas páginas
         doc.on('pageAdded', () => {
             drawHeader();
-            doc.y = 90;
+            doc.y = 75;
         });
 
-        // =================================================================
-        // CORPO DO DOCUMENTO (INTACTO DA VERSÃO ANTERIOR)
-        // =================================================================
-
         const startX = 40;
-        let posY = doc.y; // Como a margem top é 90, ele começa perfeitamente embaixo do cabeçalho
+        let posY = doc.y; 
         const width = 515;
         const rowHeight = 20;
 
-        // --- FUNÇÃO DE FORMATAÇÃO BLINDADA ---
         const formatarCampo = (dado) => {
             if (!dado) return '-';
             let arr = [];
-
-            if (Array.isArray(dado)) {
-                arr = dado;
-            } else if (typeof dado === 'object') {
-                arr = Object.values(dado);
-            } else if (typeof dado === 'string') {
+            if (Array.isArray(dado)) arr = dado;
+            else if (typeof dado === 'object') arr = Object.values(dado);
+            else if (typeof dado === 'string') {
                 try {
                     const parsed = JSON.parse(dado);
                     if (Array.isArray(parsed)) arr = parsed;
                     else if (typeof parsed === 'object') arr = Object.values(parsed);
                     else return parsed;
                 } catch (e) { return dado; }
-            } else {
-                return String(dado);
-            }
-
-            const limpo = arr.filter(item => {
-                if (!item) return false;
-                const str = item.toString().trim();
-                if (str === '') return false;
-                if (str.toLowerCase() === 'outros') return false;
-                return true;
-            });
-
+            } else return String(dado);
+            const limpo = arr.filter(item => item && item.toString().trim() !== '' && item.toString().toLowerCase() !== 'outros');
             return limpo.length > 0 ? limpo.join(', ') : '-';
         };
 
-        // --- LÓGICA ESTRUTURAS AUXILIARES ---
         let arrEstruturas = [];
         try {
-            if (Array.isArray(levantamento.estruturas_auxiliares)) {
-                arrEstruturas = levantamento.estruturas_auxiliares;
-            } else if (typeof levantamento.estruturas_auxiliares === 'string') {
-                arrEstruturas = JSON.parse(levantamento.estruturas_auxiliares);
-            }
-        } catch (e) { arrEstruturas = []; }
+            if (Array.isArray(levantamento.estruturas_auxiliares)) arrEstruturas = levantamento.estruturas_auxiliares;
+            else if (typeof levantamento.estruturas_auxiliares === 'string') arrEstruturas = JSON.parse(levantamento.estruturas_auxiliares);
+        } catch (e) { }
         if (!Array.isArray(arrEstruturas)) arrEstruturas = [];
 
         const temMezanino = arrEstruturas.includes('Mezaninos') ? 'Sim' : 'Não';
         const temRampa = arrEstruturas.includes('Rampas') ? 'Sim' : 'Não';
         const textoEstruturasAuxiliares = `Mezaninos: ${temMezanino}   |   Rampas: ${temRampa}`;
 
-        // --- LÓGICA COBERTURA ---
         const cobBruta = formatarCampo(levantamento.tipo_cobertura);
         let textoCobertura = cobBruta;
-        if (cobBruta !== '-') {
-            if (cobBruta.includes('-')) {
-                const partes = cobBruta.split('-');
-                textoCobertura = `Tipo de Estrutura: ${partes[0].trim()}   |   Tipo Telha: ${partes.slice(1).join('-').trim()}`;
-            }
-            else if (cobBruta.includes(',')) {
-                const partes = cobBruta.split(',');
-                textoCobertura = `Tipo de Estrutura: ${partes[0].trim()}   |   Tipo Telha: ${partes.slice(1).join(',').trim()}`;
-            }
+        if (cobBruta !== '-' && cobBruta.includes('-')) {
+            const partes = cobBruta.split('-');
+            textoCobertura = `Tipo de Estrutura: ${partes[0].trim()}   |   Tipo Telha: ${partes.slice(1).join('-').trim()}`;
+        } else if (cobBruta !== '-' && cobBruta.includes(',')) {
+            const partes = cobBruta.split(',');
+            textoCobertura = `Tipo de Estrutura: ${partes[0].trim()}   |   Tipo Telha: ${partes.slice(1).join(',').trim()}`;
         }
 
         doc.lineWidth(1);
         doc.fontSize(11);
 
-        // CABEÇALHO DO LEVANTAMENTO (DE VOLTA AO ORIGINAL!)
+        // Bloco Empresa
         doc.rect(startX, posY, width, rowHeight).stroke();
         doc.font('Helvetica-Bold').text('Empresa: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.nome_empresa || '-');
         doc.font('Helvetica-Bold').text('Data: ', startX + 410, posY + 6, { continued: true }).font('Helvetica').text(dataFormatada);
@@ -561,7 +545,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.font('Helvetica-Bold').text('Existem trabalhadores executando atividades fora da empresa? ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(txtExterno);
         posY += rowHeight + 15;
 
-        // CARACTERIZAÇÃO AMBIENTE
+        // Caracterização
         doc.rect(startX, posY, width, rowHeight).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Caracterização do Ambiente de Trabalho', startX, posY + 5, { width: width, align: 'center' });
         doc.fillColor('black').fontSize(10);
@@ -587,19 +571,16 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         ambienteRows.forEach((item) => {
             doc.rect(startX, posY, 140, rowEnvHeight).fillAndStroke('#e4e4e7', 'black');
             doc.fillColor('black').font('Helvetica-Bold').text(item.label, startX + 5, posY + 4, { width: 130, align: 'right' });
-
             doc.rect(startX + 140, posY, width - 140, rowEnvHeight).stroke();
             doc.font('Helvetica').text(item.val, startX + 145, posY + 4);
-
             posY += rowEnvHeight;
         });
 
-        // OBSERVAÇÕES GERAIS
         doc.rect(startX, posY, width, 40).stroke();
         doc.font('Helvetica-Bold').fontSize(9).text('Observação sobre as condições gerais:', startX + 5, posY + 4);
         doc.font('Helvetica').text(levantamento.obs_condicoes_gerais || '-', startX + 5, posY + 16);
 
-        doc.y = posY + 60;
+        doc.y = posY + 50;
         doc.moveDown(1);
 
         // =================================================================
@@ -612,15 +593,14 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.fillColor('black');
 
         const gesCols = [
-            { label: "Nome do Grupo (GES)", width: 95 },
-            { label: "Setor", width: 90 },
-            { label: "Cargos", width: 130 },
-            { label: "Trabalhador (exceção)", width: 100 },
-            { label: "Observações", width: 100 } 
+            { label: "Setor", width: 120 },
+            { label: "Cargos", width: 145 },
+            { label: "Nome trabalhador\n(exceção)", width: 120 },
+            { label: "Observações", width: 130 } 
         ];
 
         let yCabecalhoGes = doc.y;
-        const alturaCabecalhoGes = 28; // 🔥 Altura maior para caber as duas linhas
+        const alturaCabecalhoGes = 28; 
 
         doc.rect(startX, yCabecalhoGes, width, alturaCabecalhoGes).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(9);
@@ -628,28 +608,26 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         let currX = startX;
         gesCols.forEach(col => {
             doc.rect(currX, yCabecalhoGes, col.width, alturaCabecalhoGes).stroke();
-            // yCabecalhoGes + 4 centraliza bem o texto nessas duas linhas
-            doc.text(col.label, currX + 5, yCabecalhoGes + 4, { width: col.width - 10, align: 'center' });
+            doc.text(col.label, currX + 5, yCabecalhoGes + 6, { width: col.width - 10, align: 'center' });
             currX += col.width;
         });
         doc.y = yCabecalhoGes + alturaCabecalhoGes;
 
         doc.font('Helvetica').fontSize(9);
-        const gesRows = ges.length > 0 ? ges : [{ nome: '-', setor: 'Nenhum GES cadastrado', cargos: '-', excecao: '-', obs: '-' }];
+        const gesRows = ges.length > 0 ? ges : [{ setor: '-', cargos: '-', excecao: '-', obs: '-' }];
 
         gesRows.forEach(g => {
-            const hNome = doc.heightOfString(g.nome || '-', { width: gesCols[0].width - 10 });
-            const hSetor = doc.heightOfString(g.setor || '-', { width: gesCols[1].width - 10 });
-            const hCargos = doc.heightOfString(g.cargos || '-', { width: gesCols[2].width - 10 });
-            const hExcecao = doc.heightOfString(g.excecao || '-', { width: gesCols[3].width - 10 });
-            const hObs = doc.heightOfString(g.obs || '-', { width: gesCols[4].width - 10 });
-            const maxH = Math.max(hNome, hSetor, hCargos, hExcecao, hObs, 10) + 10;
+            const hSetor = doc.heightOfString(g.setor || '-', { width: gesCols[0].width - 10 });
+            const hCargos = doc.heightOfString(g.cargos || '-', { width: gesCols[1].width - 10 });
+            const hExcecao = doc.heightOfString(g.excecao || '-', { width: gesCols[2].width - 10 });
+            const hObs = doc.heightOfString(g.obs || '-', { width: gesCols[3].width - 10 });
+            const maxH = Math.max(hSetor, hCargos, hExcecao, hObs, 15) + 10;
 
             if (doc.y + maxH > 800) doc.addPage();
 
             let cx = startX;
             let yLinhaGes = doc.y;
-            const valores = [g.nome || '-', g.setor || '-', g.cargos || '-', g.excecao || '-', g.obs || '-']; // <-- ADICIONADO g.obs
+            const valores = [g.setor || '-', g.cargos || '-', g.excecao || '-', g.obs || '-']; 
 
             valores.forEach((val, i) => {
                 const w = gesCols[i].width;
@@ -659,7 +637,11 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             });
             doc.y = yLinhaGes + maxH;
         });
-        
+
+        // 🔥 RODAPÉ GES (IGUAL À IMAGEM)
+        doc.rect(startX, doc.y, width, 18).stroke();
+        doc.font('Helvetica').fontSize(10).text('Nome do grupo (GES): ', startX + 5, doc.y + 4, { continued: true }).text(levantamento.nome_grupo_ges || '');
+        doc.y += 10;
 
         // =================================================================
         // BLOCO: INVENTÁRIO DE PRODUTOS QUÍMICOS
@@ -675,7 +657,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             { label: "EF", width: 40 },
             { label: "Tipo Exposição", width: 100 },
             { label: "Processo utilizado/Quantidade", width: 150 },
-            { label: "Observações", width: 100 } // <-- NOVA COLUNA
+            { label: "Observações", width: 100 } 
         ];
 
         let yCabecalhoQuim = doc.y;
@@ -691,7 +673,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.y = yCabecalhoQuim + rowHeight;
 
         doc.font('Helvetica').fontSize(9);
-        const quimRows = quimicos.length > 0 ? quimicos : [{ rotulo: '-', estado: '-', exposicao: 'Nenhum produto', processo: '-', obs: '-' }];
+        const quimRows = quimicos.length > 0 ? quimicos : [{ rotulo: '-', estado: '-', exposicao: '-', processo: '-', obs: '-' }];
 
         quimRows.forEach(q => {
             const hRotulo = doc.heightOfString(q.rotulo || '-', { width: quimCols[0].width - 10 });
@@ -705,7 +687,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
             let cx = startX;
             let yLinhaQuim = doc.y;
-            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-', q.obs || '-']; // <-- ADICIONADO q.obs
+            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-', q.obs || '-']; 
 
             valores.forEach((val, i) => {
                 const w = quimCols[i].width;
@@ -716,17 +698,30 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             doc.y = yLinhaQuim + maxH;
         });
 
+        // 🔥 RODAPÉ QUÍMICOS (LEGENDA)
+        let yRodape = doc.y;
+        doc.rect(startX, yRodape, width, 14).stroke();
+        doc.font('Helvetica').fontSize(8).text('Legenda: EF - Estado Físico (S - Sólido; L - Líquido; G - Gasoso)', startX + 2, yRodape + 3);
+        
+        // Avança EXATAMENTE a altura da legenda (14), sem margens adicionais para colar no próximo bloco!
+        doc.y = yRodape + 18;
+
         // =================================================================
-        // BLOCO: OBSERVAÇÕES (CHECKLIST)
+        // BLOCO: OBSERVAÇÕES (CHECKLIST) COLADO NO ANTERIOR
         // =================================================================
-        if (doc.y > 650) doc.addPage();
+        
+        // Só quebra a página se o bloco inteiro de observações (que tem aprox. 90 a 100 de altura) não couber na folha atual
+        if (doc.y + 100 > 800) doc.addPage();
 
         let yObs = doc.y;
+        
+        // Título "Observações" (Preto) colado na linha de cima
         doc.rect(startX, yObs, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Observações', startX, yObs + 5, { width: width, align: 'center' });
         doc.fillColor('black');
 
-        let yChecklist = doc.y;
+        // Caixa Cinza do Checklist colada no título preto
+        let yChecklist = yObs + 20; 
         doc.font('Helvetica').fontSize(9);
 
         const obs1 = '1    Checar as descrições de atividade encaminhadas pela empresa e anotar as divergências encontradas que possam impactar na exposição.';
@@ -760,21 +755,20 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         doc.text(obs4, startX + 5, currentY, txtOpts);
 
+        // Atualiza a posição final para o próximo bloco respirar
         doc.y = yChecklist + alturaCaixaCheck;
         doc.moveDown(2);
 
 
         // =================================================================
-        // BLOCO: DETALHAMENTO DOS PERIGOS (TABELA COMPLETA COM 7 COLUNAS GRUDADAS)
+        // BLOCO: DETALHAMENTO DOS PERIGOS 
         // =================================================================
         if (doc.y > 650) doc.addPage();
 
-        // 1. Título Principal (Preto)
         doc.rect(startX, doc.y, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Detalhamento dos Perigos', startX, doc.y + 5, { width: width, align: 'center' });
         doc.fillColor('black');
 
-        // 2. Linha de Ausência de Riscos (Abaixo do Título Preto, grudado!)
         const ausente = (levantamento.ausencia_risco_ambiental || levantamento.ausencia_risco_ergonomico || levantamento.ausencia_risco_mecanico)
             ? 'Sim ( X )   Não (   )'
             : 'Sim (   )   Não ( X )';
@@ -783,7 +777,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.font('Helvetica-Bold').fontSize(9).text('Ausência de exposição a riscos ambientais, ergonômicos e mecânicos (acidentes): ', startX + 5, doc.y + 6, { continued: true });
         doc.font('Helvetica').text(ausente);
 
-        // 3. Cabeçalho da Tabela (Cinza)
         const detCols = [
             { label: "GP", width: 25 },
             { label: "Perigo / Número", width: 100 },
@@ -807,7 +800,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         });
         doc.y = yCabecalhoDet + alturaCabecalhoDet;
 
-        // 1. Função original mantida para não dar erro
         const getSiglaGP = (grupoBanco) => {
             if (!grupoBanco) return '-';
             const g = grupoBanco.toLowerCase();
@@ -819,20 +811,18 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             return grupoBanco.charAt(0).toUpperCase();
         };
 
-        // 2. Nova função bem simples: só devolve a cor do texto
         const getCorGP = (grupoBanco) => {
             if (!grupoBanco) return 'black';
             const g = grupoBanco.toLowerCase();
-            if (g.includes('físico')) return '#22c55e'; // Verde
-            if (g.includes('químico')) return '#ef4444'; // Vermelho
-            if (g.includes('biológico')) return '#ca8a04'; // Amarelo escuro
-            if (g.includes('ergonômico')) return '#eab308'; // Amarelo
-            if (g.includes('mecânico') || g.includes('acidente')) return '#0ea5e9'; // Azul
-            if (g.includes('inespecífico')) return '#a855f7'; // Roxo
+            if (g.includes('físico')) return '#22c55e'; 
+            if (g.includes('químico')) return '#ef4444'; 
+            if (g.includes('biológico')) return '#ca8a04'; 
+            if (g.includes('ergonômico')) return '#eab308'; 
+            if (g.includes('mecânico') || g.includes('acidente')) return '#0ea5e9'; 
+            if (g.includes('inespecífico')) return '#a855f7'; 
             return 'black';
         };
 
-        // 4. Linhas de Dados
         doc.font('Helvetica').fontSize(8);
 
         if (riscos.length > 0) {
@@ -847,7 +837,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                     epcStr = r.epcs.map(e => e.nome).join(', ');
                 }
 
-                // Resgata a letra e a cor separadamente
                 const gpStr = getSiglaGP(r.grupo);
                 const corTextoGP = getCorGP(r.grupo); 
                 
@@ -871,9 +860,8 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 let cx = startX;
                 let yLinhaDet = doc.y;
 
-                // Montamos a linha informando qual cor cada coluna vai ter
                 const valoresLinha = [
-                    { str: gpStr, align: 'center', cor: corTextoGP }, // Apenas esta coluna ganha cor
+                    { str: gpStr, align: 'center', cor: corTextoGP }, 
                     { str: perigoStr, align: 'left', cor: 'black' },
                     { str: fontesStr, align: 'left', cor: 'black' },
                     { str: tempoStr, align: 'left', cor: 'black' },
@@ -885,13 +873,10 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 valoresLinha.forEach((val, i) => {
                     const w = detCols[i].width;
                     
-                    // Desenha o quadrado em preto normal
                     doc.lineWidth(1).strokeColor('black').rect(cx, yLinhaDet, w, maxH).stroke();
 
-                    // Pinta a letra (se for GP pinta colorido, senão pinta preto) e escreve
                     doc.fillColor(val.cor);
                     
-                    // Se for a coluna GP, deixamos em Negrito pra destacar mais
                     if (i === 0) doc.font('Helvetica-Bold'); 
                     else doc.font('Helvetica');
 
@@ -917,13 +902,11 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         let yReg = doc.y;
 
-        // Título "Registro Final" (Preto)
         doc.rect(startX, yReg, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Registro Final', startX, yReg + 5, { width: width, align: 'center' });
         doc.fillColor('black');
         yReg += 20;
 
-        // Caixa branca das assinaturas
         const boxHeight = 110;
         doc.rect(startX, yReg, width, boxHeight).stroke();
 
@@ -931,7 +914,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         const leftCenterX = startX + (width / 4);
         const rightCenterX = startX + (width * 0.75);
 
-        // --- LADO ESQUERDO: RESPONSÁVEL DA EMPRESA ---
         if (levantamento.assinatura_responsavel_empresa && levantamento.assinatura_responsavel_empresa.includes('base64')) {
             const base64DataEmpresa = levantamento.assinatura_responsavel_empresa.split(';base64,').pop();
             const imgBufferEmpresa = Buffer.from(base64DataEmpresa, 'base64');
@@ -942,7 +924,6 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.font('Helvetica-Bold').fontSize(9).text(levantamento.responsavel_empresa_nome || 'Resp. da Empresa', leftCenterX - 110, yLine + 12, { width: 220, align: 'center' });
         doc.font('Helvetica').fontSize(8).text('Assinatura do Responsável pelas informações da empresa', leftCenterX - 110, yLine + 22, { width: 220, align: 'center' });
 
-        // --- LADO DIREITO: AVALIADOR ---
         if (levantamento.assinatura_avaliador && levantamento.assinatura_avaliador.includes('base64')) {
             const base64Data = levantamento.assinatura_avaliador.split(';base64,').pop();
             const imgBuffer = Buffer.from(base64Data, 'base64');

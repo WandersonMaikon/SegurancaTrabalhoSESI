@@ -718,11 +718,18 @@
                                 </div>
 
                                 <div class="p-6 overflow-x-auto">
+                                    <div class="mt-6 p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                        <label for="nome_grupo_ges"
+                                            class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nome
+                                            do Grupo de Exposição Similar (GES)</label>
+                                        <input type="text" id="nome_grupo_ges" name="nome_grupo_ges"
+                                            class="input w-full" placeholder="Ex: GES 01 - Produção e Manutenção">
+                                    </div>
                                     <table id="tableGes" class="table-default whitespace-nowrap w-full">
+                                        
                                         <thead>
                                             <tr>
-                                                <th class="text-nowrap">Nome do Grupo</th>
-                                                <th class="text-nowrap">Setor</th>
+                                                <th class="text-nowrap pl-6">Setor</th>
                                                 <th class="text-nowrap">Cargos</th>
                                                 <th class="text-nowrap">Exceção (Nome)</th>
                                                 <th class="text-nowrap">Observações</th>
@@ -739,9 +746,11 @@
                                         Nenhum GES cadastrado. Clique em adicionar.
                                     </div>
 
+                                    
+
                                     <p class="text-sm text-zinc-400 mt-4">
-                                        Dica: Adicione os Grupos de Exposição Similar (GES) para poder associar os
-                                        riscos a eles na próxima etapa.
+                                        Dica: Adicione os setores e cargos para poder associar os riscos a eles na
+                                        próxima etapa.
                                     </p>
                                 </div>
                             </div>
@@ -1232,15 +1241,17 @@
                 const tbody = document.querySelector('#tableGes tbody');
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
+                
+                // Sem a coluna de nome, o setor assume a primeira posição
                 row.innerHTML = `
-                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-nome font-medium" placeholder="Ex: GHE 01"></td>
-                <td class="px-2 py-3"><input type="text" class="table-input ges-setor" placeholder="Ex: Produção"></td>
+                <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-setor font-medium" placeholder="Ex: Produção"></td>
                 <td class="px-2 py-3"><input type="text" class="table-input ges-cargos" placeholder="Ex: Op. Máquina"></td>
                 <td class="px-2 py-3"><input type="text" class="table-input ges-excecao" placeholder="-"></td>
                 <td class="px-2 py-3"><input type="text" class="table-input ges-obs" placeholder="Opcional"></td>
                 <td class="pr-6 pl-2 py-3 text-center">
                     <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
                 </td>`;
+                
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1505,31 +1516,24 @@
                     const gesRows = document.querySelectorAll('#tableGes tbody tr');
                     let hasValidGes = false;
                     gesRows.forEach(tr => {
-                        const v1 = tr.querySelector('.ges-nome').value.trim();
                         const v2 = tr.querySelector('.ges-setor').value.trim();
                         const v3 = tr.querySelector('.ges-cargos').value.trim();
                         const v4 = tr.querySelector('.ges-excecao').value.trim();
-                        if (v1 || v2 || v3 || v4) hasValidGes = true;
+                        const v5 = tr.querySelector('.ges-obs').value.trim();
+                        if (v2 || v3 || v4 || v5) hasValidGes = true;
                     });
 
-                    if (!hasValidGes) {
-                        Swal.fire('Atenção', 'Preencha pelo menos um campo de um GES na aba GES & Químicos.', 'warning');
+                    const nomeGesValue = document.getElementById('nome_grupo_ges').value.trim();
+
+                    // Se preencheu a tabela, tem que dar um nome pro grupo
+                    if (hasValidGes && !nomeGesValue) {
+                        Swal.fire('Atenção', 'Você adicionou cargos, por favor informe o "Nome do Grupo (GES)" abaixo da tabela.', 'warning');
                         changeStep(2);
                         return;
                     }
 
-                    const quimRows = document.querySelectorAll('#tableQuimico tbody tr');
-                    let hasValidQuim = false;
-                    quimRows.forEach(tr => {
-                        const v1 = tr.querySelector('.quim-rotulo').value.trim();
-                        const v2 = tr.querySelector('.quim-estado').value.trim();
-                        const v3 = tr.querySelector('.quim-exposicao').value.trim();
-                        const v4 = tr.querySelector('.quim-processo').value.trim();
-                        if (v1 || v2 || v3 || v4) hasValidQuim = true;
-                    });
-
-                    if (!hasValidQuim) {
-                        Swal.fire('Atenção', 'Preencha pelo menos um campo de um Produto Químico.', 'warning');
+                    if (!hasValidGes) {
+                        Swal.fire('Atenção', 'Preencha pelo menos um setor/cargo na aba GES & Químicos.', 'warning');
                         changeStep(2);
                         return;
                     }
@@ -1600,17 +1604,16 @@
                     };
 
                     const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
-                        nome: tr.querySelector('.ges-nome').value, 
                         setor: tr.querySelector('.ges-setor').value,
                         cargos: tr.querySelector('.ges-cargos').value, 
                         excecao: tr.querySelector('.ges-excecao').value,
                         obs: tr.querySelector('.ges-obs').value 
-                    })).filter(g => g.nome || g.setor || g.cargos || g.excecao || g.obs);
+                    })).filter(g => g.setor || g.cargos || g.excecao || g.obs);
 
                     const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
-                        rotulo: tr.querySelector('.quim-rotulo').value, 
+                        rotulo: tr.querySelector('.quim-rotulo').value,
                         estado: tr.querySelector('.quim-estado').value,
-                        exposicao: tr.querySelector('.quim-exposicao').value, 
+                        exposicao: tr.querySelector('.quim-exposicao').value,
                         processo: tr.querySelector('.quim-processo').value,
                         obs: tr.querySelector('.quim-obs').value // <-- ADICIONADO
                     })).filter(q => q.rotulo || q.estado || q.exposicao || q.processo || q.obs);
@@ -1655,6 +1658,7 @@
                         tipo_ventilacao: getRadioVal('tipo_ventilacao'),
                         escadas_tipo: getRadioVal('escadas_tipo'),
                         passarelas_tipo: getRadioVal('passarelas_tipo'),
+                        nome_grupo_ges: document.getElementById('nome_grupo_ges').value.trim(),
 
                         // --- 1. COBERTURA (Juntando estrutura e telha no formato JSON) ---
                         tipo_cobertura: {
