@@ -659,6 +659,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             });
             doc.y = yLinhaGes + maxH;
         });
+        
 
         // =================================================================
         // BLOCO: INVENTÁRIO DE PRODUTOS QUÍMICOS
@@ -774,7 +775,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.fillColor('black');
 
         // 2. Linha de Ausência de Riscos (Abaixo do Título Preto, grudado!)
-        const ausente = (levantamento.ausencia_risco_ambiental && levantamento.ausencia_risco_ergonomico && levantamento.ausencia_risco_mecanico)
+        const ausente = (levantamento.ausencia_risco_ambiental || levantamento.ausencia_risco_ergonomico || levantamento.ausencia_risco_mecanico)
             ? 'Sim ( X )   Não (   )'
             : 'Sim (   )   Não ( X )';
 
@@ -806,7 +807,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         });
         doc.y = yCabecalhoDet + alturaCabecalhoDet;
 
-        // Função para descobrir a sigla do Grupo de Perigo (GP)
+        // 1. Função original mantida para não dar erro
         const getSiglaGP = (grupoBanco) => {
             if (!grupoBanco) return '-';
             const g = grupoBanco.toLowerCase();
@@ -816,6 +817,19 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             if (g.includes('ergonômico')) return 'E';
             if (g.includes('mecânico') || g.includes('acidente')) return 'M';
             return grupoBanco.charAt(0).toUpperCase();
+        };
+
+        // 2. Nova função bem simples: só devolve a cor do texto
+        const getCorGP = (grupoBanco) => {
+            if (!grupoBanco) return 'black';
+            const g = grupoBanco.toLowerCase();
+            if (g.includes('físico')) return '#22c55e'; // Verde
+            if (g.includes('químico')) return '#ef4444'; // Vermelho
+            if (g.includes('biológico')) return '#ca8a04'; // Amarelo escuro
+            if (g.includes('ergonômico')) return '#eab308'; // Amarelo
+            if (g.includes('mecânico') || g.includes('acidente')) return '#0ea5e9'; // Azul
+            if (g.includes('inespecífico')) return '#a855f7'; // Roxo
+            return 'black';
         };
 
         // 4. Linhas de Dados
@@ -833,7 +847,10 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                     epcStr = r.epcs.map(e => e.nome).join(', ');
                 }
 
+                // Resgata a letra e a cor separadamente
                 const gpStr = getSiglaGP(r.grupo);
+                const corTextoGP = getCorGP(r.grupo); 
+                
                 const perigoStr = r.nome_risco || '-';
                 const fontesStr = r.fontes || '-';
                 const tempoStr = r.tempo || '-';
@@ -854,20 +871,32 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 let cx = startX;
                 let yLinhaDet = doc.y;
 
+                // Montamos a linha informando qual cor cada coluna vai ter
                 const valoresLinha = [
-                    { str: gpStr, align: 'center' },
-                    { str: perigoStr, align: 'left' },
-                    { str: fontesStr, align: 'left' },
-                    { str: tempoStr, align: 'left' },
-                    { str: epiStr, align: 'left' },
-                    { str: epcStr, align: 'left' },
-                    { str: obsStr, align: 'left' }
+                    { str: gpStr, align: 'center', cor: corTextoGP }, // Apenas esta coluna ganha cor
+                    { str: perigoStr, align: 'left', cor: 'black' },
+                    { str: fontesStr, align: 'left', cor: 'black' },
+                    { str: tempoStr, align: 'left', cor: 'black' },
+                    { str: epiStr, align: 'left', cor: 'black' },
+                    { str: epcStr, align: 'left', cor: 'black' },
+                    { str: obsStr, align: 'left', cor: 'black' }
                 ];
 
                 valoresLinha.forEach((val, i) => {
                     const w = detCols[i].width;
-                    doc.rect(cx, yLinhaDet, w, maxH).stroke();
+                    
+                    // Desenha o quadrado em preto normal
+                    doc.lineWidth(1).strokeColor('black').rect(cx, yLinhaDet, w, maxH).stroke();
+
+                    // Pinta a letra (se for GP pinta colorido, senão pinta preto) e escreve
+                    doc.fillColor(val.cor);
+                    
+                    // Se for a coluna GP, deixamos em Negrito pra destacar mais
+                    if (i === 0) doc.font('Helvetica-Bold'); 
+                    else doc.font('Helvetica');
+
                     doc.text(val.str, cx + 2, yLinhaDet + 5, { width: w - 4, align: val.align });
+                    
                     cx += w;
                 });
 
@@ -875,7 +904,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             });
         } else {
             doc.rect(startX, doc.y, width, 20).stroke();
-            doc.font('Helvetica-Oblique').fontSize(9).text('Nenhum risco identificado no levantamento.', startX + 5, doc.y + 5);
+            doc.fillColor('black').font('Helvetica-Oblique').fontSize(9).text('Nenhum risco identificado no levantamento.', startX + 5, doc.y + 5);
             doc.y += 20;
         }
 
