@@ -166,7 +166,6 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
 
         const toJson = (obj) => JSON.stringify(obj || {});
 
-        // 🔥 Tabela principal recebendo o nome_grupo_ges
         const sqlLevantamento = `
             INSERT INTO levantamento_perigo (
                 id_levantamento, id_unidade, id_cliente, data_levantamento, 
@@ -363,7 +362,280 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
     }
 });
 
-// --- 5. IMPRIMIR PDF ---
+// --- 5. EDITAR FORMULÁRIO (GET) ---
+router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userLogado = req.session.user;
+        const ehAdmin = verificarSeEhAdmin(userLogado);
+
+        // 1. Usando LEFT JOIN: Garante que os dados carreguem mesmo se algum vínculo falhar
+        const [rows] = await db.query(`
+            SELECT l.*, c.nome_empresa, c.cnpj, u.nome_completo as nome_avaliador
+            FROM levantamento_perigo l
+            LEFT JOIN cliente c ON l.id_cliente = c.id_cliente
+            LEFT JOIN usuario u ON l.id_responsavel_tecnico = u.id_usuario
+            WHERE l.id_levantamento = ? AND l.deleted_at IS NULL
+        `, [id]);
+
+        if (rows.length === 0) return res.status(404).send("Levantamento não encontrado.");
+        const levantamento = rows[0];
+
+        // Proteção de acesso
+        if (!ehAdmin && levantamento.id_unidade !== (userLogado.id_unidade || userLogado.unidade_id)) {
+            return res.status(403).send("Acesso negado.");
+        }
+
+        // 2. Buscas para os selects (Clientes, Usuários, EPIs, EPCs, Matriz de Riscos)
+        let queryClientes = "SELECT id_cliente, nome_empresa FROM cliente WHERE deleted_at IS NULL AND ativo = 1";
+        let paramsClientes = [];
+        if (!ehAdmin) {
+            queryClientes += " AND id_unidade = ?";
+            paramsClientes.push(userLogado.id_unidade || userLogado.unidade_id);
+        }
+        queryClientes += " ORDER BY nome_empresa ASC";
+        const [clientes] = await db.query(queryClientes, paramsClientes);
+
+        let queryUsers = "SELECT id_usuario, nome_completo FROM usuario WHERE ativo = 1";
+        let paramsUsers = [];
+        if (!ehAdmin) {
+            queryUsers += " AND id_unidade = ?";
+            paramsUsers.push(userLogado.id_unidade || userLogado.unidade_id);
+        }
+        const [usuarios] = await db.query(queryUsers, paramsUsers);
+
+        const [epis] = await db.query("SELECT id_epi, nome_equipamento, ca FROM epi WHERE ativo = 1");
+        const [epcs] = await db.query("SELECT id_epc, nome FROM epc WHERE ativo = 1");
+        const [todosRiscos] = await db.query(`
+            SELECT r.id_risco, r.codigo_interno AS codigo, r.nome_risco AS nome, r.tipo_risco AS grupo, t24.codigo AS esocial
+            FROM risco r
+            LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
+            WHERE r.deleted_at IS NULL
+        `);
+
+        // 3. Busca nas tabelas filhas (GES, Químicos)
+        const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ?", [id]);
+        const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ?", [id]);
+        
+        // Riscos: Usando COALESCE para garantir que o risco não suma caso a matriz original seja alterada
+        const [riscos] = await db.query(`
+            SELECT 
+                lri.*, 
+                COALESCE(r.codigo_interno, lri.codigo_perigo) AS codigo_interno, 
+                COALESCE(r.nome_risco, lri.descricao_perigo) AS nome_risco, 
+                COALESCE(r.tipo_risco, lri.grupo_perigo) AS tipo_risco
+            FROM levantamento_risco_identificado lri
+            LEFT JOIN risco r ON lri.id_risco = r.id_risco
+            WHERE lri.id_levantamento = ?
+        `, [id]);
+
+        // Busca EPIs e EPCs atrelados a cada risco
+        for (let risco of riscos) {
+            const [episRisco] = await db.query("SELECT id_epi FROM levantamento_risco_has_epi WHERE id_risco_identificado = ?", [risco.id_risco_identificado]);
+            risco.epis = episRisco.map(e => e.id_epi);
+
+            const [epcsRisco] = await db.query("SELECT id_epc FROM levantamento_risco_has_epc WHERE id_risco_identificado = ?", [risco.id_risco_identificado]);
+            risco.epcs = epcsRisco.map(e => e.id_epc);
+        }
+
+        // ========================================================
+        // ATENÇÃO AQUI EMBAIXO: NOME DO ARQUIVO EJS E VARIÁVEIS
+        // ========================================================
+        res.render("formularios/levantamento-perigo-editar", { // <-- Ajuste o nome aqui se o seu arquivo se chamar levantamento-perigo-form
+            user: userLogado,
+            currentPage: 'levantamento-perigos',
+            clientes, usuarios, epis, epcs, todosRiscos,
+            
+            // Dados brutos para o HTML/EJS (Inputs, Checkboxes e forEach)
+            levantamento: levantamento,
+            ges: ges, 
+            quimicos: quimicos,
+            riscos: riscos,
+
+            // Dado JSON apenas para o script do Javascript montar os blocos de risco
+            riscosJson: JSON.stringify(riscos) 
+        });
+
+    } catch (error) {
+        console.error("Erro ao abrir edição:", error);
+        res.status(500).send("Erro interno ao carregar formulário de edição.");
+    }
+});
+
+// --- 6. ATUALIZAR (POST) ---
+router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res) => {
+    const conn = await db.getConnection();
+    try {
+        await conn.beginTransaction();
+
+        const { id } = req.params;
+        const data = JSON.parse(req.body.dados_json);
+        const userLogado = req.session.user;
+        const id_unidade = userLogado.id_unidade || userLogado.unidade_id;
+        const toJson = (obj) => JSON.stringify(obj || {});
+
+        // 1. Busca os dados antigos para fazer o comparativo do Log
+        const [rowsAntigo] = await conn.query("SELECT * FROM levantamento_perigo WHERE id_levantamento = ?", [id]);
+        if (rowsAntigo.length === 0) throw new Error("Levantamento não encontrado para edição.");
+        const dadosAntigos = rowsAntigo[0];
+
+        // 2. Compara os campos principais para o Log de Auditoria
+        const camposParaComparar = [
+            'id_cliente', 'id_responsavel_tecnico', 'trabalho_externo', 'nome_grupo_ges',
+            'area_m2', 'pe_direito_m', 'ausencia_risco_ambiental', 'obs_condicoes_gerais'
+        ];
+        
+        const alteracoesRealizadas = {};
+        camposParaComparar.forEach(campo => {
+            let valorAntigo = dadosAntigos[campo] !== null ? dadosAntigos[campo].toString() : null;
+            let valorNovo = data[campo] !== undefined && data[campo] !== null ? data[campo].toString() : null;
+            
+            if (campo.startsWith('ausencia_') || campo === 'trabalho_externo') {
+                valorNovo = data[campo] ? "1" : "0";
+            }
+
+            if (valorAntigo !== valorNovo) {
+                alteracoesRealizadas[campo] = { de: valorAntigo, para: valorNovo };
+            }
+        });
+
+        // 3. Atualiza a tabela principal (levantamento_perigo)
+        const sqlUpdate = `
+            UPDATE levantamento_perigo SET 
+                id_cliente = ?, data_levantamento = ?, id_responsavel_tecnico = ?, 
+                responsavel_empresa_nome = ?, responsavel_empresa_cargo = ?, trabalho_externo = ?,
+                nome_grupo_ges = ?, tipo_construcao = ?, tipo_piso = ?, tipo_paredes = ?, cor_paredes = ?, 
+                divisoes_internas_material = ?, tipo_cobertura = ?, tipo_forro = ?, tipo_iluminacao = ?, 
+                tipo_ventilacao = ?, possui_climatizacao = ?, escadas_tipo = ?, passarelas_tipo = ?, 
+                estruturas_auxiliares = ?, area_m2 = ?, pe_direito_m = ?, largura_m = ?, comprimento_m = ?, 
+                obs_condicoes_gerais = ?, ausencia_risco_ambiental = ?, ausencia_risco_ergonomico = ?, 
+                ausencia_risco_mecanico = ?, ausencia_risco_quimico = ?, ausencia_risco_biologico = ?
+            WHERE id_levantamento = ?
+        `;
+
+        await conn.query(sqlUpdate, [
+            data.id_cliente, data.data_levantamento, data.id_responsavel_tecnico,
+            data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
+            data.nome_grupo_ges || null, toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, 
+            toJson(data.divisoes_internas_material), toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), 
+            toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0, toJson(data.escadas_tipo), toJson(data.passarelas_tipo), 
+            JSON.stringify(data.estruturas_auxiliares || []), data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, 
+            data.comprimento_m || 0, data.obs_condicoes_gerais, data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0,
+            data.ausencia_risco_mecanico ? 1 : 0, data.ausencia_risco_quimico ? 1 : 0, data.ausencia_risco_biologico ? 1 : 0,
+            id 
+        ]);
+
+        if (data.assinatura_avaliador) {
+            await conn.query('UPDATE levantamento_perigo SET assinatura_avaliador = ? WHERE id_levantamento = ?', [data.assinatura_avaliador, id]);
+        }
+        if (data.assinatura_responsavel_empresa) {
+            await conn.query('UPDATE levantamento_perigo SET assinatura_responsavel_empresa = ? WHERE id_levantamento = ?', [data.assinatura_responsavel_empresa, id]);
+        }
+
+        // 4. Deleção das tabelas filhas (Wipe and Replace)
+        await conn.query(`DELETE FROM levantamento_ges WHERE id_levantamento = ?`, [id]);
+        await conn.query(`DELETE FROM levantamento_quimico WHERE id_levantamento = ?`, [id]);
+        
+        const [riscosAntigos] = await conn.query(`SELECT id_risco_identificado, anexo_imagem FROM levantamento_risco_identificado WHERE id_levantamento = ?`, [id]);
+        if (riscosAntigos.length > 0) {
+            const idsRiscos = riscosAntigos.map(r => r.id_risco_identificado);
+            await conn.query(`DELETE FROM levantamento_risco_has_epi WHERE id_risco_identificado IN (?)`, [idsRiscos]);
+            await conn.query(`DELETE FROM levantamento_risco_has_epc WHERE id_risco_identificado IN (?)`, [idsRiscos]);
+            await conn.query(`DELETE FROM levantamento_risco_identificado WHERE id_levantamento = ?`, [id]);
+        }
+
+        // 5. Reinserção dos dados nas tabelas filhas
+        if (data.ges && Array.isArray(data.ges)) {
+            for (const g of data.ges) {
+                await conn.query(`
+                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id, g.setor, g.cargos, g.excecao, g.obs || null]);
+            }
+        }
+
+        if (data.quimicos && Array.isArray(data.quimicos)) {
+            for (const q of data.quimicos) {
+                await conn.query(`
+                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]);
+            }
+        }
+
+        if (data.riscos && Array.isArray(data.riscos)) {
+            for (let i = 0; i < data.riscos.length; i++) {
+                const r = data.riscos[i];
+                const id_risco_identificado = uuidv4();
+
+                const fileField = 'imagem_' + i;
+                const file = req.files ? req.files.find(f => f.fieldname === fileField) : null;
+                
+                let anexo_imagem = r.anexo_imagem_atual || null; 
+                if (file) {
+                    anexo_imagem = '/uploads/riscos/' + file.filename;
+                } else if (!anexo_imagem && i < riscosAntigos.length) {
+                    anexo_imagem = riscosAntigos[i].anexo_imagem;
+                }
+
+                await conn.query(`
+                    INSERT INTO levantamento_risco_identificado (
+                        id_risco_identificado, id_levantamento, id_risco, grupo_perigo, codigo_perigo, 
+                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [
+                    id_risco_identificado, id, r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem
+                ]);
+
+                if (r.epis && Array.isArray(r.epis)) {
+                    for (const epiId of r.epis) {
+                        await conn.query('INSERT INTO levantamento_risco_has_epi (id_risco_identificado, id_epi) VALUES (?, ?)', [id_risco_identificado, epiId]);
+                    }
+                }
+
+                if (r.epcs && Array.isArray(r.epcs)) {
+                    for (const epcId of r.epcs) {
+                        await conn.query('INSERT INTO levantamento_risco_has_epc (id_risco_identificado, id_epc) VALUES (?, ?)', [id_risco_identificado, epcId]);
+                    }
+                }
+            }
+        }
+
+        // 6. Registro no Log
+        const [clienteResult] = await conn.query('SELECT nome_empresa FROM cliente WHERE id_cliente = ?', [data.id_cliente]);
+        const nomeEmpresaLog = clienteResult.length > 0 ? clienteResult[0].nome_empresa : 'Cliente Desconhecido';
+
+        await registrarLog({
+            id_unidade: id_unidade,
+            id_usuario: userLogado.id_usuario,
+            acao: 'UPDATE',
+            tabela: 'levantamento_perigo',
+            id_registro: id,
+            dados_novos: {
+                mensagem: "Levantamento editado com sucesso.",
+                nome_cliente_atual: nomeEmpresaLog,
+                alteracoes_principais: alteracoesRealizadas, 
+                totais_finais: {
+                    setores_cadastrados: data.ges ? data.ges.length : 0,
+                    produtos_quimicos: data.quimicos ? data.quimicos.length : 0,
+                    riscos_identificados: data.riscos ? data.riscos.length : 0
+                }
+            }
+        });
+
+        await conn.commit();
+        res.json({ success: true, message: "Levantamento atualizado com sucesso!" });
+
+    } catch (error) {
+        await conn.rollback();
+        console.error("Erro ao atualizar levantamento:", error);
+        res.status(500).json({ success: false, message: "Erro ao atualizar no banco de dados." });
+    } finally {
+        conn.release();
+    }
+});
+
+// --- 8. IMPRIMIR PDF ---
 router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
     try {
         const { id } = req.params;
