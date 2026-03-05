@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Normas Regulamentadoras (NR) - ProS</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 pt-6 pb-4 flex flex-col">
+                    <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">
+                        Normas Regulamentadoras (NR)
+                    </h2>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+                        Consulte as disposições, atualizações e anexos das NRs vigentes.
+                    </p>
+                </div>
+
+                <div class="content lg:px-8 flex-grow relative pb-10">
+
+                    <% const normas=[ { numero: 1,
+                        titulo: "NR-1 - DISPOSIÇÕES GERAIS E GERENCIAMENTO DE RISCOS OCUPACIONAIS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-01-atualizada-2024-i-1.pdf"
+                        }, { numero: 2, titulo: "NR-2 - INSPEÇÃO PRÉVIA (REVOGADA)" ,
+                        link: "http://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-02_atualizada_2019.pdf"
+                        }, { numero: 3, titulo: "NR-3 - EMBARGO E INTERDIÇÃO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-03_atualizada_2019.pdf"
+                        }, { numero: 4, titulo: "NR-4 - SERVIÇOS ESPECIALIZADOS EM SEGURANÇA E EM MEDICINA DO TRABALHO"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-04-atualizada-2023.pdf"
+                        }, { numero: 5, titulo: "NR-5 - COMISSÃO INTERNA DE PREVENÇÃO DE ACIDENTES E DE ASSÉDIO - CIPA"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/NR05atualizada2023.pdf"
+                        }, { numero: 6, titulo: "NR-6 - EQUIPAMENTO DE PROTEÇÃO INDIVIDUAL - EPI" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-06-atualizada-2025-ii.pdf"
+                        }, { numero: 7, titulo: "NR-7 - PROGRAMA DE CONTROLE MÉDICO DE SAÚDE OCUPACIONAL" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-07-atualizada-2022-1.pdf"
+                        }, { numero: 8, titulo: "NR-8 - EDIFICAÇÕES" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-08-atualizada-2022.pdf"
+                        }, { numero: 9,
+                        titulo: "NR-9 - AVALIAÇÃO E CONTROLE DAS EXPOSIÇÕES OCUPACIONAIS A AGENTES FÍSICOS, QUÍMICOS E BIOLÓGICOS"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-09-atualizada-2021.pdf"
+                        }, { numero: 10, titulo: "NR-10 - SEGURANÇA EM INSTALAÇÕES E SERVIÇOS EM ELETRICIDADE" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-10.pdf"
+                        }, { numero: 11, titulo: "NR-11 - TRANSPORTE, MOVIMENTAÇÃO, ARMAZENAGEM E MANUSEIO DE MATERIAIS"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-11-atualizada-2016.pdf"
+                        }, { numero: 12, titulo: "NR-12 - SEGURANÇA NO TRABALHO EM MÁQUINAS E EQUIPAMENTOS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-12-atualizada-2025.pdf"
+                        }, { numero: 13,
+                        titulo: "NR-13 - CALDEIRAS, VASOS DE PRESSÃO E TUBULAÇÕES E TANQUES METÁLICOS DE ARMAZENAMENTO"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-13-atualizada-2023-b.pdf"
+                        }, { numero: 14, titulo: "NR-14 - FORNOS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-14-atualizada-2022.pdf"
+                        }, { numero: 15, titulo: "NR-15 - ATIVIDADES E OPERAÇÕES INSALUBRES" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-15-atualizada-2025.pdf"
+                        }, { numero: 16, titulo: "NR-16 - ATIVIDADES E OPERAÇÕES PERIGOSAS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-16-atualizada-2025-ii.pdf"
+                        }, { numero: 17, titulo: "NR-17 - ERGONOMIA" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-17-atualizada-2023.pdf"
+                        }, { numero: 18, titulo: "NR-18 - SEGURANÇA E SAÚDE NO TRABALHO NA INDÚSTRIA DA CONSTRUÇÃO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-18-atualizada-2025-1.pdf"
+                        }, { numero: 19, titulo: "NR-19 - EXPLOSIVOS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-19-atualizada-2023.pdf"
+                        }, { numero: 20, titulo: "NR-20 - SEGURANÇA E SAÚDE NO TRABALHO COM INFLAMÁVEIS E COMBUSTÍVEIS"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-20-atualizada-2025.pdf"
+                        }, { numero: 21, titulo: "NR-21 - TRABALHOS A CÉU ABERTO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-21.pdf"
+                        }, { numero: 22, titulo: "NR-22 - SEGURANÇA E SAÚDE OCUPACIONAL NA MINERAÇÃO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-22-atualizada-2024-iii.pdf"
+                        }, { numero: 23, titulo: "NR-23 - PROTEÇÃO CONTRA INCÊNDIOS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-23-atualizada-2022.pdf"
+                        }, { numero: 24, titulo: "NR-24 - CONDIÇÕES SANITÁRIAS E DE CONFORTO NOS LOCAIS DE TRABALHO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-24-atualizada-2022.pdf"
+                        }, { numero: 25, titulo: "NR-25 - RESÍDUOS INDUSTRIAIS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-25-atualizada-2022-1.pdf"
+                        }, { numero: 26, titulo: "NR-26 - SINALIZAÇÃO DE SEGURANÇA" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-26-atualizada-2022.pdf"
+                        }, { numero: 27,
+                        titulo: "NR-27 - REGISTRO PROFISSIONAL DO TÉCNICO DE SEGURANÇA DO TRABALHO (REVOGADA)" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr_27_revogada_2008.pdf"
+                        }, { numero: 28, titulo: "NR-28 - FISCALIZAÇÃO E PENALIDADES" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-28-atualizada-2024-i.pdf"
+                        }, { numero: 29,
+                        titulo: "NR-29 - NORMA REGULAMENTADORA DE SEGURANÇA E SAÚDE NO TRABALHO PORTUÁRIO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-29-atualizada-2023.pdf"
+                        }, { numero: 30, titulo: "NR-30 - SEGURANÇA E SAÚDE NO TRABALHO AQUAVIÁRIO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-30-atualizada-2023.pdf"
+                        }, { numero: 31,
+                        titulo: "NR-31 - SEGURANÇA E SAÚDE NO TRABALHO NA AGRICULTURA, PECUÁRIA SILVICULTURA, EXPLORAÇÃO FLORESTAL E AQUICULTURA"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-31-atualizada-2024-2.pdf"
+                        }, { numero: 32, titulo: "NR-32 - SEGURANÇA E SAÚDE NO TRABALHO EM SERVIÇOS DE SAÚDE" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-32-atualizada-2023-1.pdf"
+                        }, { numero: 33, titulo: "NR-33 - SEGURANÇA E SAÚDE NOS TRABALHOS EM ESPAÇOS CONFINADOS" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/arquivos/normas-regulamentadoras/nr-33-atualizada-2022-_retificada.pdf"
+                        }, { numero: 34,
+                        titulo: "NR-34 - CONDIÇÕES E MEIO AMBIENTE DE TRABALHO NA INDÚSTRIA DA CONSTRUÇÃO, REPARAÇÃO E DESMONTE NAVAL"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-34-atualizada-2023-2.pdf"
+                        }, { numero: 35, titulo: "NR-35 - TRABALHO EM ALTURA" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-35-atualizada-2025-1.pdf"
+                        }, { numero: 36,
+                        titulo: "NR-36 - SEGURANÇA E SAÚDE NO TRABALHO EM EMPRESAS DE ABATE E PROCESSAMENTO DE CARNES E DERIVADOS"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-36-atualizada-2024-1.pdf"
+                        }, { numero: 37, titulo: "NR-37 - SEGURANÇA E SAÚDE EM PLATAFORMAS DE PETRÓLEO" ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/seguranca-e-saude-no-trabalho/ctpp-nrs/nr-37-atualizada-2023.pdf"
+                        }, { numero: 38,
+                        titulo: "NR-38 - SEGURANÇA E SAÚDE NO TRABALHO NAS ATIVIDADES DE LIMPEZA URBANA E MANEJO DE RESÍDUOS SÓLIDOS"
+                        ,
+                        link: "https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/participacao-social/conselhos-e-orgaos-colegiados/comissao-tripartite-partitaria-permanente/normas-regulamentadora/normas-regulamentadoras-vigentes/nr-38-atualizada-2025-3.pdf"
+                        } ]; %>
+
+                        <div class="w-full space-y-3" id="accordionNormas">
+
+                            <% normas.forEach((nr, index)=> { %>
+                                <div
+                                    class="collapse-item bg-zinc-100 dark:bg-zinc-900 border-l-[10px] border-zinc-300 dark:border-zinc-700 rounded-e-md shadow-sm">
+
+                                    <button
+                                        class="flex w-full items-center justify-between cursor-pointer p-4 transition-colors hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50 collapsed"
+                                        type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#collapseNr<%= nr.numero %>" aria-expanded="false"
+                                        aria-controls="collapseNr<%= nr.numero %>">
+                                        <h5
+                                            class="text-[15px] font-bold text-[#1a5293] dark:text-blue-400 flex-grow text-start tracking-wide uppercase pr-4">
+                                            <%= nr.titulo %>
+                                        </h5>
+                                        <span
+                                            class="icon-[lucide--chevron-down] collapse-arrow shrink-0 size-5 text-zinc-400 flex items-center justify-center transition-transform duration-200"></span>
+                                    </button>
+
+                                    <div id="collapseNr<%= nr.numero %>" class="accordion-collapse collapse"
+                                        data-bs-parent="#accordionNormas">
+                                        <div
+                                            class="p-5 border-t border-zinc-200 dark:border-zinc-800 text-sm bg-white dark:bg-zinc-900">
+                                            <p class="mb-4 text-zinc-500">Documento oficial atualizado hospedado no
+                                                portal do Governo Federal.</p>
+
+                                            <a href="<%= nr.link %>" target="_blank"
+                                                class="group flex items-center gap-3 p-3 border border-zinc-200 dark:border-zinc-700 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:border-primary/50 hover:shadow-sm w-fit transition-all">
+                                                <div
+                                                    class="bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-2.5 rounded-md flex items-center justify-center">
+                                                    <span class="icon-[lucide--file-text] text-xl"></span>
+                                                </div>
+                                                <div class="flex flex-col pr-4">
+                                                    <span
+                                                        class="text-sm font-bold text-zinc-700 dark:text-zinc-200 group-hover:text-primary transition-colors">
+                                                        <%= nr.titulo.split(' - ')[0] %>_Oficial.pdf</span>
+                                        <span class="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
+                                            <span class="icon-[lucide--external-link] text-[10px]"></span> gov.br
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                <% }) %>
+
+            </div>
+
+        </div>
+
+        <%- include('../partials/footer') %>
+
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script type="text/javascript" src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -44,6 +44,7 @@ app.use((req, res, next) => {
 // ============================================================
 const authRoutes = require('./routes/auth.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
+const nrRoutes = require('./routes/nrs.routes');
 const clientesRoutes = require('./routes/clientes.routes');
 const servicosRoutes = require('./routes/servicos.routes');
 const osRoutes = require('./routes/os.routes');
@@ -59,6 +60,7 @@ const verificarAutenticacao = require("./middlewares/auth.middleware");
 const verificarPermissao = require("./middlewares/permission.middleware");
 
 app.use('/', authRoutes);
+app.use('/normas', nrRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/clientes', clientesRoutes);
 app.use('/servicos', servicosRoutes);
