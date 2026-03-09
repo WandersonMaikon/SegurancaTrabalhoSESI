@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Editar Usuário</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-10 py-6">
+                    <h2 class="text-2xl mb-2">Editar usuário</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/usuario"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Usuários</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">Editar</span></li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow px-4 lg:px-10 pb-10">
+                    <form id="form_edit_user" class="w-full" onsubmit="return false;">
+
+                        <input type="hidden" id="userId" value="<%= usuarioEdit.id_usuario %>">
+
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="md:col-span-8 space-y-6">
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                        <h5 class="text-xl">Dados do usuário</h5>
+                                        <p class="text-sm text-zinc-400 mt-1">Atualize as informações do usuário
+                                            selecionado.</p>
+                                    </div>
+
+                                    <div class="p-6 grid grid-cols-1 gap-6">
+
+                                        <div id="container_unidade" class="w-full max-w-2xl" style="display: none;">
+                                            <label class="mb-2 block font-medium">Unidade Vinculada</label>
+                                            <select id="user_unidade" name="unidade" class="w-full">
+                                                <option value="" disabled>Carregando unidades...</option>
+                                            </select>
+                                            <p class="text-xs text-zinc-400 mt-1">Selecione a unidade onde este usuário
+                                                irá atuar.</p>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userName">Nome Completo</label>
+                                            <input id="userName" name="nome" type="text" class="input h-10 w-full"
+                                                placeholder="Informe o nome completo do usuário"
+                                                value="<%= usuarioEdit.nome_completo %>" required>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium" for="userEmail">E-mail</label>
+                                            <input id="userEmail" name="email" type="email" class="input h-10 w-full"
+                                                placeholder="email@exemplo.com" value="<%= usuarioEdit.email %>"
+                                                required>
+                                        </div>
+
+                                        <div class="w-full max-w-2xl">
+                                            <label class="mb-2 block font-medium">Perfil de Acesso</label>
+                                            <select id="user_perfil" name="perfil" class="w-full" required>
+                                                <option value="" disabled>Carregando...</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
+                                    <a href="/usuario"
+                                        class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 transition-all flex items-center justify-center">
+                                        Cancelar
+                                    </a>
+                                    <button onclick="updateUser(event)" type="button"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
+                                        Salvar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const perfis = JSON.parse('<%- JSON.stringify(perfis || []) %>');
+                const unidades = JSON.parse('<%- JSON.stringify(unidades || []) %>');
+                const ehAdmin = JSON.parse('<%- JSON.stringify(ehAdmin || false) %>');
+                const usuarioEdit = JSON.parse('<%- JSON.stringify(usuarioEdit || {}) %>');
+
+                // --- POPULAR PERFIS (COM SELEÇÃO PRÉVIA) ---
+                const selectPerfil = document.getElementById('user_perfil');
+                selectPerfil.innerHTML = '<option value="" disabled>Selecione um perfil...</option>';
+
+                perfis.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id_perfil;
+                    opt.textContent = p.nome_perfil;
+                    // Se o perfil da listagem for o mesmo do usuário sendo editado, marca como selecionado
+                    if (p.id_perfil === usuarioEdit.id_perfil) {
+                        opt.selected = true;
+                    }
+                    selectPerfil.appendChild(opt);
+                });
+
+                new TomSelect('#user_perfil', { create: false, sortField: { field: "text", direction: "asc" } });
+
+                // --- LÓGICA DA UNIDADE (COM SELEÇÃO PRÉVIA) ---
+                const containerUnidade = document.getElementById('container_unidade');
+                const selectUnidade = document.getElementById('user_unidade');
+
+                if (ehAdmin === true && unidades.length > 0) {
+                    containerUnidade.style.display = 'block';
+                    selectUnidade.innerHTML = '<option value="" disabled>Selecione a unidade...</option>';
+
+                    unidades.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.id_unidade;
+                        opt.textContent = `${u.nome_fantasia} (${u.cidade})`;
+                        // Pré-seleciona a unidade do usuário
+                        if (u.id_unidade === usuarioEdit.id_unidade) {
+                            opt.selected = true;
+                        }
+                        selectUnidade.appendChild(opt);
+                    });
+
+                    new TomSelect('#user_unidade', {
+                        create: false,
+                        sortField: { field: "text", direction: "asc" }
+                    });
+                }
+            });
+
+            async function updateUser(e) {
+                e.preventDefault();
+                const form = document.getElementById('form_edit_user');
+                const ehAdmin = JSON.parse('<%- JSON.stringify(ehAdmin || false) %>');
+                const idUsuario = document.getElementById('userId').value;
+
+                const selectUnidade = document.getElementById('user_unidade');
+                let unidade = null;
+
+                if (ehAdmin === true) {
+                    if (!selectUnidade.value) {
+                        Swal.fire('Atenção', 'Por favor, selecione a Unidade Vinculada.', 'warning');
+                        return;
+                    }
+                    unidade = selectUnidade.value;
+                }
+
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const nome = document.getElementById('userName').value;
+                const email = document.getElementById('userEmail').value;
+                const perfil = document.getElementById('user_perfil').value;
+
+                const payload = { nome, email, perfil, unidade };
+
+                try {
+                    // Aponta para a rota de edição (POST /usuario/editar/:id)
+                    const response = await fetch(`/usuario/editar/${idUsuario}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Atualizado!',
+                            text: 'Os dados do usuário foram salvos com sucesso.',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/usuario';
+                        });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Erro', text: result.message });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    Swal.fire({ icon: 'error', title: 'Erro', text: 'Erro de conexão com o servidor.' });
+                }
+            }
+        </script>
+</body>
+
+</html>

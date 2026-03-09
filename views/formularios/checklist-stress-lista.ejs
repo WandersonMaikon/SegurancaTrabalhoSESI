@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Job Stress Scale</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2 font-bold text-zinc-800 dark:text-zinc-100">Avaliações - Job Stress Scale
+                    </h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="text-zinc-400">Formulários de SST</span>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="pointer-events-none text-zinc-800 dark:text-zinc-200 font-semibold">Job Stress
+                                Scale</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+
+                            <div
+                                class="flex flex-wrap gap-3 items-center p-4 md:p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div class="flex-grow min-w-[250px]">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9 w-full" id="searchChecklists"
+                                            placeholder="Buscar por cliente...">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+
+                                    <div class="relative" id="dropdownDownloadSel" style="display: none;">
+                                        <button data-bs-toggle="dropdown" type="button"
+                                            class="btn bg-sky-500 text-white hover:bg-sky-600" aria-expanded="false">
+                                            <span class="icon-[lucide--download] text-lg me-1"></span>
+                                            Download <span class="icon-[lucide--chevron-down] ms-1"></span>
+                                        </button>
+                                        <div class="dropdown-menu w-48 z-50 absolute !end-0 !start-auto" style="">
+                                            <a href="#!" class="dropdown-item">
+                                                <span class="icon-[lucide--copy] dropdown-icon"></span> Copy Json
+                                            </a>
+                                            <a href="#!" class="dropdown-item" id="actionPrintSel">
+                                                <span class="icon-[lucide--printer] dropdown-icon"></span> Print
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/excel.svg" class="h-4 me-2" alt=""> Download
+                                                Excel
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/csv.svg" class="h-4 me-2" alt=""> Download .CSV
+                                            </a>
+                                            <a href="#!" class="dropdown-item">
+                                                <img src="images/files/pdf.svg" class="h-4 w-auto me-2" alt=""> Download
+                                                .PDF
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <a href="/checklist-stress/novo"
+                                        class="btn bg-primary shrink-0 text-white hover:bg-primary-deep shadow-lg shadow-primary/30"
+                                        id="btnNovo">
+                                        <span class="icon-[lucide--plus] text-lg me-1"></span> Nova Coleta
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto p-4 md:p-6 pt-0 md:pt-2">
+                                <table id="table_checklists" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-nowrap">Empresa / Cliente</th>
+                                            <th class="text-nowrap">Questionários</th>
+                                            <th class="text-nowrap">Status da Coleta</th>
+                                            <th class="text-nowrap">Última Atualização</th>
+                                            <th class="text-nowrap text-end" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <div id="dados-checklists-json" style="display: none;">
+            <%= checklistsJson %>
+        </div>
+
+        <div id="permissoes-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['checklist_stress'] ?
+                user.permissoes['checklist_stress'] : {}) %>
+        </div>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            // ================= RECUPERANDO PERFIL DO USUÁRIO =================
+            // Pega o nome do perfil (ex: Administrador, Gestor, Técnico, etc)
+            const userPerfil = "<%= user.perfil_nome || user.perfil || '' %>".toLowerCase();
+            const podeReabrirEmpresa = userPerfil.includes('administrador') || userPerfil.includes('admin') || userPerfil.includes('gestor');
+
+            // Funções Globais
+            window.finalizarEmpresa = function (idCliente, nomeEmpresa) {
+                Swal.fire({
+                    title: 'Encerrar Coleta?',
+                    text: `Tem certeza que deseja finalizar as coletas para a empresa ${nomeEmpresa}? Os relatórios serão gerados.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981', // emerald-500
+                    cancelButtonColor: '#ef4444',
+                    confirmButtonText: 'Sim, Finalizar!',
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const res = await fetch(`/checklist-stress/finalizar-empresa/${idCliente}`, { method: 'POST' });
+                            const data = await res.json();
+
+                            if (data.success) {
+                                Swal.fire('Feito!', 'Coleta finalizada com sucesso.', 'success').then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire('Erro', data.message, 'error');
+                            }
+                        } catch (error) {
+                            Swal.fire('Erro', 'Falha ao se comunicar com o servidor.', 'error');
+                        }
+                    }
+                });
+            };
+
+            window.reabrirEmpresa = function (idCliente, nomeEmpresa) {
+                Swal.fire({
+                    title: 'Reabrir Coleta?',
+                    text: `Deseja destrancar as coletas para a empresa ${nomeEmpresa}? O status voltará para "Em Andamento".`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#f59e0b', // amber-500
+                    cancelButtonColor: '#ef4444',
+                    confirmButtonText: 'Sim, Reabrir!',
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            const res = await fetch(`/checklist-stress/reabrir-empresa/${idCliente}`, { method: 'POST' });
+                            const data = await res.json();
+
+                            if (data.success) {
+                                Swal.fire('Feito!', data.message, 'success').then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire('Erro', data.message, 'error');
+                            }
+                        } catch (error) {
+                            Swal.fire('Erro', 'Falha ao se comunicar com o servidor.', 'error');
+                        }
+                    }
+                });
+            };
+
+            let perm = {};
+            try {
+                const divPerm = document.getElementById('permissoes-json');
+                if (divPerm && divPerm.innerText) perm = JSON.parse(divPerm.innerText);
+            } catch (e) { }
+
+            const canCreate = (perm.criar == 1 || perm.criar === true || perm.pode_criar == 1 || perm.tudo == 1);
+
+            document.addEventListener('DOMContentLoaded', () => {
+                let lista = [];
+                try {
+                    const divJson = document.getElementById('dados-checklists-json');
+                    if (divJson && divJson.innerText.trim()) lista = JSON.parse(divJson.innerText);
+                } catch (e) { console.error(e); }
+
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
+
+                lista.forEach((item) => {
+                    const isEmAndamento = item.status_sessao === 'Em Andamento';
+                    const badgeClass = isEmAndamento
+                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200'
+                        : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-emerald-200';
+
+                    // Lógica para mostrar o botão de reabrir apenas se tiver permissão
+                    let btnReabrirHtml = '';
+                    if (podeReabrirEmpresa) {
+                        btnReabrirHtml = `
+                        <button type="button" onclick="window.reabrirEmpresa('${item.id_cliente}', '${item.nome_empresa}')" class="btn !p-1.5 hover:!text-amber-500 ms-1" title="Reabrir Coleta">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></rect><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+                        </button>`;
+                    }
+
+                    const botoesAcao = isEmAndamento
+                        ? `
+                            <a href="/checklist-stress/novo?cliente=${item.id_cliente}" class="btn !p-1.5 hover:!text-blue-500" title="Continuar Coleta">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 18l6-6l-6-6m10 0v12"/></svg>
+                            </a>
+                            <button type="button" onclick="window.finalizarEmpresa('${item.id_cliente}', '${item.nome_empresa}')" class="btn !p-1.5 hover:!text-emerald-500" title="Encerrar Definitivamente">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-6" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 6L7 17l-5-5m20-2l-7.5 7.5L13 16"/></svg>
+                            </button>
+                        `
+                        : `
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center text-emerald-600 dark:text-emerald-500 font-semibold text-sm" title="Nenhuma ação pendente">
+                                    <span class="icon-[lucide--check-circle-2] text-lg me-1"></span> Finalizado
+                                </span>
+                                ${btnReabrirHtml}
+                            </div>
+                        `;
+
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-id', item.id_cliente);
+
+                    tr.innerHTML = `
+                    <td></td> 
+                    <td class="whitespace-nowrap font-bold text-zinc-900 dark:text-zinc-100">
+                        ${item.nome_empresa}
+                    </td>
+                    <td class="whitespace-nowrap">
+                        <span class="font-semibold text-zinc-700 dark:text-zinc-300">
+                            ${item.total_questionarios} 
+                        </span> <span class="text-xs text-zinc-500">cadastrados</span>
+                    </td>
+                    <td class="whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full border ${badgeClass} text-xs font-semibold">
+                            ${item.status_sessao}
+                        </span>
+                    </td>
+                    <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300 text-sm">
+                        ${item.ultima_coleta}
+                    </td>
+                    <td class="text-end">
+                         <div class="flex items-center gap-1">
+                             ${botoesAcao}
+                         </div>
+                    </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                const table = new DataTable('#table_checklists', {
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    columnDefs: [
+                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
+                    ],
+                    select: {
+                        style: 'single',
+                        selector: 'td:first-child',
+                        headerCheckbox: false
+                    },
+                    order: [[1, 'desc']], // Ordena por Empresa (coluna 1)
+                    language: {
+                        emptyTable: "Nenhum questionário encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        infoEmpty: "Mostrando 0 até 0 de 0 registros",
+                        infoFiltered: "(filtrado de _MAX_ registros totais)",
+                        zeroRecords: "Nenhum registro correspondente encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                document.getElementById('searchChecklists').addEventListener('input', e => table.search(e.target.value).draw());
+
+                // Lógica de exibição do novo Dropdown de Download
+                const btnDownloadSel = document.getElementById("dropdownDownloadSel");
+
+                table.on('select deselect', function () {
+                    const count = table.rows({ selected: true }).count();
+                    if (btnDownloadSel) {
+                        btnDownloadSel.style.display = count === 1 ? "block" : "none";
+                    }
+                });
+
+                // Ação de Impressão dentro do Dropdown
+                const actionPrintSel = document.getElementById('actionPrintSel');
+                if (actionPrintSel) {
+                    actionPrintSel.addEventListener('click', function (e) {
+                        e.preventDefault(); // Evita que a página role para o topo (#!)
+                        const selectedRow = table.row({ selected: true }).node();
+                        if (selectedRow) {
+                            const id = selectedRow.getAttribute('data-id');
+                            if (id) {
+                                window.open(`/checklist-stress/imprimir/${id}`, '_blank');
+                                table.rows().deselect();
+                            }
+                        }
+                    });
+                }
+
+                const btnNovo = document.getElementById('btnNovo');
+                if (btnNovo) {
+                    btnNovo.addEventListener('click', (e) => {
+                        if (!canCreate) {
+                            e.preventDefault();
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para iniciar novas coletas.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                        }
+                    });
+                }
+            });
+        </script>
+</body>
+
+</html>

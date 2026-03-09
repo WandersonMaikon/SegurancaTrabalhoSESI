@@ -1,5 +1,5 @@
 -- ============================================
--- SISTEMA DE SEGURANÇA DO TRABALHO - V4.6
+-- SISTEMA DE SEGURANÇA DO TRABALHO - V4.7
 -- Com UUID (Mobile Ready) + Multi-unidade + Soft Deletes
 -- Atualizações: Cartão Vantagem, Prazo OS, e Estrutura Relacional de Riscos (eSocial)
 -- ============================================
@@ -355,4 +355,28 @@ CREATE TABLE levantamento_risco_has_epc (
     PRIMARY KEY (id_risco_identificado, id_epc),
     FOREIGN KEY (id_risco_identificado) REFERENCES levantamento_risco_identificado(id_risco_identificado) ON DELETE CASCADE,
     FOREIGN KEY (id_epc) REFERENCES epc(id_epc)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE checklist_job_stress (
+    id_checklist CHAR(36) NOT NULL PRIMARY KEY, -- UUID
+    id_unidade CHAR(36) NOT NULL,
+    id_cliente CHAR(36) NOT NULL,
+    id_responsavel CHAR(36) NOT NULL, -- Técnico avaliador logado
+    
+    -- Dados da Aplicação
+    data_aplicacao DATE NOT NULL,
+    nome_trabalhador VARCHAR(255), -- Opcional, caso a pesquisa seja anônima
+    setor_cargo VARCHAR(255),
+    
+    -- Respostas guardadas em formato JSON para fácil extração e leitura
+    respostas JSON NOT NULL,
+    status_sessao ENUM('Em Andamento', 'Concluido') DEFAULT 'Em Andamento',
+    
+    -- Auditoria e Sync
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    
+    FOREIGN KEY (id_unidade) REFERENCES unidade(id_unidade),
+    FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente),
+    FOREIGN KEY (id_responsavel) REFERENCES usuario(id_usuario)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

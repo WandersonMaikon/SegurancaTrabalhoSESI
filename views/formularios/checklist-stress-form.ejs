@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist Job Stress Scale - ProS</title>
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+
+    <style>
+        .radio-card {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            height: 100%;
+            color: #4b5563;
+        }
+
+        .dark .radio-card {
+            background: #18181b;
+            border-color: #3f3f46;
+            color: #a1a1aa;
+        }
+
+        .radio-card:hover {
+            border-color: var(--primary-color, #0AA34A);
+            background-color: #f0fdf4;
+        }
+
+        .dark .radio-card:hover {
+            background-color: rgba(10, 163, 74, 0.1);
+        }
+
+        .radio-input:checked+.radio-card {
+            border-color: var(--primary-color, #0AA34A);
+            background-color: #f0fdf4;
+            color: var(--primary-color, #0AA34A);
+            font-weight: bold;
+            box-shadow: 0 0 0 1px var(--primary-color, #0AA34A);
+        }
+
+        .dark .radio-input:checked+.radio-card {
+            background-color: rgba(10, 163, 74, 0.2);
+        }
+
+        .dataTables_info {
+            font-size: 0.875rem;
+            color: #a1a1aa;
+            margin-top: 0.5rem;
+        }
+
+        .dataTables_paginate {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .hover-row:hover {
+            background-color: #f4f4f5;
+        }
+
+        .dark .hover-row:hover {
+            background-color: #27272a;
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: none !important;
+        }
+    </style>
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content relative">
+            <%- include('../partials/header') %>
+
+                <% const isContinuacao=clienteSelecionado ? true : false; let nomePreenchido="" ; if (isContinuacao &&
+                    clientes) { const cli=clientes.find(c=> c.id_cliente === clienteSelecionado);
+                    if (cli) nomePreenchido = cli.nome_empresa;
+                    }
+                    %>
+
+                    <div class="px-4 lg:px-10 py-6">
+                        <h2 class="text-2xl mb-2 text-zinc-800 dark:text-zinc-100 font-bold">Checklist Trabalhador</h2>
+                        <p class="text-sm text-zinc-500">Módulo de Levantamento em Lote - NR-01</p>
+                    </div>
+
+                    <div class="content flex-grow px-4 lg:px-10 pb-10">
+
+                        <div
+                            class="rounded-xl bg-white dark:bg-zinc-900 shadow-sm border border-zinc-200 dark:border-zinc-800 p-6 mb-4">
+
+                            <div class="wizard" data-wizard>
+                                <ul
+                                    class="nav-horizontal flex flex-nowrap justify-center nav-wizard mb-8 gap-4 md:gap-8 w-full">
+                                    <li class="wizard-step nav-link flex items-center gap-3.5 active" id="nav-step-1">
+                                        <span
+                                            class="wizard-icon shrink-0 size-10 flex items-center justify-center rounded-full">01</span>
+                                        <div class="flex-grow whitespace-nowrap">
+                                            <h6 class="mb-0 font-bold text-zinc-800 dark:text-zinc-100 leading-tight">
+                                                Setup
+                                                Inicial</h6>
+                                            <p class="text-sm text-zinc-500 mb-0 leading-tight">Dados do Vínculo</p>
+                                        </div>
+                                    </li>
+                                    <li class="wizard-step nav-link flex items-center gap-3.5 disabled" id="nav-step-2">
+                                        <span
+                                            class="wizard-icon shrink-0 size-10 flex items-center justify-center rounded-full">02</span>
+                                        <div class="flex-grow whitespace-nowrap">
+                                            <h6 class="mb-0 font-bold text-zinc-800 dark:text-zinc-100 leading-tight">
+                                                Coleta
+                                                Contínua</h6>
+                                            <p class="text-sm text-zinc-500 mb-0 leading-tight">Respostas</p>
+                                        </div>
+                                    </li>
+                                    <li class="wizard-step nav-link flex items-center gap-3.5 disabled" id="nav-step-3">
+                                        <span
+                                            class="wizard-icon shrink-0 size-10 flex items-center justify-center rounded-full">03</span>
+                                        <div class="flex-grow whitespace-nowrap">
+                                            <h6 class="mb-0 font-bold text-zinc-800 dark:text-zinc-100 leading-tight">
+                                                Conclusão</h6>
+                                            <p class="text-sm text-zinc-500 mb-0 leading-tight">Sessão Finalizada</p>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                                <div>
+                                    <form id="formChecklist" onsubmit="return false;">
+
+                                        <div id="panel-step-1" class="wizard-panel active show animate-fade-in">
+                                            <h5
+                                                class="text-[16px] font-bold text-[#1a5293] dark:text-blue-400 mb-5 border-b border-zinc-100 dark:border-zinc-800 pb-2 uppercase tracking-wide">
+                                                1. Dados do Vínculo
+                                            </h5>
+
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                                <div>
+                                                    <label
+                                                        class="mb-2 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                                                        Empresa / Cliente <span class="text-red-500">*</span>
+                                                    </label>
+                                                    <div class="relative w-full">
+                                                        <input type="hidden" name="id_cliente" id="contratante_id"
+                                                            value="<%= clienteSelecionado || '' %>" required>
+
+                                                        <input id="contratante_nome" name="contratante_nome" type="text"
+                                                            value="<%= nomePreenchido %>"
+                                                            class="input h-10 w-full !pe-11 <%= isContinuacao ? 'bg-zinc-100 dark:bg-zinc-800/80 cursor-not-allowed pointer-events-none text-zinc-600 dark:text-zinc-400 font-semibold' : 'bg-white dark:bg-zinc-900 cursor-pointer text-zinc-600 dark:text-zinc-300' %>"
+                                                            placeholder="Selecione uma empresa..." readonly required <%-
+                                                            !isContinuacao
+                                                            ? 'data-bs-toggle="modal" data-bs-target="#modal_contratante"'
+                                                            : '' %>>
+
+                                                        <% if(!isContinuacao) { %>
+                                                            <button type="button" data-bs-toggle="modal"
+                                                                data-bs-target="#modal_contratante"
+                                                                class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white">
+                                                                <span class="icon-[lucide--search] text-lg"></span>
+                                                            </button>
+                                                            <% } else { %>
+                                                                <div class="absolute right-2 top-1/2 -translate-y-1/2 size-8 flex items-center justify-center text-zinc-400 dark:text-zinc-500"
+                                                                    title="Empresa bloqueada para continuação">
+                                                                    <span class="icon-[lucide--lock] text-lg"></span>
+                                                                </div>
+                                                                <% } %>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="mb-2 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Data
+                                                        da Aplicação</label>
+                                                    <input type="date" id="data_aplicacao"
+                                                        class="input w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed pointer-events-none"
+                                                        readonly>
+                                                </div>
+                                                <div>
+                                                    <label
+                                                        class="mb-2 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Responsável
+                                                        Técnico</label>
+                                                    <input type="text"
+                                                        class="input w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed pointer-events-none"
+                                                        value="<%= (user.nome_completo || user.nome || user.email) %>"
+                                                        readonly>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex justify-end pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                                <button type="button" onclick="irParaEtapa2()"
+                                                    class="btn bg-primary text-white hover:bg-primary-deep h-12 px-8 font-bold shadow-lg shadow-primary/30 w-full sm:w-auto">
+                                                    <%= isContinuacao ? 'Continuar Coleta' : 'Iniciar Coletas' %> <span
+                                                            class="icon-[lucide--arrow-right] ms-2"></span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div id="panel-step-2"
+                                            class="wizard-panel hidden animate-fade-in bg-zinc-50/50 dark:bg-transparent rounded-xl">
+
+                                            <div
+                                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 mb-6 border border-zinc-100 dark:border-zinc-800 flex justify-between items-center">
+                                                <div class="border-l-[6px] border-[#1a5293] pl-4">
+                                                    <h3
+                                                        class="text-xl font-bold text-[#1a5293] dark:text-blue-400 uppercase">
+                                                        Coletando Respostas</h3>
+                                                    <p class="text-zinc-600 dark:text-zinc-400 text-sm mt-1">Preencha os
+                                                        dados e responda. O salvamento é feito a cada questionário
+                                                        concluído.</p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span
+                                                        class="text-xs text-zinc-500 font-bold uppercase tracking-wider block mb-1">Total
+                                                        já coletado</span>
+                                                    <span id="contador_sessao"
+                                                        class="text-3xl font-bold text-primary bg-primary/10 px-4 py-1 rounded-lg">0</span>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 md:p-8 mb-6 border border-zinc-100 dark:border-zinc-800">
+                                                <h5
+                                                    class="text-lg font-bold text-[#1a5293] dark:text-blue-400 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-3 uppercase">
+                                                    1. Identificação do Trabalhador
+                                                </h5>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div>
+                                                        <label
+                                                            class="mb-2 flex items-center justify-between text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                                                            <span>Setor / Cargo <span
+                                                                    class="text-red-500">*</span></span>
+                                                            <button type="button" onclick="abrirModalHistoricoSetores()"
+                                                                class="text-xs text-primary hover:text-primary-deep flex items-center gap-1 bg-primary/10 px-2 py-1 rounded transition-colors">
+                                                                <span class="icon-[lucide--pie-chart] text-sm"></span>
+                                                                Ver Histórico
+                                                            </button>
+                                                        </label>
+                                                        <input type="text" id="setor_cargo" class="input w-full h-11"
+                                                            placeholder="Ex: Manutenção, TI, Administrativo..."
+                                                            required>
+
+                                                        <div id="badge_historico"
+                                                            class="hidden mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-semibold border border-blue-100 dark:border-blue-800/50 transition-all">
+                                                            <span class="icon-[lucide--history] text-base"></span>
+                                                            Total cadastrado no setor digitado: <span id="qtd_historico"
+                                                                class="text-lg">0</span>
+                                                        </div>
+
+                                                        <p class="text-xs text-zinc-500 mt-1">Este campo será mantido
+                                                            para
+                                                            os próximos envios.</p>
+                                                    </div>
+                                                    <div>
+                                                        <label
+                                                            class="mb-2 block text-sm font-semibold text-zinc-800 dark:text-zinc-200">Nome
+                                                            (Opcional)</label>
+                                                        <input type="text" id="nome_trabalhador"
+                                                            class="input w-full h-11"
+                                                            placeholder="Deixe em branco para anônimo">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <% const perguntasFrequencia=[ {id: 'q1' ,
+                                                texto: 'Com que frequência você tem que fazer suas tarefas de trabalho com muita rapidez?'
+                                                }, {id: 'q2' ,
+                                                texto: 'Com que frequência você tem que trabalhar intensamente?' },
+                                                {id: 'q3' , texto: 'Seu trabalho exige demais de você?' }, {id: 'q4' ,
+                                                texto: 'Você tem tempo suficiente para cumprir todas as tarefas de seu trabalho?'
+                                                }, {id: 'q5' ,
+                                                texto: 'O seu trabalho costuma apresentar exigências contraditórias ou discordantes?'
+                                                }, {id: 'q6' ,
+                                                texto: 'Você tem possibilidade de aprender coisas novas em seu trabalho?'
+                                                }, {id: 'q7' ,
+                                                texto: 'Seu trabalho exige muita habilidade ou conhecimento especializado?'
+                                                }, {id: 'q8' , texto: 'Seu trabalho exige que você tome iniciativas?' },
+                                                {id: 'q9' ,
+                                                texto: 'No seu trabalho, você tem que repetir muitas vezes as mesmas tarefas?'
+                                                }, {id: 'q10' , texto: 'Você pode escolher COMO fazer seu trabalho?' },
+                                                {id: 'q11' , texto: 'Você pode escolher O QUE fazer no seu trabalho?' }
+                                                ]; const perguntasConcordancia=[ {id: 'q12' ,
+                                                texto: 'Existe um ambiente calmo e agradável onde trabalho.' },
+                                                {id: 'q13' ,
+                                                texto: 'No trabalho, nos relacionamos bem uns com os outros.' },
+                                                {id: 'q14' ,
+                                                texto: 'Eu posso contar com o apoio dos meus colegas de trabalho.' },
+                                                {id: 'q15' ,
+                                                texto: 'Se eu não estiver num bom dia, meus colegas compreendem.' },
+                                                {id: 'q16' , texto: 'No trabalho, me relaciono bem com meus chefes.' },
+                                                {id: 'q17' , texto: 'Eu gosto de trabalhar com meus colegas.' } ]; %>
+
+                                                <div
+                                                    class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 md:p-8 mb-6 border border-zinc-100 dark:border-zinc-800">
+                                                    <h5
+                                                        class="text-lg font-bold text-[#1a5293] dark:text-blue-400 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-3 uppercase">
+                                                        2. Demandas e Controle
+                                                    </h5>
+                                                    <div class="space-y-10">
+                                                        <% perguntasFrequencia.forEach((p, idx)=> { %>
+                                                            <div
+                                                                class="border-b border-zinc-50 dark:border-zinc-800/50 pb-8 last:border-0 last:pb-0">
+                                                                <p
+                                                                    class="font-semibold text-base text-zinc-800 dark:text-zinc-100 mb-4">
+                                                                    <%= idx + 1 %>. <%= p.texto %> <span
+                                                                                class="text-red-500">*</span>
+                                                                </p>
+                                                                <div
+                                                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Frequentemente"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Frequentemente
+                                                                        </div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Às vezes" class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Às vezes</div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Raramente"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Raramente</div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Nunca ou quase nunca"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Nunca ou quase
+                                                                            nunca
+                                                                        </div>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <% }) %>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 md:p-8 mb-6 border border-zinc-100 dark:border-zinc-800">
+                                                    <h5
+                                                        class="text-lg font-bold text-[#1a5293] dark:text-blue-400 mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-3 uppercase">
+                                                        3. Apoio Social
+                                                    </h5>
+                                                    <div class="space-y-10">
+                                                        <% perguntasConcordancia.forEach((p, idx)=> { %>
+                                                            <div
+                                                                class="border-b border-zinc-50 dark:border-zinc-800/50 pb-8 last:border-0 last:pb-0">
+                                                                <p
+                                                                    class="font-semibold text-base text-zinc-800 dark:text-zinc-100 mb-4">
+                                                                    <%= idx + 12 %>. <%= p.texto %> <span
+                                                                                class="text-red-500">*</span>
+                                                                </p>
+                                                                <div
+                                                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Concordo Totalmente"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Concordo
+                                                                            Totalmente
+                                                                        </div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Concordo mais que discordo"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Concordo mais
+                                                                            que
+                                                                            discordo</div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Discordo mais que concordo"
+                                                                            class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Discordo mais
+                                                                            que
+                                                                            concordo</div>
+                                                                    </label>
+                                                                    <label class="h-full"><input type="radio"
+                                                                            name="respostas[<%= p.id %>]"
+                                                                            value="Discordo" class="hidden radio-input">
+                                                                        <div class="radio-card text-sm">Discordo</div>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <% }) %>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 sticky bottom-4 z-10 bg-zinc-50/90 dark:bg-zinc-950/90 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm shadow-xl">
+                                                    <button type="button" onclick="voltarParaEtapa1()"
+                                                        class="btn border border-zinc-300 bg-white text-zinc-600 hover:bg-zinc-100 h-12 px-6 font-semibold w-full sm:w-auto shadow-sm">
+                                                        <span class="icon-[lucide--arrow-left] me-2"></span> Voltar
+                                                    </button>
+
+                                                    <button type="button" id="btnSalvarUnico"
+                                                        onclick="salvarQuestionarioNoBanco()"
+                                                        class="btn bg-primary text-white hover:bg-primary-deep h-12 px-8 font-bold shadow-lg shadow-primary/30 w-full sm:w-auto">
+                                                        <span class="icon-[lucide--save] me-2 text-2xl"></span> Salvar
+                                                        Resposta Atual
+                                                    </button>
+
+                                                    <button type="button" onclick="irParaEtapa3()"
+                                                        class="btn bg-zinc-800 text-white hover:bg-zinc-900 h-12 px-8 font-bold shadow-lg shadow-zinc-900/30 w-full sm:w-auto">
+                                                        Concluir Sessão <span
+                                                            class="icon-[lucide--flag] ms-2 text-xl"></span>
+                                                    </button>
+                                                </div>
+                                        </div>
+
+                                        <div id="panel-step-3" class="wizard-panel hidden animate-fade-in">
+                                            <div class="flex flex-col items-center justify-center py-8 text-center">
+                                                <div
+                                                    class="size-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                                                    <span class="icon-[lucide--check-circle-2] text-5xl"></span>
+                                                </div>
+                                                <h3 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-2">
+                                                    Coletas Salvas!</h3>
+                                                <p class="text-zinc-500 mb-8 max-w-md">Todos os questionários
+                                                    preenchidos já estão seguros no banco de dados. O que deseja fazer
+                                                    com esta empresa agora?</p>
+
+                                                <div
+                                                    class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-xl p-6 text-left w-full max-w-lg mb-8 shadow-sm">
+                                                    <div class="space-y-4">
+                                                        <div
+                                                            class="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-700 pb-3">
+                                                            <span
+                                                                class="text-zinc-500 font-semibold text-sm">Empresa:</span>
+                                                            <span
+                                                                class="font-bold text-zinc-800 dark:text-zinc-200 text-right"
+                                                                id="resumo_empresa">-</span>
+                                                        </div>
+                                                        <div class="flex justify-between items-center pt-2">
+                                                            <span class="text-zinc-500 font-semibold text-sm">Total
+                                                                Adicionado Hoje:</span>
+                                                            <span class="font-bold text-3xl text-primary"
+                                                                id="resumo_qtd">0</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                                <button type="button" onclick="pausarSessao()"
+                                                    class="btn bg-zinc-200 text-zinc-700 hover:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 h-12 px-6 font-bold w-full sm:w-auto shadow-sm transition-colors">
+                                                    <span class="icon-[lucide--pause] me-2 text-lg"></span> Pausar
+                                                    (Continuar Depois)
+                                                </button>
+
+                                                <button type="button" onclick="encerrarSessaoDefinitivo()"
+                                                    class="btn text-white h-12 px-8 font-bold shadow-lg w-full sm:w-auto transition-colors"
+                                                    style="background-color: #dc2626; border-color: #dc2626;"
+                                                    onmouseover="this.style.backgroundColor='#b91c1c'; this.style.borderColor='#b91c1c';"
+                                                    onmouseout="this.style.backgroundColor='#dc2626'; this.style.borderColor='#dc2626';">
+                                                    <span class="icon-[lucide--lock] me-2 text-lg"></span> Finalizar
+                                                    Definitivamente
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <%- include('../partials/footer') %>
+        </main>
+
+        <div id="modal_contratante" role="dialog" class="modal fade fixed inset-0 z-[70]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+                    <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <h5 class="text-lg">Selecione a Empresa</h5>
+                        <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                            <span class="icon-[lucide--x] text-lg"></span>
+                        </button>
+                    </div>
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
+                        <div class="relative mb-3">
+                            <input id="contratanteSearch" type="search" class="input !ps-9 w-full"
+                                placeholder="Buscar empresa...">
+                            <span
+                                class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                        </div>
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_contratante_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
+                                    <tr>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Empresa
+                                            / CNPJ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% clientes.forEach((c)=> { %>
+                                        <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
+                                            data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
+                                            <td class="py-3">
+                                                <div class="font-semibold text-zinc-900 dark:text-white">
+                                                    <%= c.nome_empresa %>
+                                                </div>
+                                                <div class="text-xs text-zinc-400 font-normal">
+                                                    <%= c.cnpj %>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal_historico_setores" role="dialog" class="modal fade fixed inset-0 z-[75]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[30rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[80vh]">
+                    <div
+                        class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50 dark:bg-zinc-800/50 rounded-t-xl">
+                        <h5 class="text-lg font-bold text-zinc-800 dark:text-zinc-100 flex items-center gap-2">
+                            <span class="icon-[lucide--pie-chart] text-primary"></span> Avaliações por Setor
+                        </h5>
+                        <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                            <span class="icon-[lucide--x] text-lg"></span>
+                        </button>
+                    </div>
+                    <div class="p-4 flex-grow overflow-auto">
+                        <ul id="lista_historico_setores" class="space-y-2">
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script>
+            // ================= LÓGICA DE DADOS DE CONTINUAÇÃO (HISTÓRICO) =================
+            const dadosContinuacaoRaw = `<%- JSON.stringify(dadosContinuacao) %>`;
+            const dadosContinuacao = JSON.parse(dadosContinuacaoRaw);
+            const isContinuacaoJs = "<%= isContinuacao %>" === "true";
+
+            // Variáveis globais da sessão
+            let totalColetadosSessao = dadosContinuacao.total_anterior || 0;
+            let questionariosSalvosNestaTela = 0;
+            let horaInicioQuestionario = null;
+
+            $(document).ready(function () {
+                document.getElementById('data_aplicacao').valueAsDate = new Date();
+
+                document.getElementById('contador_sessao').innerText = totalColetadosSessao;
+
+                const dtConfig = {
+                    dom: 'rtip', paging: true, pageLength: 6, ordering: false, autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado", info: "Exibindo _START_ a _END_ de _TOTAL_",
+                        infoEmpty: "Nenhum registro", infoFiltered: "(filtrado de _MAX_)", zeroRecords: "Nada encontrado",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                };
+
+                const dtContratante = $('#table_contratante_modal').DataTable(dtConfig);
+
+                $('#contratanteSearch').on('keyup', function () { dtContratante.search(this.value).draw(); });
+
+                $('#table_contratante_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id');
+                    const nome = $(this).attr('data-nome');
+
+                    if (id) {
+                        $('#contratante_id').val(id);
+                        $('#contratante_nome').val(nome);
+                        if (document.activeElement) document.activeElement.blur();
+                        const modalInst = bootstrap.Modal.getInstance(document.getElementById('modal_contratante'));
+                        if (modalInst) modalInst.hide();
+
+                        buscarHistoricoSetor();
+                    }
+                });
+
+                document.getElementById('setor_cargo').addEventListener('blur', buscarHistoricoSetor);
+
+                // ================= AUTO-SELEÇÃO E CONTINUAÇÃO =================
+                if (isContinuacaoJs) {
+                    if (dadosContinuacao.ultimo_setor) {
+                        $('#setor_cargo').val(dadosContinuacao.ultimo_setor);
+                    }
+                    buscarHistoricoSetor();
+                }
+            });
+
+            // ================= FUNÇÃO DO NOVO MODAL DE HISTÓRICO =================
+            // ================= FUNÇÃO DO NOVO MODAL DE HISTÓRICO =================
+            async function abrirModalHistoricoSetores() {
+                const idCliente = document.getElementById('contratante_id').value;
+                if (!idCliente) {
+                    return Swal.fire('Atenção', 'Selecione a empresa primeiro.', 'warning');
+                }
+
+                // Abre o modal do Bootstrap
+                const modalInst = new bootstrap.Modal(document.getElementById('modal_historico_setores'));
+                modalInst.show();
+
+                const lista = document.getElementById('lista_historico_setores');
+                lista.innerHTML = '<li class="text-center text-zinc-500 py-6"><span class="icon-[lucide--loader-2] animate-spin text-3xl mb-2 inline-block"></span><br>Buscando dados...</li>';
+
+                try {
+                    const res = await fetch(`/checklist-stress/historico-setores?id_cliente=${idCliente}`);
+                    const data = await res.json();
+
+                    if (data.success) {
+                        if (data.dados.length === 0) {
+                            lista.innerHTML = '<li class="text-center text-zinc-500 py-6">Nenhum setor registrado para esta empresa ainda.</li>';
+                        } else {
+                            lista.innerHTML = data.dados.map(item => {
+                                // NOVO: Tratamento para dados antigos/testes onde o setor ficou nulo no banco
+                                const nomeSetor = item.setor_cargo ? item.setor_cargo : 'Setor não informado (Testes antigos)';
+
+                                return `
+                                <li class="flex justify-between items-center p-3 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-primary/50 transition-colors">
+                                    <span class="font-semibold text-zinc-700 dark:text-zinc-300">${nomeSetor}</span>
+                                    <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold">${item.total}</span>
+                                </li>
+                                `;
+                            }).join('');
+                        }
+                    } else {
+                        lista.innerHTML = `<li class="text-center text-red-500 py-4">Erro: ${data.message}</li>`;
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar lista de setores', err);
+                    lista.innerHTML = '<li class="text-center text-red-500 py-4">Erro de conexão ao buscar histórico.</li>';
+                }
+            }
+
+            // ================= BUSCA HISTÓRICO PARCIAL =================
+            async function buscarHistoricoSetor() {
+                const idCliente = document.getElementById('contratante_id').value;
+                const setor = document.getElementById('setor_cargo').value.trim();
+
+                const badge = document.getElementById('badge_historico');
+                const qtdSpan = document.getElementById('qtd_historico');
+
+                if (!idCliente || !setor) {
+                    badge.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    const url = `/checklist-stress/contagem?id_cliente=${idCliente}&setor=${encodeURIComponent(setor)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    if (data.success) {
+                        qtdSpan.innerText = data.total;
+                        badge.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    console.error('Erro ao buscar histórico do setor', err);
+                }
+            }
+
+            // ================= CONTROLES DO WIZARD =================
+            function atualizarNav(stepAtivo) {
+                for (let i = 1; i <= 3; i++) {
+                    const nav = document.getElementById('nav-step-' + i);
+                    nav.classList.remove('active', 'disabled');
+                    if (i > stepAtivo) nav.classList.add('disabled');
+                    else if (i === stepAtivo) nav.classList.add('active');
+                }
+            }
+
+            function mostrarPainel(step) {
+                document.querySelectorAll('.wizard-panel').forEach(p => {
+                    p.classList.remove('active', 'show'); p.classList.add('hidden');
+                });
+                const painel = document.getElementById('panel-step-' + step);
+                painel.classList.remove('hidden');
+                setTimeout(() => painel.classList.add('active', 'show'), 50);
+                atualizarNav(step);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function irParaEtapa2() {
+                if (!$('#contratante_id').val()) return Swal.fire('Atenção', 'Selecione uma Empresa.', 'warning');
+
+                mostrarPainel(2);
+                horaInicioQuestionario = new Date();
+                setTimeout(() => document.getElementById('setor_cargo').focus(), 300);
+            }
+
+            function voltarParaEtapa1() { mostrarPainel(1); }
+
+            // ================= CONTROLES DO WIZARD =================
+            // ... (mantenha as funções atualizarNav, mostrarPainel, irParaEtapa2 e voltarParaEtapa1 intactas) ...
+
+            function irParaEtapa3() {
+                const respostasPendentes = document.querySelectorAll('input[type="radio"]:checked').length > 0;
+                const setorPreenchido = document.getElementById('setor_cargo').value.trim() !== '';
+                const nomePreenchido = document.getElementById('nome_trabalhador').value.trim() !== '';
+
+                // Se o cara começou a preencher qualquer coisa e não salvou
+                if (respostasPendentes || nomePreenchido || (setorPreenchido && totalColetadosSessao === (dadosContinuacao.total_anterior || 0))) {
+                    Swal.fire({
+                        title: 'Respostas não salvas!',
+                        text: 'Você tem dados na tela que ainda não foram salvos no banco. Se concluir a sessão agora, o questionário atual será descartado.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444', // Vermelho para chamar atenção pro descarte
+                        cancelButtonColor: '#3f3f46',
+                        confirmButtonText: 'Descartar e Concluir',
+                        cancelButtonText: 'Voltar para Salvar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Limpa a tela e vai para o fim
+                            limparTelaAtual();
+                            finalizarSessaoVisualmente();
+                        }
+                    });
+                } else {
+                    // Nada pendente, só confirmar o fim do dia
+                    Swal.fire({
+                        title: 'Concluir coletas de hoje?',
+                        text: "Você poderá voltar futuramente usando a opção 'Continuar Coleta' na tela inicial.",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#0aa34a',
+                        cancelButtonColor: '#ef4444',
+                        confirmButtonText: 'Sim, concluir sessão',
+                        cancelButtonText: 'Cancelar'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            finalizarSessaoVisualmente();
+                        }
+                    });
+                }
+            }
+
+            // Funções auxiliares para deixar o código limpo
+            function limparTelaAtual() {
+                document.querySelectorAll('input[type="radio"]:checked').forEach(r => r.checked = false);
+                document.getElementById('nome_trabalhador').value = '';
+            }
+
+            function finalizarSessaoVisualmente() {
+                document.getElementById('resumo_empresa').innerText = $('#contratante_nome').val();
+                document.getElementById('resumo_qtd').innerText = questionariosSalvosNestaTela;
+                mostrarPainel(3);
+            }
+
+            // ================= LÓGICA DE SALVAR E CRONOMETRAR =================
+            async function salvarQuestionarioNoBanco() {
+                const setor = document.getElementById('setor_cargo').value.trim();
+                const nome = document.getElementById('nome_trabalhador').value.trim();
+
+                if (!setor) return Swal.fire('Atenção', 'Informe o Setor / Cargo do trabalhador.', 'warning');
+
+                const respostas = {};
+                document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                    const match = radio.name.match(/respostas\[(.*?)\]/);
+                    if (match) respostas[match[1]] = radio.value;
+                });
+
+                if (Object.keys(respostas).length < 17) return Swal.fire('Atenção', 'Responda as 17 perguntas antes de salvar.', 'warning');
+
+                const horaFimQuestionario = new Date();
+
+                respostas.metadados = {
+                    inicio_coleta: horaInicioQuestionario.toISOString(),
+                    fim_coleta: horaFimQuestionario.toISOString(),
+                    duracao_segundos: Math.round((horaFimQuestionario - horaInicioQuestionario) / 1000)
+                };
+
+                const payload = {
+                    id_cliente: document.getElementById('contratante_id').value,
+                    data_aplicacao: document.getElementById('data_aplicacao').value,
+                    setor_cargo: setor,
+                    nome_trabalhador: nome,
+                    respostas: respostas
+                };
+
+                const btn = document.getElementById('btnSalvarUnico');
+                const oldHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2 text-2xl"></span> Salvando...';
+
+                try {
+                    const res = await fetch('/checklist-stress/novo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message);
+
+                    totalColetadosSessao++;
+                    questionariosSalvosNestaTela++;
+                    document.getElementById('contador_sessao').innerText = totalColetadosSessao;
+
+                    document.querySelectorAll('input[type="radio"]:checked').forEach(r => r.checked = false);
+                    document.getElementById('nome_trabalhador').value = '';
+                    buscarHistoricoSetor();
+
+                    horaInicioQuestionario = new Date();
+                    window.scrollTo({ top: 300, behavior: 'smooth' });
+
+                    Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true })
+                        .fire({ icon: 'success', title: 'Salvo!', text: 'Inicie o próximo trabalhador.' });
+
+                } catch (error) {
+                    Swal.fire('Erro', error.message || 'Falha ao salvar no banco.', 'error');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = oldHtml;
+                }
+            }
+            // ================= AÇÕES DA TELA FINAL =================
+
+            function pausarSessao() {
+                // Como o padrão já é ficar em andamento, só voltamos para a listagem
+                window.location.href = '/checklist-stress';
+            }
+
+            function encerrarSessaoDefinitivo() {
+                const idCliente = document.getElementById('contratante_id').value;
+
+                Swal.fire({
+                    title: 'Finalizar Empresa Definitivamente?',
+                    text: "O status mudará para 'Concluído' e não será mais possível adicionar questionários para esta empresa. Deseja continuar?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444', // Vermelho para alerta
+                    cancelButtonColor: '#3f3f46',
+                    confirmButtonText: 'Sim, Finalizar Coleta',
+                    cancelButtonText: 'Cancelar'
+                }).then(async (result) => {
+                    if (result.isConfirmed) {
+                        try {
+                            // Chama a rota que já existe no seu back-end!
+                            const res = await fetch(`/checklist-stress/finalizar-empresa/${idCliente}`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' }
+                            });
+
+                            const data = await res.json();
+
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Finalizado!',
+                                    text: 'A coleta para esta empresa foi encerrada.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = '/checklist-stress';
+                                });
+                            } else {
+                                Swal.fire('Erro', data.message || 'Erro ao finalizar.', 'error');
+                            }
+                        } catch (err) {
+                            console.error("Erro ao finalizar:", err);
+                            Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
+                        }
+                    }
+                });
+            }
+        </script>
+</body>
+
+</html>

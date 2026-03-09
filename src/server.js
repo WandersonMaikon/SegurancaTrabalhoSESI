@@ -43,6 +43,7 @@ app.use((req, res, next) => {
 // ---- ROTAS DO SISTEMA ----
 // ============================================================
 const authRoutes = require('./routes/auth.routes');
+const checklistStressRoutes = require('./routes/checklist_stress.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const nrRoutes = require('./routes/nrs.routes');
 const clientesRoutes = require('./routes/clientes.routes');
@@ -60,6 +61,7 @@ const verificarAutenticacao = require("./middlewares/auth.middleware");
 const verificarPermissao = require("./middlewares/permission.middleware");
 
 app.use('/', authRoutes);
+app.use('/checklist-stress', checklistStressRoutes);
 app.use('/normas', nrRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/clientes', clientesRoutes);

@@ -84,13 +84,14 @@
 
                               <% if (typeof can==='function' && (can('formularios', 'ver' ) ||
                                 can('levantamento_perigos', 'ver' ))) { %>
-                                <% const formulariosPages=['levantamento-perigos']; const
+                                <% const formulariosPages=['levantamento-perigos', 'checklist-stress' ]; const
                                   isFormulariosSection=formulariosPages.includes(currentPage); %>
                                   <div class="static">
                                     <a data-bs-toggle="collapse" href="#cFormularios"
                                       class="sidebar-link <%= isFormulariosSection ? 'active' : '' %>">
-                                      <span class="sidebar-icon"><span class="icon-[lucide--file-edit]"></span></span>
-                                      <span class="icon-[lucide--file-edit]sidebar-text">Formulários</span>
+                                      <span class="sidebar-icon"><span
+                                          class="icon-[lucide--book-open-check]"></span></span>
+                                      <span class="icon-[lucide--book-text] sidebar-text">Formulários</span>
                                       <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
                                     </a>
 
@@ -104,6 +105,11 @@
                                             Levantamento de Perigos
                                           </a>
                                           <% } %>
+
+                                            <a href="/checklist-stress"
+                                              class="sidebar-collapse-item <%= currentPage === 'checklist-stress' ? 'active' : '' %>">
+                                              Checklist Trabalhador
+                                            </a>
                                       </div>
                                     </div>
                                   </div>

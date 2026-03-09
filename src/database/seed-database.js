@@ -191,7 +191,8 @@ async function seedDatabase() {
             { nome: 'EPIs', chave: 'epis' },
             { nome: 'EPCs', chave: 'epcs' },
             { nome: 'Gestão de Unidades', chave: 'unidades' },
-            { nome: 'Levantamento de Perigos', chave: 'levantamento_perigos' }
+            { nome: 'Levantamento de Perigos', chave: 'levantamento_perigos' },
+            { nome: 'Checklist Trabalhador', chave: 'checklist_stress' }
         ];
 
         for (const mod of listaModulos) {

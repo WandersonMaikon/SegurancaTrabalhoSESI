@@ -36,16 +36,12 @@ router.get("/",
             LEFT JOIN unidade un ON u.id_unidade = un.id_unidade
             WHERE 1=1 
         `;
-            // O "WHERE 1=1" é um truque para facilitar adicionar ANDs depois
 
             const params = [];
 
             // SE NÃO FOR ADMIN: Esconde o admin da lista e filtra pela unidade
             if (!ehAdmin) {
-                // Não mostra o Super Admin para usuários comuns
                 query += ` AND u.email <> 'admin@admin.com'`;
-
-                // Filtra apenas a unidade do usuário logado
                 query += ` AND u.id_unidade = ?`;
                 params.push(userLogado.id_unidade || userLogado.unidade_id);
             }
@@ -75,18 +71,13 @@ router.get("/novo",
             const userLogado = req.session.user;
             const ehAdmin = verificarSeEhAdmin(userLogado);
 
-            // 1. Busca Perfis Ativos
             const [perfis] = await db.query("SELECT id_perfil, nome_perfil FROM perfil WHERE ativo = 1 and nome_perfil <> 'Administrador' ORDER BY nome_perfil ASC");
 
-            // 2. Buscar Unidades
             let unidades = [];
-
             if (ehAdmin) {
-                // ADMIN: Busca TODAS as unidades ativas
                 const [rows] = await db.query("SELECT id_unidade, nome_fantasia, cidade FROM unidade WHERE ativo = 1 ORDER BY nome_fantasia ASC");
                 unidades = rows;
             } else {
-                // COMUM: Busca APENAS a unidade dele
                 const idUnidadeUser = userLogado.id_unidade || userLogado.unidade_id;
                 const [rows] = await db.query("SELECT id_unidade, nome_fantasia, cidade FROM unidade WHERE id_unidade = ?", [idUnidadeUser]);
                 unidades = rows;
@@ -123,21 +114,16 @@ router.post("/novo",
 
             connection = await db.getConnection();
 
-            // 1. Verificar se E-mail já existe
             const [existing] = await connection.query("SELECT id_usuario FROM usuario WHERE email = ?", [email]);
             if (existing.length > 0) {
                 connection.release();
                 return res.status(400).json({ success: false, message: "Este e-mail já está cadastrado." });
             }
 
-            // 2. Definir a Unidade do Novo Usuário
             let idUnidadeFinal = null;
-
             if (ehAdmin) {
-                // Admin usa o que veio do formulário
                 idUnidadeFinal = unidade;
             } else {
-                // Usuário comum é FORÇADO a cadastrar na própria unidade
                 idUnidadeFinal = userLogado.id_unidade || userLogado.unidade_id;
             }
 
@@ -146,7 +132,6 @@ router.post("/novo",
                 return res.status(400).json({ success: false, message: "Erro: Unidade é obrigatória." });
             }
 
-            // 3. Criptografia e Insert
             const senhaPadrao = "mudar123";
             const salt = await bcrypt.genSalt(10);
             const senhaHash = await bcrypt.hash(senhaPadrao, salt);
@@ -159,12 +144,7 @@ router.post("/novo",
         `;
 
             await connection.query(sqlInsert, [
-                idUsuario,
-                idUnidadeFinal,
-                nome,
-                email,
-                senhaHash,
-                perfil
+                idUsuario, idUnidadeFinal, nome, email, senhaHash, perfil
             ]);
 
             res.json({ success: true, message: "Usuário criado com sucesso!" });
@@ -178,11 +158,126 @@ router.post("/novo",
     });
 
 // =========================================================================
-// ROTA ADICIONADA: INATIVAR MÚLTIPLOS
+// ROTA ADICIONADA: FORMULÁRIO DE EDITAR (GET)
+// =========================================================================
+router.get("/editar/:id",
+    verificarAutenticacao,
+    verificarPermissao('usuarios', 'editar'),
+    async (req, res) => {
+        try {
+            const idUsuarioEdit = req.params.id;
+            const userLogado = req.session.user;
+            const ehAdmin = verificarSeEhAdmin(userLogado);
+
+            // 1. Busca os dados do usuário a ser editado
+            const [userEditResult] = await db.query(
+                "SELECT id_usuario, nome_completo, email, id_perfil, id_unidade FROM usuario WHERE id_usuario = ?",
+                [idUsuarioEdit]
+            );
+
+            if (userEditResult.length === 0) {
+                return res.redirect('/usuario'); // Usuário não existe
+            }
+
+            const usuarioEdit = userEditResult[0];
+
+            // 2. Busca Perfis Ativos (Traz todos para o Admin ver, ou oculta o Administrador para os normais)
+            let sqlPerfis = "SELECT id_perfil, nome_perfil FROM perfil WHERE ativo = 1";
+            if (!ehAdmin) sqlPerfis += " AND nome_perfil <> 'Administrador'";
+            sqlPerfis += " ORDER BY nome_perfil ASC";
+
+            const [perfis] = await db.query(sqlPerfis);
+
+            // 3. Buscar Unidades
+            let unidades = [];
+            if (ehAdmin) {
+                const [rows] = await db.query("SELECT id_unidade, nome_fantasia, cidade FROM unidade WHERE ativo = 1 ORDER BY nome_fantasia ASC");
+                unidades = rows;
+            } else {
+                const idUnidadeUser = userLogado.id_unidade || userLogado.unidade_id;
+                const [rows] = await db.query("SELECT id_unidade, nome_fantasia, cidade FROM unidade WHERE id_unidade = ?", [idUnidadeUser]);
+                unidades = rows;
+            }
+
+            res.render("usuarios/usuario-editar", {
+                user: req.session.user,
+                usuarioEdit: usuarioEdit,
+                perfis: perfis,
+                unidades: unidades,
+                ehAdmin: ehAdmin,
+                currentPage: 'usuarios'
+            });
+
+        } catch (error) {
+            console.error("Erro ao carregar formulário de edição:", error);
+            res.redirect('/usuario');
+        }
+    });
+
+// =========================================================================
+// ROTA ADICIONADA: SALVAR EDIÇÃO (POST)
+// =========================================================================
+router.post("/editar/:id",
+    verificarAutenticacao,
+    verificarPermissao('usuarios', 'editar'),
+    async (req, res) => {
+        try {
+            const idUsuarioEdit = req.params.id;
+            const { nome, email, perfil, unidade } = req.body;
+            const userLogado = req.session.user;
+            const ehAdmin = verificarSeEhAdmin(userLogado);
+
+            if (!nome || !email || !perfil) {
+                return res.status(400).json({ success: false, message: "Preencha nome, email e perfil." });
+            }
+
+            // Proteção: Ninguém muda o e-mail do admin master, a menos que saiba o que tá fazendo
+            const [checkAdmin] = await db.query("SELECT email FROM usuario WHERE id_usuario = ?", [idUsuarioEdit]);
+            if (checkAdmin.length > 0 && checkAdmin[0].email === 'admin@admin.com' && email !== 'admin@admin.com') {
+                return res.status(403).json({ success: false, message: "O e-mail do administrador principal não pode ser alterado." });
+            }
+
+            // 1. Verificar se E-mail já existe (ignorando o próprio usuário)
+            const [existing] = await db.query("SELECT id_usuario FROM usuario WHERE email = ? AND id_usuario <> ?", [email, idUsuarioEdit]);
+            if (existing.length > 0) {
+                return res.status(400).json({ success: false, message: "Este e-mail já está sendo usado por outro usuário." });
+            }
+
+            // 2. Definir a Unidade
+            let idUnidadeFinal = null;
+            if (ehAdmin) {
+                idUnidadeFinal = unidade;
+            } else {
+                idUnidadeFinal = userLogado.id_unidade || userLogado.unidade_id;
+            }
+
+            if (!idUnidadeFinal || idUnidadeFinal.toString().trim() === "") {
+                return res.status(400).json({ success: false, message: "Erro: Unidade é obrigatória." });
+            }
+
+            // 3. Atualizar no Banco
+            const sqlUpdate = `
+                UPDATE usuario 
+                SET id_unidade = ?, nome_completo = ?, email = ?, id_perfil = ?
+                WHERE id_usuario = ?
+            `;
+
+            await db.query(sqlUpdate, [idUnidadeFinal, nome, email, perfil, idUsuarioEdit]);
+
+            res.json({ success: true, message: "Usuário atualizado com sucesso!" });
+
+        } catch (error) {
+            console.error("ERRO AO EDITAR USUÁRIO:", error);
+            res.status(500).json({ success: false, message: "Erro interno: " + error.message });
+        }
+    });
+
+// =========================================================================
+// INATIVAR MÚLTIPLOS
 // =========================================================================
 router.post("/inativar-multiplos",
     verificarAutenticacao,
-    verificarPermissao('usuarios', 'inativar'), // Garanta que a permissão 'inativar' existe no BD
+    verificarPermissao('usuarios', 'inativar'),
     async (req, res) => {
         try {
             const { ids } = req.body;
@@ -191,9 +286,7 @@ router.post("/inativar-multiplos",
                 return res.status(400).json({ success: false, message: "Nenhum usuário selecionado." });
             }
 
-            // Evita inativar o 'admin@admin.com' por segurança
             const query = `UPDATE usuario SET ativo = 0 WHERE id_usuario IN (?) AND email <> 'admin@admin.com'`;
-
             await db.query(query, [ids]);
 
             res.json({ success: true, message: "Usuários inativados com sucesso!" });
