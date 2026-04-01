@@ -75,6 +75,14 @@ app.use('/epi', epiRoutes);
 app.use('/epc', epcRoutes);
 app.use('/unidade', unidadeRoutes);
 app.use('/levantamento-perigo', levantamentoPerigoRoutes);
+
+app.get("/inicio", verificarAutenticacao, (req, res) => {
+    res.render("dashboard/inicio", { 
+        user: req.session.user,
+        currentPage: 'inicio'
+    });
+});
+
 app.get("/relatorio", verificarAutenticacao, (req, res) => {
     res.render("relatorio", { currentPage: 'relatorio' });
 });

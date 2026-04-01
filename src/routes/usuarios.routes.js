@@ -214,6 +214,47 @@ router.get("/editar/:id",
         }
     });
 
+// POST: Salvar a nova senha e os dados
+router.post("/primeiro-acesso", verificarAutenticacao, async (req, res) => {
+    try {
+        // Capturando o novo campo
+        const { cpf, telefone, data_nascimento, nova_senha } = req.body;
+        const idUsuario = req.session.user.id_usuario;
+
+        // Validando se tudo foi preenchido
+        if (!cpf || !telefone || !data_nascimento || !nova_senha) {
+            return res.status(400).json({ success: false, message: "Preencha todos os campos." });
+        }
+
+        if (nova_senha === 'mudar123') {
+            return res.status(400).json({ success: false, message: "Você precisa escolher uma senha diferente da padrão." });
+        }
+
+        // Gera o hash da nova senha
+        const salt = await bcrypt.genSalt(10);
+        const senhaHash = await bcrypt.hash(nova_senha, salt);
+
+        // Atualiza no banco incluindo a data_nascimento
+        await db.query(`
+            UPDATE usuario 
+            SET cpf = ?, telefone = ?, data_nascimento = ?, senha_hash = ?, primeiro_acesso = FALSE 
+            WHERE id_usuario = ?
+        `, [cpf, telefone, data_nascimento, senhaHash, idUsuario]);
+
+        // Atualiza a sessão atual
+        req.session.user.primeiro_acesso = false;
+        req.session.user.cpf = cpf;
+        req.session.user.telefone = telefone;
+        req.session.user.data_nascimento = data_nascimento;
+
+        res.json({ success: true, message: "Conta configurada com sucesso!" });
+
+    } catch (error) {
+        console.error("Erro no primeiro acesso:", error);
+        res.status(500).json({ success: false, message: "Erro interno no servidor." });
+    }
+});
+
 // =========================================================================
 // ROTA ADICIONADA: SALVAR EDIÇÃO (POST)
 // =========================================================================

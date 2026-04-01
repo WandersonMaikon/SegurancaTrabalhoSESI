@@ -9,4 +9,13 @@ router.get("/", verificarAutenticacao, (req, res) => {
     });
 });
 
+// Rota da Tela Inicial (Boas-vindas para usuários restritos)
+router.get("/inicio", verificarAutenticacao, (req, res) => {
+    // Renderiza a view apontando pra pasta dashboard
+    res.render("dashboard/inicio", { 
+        user: req.session.user,
+        currentPage: 'inicio' // Boa prática manter isso pra marcar o menu!
+    });
+});
+
 module.exports = router;

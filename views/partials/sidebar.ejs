@@ -83,7 +83,7 @@
                             <% } %>
 
                               <% if (typeof can==='function' && (can('formularios', 'ver' ) ||
-                                can('levantamento_perigos', 'ver' ))) { %>
+                                can('levantamento_perigos', 'ver' ) || can('checklist_stress', 'ver' ))) { %>
                                 <% const formulariosPages=['levantamento-perigos', 'checklist-stress' ]; const
                                   isFormulariosSection=formulariosPages.includes(currentPage); %>
                                   <div class="static">
@@ -106,10 +106,12 @@
                                           </a>
                                           <% } %>
 
-                                            <a href="/checklist-stress"
-                                              class="sidebar-collapse-item <%= currentPage === 'checklist-stress' ? 'active' : '' %>">
-                                              Checklist Trabalhador
-                                            </a>
+                                            <% if (typeof can==='function' && can('checklist_stress', 'ver' )) { %>
+                                              <a href="/checklist-stress"
+                                                class="sidebar-collapse-item <%= currentPage === 'checklist-stress' ? 'active' : '' %>">
+                                                Checklist Trabalhador
+                                              </a>
+                                              <% } %>
                                       </div>
                                     </div>
                                   </div>

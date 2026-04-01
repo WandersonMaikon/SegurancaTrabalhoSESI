@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Configuração Inicial</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body class="font-theme flex flex-col items-center justify-center h-full min-h-screen text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 p-4 sm:p-8">
+
+    <div class="w-full max-w-2xl rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden">
+        
+        <div class="px-6 py-8 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex flex-col items-center justify-center text-center"> 
+            <div class="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0 mb-4">
+                <span class="icon-[lucide--shield-check] text-3xl"></span>
+            </div>
+            
+            <div class="w-full">
+                <h4 class="text-xl font-bold mb-2 text-zinc-800 dark:text-zinc-100">Bem-vindo(a), <%= user.nome_completo.split(' ')[0] %>!</h4>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">Este é o seu primeiro acesso. Precisamos configurar sua conta por segurança.</p>
+            </div>
+        </div>
+
+        <div class="content flex-grow px-6 py-6 lg:px-8">
+            <form id="formPrimeiroAcesso" onsubmit="return false;">
+                
+                <h5 class="text-lg mb-5 text-zinc-800 dark:text-zinc-100">Dados de Recuperação</h5>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="cpf" class="mb-1 block">CPF <span class="text-red-500">*</span></label>
+                        <input id="cpf" name="cpf" type="text" class="input" placeholder="000.000.000-00" required>
+                    </div>
+                    <div>
+                        <label for="telefone" class="mb-1 block">WhatsApp <span class="text-red-500">*</span></label>
+                        <input id="telefone" name="telefone" type="text" class="input" placeholder="(00) 00000-0000" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 mb-7">
+                    <div>
+                        <label for="data_nascimento" class="mb-1 block">Data de Nascimento <span class="text-red-500">*</span></label>
+                        <input id="data_nascimento" name="data_nascimento" type="date" class="input" required>
+                    </div>
+                </div>
+
+                <h5 class="text-lg mb-5 text-zinc-800 dark:text-zinc-100">Segurança da Conta</h5>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    <div>
+                        <label for="nova_senha" class="mb-1 block">Nova Senha <span class="text-red-500">*</span></label>
+                        <input id="nova_senha" name="nova_senha" type="password" class="input" placeholder="Mínimo de 6 caracteres" minlength="6" required>
+                    </div>
+                    <div>
+                        <label for="confirma_senha" class="mb-1 block">Confirme a Nova Senha <span class="text-red-500">*</span></label>
+                        <input id="confirma_senha" name="confirma_senha" type="password" class="input" placeholder="Repita a senha" required>
+                    </div>
+                </div>
+
+                <div class="text-right mt-8 pt-5 border-t border-zinc-200 dark:border-zinc-800">
+                    <button type="button" onclick="salvarConfiguracao(event)" id="btnSalvar" class="btn bg-primary text-white hover:bg-primary-deep px-6 h-11">
+                        Concluir Configuração
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="/vendor/js/sweetalert2.all.min.js"></script>
+    
+    <script>
+        async function salvarConfiguracao(e) {
+            e.preventDefault();
+
+            const form = document.getElementById('formPrimeiroAcesso');
+            
+            // Validação nativa do navegador
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const cpf = document.getElementById('cpf').value;
+            const telefone = document.getElementById('telefone').value;
+            const data_nascimento = document.getElementById('data_nascimento').value;
+            const nova_senha = document.getElementById('nova_senha').value;
+            const confirma_senha = document.getElementById('confirma_senha').value;
+
+            if (nova_senha !== confirma_senha) {
+                return Swal.fire('Senhas não conferem', 'A nova senha e a confirmação precisam ser iguais.', 'warning');
+            }
+
+            if (nova_senha === 'mudar123') {
+                return Swal.fire('Atenção', 'Sua nova senha não pode ser a senha padrão.', 'warning');
+            }
+
+            const btn = document.getElementById('btnSalvar');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Salvando...';
+
+            try {
+                const req = await fetch('/primeiro-acesso', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cpf, telefone, data_nascimento, nova_senha })
+                });
+
+                const res = await req.json();
+
+                if (res.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Tudo pronto!',
+                        text: 'Sua conta está configurada e segura.',
+                        confirmButtonText: 'Acessar Sistema',
+                        allowOutsideClick: false
+                    }).then(() => {
+                        window.location.href = res.redirectUrl || '/dashboard';
+                    });
+                } else {
+                    throw new Error(res.message);
+                }
+            } catch (err) {
+                Swal.fire('Erro', err.message || 'Erro de conexão com o servidor.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = 'Concluir Configuração';
+            }
+        }
+    </script>
+</body>
+</html>

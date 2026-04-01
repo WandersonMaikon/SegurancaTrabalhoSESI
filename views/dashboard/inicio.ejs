@@ -1,0 +1,29 @@
+<main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+    <div class="px-4 lg:px-8 py-4">
+        <h2 class="text-xl mb-0 text-zinc-800 dark:text-zinc-100 font-semibold">Início</h2>
+    </div>
+
+    <div class="content flex flex-col flex-grow px-4 lg:px-8">
+        <div class="w-full max-w-3xl mx-auto mt-10 animate-fade-in">
+            <div
+                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-10 text-center border border-zinc-200 dark:border-zinc-800">
+
+                <div
+                    class="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary mx-auto mb-6 shadow-inner">
+                    <span class="icon-[lucide--sparkles] text-4xl"></span>
+                </div>
+
+                <h3 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-3">
+                    Olá, <%= user.nome_completo.split(' ')[0] %>! Bem-vindo(a) ao ProS.
+                </h3>
+                
+                <p class="text-zinc-500 dark:text-zinc-400 text-base max-w-lg mx-auto">
+                    Sua conta foi configurada com sucesso. Utilize o menu lateral esquerdo para navegar pelos módulos e ferramentas que estão liberados para o seu perfil.
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+</main>

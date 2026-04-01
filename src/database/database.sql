@@ -57,11 +57,15 @@ CREATE TABLE usuario (
     id_usuario CHAR(36) NOT NULL PRIMARY KEY, -- UUID
     id_unidade CHAR(36) NOT NULL,
     nome_completo VARCHAR(255) NOT NULL,
+    cpf VARCHAR(14),                     
     email VARCHAR(255) NOT NULL UNIQUE,
+    telefone VARCHAR(20),                
+    data_nascimento DATE,                 
     senha_hash VARCHAR(255) NOT NULL,
     id_perfil CHAR(36) NOT NULL,
     ativo BOOLEAN DEFAULT TRUE,
-    
+    primeiro_acesso BOOLEAN DEFAULT TRUE, 
+
     -- Controle de Auditoria e Sync
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -364,7 +368,6 @@ CREATE TABLE checklist_job_stress (
     
     -- Dados da Aplicação
     data_aplicacao DATE NOT NULL,
-    nome_trabalhador VARCHAR(255), -- Opcional, caso a pesquisa seja anônima
     setor_cargo VARCHAR(255),
     
     -- Respostas guardadas em formato JSON para fácil extração e leitura

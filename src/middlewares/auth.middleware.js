@@ -8,6 +8,28 @@ const verificarAutenticacao = (req, res, next) => {
 
     const user = req.session.user;
 
+    // =========================================================================
+    // NOVO: TRAVA DE PRIMEIRO ACESSO
+    // Se a flag estiver ativa, barra o usuário de acessar qualquer outra rota
+    // =========================================================================
+    if (user.primeiro_acesso) {
+        // Rotas que ele PODE acessar mesmo estando bloqueado
+        const urlPermitidas = ['/primeiro-acesso', '/logout'];
+
+        // Verifica se é arquivo estático (CSS, JS, Imagens, Vendor) ou API
+        const isStaticOrApi = req.originalUrl.startsWith('/api') ||
+            req.originalUrl.startsWith('/vendor') ||
+            req.originalUrl.startsWith('/css') ||
+            req.originalUrl.startsWith('/images') ||
+            req.originalUrl.startsWith('/js');
+
+        // Se ele não estiver indo para uma rota permitida, força o redirecionamento
+        if (!urlPermitidas.includes(req.originalUrl) && !isStaticOrApi) {
+            return res.redirect('/primeiro-acesso');
+        }
+    }
+    // =========================================================================
+
     // 2. Disponibiliza o usuário para TODAS as views EJS automaticamente
     res.locals.user = user;
 
@@ -33,7 +55,7 @@ const verificarAutenticacao = (req, res, next) => {
 
         // D. Verifica Ação OU Tudo
         const acaoLimpa = acao.replace('pode_', '');
-        
+
         return isTrue(alvo[acao]) || isTrue(alvo[`pode_${acaoLimpa}`]) || isTrue(alvo[acaoLimpa]) || isTrue(alvo['tudo']);
     };
 

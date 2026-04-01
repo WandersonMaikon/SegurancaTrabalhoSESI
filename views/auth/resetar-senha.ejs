@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Nova Senha</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
+    <main class="flex flex-col items-center flex-1 justify-center relative">
+
+        <% if (locals.message) { %>
+            <div
+                class="absolute top-5 bg-red-100 text-red-600 px-4 py-3 rounded-lg border border-red-200 shadow-sm w-[90%] max-w-md text-center text-sm font-semibold animate-fade-in">
+                <%= message %>
+            </div>
+            <% } %>
+
+                <div class="px-4 max-w-md mx-auto py-8 w-full animate-fade-in">
+                    <div class="mb-5 text-center">
+                    
+                        <h3 class="text-2xl font-semibold text-zinc-800 dark:text-zinc-100 leading-none my-2.5">
+                            Identidade Confirmada!
+                        </h3>
+                        <span class="text-zinc-500 text-sm">
+                            Agora você pode definir uma nova senha segura.
+                        </span>
+                    </div>
+
+                    <form action="/resetar-senha" method="POST" id="formNovaSenha">
+
+                        <div class="flex flex-col gap-1 mb-4">
+                            <label class="block mb-0.5 text-zinc-600 dark:text-zinc-400 font-medium text-sm"
+                                for="nova_senha">Nova Senha</label>
+                            <input id="nova_senha" name="nova_senha" class="input" placeholder="Mínimo 6 caracteres"
+                                type="password" minlength="6" required autofocus>
+                        </div>
+
+                        <div class="flex flex-col gap-1 mb-6">
+                            <label class="block mb-0.5 text-zinc-600 dark:text-zinc-400 font-medium text-sm"
+                                for="confirma_senha">Confirme a Nova Senha</label>
+                            <input id="confirma_senha" name="confirma_senha" class="input" placeholder="Repita a senha"
+                                type="password" required>
+                        </div>
+
+                        <button type="submit" id="btnSalvar"
+                            class="btn bg-primary text-white hover:bg-primary-deep w-full text-center h-12 text-lg font-semibold shadow-md shadow-primary/20">
+                            Salvar e Entrar
+                        </button>
+                    </form>
+                </div>
+    </main>
+
+    <script>
+        document.getElementById('formNovaSenha').addEventListener('submit', function (e) {
+            const nova = document.getElementById('nova_senha').value;
+            const confirma = document.getElementById('confirma_senha').value;
+
+            if (nova !== confirma) {
+                e.preventDefault();
+                alert('As senhas não conferem!');
+                return;
+            }
+            if (nova === 'mudar123') {
+                e.preventDefault();
+                alert('Escolha uma senha diferente da padrão.');
+                return;
+            }
+
+            const btn = document.getElementById('btnSalvar');
+            btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin"></span> Salvando...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+        });
+    </script>
+</body>
+
+</html>

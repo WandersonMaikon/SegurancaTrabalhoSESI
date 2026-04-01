@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Validação de Identidade</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300">
+    <main class="flex flex-col items-center flex-1 justify-center relative">
+
+        <% if (locals.message) { %>
+            <div
+                class="absolute top-5 bg-red-100 text-red-600 px-4 py-3 rounded-lg border border-red-200 shadow-sm w-[90%] max-w-md text-center text-sm font-semibold animate-fade-in">
+                <%= message %>
+            </div>
+            <% } %>
+
+                <div class="px-4 max-w-md mx-auto py-8 w-full animate-fade-in">
+                    <div class="mb-5 text-center">
+                        <h3 class="text-2xl font-semibold text-zinc-800 dark:text-zinc-100 leading-none my-2.5">
+                            Validar Identidade
+                        </h3>
+                        <span class="text-zinc-500 text-sm">
+                            Para redefinir sua senha, confirme os dados abaixo.
+                        </span>
+                    </div>
+
+                    <form action="/esqueci-senha" method="POST">
+
+                        <div class="flex flex-col gap-1 mb-4">
+                            <label class="block mb-0.5 text-zinc-600 dark:text-zinc-400 font-medium text-sm"
+                                for="email">E-mail de acesso</label>
+                            <input id="email" name="email" class="input" placeholder="seu@email.com" type="email"
+                                required>
+                        </div>
+
+                        <div class="flex flex-col gap-1 mb-4">
+                            <label class="block mb-0.5 text-zinc-600 dark:text-zinc-400 font-medium text-sm"
+                                for="cpf">CPF</label>
+                            <input id="cpf" name="cpf" class="input" placeholder="000.000.000-00" type="text"
+                                maxlength="14" required>
+                        </div>
+
+                        <div class="flex flex-col gap-1 mb-6">
+                            <label class="block mb-0.5 text-zinc-600 dark:text-zinc-400 font-medium text-sm"
+                                for="data_nascimento">Data de Nascimento</label>
+                            <input id="data_nascimento" name="data_nascimento" class="input" type="date" required>
+                        </div>
+
+                        <button type="submit"
+                            class="btn bg-primary text-white hover:bg-primary-deep w-full text-center h-12 text-lg font-semibold shadow-md shadow-primary/20">
+                            Continuar <span class="icon-[lucide--arrow-right] ml-2"></span>
+                        </button>
+
+                        <div class="flex items-center justify-center font-semibold gap-2 mt-6 text-zinc-500 text-sm">
+                            Lembrou a senha?
+                            <a class="text-primary hover:text-primary-deep underline transition-colors"
+                                href="/login">Voltar ao Login</a>
+                        </div>
+                    </form>
+                </div>
+    </main>
+
+    <script>
+        document.getElementById('cpf').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, ''); // Remove tudo que não é número
+
+            // Limita a 11 números
+            if (value.length > 11) {
+                value = value.slice(0, 11);
+            }
+
+            // Adiciona a pontuação
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+            e.target.value = value;
+        });
+    </script>
+</body>
+
+</html>
