@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Levantamento - ProS</title>
 
+    <link rel="icon" href="/images/favicon.png" type="image/png">
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet">
@@ -1064,6 +1065,60 @@
                         </template>
                     </form>
                 </div>
+
+                <div class="modal fade" id="modalRiscos" tabindex="-1" aria-labelledby="modalRiscosLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                        <div class="modal-content bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+                            <div
+                                class="modal-header border-b border-zinc-100 dark:border-zinc-800 p-4 flex justify-between items-center">
+                                <h5 class="modal-title font-bold text-zinc-800 dark:text-zinc-100"
+                                    id="modalRiscosLabel">Selecione os Riscos para Adicionar</h5>
+                                <button type="button"
+                                    class="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 p-1"
+                                    data-bs-dismiss="modal" aria-label="Close">
+                                    <span class="icon-[lucide--x] text-2xl"></span>
+                                </button>
+                            </div>
+                            <div class="modal-body p-6">
+                                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                                    <div class="relative flex-grow">
+                                        <input type="text" id="pesquisaRiscoModal" class="input w-full !ps-9"
+                                            placeholder="Buscar por código ou nome do risco...">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                                    </div>
+                                    <select id="filtroGrupoModal"
+                                        class="input w-full md:w-64 bg-transparent cursor-pointer">
+                                        <option value="">Todos os Grupos</option>
+                                        <option value="Físicos">Físicos</option>
+                                        <option value="Químicos">Químicos</option>
+                                        <option value="Biológicos">Biológicos</option>
+                                        <option value="Ergonômicos">Ergonômicos</option>
+                                        <option value="Mecânicos">Mecânicos</option>
+                                        <option value="Acidentes">Acidentes</option>
+                                        <option value="Inespecífico">Inespecífico</option>
+                                        <option value="Outros">Outros</option>
+                                    </select>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table id="tabelaRiscosModal" class="table-default w-full whitespace-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left">Código</th>
+                                                <th class="text-left">Grupo</th>
+                                                <th class="text-left w-full">Nome do Risco</th>
+                                                <th class="text-center">Ação</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <%- include('../partials/footer') %>
         </main>
 
@@ -1074,6 +1129,8 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
+        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -1081,7 +1138,7 @@
 
         <script>
             let padTecnico, padEmpresa;
-            let dtRiscos;
+            let dtRiscosModal; // Variável para a tabela do modal
 
             // ==========================================
             // DADOS CARREGADOS DO BANCO PARA EDIÇÃO (RISCOS)
@@ -1126,7 +1183,59 @@
 
                 // Pré-carrega os Riscos Salvos na Interface
                 carregarRiscosSalvos();
+
+                // ==========================================
+                // INICIALIZA A TABELA DO MODAL DE RISCOS
+                // ==========================================
+                dtRiscosModal = new DataTable('#tabelaRiscosModal', {
+                    data: riscosSalvos, // Usando a mesma base de dados de riscos global
+                    pageLength: 5,
+                    lengthChange: false,
+                    dom: 'lrtip', // Esconde a busca padrão do datatables para usar a nossa customizada
+                    columns: [
+                        { data: 'codigo_esocial', render: function (data, type, row) { return data || row.codigo_interno || '-'; } },
+                        { data: 'tipo_risco' },
+                        { data: 'nome_risco', className: 'font-bold' },
+                        {
+                            data: null,
+                            orderable: false,
+                            className: 'text-center',
+                            render: function (data, type, row) {
+                                // Escapa as aspas simples do nome do risco para não quebrar o onclick
+                                const nomeLimpo = row.nome_risco.replace(/'/g, "\\'");
+                                const cod = row.codigo_esocial || row.codigo_interno || '';
+                                return `<button type="button" class="btn bg-primary text-white hover:bg-primary-deep px-3 py-1 text-sm font-semibold rounded-md" onclick="selecionarRiscoParaTela('${row.id_risco}', '${cod}', '${nomeLimpo}', '${row.tipo_risco}')">Adicionar</button>`;
+                            }
+                        }
+                    ],
+                    language: {
+                        emptyTable: "Nenhum risco encontrado na base de dados.",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ riscos",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                // Conecta a barra de busca customizada à tabela do modal
+                document.getElementById('pesquisaRiscoModal').addEventListener('input', function (e) {
+                    dtRiscosModal.search(e.target.value).draw();
+                });
+
+                // Conecta o filtro de grupo à tabela do modal (Coluna 1)
+                document.getElementById('filtroGrupoModal').addEventListener('change', function (e) {
+                    dtRiscosModal.column(1).search(e.target.value).draw();
+                });
             });
+
+            // ==========================================
+            // FUNÇÃO QUE LIMPA O MODAL AO ABRIR (MÁGICA!)
+            // ==========================================
+            function limparBuscaRiscos() {
+                document.getElementById('pesquisaRiscoModal').value = '';
+                document.getElementById('filtroGrupoModal').value = '';
+                if (dtRiscosModal) {
+                    dtRiscosModal.search('').columns().search('').draw();
+                }
+            }
 
             // ==========================================
             // FUNÇÃO PARA MONTAR RISCOS SALVOS NA TELA
@@ -1134,31 +1243,33 @@
             function carregarRiscosSalvos() {
                 if (!riscosSalvos || riscosSalvos.length === 0) return;
 
+                // SE O SEU SISTEMA TRAZ APENAS OS RISCOS *DESTE* LEVANTAMENTO, ESTA LÓGICA RODA AQUI.
+                // COMO NÃO SEI SE `riscosSalvos` É A LISTA GLOBAL OU SÓ A LISTA DELE,
+                // O SCRIPT ABAIXO TENTA CARREGAR OS RISCOS QUE JÁ TEM FONTES/TEMPO SALVOS.
                 riscosSalvos.forEach(risco => {
-                    // Seleciona o risco para criar a interface
-                    selecionarRiscoParaTela(risco.id_risco, risco.codigo_interno, risco.nome_risco, risco.tipo_risco);
+                    // Verifica se tem os campos preenchidos. Se tiver, recria na tela.
+                    if (risco.fontes_geradoras || risco.tipo_tempo_exposicao) {
+                        selecionarRiscoParaTela(risco.id_risco, (risco.codigo_esocial || risco.codigo_interno || ''), risco.nome_risco, risco.tipo_risco);
 
-                    // Pega o último item adicionado (que é o risco atual do loop)
-                    const items = document.querySelectorAll('.risk-item');
-                    const lastItem = items[items.length - 1];
+                        const items = document.querySelectorAll('.risk-item');
+                        const lastItem = items[items.length - 1];
 
-                    // Preenche os dados de texto
-                    lastItem.querySelector('.risk-checkbox').checked = true;
-                    lastItem.querySelector('.risk-detail').classList.remove('hidden');
+                        lastItem.querySelector('.risk-checkbox').checked = true;
+                        lastItem.querySelector('.risk-detail').classList.remove('hidden');
 
-                    lastItem.querySelector('.risk-fontes').value = risco.fontes_geradoras || '';
-                    lastItem.querySelector('.risk-tempo').value = risco.tipo_tempo_exposicao || '';
-                    lastItem.querySelector('.risk-obs').value = risco.observacoes || '';
+                        lastItem.querySelector('.risk-fontes').value = risco.fontes_geradoras || '';
+                        lastItem.querySelector('.risk-tempo').value = risco.tipo_tempo_exposicao || '';
+                        lastItem.querySelector('.risk-obs').value = risco.observacoes || '';
 
-                    // Preencher EPIs e EPCs no TomSelect (Corrigido para usar diretamente o ID)
-                    const tomEpi = lastItem.querySelector('.risk-epis').tomselect;
-                    if (tomEpi && risco.epis) {
-                        risco.epis.forEach(epiId => tomEpi.addItem(epiId));
-                    }
+                        const tomEpi = lastItem.querySelector('.risk-epis').tomselect;
+                        if (tomEpi && risco.epis) {
+                            risco.epis.forEach(epiId => tomEpi.addItem(epiId));
+                        }
 
-                    const tomEpc = lastItem.querySelector('.risk-epcs').tomselect;
-                    if (tomEpc && risco.epcs) {
-                        risco.epcs.forEach(epcId => tomEpc.addItem(epcId));
+                        const tomEpc = lastItem.querySelector('.risk-epcs').tomselect;
+                        if (tomEpc && risco.epcs) {
+                            risco.epcs.forEach(epcId => tomEpc.addItem(epcId));
+                        }
                     }
                 });
             }
@@ -1247,10 +1358,16 @@
             }
 
             function selecionarRiscoParaTela(id_risco, codigo, nome, grupo) {
-                // Se tiver o modal de busca aberto, fecha ele
-                try { bootstrap.Modal.getInstance(document.getElementById('modalRiscos'))?.hide(); } catch (e) { }
+                // Tenta fechar o Modal se ele estiver aberto usando Bootstrap 5 via CDN
+                try {
+                    const myModalEl = document.getElementById('modalRiscos');
+                    const modalInstance = bootstrap.Modal.getInstance(myModalEl);
+                    if (modalInstance) modalInstance.hide();
+                } catch (e) { }
 
-                const grupoId = 'grupo_' + grupo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
+                // Normaliza o nome do grupo para criar os blocos e bordas (Físicos, Químicos...)
+                const grupoSafe = grupo || 'Indefinido';
+                const grupoId = 'grupo_' + grupoSafe.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
                 let containerDinamico = document.getElementById('container_riscos_dinamicos');
                 let accordionGrupo = document.getElementById(grupoId);
 
@@ -1260,15 +1377,15 @@
                     accordionGrupo.className = 'border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mt-4';
 
                     let corBorda = 'border-zinc-500';
-                    if (grupo.toLowerCase().includes('físico')) corBorda = 'border-green-500';
-                    else if (grupo.toLowerCase().includes('químico')) corBorda = 'border-red-500';
-                    else if (grupo.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
-                    else if (grupo.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
-                    else if (grupo.toLowerCase().includes('acidente')) corBorda = 'border-blue-500';
+                    if (grupoSafe.toLowerCase().includes('físico')) corBorda = 'border-green-500';
+                    else if (grupoSafe.toLowerCase().includes('químico')) corBorda = 'border-red-500';
+                    else if (grupoSafe.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
+                    else if (grupoSafe.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
+                    else if (grupoSafe.toLowerCase().includes('mecânico') || grupoSafe.toLowerCase().includes('acidente')) corBorda = 'border-sky-500';
 
                     accordionGrupo.innerHTML = `
                 <button type="button" class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 transition-colors border-l-4 ${corBorda}" onclick="toggleAccordion('acc_${grupoId}')">
-                    ${grupo.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+                    ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
                 </button>
                 <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
                     <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
@@ -1278,21 +1395,25 @@
 
                 const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
 
-                if (gridRiscos.querySelector(`[data-codigo="${codigo}"]`)) return;
+                // Evita inserir duplicado
+                if (gridRiscos.querySelector(`[data-id_risco="${id_risco}"]`)) {
+                    Swal.fire('Atenção', 'Este risco já foi adicionado!', 'warning');
+                    return;
+                }
 
                 const optionsEPI = document.getElementById('tpl-epis').innerHTML;
                 const optionsEPC = document.getElementById('tpl-epcs').innerHTML;
 
                 const riskItem = document.createElement('div');
-                riskItem.className = 'risk-item border border-zinc-100 rounded-lg p-4 bg-zinc-50/50';
+                riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-900/50';
 
                 riskItem.innerHTML = `
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 pb-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="input-checkbox risk-checkbox" data-id_risco="${id_risco}" data-grupo="${grupo}" data-codigo="${codigo}" data-nome="${nome}" onchange="toggleRiskDetail(this)">
-                    <span class="font-bold text-zinc-700 text-lg">${nome}</span>
+                    <input type="checkbox" class="input-checkbox risk-checkbox" data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" onchange="toggleRiskDetail(this)">
+                    <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
                 </label>
-                <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 rounded-md"><span class="icon-[lucide--trash]"></span> Remover</button>
+                <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md"><span class="icon-[lucide--trash]"></span> Remover</button>
             </div>
             
             <div class="risk-detail hidden grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1305,8 +1426,15 @@
             </div>`;
 
                 gridRiscos.appendChild(riskItem);
+
+                // Inicializa o TomSelect nos novos selects criados
                 riskItem.querySelectorAll('select.select-plugin').forEach(s => {
                     if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
+                });
+
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado ao formulário',
+                    showConfirmButton: false, timer: 1500
                 });
             }
 
