@@ -1,29 +1,86 @@
-<main class="flex-1 lg:ms-64 flex flex-col app-content">
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
 
-    <div class="px-4 lg:px-8 py-4">
-        <h2 class="text-xl mb-0 text-zinc-800 dark:text-zinc-100 font-semibold">Início</h2>
-    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Início</title>
 
-    <div class="content flex flex-col flex-grow px-4 lg:px-8">
-        <div class="w-full max-w-3xl mx-auto mt-10 animate-fade-in">
-            <div
-                class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-10 text-center border border-zinc-200 dark:border-zinc-800">
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
 
-                <div
-                    class="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary mx-auto mb-6 shadow-inner">
-                    <span class="icon-[lucide--sparkles] text-4xl"></span>
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-0 text-zinc-800 dark:text-zinc-100 font-semibold">Início</h2>
                 </div>
 
-                <h3 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-3">
-                    Olá, <%= user.nome_completo.split(' ')[0] %>! Bem-vindo(a) ao ProS.
-                </h3>
-                
-                <p class="text-zinc-500 dark:text-zinc-400 text-base max-w-lg mx-auto">
-                    Sua conta foi configurada com sucesso. Utilize o menu lateral esquerdo para navegar pelos módulos e ferramentas que estão liberados para o seu perfil.
-                </p>
+                <div class="content flex flex-col flex-grow px-4 lg:px-8">
+                    <div class="w-full max-w-3xl mx-auto mt-10 animate-fade-in">
+                        <div
+                            class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-10 text-center border border-zinc-200 dark:border-zinc-800">
 
+                            <div
+                                class="flex size-20 items-center justify-center rounded-full bg-primary/10 text-primary mx-auto mb-6 shadow-inner">
+                                <span class="icon-[lucide--sparkles] text-4xl"></span>
+                            </div>
+
+                            <h3 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-3">
+                                Que bom te ver por aqui, <%= user.nome_completo.split(' ')[0] %>! 👋
+                    </h3>
+                    
+                    <p class="text-zinc-500 dark:text-zinc-400 text-base max-w-lg mx-auto">
+                        Fique à vontade para acessar o menu lateral e continuar o seu trabalho. Tenha um excelente dia!
+                    </p>
+
+                </div>
             </div>
         </div>
-    </div>
 
-</main>
+        <%- include('../partials/footer') %>
+
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script type="text/javascript" src="/vendor/js/jquery.min.js"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Pega o primeiro nome do usuário para o Toast
+                const userName = "<%= (user && user.nome_completo) ? user.nome_completo.split(' ')[0] : '' %>";
+                const welcomeMessage = userName ? `Bem-vindo novamente, ${userName}!` : 'Bem-vindo novamente!';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: welcomeMessage,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    showCloseButton: true,
+                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>'
+                });
+            });
+        </script>
+
+</body>
+
+</html>
