@@ -156,22 +156,25 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                // Pega o nome do usuário vindo do EJS. Se não tiver nome, fica vazio.
-                const userName = "<%= (user && user.nome) ? user.nome : '' %>";
-
-                // Mensagem personalizada
-                const welcomeMessage = userName ? `Bem-vindo novamente, ${userName}!` : 'Bem-vindo novamente!';
+                // Pega o primeiro nome do usuário
+                const userName = "<%= (user && user.nome) ? user.nome.split(' ')[0] : '' %>";
+                
+                // Mensagem amigável que definimos
+                const welcomeMessage = userName ? `Bom te ver por aqui, ${userName}!` : 'Bom te ver por aqui!';
 
                 Swal.fire({
                     icon: 'success',
-                    title: welcomeMessage,
-                    toast: true,
-                    position: 'top-end', // Canto superior direito
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true,
-                    showCloseButton: true,
-                    closeButtonHtml: '<span class="icon-[lucide--x]"></span>'
+                    title: 'Seu login foi bem-sucedido!',
+                    text: welcomeMessage,
+                    position: 'center',          // Centraliza na tela (tira o comportamento de toast)
+                    backdrop: true,              // Escurece o fundo da tela
+                    showConfirmButton: false,    // Esconde o botão "OK" para forçar a saída automática
+                    showCloseButton: true,       // Mostra o "X" lá em cima caso ele queira fechar antes
+                    timer: 3000,                 // Tempo na tela (3000ms = 3 segundos)
+                    timerProgressBar: true,      // A mágica da barrinha de tempo correndo embaixo
+                    customClass: {
+                        closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1' // Mantém o botão "X" igual ao seu layout
+                    }
                 });
             });
         </script>
