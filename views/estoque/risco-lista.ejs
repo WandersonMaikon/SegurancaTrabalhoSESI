@@ -20,20 +20,27 @@
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 
     <script>
-        try {
-            // Verifica se o tema é escuro no localStorage antes de pintar a tela
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
+        (function() {
+            try {
+                // 1. Verifica o Modo Escuro Geral
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
 
-            // Preserva a textura/cor do sidebar escolhida pelo usuário
-            const sidebarTheme = localStorage.getItem('sidebarTheme');
-            if (sidebarTheme) {
-                document.documentElement.setAttribute('data-sidebar-theme', sidebarTheme);
-            }
-        } catch (e) { }
+                // 2. Verifica a cor específica do Sidebar
+                var sidebarTheme = localStorage.getItem('sidebarTheme');
+                if (sidebarTheme) {
+                    // Aplica a cor salva (dark ou light)
+                    document.documentElement.setAttribute('data-sidebar-theme', sidebarTheme);
+                } else if (theme === 'dark') {
+                    // Garantia extra: se o sistema é escuro, força o sidebar escuro
+                    document.documentElement.setAttribute('data-sidebar-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
     </script>
 </head>
 
