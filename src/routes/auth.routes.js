@@ -1,10 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../database/db"); // Conexão com o banco
-const bcrypt = require("bcryptjs");   // Verifica senha
+const db = require("../database/db"); 
+const bcrypt = require("bcryptjs");  
 
 // Importando o middleware para proteger as rotas de primeiro acesso
 const verificarAutenticacao = require("../middlewares/auth.middleware");
+
+// =========================================================================
+// ROTA RAIZ 
+// =========================================================================
+router.get("/", (req, res) => {
+    // Verifica se existe um usuário logado na sessão
+    if (req.session && req.session.user) {
+        // Se estiver logado, manda para a rota inicial dele ou para o /inicio
+        return res.redirect(req.session.user.rota_inicial || '/inicio');
+    }
+
+    // Se não estiver logado, manda direto para a tela de login
+    res.redirect("/login");
+});
 
 // =========================================================================
 // TELA DE LOGIN
@@ -178,7 +192,7 @@ router.post("/esqueci-senha", async (req, res) => {
         }
 
         const [rows] = await db.query(
-            "SELECT id_usuario, cpf, data_nascimento, ativo FROM usuario WHERE email = ?", 
+            "SELECT id_usuario, cpf, data_nascimento, ativo FROM usuario WHERE email = ?",
             [email]
         );
 
@@ -190,7 +204,7 @@ router.post("/esqueci-senha", async (req, res) => {
         }
 
         const dataBancoFormatada = new Date(usuario.data_nascimento).toISOString().split('T')[0];
-        
+
         if (usuario.cpf !== cpf || dataBancoFormatada !== data_nascimento) {
             req.session.message = "Os dados informados não correspondem aos nossos registros.";
             return res.redirect("/esqueci-senha");
@@ -199,7 +213,7 @@ router.post("/esqueci-senha", async (req, res) => {
         // MÁGICA AQUI: Se tudo estiver certo, criamos um "token" temporário na sessão
         // indicando qual usuário tem permissão para trocar a senha neste exato momento
         req.session.reset_id_usuario = usuario.id_usuario;
-        
+
         // E mandamos ele para a tela da Etapa 2!
         return res.redirect("/resetar-senha");
 
@@ -245,7 +259,7 @@ router.post("/resetar-senha", async (req, res) => {
         const senhaHash = await bcrypt.hash(nova_senha, salt);
 
         await db.query(
-            "UPDATE usuario SET senha_hash = ? WHERE id_usuario = ?", 
+            "UPDATE usuario SET senha_hash = ? WHERE id_usuario = ?",
             [senhaHash, idUsuario]
         );
 
