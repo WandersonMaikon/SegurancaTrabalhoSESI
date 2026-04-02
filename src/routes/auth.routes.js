@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../database/db"); 
-const bcrypt = require("bcryptjs");  
+const db = require("../database/db");
+const bcrypt = require("bcryptjs");
 
 // Importando o middleware para proteger as rotas de primeiro acesso
 const verificarAutenticacao = require("../middlewares/auth.middleware");
@@ -101,7 +101,6 @@ router.post("/login", async (req, res) => {
         if (usuario.email !== 'admin@admin.com' && usuario.nome_perfil !== 'Administrador' && usuario.nome_perfil !== 'Super Admin') {
 
             // Ordem de prioridade para a tela inicial. 
-            // O sistema vai testar de cima pra baixo e jogar o usuário na primeira que ele tiver permissão "ver".
             const rotasPrioridade = [
                 { chave: 'dashboard', url: '/dashboard' },
                 { chave: 'clientes', url: '/cliente' },
@@ -120,9 +119,11 @@ router.post("/login", async (req, res) => {
                 }
             }
 
-            // Define a rota inicial como a encontrada, ou volta pro dashboard se algo der errado
             rotaInicial = rotaEncontrada || '/inicio';
         }
+
+        // Conversão à prova de balas para pegar o valor do banco (seja 1, "1", ou true)
+        const isPrimeiroAcesso = Number(usuario.primeiro_acesso) === 1 || usuario.primeiro_acesso === true;
 
         // 4. Salva tudo na sessão
         req.session.user = {
@@ -136,14 +137,20 @@ router.post("/login", async (req, res) => {
             nome_perfil: usuario.nome_perfil,
             permissoes: permissoesObj,
 
-            // Flags de Segurança
-            primeiro_acesso: usuario.primeiro_acesso === 1 || usuario.primeiro_acesso === true,
+            // Flag de Segurança salva corretamente
+            primeiro_acesso: isPrimeiroAcesso,
             rota_inicial: rotaInicial
         };
 
-        // Redireciona para a rota calculada. 
-        // (Lembrando: Se a flag 'primeiro_acesso' for true, o auth.middleware.js vai 
-        // interceptar esse redirecionamento e forçar ele pro /primeiro-acesso)
+        // ==========================================================
+        // REDIRECIONAMENTO SEGURO
+        // ==========================================================
+        // Se for primeiro acesso, joga ele DIRETO para a tela de configuração!
+        if (isPrimeiroAcesso) {
+            return res.redirect('/primeiro-acesso');
+        }
+
+        // Se não for o primeiro acesso, segue a vida normal.
         return res.redirect(rotaInicial);
 
     } catch (error) {
