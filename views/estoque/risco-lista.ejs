@@ -18,19 +18,24 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
-</head>
 
-<style>
-    /* Esconde o conteúdo principal até tudo estar pronto */
-    .app-content {
-        opacity: 0;
-        transition: opacity 0.3s ease-in-out;
-    }
-    /* Classe que vamos adicionar pelo JS para revelar a tela */
-    .app-content.loaded {
-        opacity: 1;
-    }
-</style>
+    <script>
+        try {
+            // Verifica se o tema é escuro no localStorage antes de pintar a tela
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+
+            // Preserva a textura/cor do sidebar escolhida pelo usuário
+            const sidebarTheme = localStorage.getItem('sidebarTheme');
+            if (sidebarTheme) {
+                document.documentElement.setAttribute('data-sidebar-theme', sidebarTheme);
+            }
+        } catch (e) { }
+    </script>
+</head>
 
 <body
     class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300 text-left rtl:text-right">
@@ -324,17 +329,9 @@
             });
 
             // Inicializa TomSelect do Filtro
-        document.querySelectorAll('.js-select').forEach(select => {
-            new TomSelect(select, { create: false, allowEmptyOption: true });
-        });
-
-        // ============================================================
-        // 4. REVELAR A TELA SUAVEMENTE (Evita o pulo do CSS/Sidebar)
-        // ============================================================
-        // Dá um tempinho mínimo (100ms) para o navegador renderizar a textura do sidebar
-        setTimeout(() => {
-            document.querySelector('.app-content').classList.add('loaded');
-        }, 100);
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, { create: false, allowEmptyOption: true });
+            });
         </script>
 </body>
 
