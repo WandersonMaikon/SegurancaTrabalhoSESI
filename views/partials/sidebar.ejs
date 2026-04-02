@@ -1,13 +1,249 @@
-<div class="py-3 px-5 flex flex-col shrink-0">
-  <div class="static">
-    <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport" data-bs-toggle="dropdown" href="#"
-      class="block">
-      <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
-        <img src="/images/avatars/thumb-1.jpg" class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
+<aside
+  class="shadow-card bg-white dark:bg-zinc-900 fixed start-0 transition-all ltr:-translate-x-full ltr:lg:-translate-x-0 rtl:translate-x-full rtl:lg:translate-x-0 top-0 w-64 h-full flex flex-col z-[52] app-sidebar">
 
-        <div class="flex-grow shrink-0 flex items-center justify-between overflow-hidden">
-          <h6 class="!text-current user-text truncate w-full" title="<%= user && user.nome ? user.nome : 'Usuário' %>">
-            <% let displayName="Usuário" ; if (user && user.nome) { let nameParts=user.nome.trim().split(' ');
+  <div class="shrink-0 h-16 px-5 flex items-center">
+    <div class="relative flex items-center justify-between w-full">
+      <a href="/dashboard" class="flex items-center relative z-[1]">
+        <span
+          class="flex size-8 items-center justify-center rounded-full bg-gradient-to-tl text-white shrink-0 font-normal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 100 100" role="img"
+            aria-label="Segurança do Trabalho">
+            <circle cx="50" cy="50" r="42" fill="none" stroke="#0AA34A" stroke-width="12" />
+            <path fill="#0AA34A" d="M 44 22 H 56 V 44 H 78 V 56 H 56 V 78 H 44 V 56 H 22 V 44 H 44 Z" />
+          </svg>
+        </span>
+        <h5 class="text-2xl ms-3 logo-text font-display">ProS</h5>
+      </a>
+
+      <button id="isSidebarMini"
+        class="btn-sidebar-min hidden lg:flex size-7 flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-md cursor-w-resize">
+        <span class="icon-[lucide--sidebar] rtl:rotate-180"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col h-full overflow-y-auto" data-simplebar>
+    <div class="flex flex-col py-3 px-3">
+      <nav class="flex flex-col space-y-0.5" id="SidebarCollapseGroup">
+        <span class="text-xs text-zinc-400 mb-2 ps-4 sidebar-title uppercase font-semibold whitespace-nowrap">Visão
+          geral</span>
+
+        <% if (typeof can==='function' && can('dashboard', 'ver' )) { %>
+          <a href="/dashboard" class="sidebar-link <%= currentPage === 'dashboard' ? 'active' : '' %>">
+            <span class="sidebar-icon"><span class="icon-[lucide--file-chart-column]"></span></span>
+            <span class="sidebar-text">Dashboard</span>
+          </a>
+          <% } %>
+
+            <% if (typeof can==='function' && can('clientes', 'ver' )) { %>
+              <div class="static">
+                <a href="/clientes" class="sidebar-link <%= currentPage === 'clientes' ? 'active' : '' %>">
+                  <span class="sidebar-icon"><span class="icon-[lucide--users]"></span></span>
+                  <span class="sidebar-text">Clientes</span>
+                </a>
+              </div>
+              <% } %>
+
+                <% if (typeof can==='function' && can('servicos', 'ver' )) { %>
+                  <a href="/servicos" class="sidebar-link <%= currentPage === 'servicos' ? 'active' : '' %>">
+                    <span class="sidebar-icon"><span class="icon-[lucide--baggage-claim]"></span></span>
+                    <span class="sidebar-text">Serviços</span>
+                  </a>
+                  <% } %>
+
+                    <% if (typeof can==='function' && can('ordens_servico', 'ver' )) { %>
+                      <a href="/ordem-servico"
+                        class="sidebar-link <%= ['ordem-servico', 'os', 'ordemservicos', 'ordens_servico'].includes(currentPage) ? 'active' : '' %>">
+                        <span class="sidebar-icon"><span class="icon-[lucide--briefcase-business]"></span></span>
+                        <span class="sidebar-text">Ordem de serviço</span>
+                      </a>
+                      <% } %>
+
+                        <% if (typeof can==='function' && can('relatorios', 'ver' )) { %>
+                          <% const relatoriosPages=['relatorios', 'relatorios-clientes' ]; const
+                            isRelatoriosSection=relatoriosPages.includes(currentPage); %>
+                            <div class="static">
+                              <a data-bs-toggle="collapse" href="#cRelatorios"
+                                class="sidebar-link <%= isRelatoriosSection ? 'active' : '' %>">
+                                <span class="sidebar-icon"><span class="icon-[lucide--file-chart-line]"></span></span>
+                                <span class="sidebar-text">Relatórios</span>
+                                <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+                              </a>
+
+                              <div data-bs-parent="#SidebarCollapseGroup" id="cRelatorios"
+                                class="collapse sidebar-collapse w-48 z-50 <%= isRelatoriosSection ? 'show' : '' %>">
+                                <div class="py-1">
+                                  <a href="/relatorios/clientes"
+                                    class="sidebar-collapse-item <%= currentPage === 'relatorios-clientes' ? 'active' : '' %>">
+                                    Por Clientes
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+                            <% } %>
+
+                              <% if (typeof can==='function' && (can('formularios', 'ver' ) ||
+                                can('levantamento_perigos', 'ver' ) || can('checklist_stress', 'ver' ))) { %>
+                                <% const formulariosPages=['levantamento-perigos', 'checklist-stress' ]; const
+                                  isFormulariosSection=formulariosPages.includes(currentPage); %>
+                                  <div class="static">
+                                    <a data-bs-toggle="collapse" href="#cFormularios"
+                                      class="sidebar-link <%= isFormulariosSection ? 'active' : '' %>">
+                                      <span class="sidebar-icon"><span
+                                          class="icon-[lucide--book-open-check]"></span></span>
+                                      <span class="icon-[lucide--book-text] sidebar-text">Formulários</span>
+                                      <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+                                    </a>
+
+                                    <div data-bs-parent="#SidebarCollapseGroup" id="cFormularios"
+                                      class="collapse sidebar-collapse w-48 z-50 <%= isFormulariosSection ? 'show' : '' %>">
+                                      <div class="py-1">
+                                        <% if (typeof can==='function' && (can('levantamento_perigos', 'ver' ) ||
+                                          can('formularios', 'ver' ))) { %>
+                                          <a href="/levantamento-perigo"
+                                            class="sidebar-collapse-item <%= currentPage === 'levantamento-perigos' ? 'active' : '' %>">
+                                            Levantamento de Perigos
+                                          </a>
+                                          <% } %>
+
+                                            <% if (typeof can==='function' && can('checklist_stress', 'ver' )) { %>
+                                              <a href="/checklist-stress"
+                                                class="sidebar-collapse-item <%= currentPage === 'checklist-stress' ? 'active' : '' %>">
+                                                Checklist Trabalhador
+                                              </a>
+                                              <% } %>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <% } %>
+
+                                    <% if (typeof can==='function' && can('normas', 'ver' )) { %>
+                                      <a href="/normas"
+                                        class="sidebar-link <%= currentPage === 'normas-nr' ? 'active' : '' %>">
+                                        <span class="sidebar-icon"><span class="icon-[lucide--book-open]"></span></span>
+                                        <span class="sidebar-text">Normas NR</span>
+                                      </a>
+                                      <% } %>
+
+                                        <% if (typeof can==='function' && can('scrum', 'ver' )) { %>
+                                          <a href="/scrum-board"
+                                            class="sidebar-link <%= currentPage === 'scrum-board' ? 'active' : '' %>">
+                                            <span class="sidebar-icon"><span
+                                                class="icon-[lucide--folder-open]"></span></span>
+                                            <span class="sidebar-text">Scrum Board</span>
+                                          </a>
+                                          <% } %>
+
+                                            <% if (typeof can==='function' && (can('usuarios', 'ver' ) ||
+                                              can('atividades', 'ver' ) || can('perfis', 'ver' ))) { %>
+                                              <% const usuariosPages=['usuario', 'usuario-novo' , 'atividades'
+                                                , 'perfil' , 'perfil-novo' , 'perfil-editar' ]; const
+                                                isUsuariosSection=usuariosPages.includes(currentPage); %>
+                                                <div class="static">
+                                                  <a data-bs-toggle="collapse" href="#cAccount"
+                                                    class="sidebar-link <%= isUsuariosSection ? 'active' : '' %>">
+                                                    <span class="sidebar-icon"><span
+                                                        class="icon-[lucide--circle-user-round]"></span></span>
+                                                    <span class="sidebar-text">Usuários</span>
+                                                    <span class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+                                                  </a>
+
+                                                  <div data-bs-parent="#SidebarCollapseGroup" id="cAccount"
+                                                    class="collapse sidebar-collapse w-48 z-50 <%= isUsuariosSection ? 'show' : '' %>">
+                                                    <div class="py-1">
+                                                      <% if (can('usuarios', 'ver' )) { %>
+                                                        <a href="/usuario"
+                                                          class="sidebar-collapse-item <%= (currentPage === 'usuario' || currentPage === 'usuario-novo') ? 'active' : '' %>">
+                                                          Lista de usuários
+                                                        </a>
+                                                        <% } %>
+
+                                                          <% if (can('atividades', 'ver' )) { %>
+                                                            <a href="/atividades"
+                                                              class="sidebar-collapse-item <%= currentPage === 'atividades' ? 'active' : '' %>">
+                                                              Registro de atividades
+                                                            </a>
+                                                            <% } %>
+
+                                                              <% if (can('perfis', 'ver' )) { %>
+                                                                <a href="/perfil"
+                                                                  class="sidebar-collapse-item <%= (currentPage === 'perfil' || currentPage === 'perfil-novo' || currentPage === 'perfil-editar') ? 'active' : '' %>">
+                                                                  Perfis & Permissões
+                                                                </a>
+                                                                <% } %>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <% } %>
+
+                                                  <% if (typeof can==='function' && (can('riscos', 'ver' ) ||
+                                                    can('epis', 'ver' ) || can('epcs', 'ver' ))) { %>
+                                                    <% const cadastrosPages=['risco', 'risco-novo' , 'risco-editar'
+                                                      , 'epi' , 'epi-novo' , 'epi-editar' , 'epc' , 'epc-novo'
+                                                      , 'epc-editar' ]; const
+                                                      isCadastrosSection=cadastrosPages.includes(currentPage); %>
+                                                      <div class="static">
+                                                        <a data-bs-toggle="collapse" href="#cCadastros"
+                                                          class="sidebar-link <%= isCadastrosSection ? 'active' : '' %>">
+                                                          <span class="sidebar-icon"><span
+                                                              class="icon-[lucide--file-edit]"></span></span>
+                                                          <span class="sidebar-text">Cadastros</span>
+                                                          <span
+                                                            class="icon-[lucide--chevron-up] sidebar-link-arrow"></span>
+                                                        </a>
+
+                                                        <div data-bs-parent="#SidebarCollapseGroup" id="cCadastros"
+                                                          class="collapse sidebar-collapse w-48 z-50 <%= isCadastrosSection ? 'show' : '' %>">
+                                                          <div class="py-1">
+                                                            <% if (can('riscos', 'ver' )) { %>
+                                                              <a href="/risco"
+                                                                class="sidebar-collapse-item <%= (currentPage === 'risco' || currentPage === 'risco-novo' || currentPage === 'risco-editar') ? 'active' : '' %>">
+                                                                Riscos
+                                                              </a>
+                                                              <% } %>
+
+                                                                <% if (can('epis', 'ver' )) { %>
+                                                                  <a href="/epi"
+                                                                    class="sidebar-collapse-item <%= (currentPage === 'epi' || currentPage === 'epi-novo' || currentPage === 'epi-editar') ? 'active' : '' %>">
+                                                                    EPIs
+                                                                  </a>
+                                                                  <% } %>
+
+                                                                    <% if (can('epcs', 'ver' )) { %>
+                                                                      <a href="/epc"
+                                                                        class="sidebar-collapse-item <%= (currentPage === 'epc' || currentPage === 'epc-novo' || currentPage === 'epc-editar') ? 'active' : '' %>">
+                                                                        EPC
+                                                                      </a>
+                                                                      <% } %>
+                                                          </div>
+                                                        </div>
+                                                      </div>
+                                                      <% } %>
+
+                                                        <% if (typeof can==='function' && can('unidades', 'ver' )) { %>
+                                                          <a href="/unidade"
+                                                            class="sidebar-link <%= currentPage === 'unidade' ? 'active' : '' %>">
+                                                            <span class="sidebar-icon"><span
+                                                                class="icon-[lucide--building-2]"></span></span>
+                                                            <span class="sidebar-text">Criação de unidade</span>
+                                                          </a>
+                                                          <% } %>
+
+      </nav>
+    </div>
+  </div>
+
+  <div class="py-3 px-5 flex flex-col shrink-0">
+    <div class="static">
+      <a data-bs-auto-close="outside" data-bs-offset="10,10" data-bs-boundry="viewport" data-bs-toggle="dropdown"
+        href="#" class="block">
+        <div class="flex flex-nowrap items-center gap-3.5 rounded-lg">
+          <img src="/images/avatars/thumb-1.jpg" class="min-w-8 mx-auto block max-w-8 rounded-full shrink-0" alt="">
+
+          <div class="flex-grow shrink-0 flex items-center justify-between overflow-hidden">
+            <h6 class="!text-current user-text truncate w-full"
+              title="<%= user && user.nome ? user.nome : 'Usuário' %>">
+              <% let displayName="Usuário" ; if (user && user.nome) { let nameParts=user.nome.trim().split(' ');
                   if (nameParts.length > 1) {
                     // Pega o primeiro e o último nome
                     displayName = nameParts[0] + ' ' + nameParts[nameParts.length - 1];
@@ -16,36 +252,37 @@
                   }
                 } else if (user && user.email) {
                   displayName = user.email.split(' @')[0]; } %>
-              <%= displayName %>
-          </h6>
+                <%= displayName %>
+            </h6>
+          </div>
+
         </div>
-
-      </div>
-    </a>
-
-    <div class="dropdown-menu w-54 z-50">
-      <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-        <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full" alt="">
-        <div class="flex-grow overflow-hidden">
-          <p class="text-sm text-muted">Logado como</p>
-          <p class="text-sm truncate w-full" title="<%= (user && user.email) ? user.email : '-' %>">
-            <%= (user && user.email) ? user.email : "-" %>
-          </p>
-        </div>
-        <span class="shrink-0 pl-2">
-          <span class="icon-[solar--verified-check-bold] text-green-500"></span>
-        </span>
-      </div>
-
-      <hr class="border-zinc-100 dark:border-zinc-800 my-2">
-
-      <a href="/logout" class="dropdown-item">
-        <span class="dropdown-icon">
-          <span class="icon-[lucide--log-out]"></span>
-        </span>
-        Sair
       </a>
+
+      <div class="dropdown-menu w-54 z-50">
+        <div class="flex items-center gap-3.5 p-2 mb-2 rounded-lg bg-zinc-50 dark:bg-zinc-800">
+          <img src="/images/avatars/thumb-1.jpg" class="w-7 shrink-0 rounded-full" alt="">
+          <div class="flex-grow overflow-hidden">
+            <p class="text-sm text-muted">Logado como</p>
+            <p class="text-sm truncate w-full" title="<%= (user && user.email) ? user.email : '-' %>">
+              <%= (user && user.email) ? user.email : "-" %>
+            </p>
+          </div>
+          <span class="shrink-0 pl-2">
+            <span class="icon-[solar--verified-check-bold] text-green-500"></span>
+          </span>
+        </div>
+
+        <hr class="border-zinc-100 dark:border-zinc-800 my-2">
+
+        <a href="/logout" class="dropdown-item">
+          <span class="dropdown-icon">
+            <span class="icon-[lucide--log-out]"></span>
+          </span>
+          Sair
+        </a>
+      </div>
     </div>
   </div>
-</div>
+
 </aside>
