@@ -144,15 +144,14 @@
                         title: 'Acesso Negado',
                         text: 'Você não tem permissão para acessar a tela de edição.',
                         icon: 'warning',
-                        confirmButtonColor: '#f59e0b', 
+                        confirmButtonColor: '#f59e0b',
                         confirmButtonText: 'Entendido'
                     });
-                    // Limpa a URL
                     window.history.replaceState(null, '', window.location.pathname);
                 }
 
                 // ============================================================
-                // 2. CONSTRUÇÃO DA TABELA
+                // 2. CONSTRUÇÃO DA TABELA (Renderização Ultra-Rápida)
                 // ============================================================
                 let listaRiscos = [];
                 try {
@@ -161,9 +160,6 @@
                         listaRiscos = JSON.parse(divJson.innerText);
                     }
                 } catch (e) { console.error("Erro ao ler JSON de riscos:", e); }
-
-                const tbody = document.getElementById('tableBody');
-                tbody.innerHTML = '';
 
                 const getRiskBadge = (tipo) => {
                     switch (tipo) {
@@ -175,31 +171,55 @@
                         case 'Inespecífico': return '<span class="badge bg-purple-500/10 text-purple-500">Inespecífico</span>';
                         case 'Associações': return '<span class="badge bg-zinc-500/10 text-zinc-500">Associações</span>';
                         case 'Outros': return '<span class="badge bg-zinc-500/10 text-zinc-500">Outros</span>';
-                        case 'Ausência de Riscos': return '<span class="badge bg-slate-500/10 text-slate-500">Ausência de Riscos</span>';
-                        default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo}</span>`;
+                        case 'Ausência de Risco': return '<span class="badge bg-slate-500/10 text-slate-500">Ausência de Riscos</span>';
+                        default: return `<span class="badge bg-zinc-100 text-zinc-500">${tipo || '-'}</span>`;
                     }
                 };
 
-                listaRiscos.forEach((r, index) => {
-                    const tr = document.createElement('tr');
-                    tr.setAttribute('data-index', index);
-                    tr.innerHTML = `
-                        <td></td>
-                        <td class="whitespace-nowrap">${getRiskBadge(r.tipo_risco)}</td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${r.nome_risco}</td>
-                        <td class="whitespace-nowrap">${r.codigo_esocial || '-'}</td>
-                        <td>
-                            <div class="flex items-center gap-1 relative z-[1]">
-                                <a href="/risco/editar/${r.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                    <span class="icon-[lucide--edit] text-lg"></span>
-                                </a>
-                            </div>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
                 const table = new DataTable('#table_riscos', {
+                    data: listaRiscos,
+                    columns: [
+                        {
+                            data: null,
+                            defaultContent: '',
+                            orderable: false,
+                            className: 'select-checkbox'
+                        },
+                        {
+                            data: 'tipo_risco',
+                            className: 'whitespace-nowrap',
+                            render: function (data) {
+                                return getRiskBadge(data);
+                            }
+                        },
+                        {
+                            data: 'nome_risco',
+                            className: 'font-semibold text-zinc-900 whitespace-nowrap dark:text-white'
+                        },
+                        {
+                            data: 'codigo_esocial',
+                            className: 'whitespace-nowrap',
+                            render: function (data) {
+                                return data || '-';
+                            }
+                        },
+                        {
+                            data: null,
+                            orderable: false,
+                            render: function (data, type, row) {
+                                return `
+                                <div class="flex items-center gap-1 relative z-[1]">
+                                    <a href="/risco/editar/${row.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                        <span class="icon-[lucide--edit] text-lg"></span>
+                                    </a>
+                                </div>
+                            `;
+                            }
+                        }
+                    ],
+                    createdRow: function (row, data, dataIndex) {
+                        $(row).attr('data-index', dataIndex);
+                    },
                     lengthChange: false,
                     pageLength: 9,
                     scrollX: true,
@@ -210,10 +230,6 @@
                         paginate: { first: "«", last: "»", next: "›", previous: "‹" },
                         select: { rows: "" }
                     },
-                    columnDefs: [
-                        { orderable: false, className: 'select-checkbox', targets: 0 },
-                        { orderable: false, targets: 4 }
-                    ],
                     select: {
                         style: 'multi',
                         selector: 'td:first-child',
@@ -240,6 +256,7 @@
                 deleteBtn.addEventListener('click', () => {
                     const selectedRows = table.rows({ selected: true }).nodes();
                     const selectedIds = [];
+
                     selectedRows.each(function (row) {
                         const index = row.getAttribute('data-index');
                         if (listaRiscos[index]) selectedIds.push(listaRiscos[index].id_risco);
@@ -263,12 +280,11 @@
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
-                                        'Accept': 'application/json' // <--- O SEGREDO ESTÁ AQUI!
+                                        'Accept': 'application/json'
                                     },
                                     body: JSON.stringify({ ids: selectedIds })
                                 });
 
-                                // Agora o middleware sabe que é JSON e devolve 403 corretamente
                                 if (response.status === 403) {
                                     Swal.fire({
                                         title: 'Acesso Negado',
