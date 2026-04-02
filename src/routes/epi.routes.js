@@ -6,7 +6,8 @@ const verificarAutenticacao = require("../middlewares/auth.middleware");
 const verificarPermissao = require("../middlewares/permission.middleware");
 const registrarLog = require("../utils/logger");
 
-const API_DOCKER_URL = "http://localhost:5200";
+// CORREÇÃO UM: Comunicação direta pela rede interna do Docker
+const API_DOCKER_URL = "http://api_ca:80";
 
 // Função auxiliar para verificar Admin
 const verificarSeEhAdmin = (user) => {
@@ -24,7 +25,6 @@ function converterData(dataStr) {
 }
 
 // --- 1. LISTAR EPIs (GET) ---
-// CORREÇÃO AQUI: Mudado de 'epi' para 'epis'
 router.get("/", verificarAutenticacao, verificarPermissao('epis', 'ver'), async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -59,13 +59,11 @@ router.get("/", verificarAutenticacao, verificarPermissao('epis', 'ver'), async 
 });
 
 // --- 2. TELA DE NOVO (GET) ---
-// CORREÇÃO AQUI: Mudado de 'epi' para 'epis'
 router.get("/novo", verificarAutenticacao, verificarPermissao('epis', 'criar'), (req, res) => {
     res.render("estoque/epi-form", { user: req.session.user, currentPage: 'epi' });
 });
 
 // --- 3. TELA DE VISUALIZAR (GET) ---
-// CORREÇÃO AQUI: Mudado de 'epi' para 'epis'
 router.get("/ver/:id", verificarAutenticacao, verificarPermissao('epis', 'ver'), async (req, res) => {
     try {
         const { id } = req.params;
@@ -128,7 +126,6 @@ router.get("/ver/:id", verificarAutenticacao, verificarPermissao('epis', 'ver'),
 
 // --- 4. API PROXY ---
 router.get("/consulta-ca/:ca", verificarAutenticacao, async (req, res) => {
-    // Consulta pública não costuma exigir permissão estrita de módulo, mas se quiser pode adicionar
     const ca = req.params.ca.replace(/\D/g, "");
     try {
         const response = await axios.get(`${API_DOCKER_URL}/retornarTodasAtualizacoes/${ca}`, { timeout: 5000 });
@@ -144,10 +141,13 @@ router.get("/consulta-ca/:ca", verificarAutenticacao, async (req, res) => {
                 return t;
             };
 
+            // CORREÇÃO DOIS: Enviando os campos adicionais para a tela preencher
             return res.json({
                 validade: item.DataValidade,
                 situacao: tratarSituacao(item.Situacao),
-                equipamento: item.NomeEquipamento
+                equipamento: item.NomeEquipamento,
+                aprovadoParaLaudo: item.AprovadoParaLaudo || "",
+                observacaoAnaliseLaudo: item.ObservacaoAnaliseLaudo || ""
             });
         }
         return res.status(404).json({ error: "CA não encontrado." });
@@ -157,7 +157,6 @@ router.get("/consulta-ca/:ca", verificarAutenticacao, async (req, res) => {
 });
 
 // --- 5. SALVAR NOVO (POST) ---
-// CORREÇÃO AQUI: Mudado de 'epi' para 'epis'
 router.post("/novo", verificarAutenticacao, verificarPermissao('epis', 'criar'), async (req, res) => {
     try {
         const { ca, nome, validade } = req.body;
@@ -196,7 +195,6 @@ router.post("/novo", verificarAutenticacao, verificarPermissao('epis', 'criar'),
 });
 
 // --- 6. INATIVAR MÚLTIPLOS (POST) ---
-// CORREÇÃO AQUI: Mudado de 'epi' para 'epis' e ação 'inativar'
 router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('epis', 'inativar'), async (req, res) => {
     try {
         const { ids } = req.body;

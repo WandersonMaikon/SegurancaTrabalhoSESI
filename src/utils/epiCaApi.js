@@ -2,14 +2,14 @@ const express = require("express");
 const axios = require("axios");
 const router = express.Router();
 
-// URL correta da sua API Docker
-const API_DOCKER_URL = "http://localhost:5200";
+// Apontamento direto para o endereço IP do seu servidor Ubuntu
+const API_DOCKER_URL = "http://10.67.127.183:5200";
 
-router.get("/api/epi/ca/:ca", async (req, res) => {
+// Caminho da rota ajustado para ficar idêntico ao que a interface visual pede
+router.get("/epi/consulta-ca/:ca", async (req, res) => {
   const ca = req.params.ca.replace(/\D/g, "");
 
   try {
-    // Chamada para a API Docker
     const response = await axios.get(`${API_DOCKER_URL}/retornarTodasAtualizacoes/${ca}`, {
       timeout: 5000
     });
@@ -19,17 +19,12 @@ router.get("/api/epi/ca/:ca", async (req, res) => {
     if (Array.isArray(listaEpi) && listaEpi.length > 0) {
       const primeiroEpi = listaEpi[0];
 
-      // 1. Pegamos os dados brutos
       const validadeBruta = primeiroEpi.DataValidade;
       const situacaoBruta = primeiroEpi.Situacao || "";
-
-      // CORREÇÃO AQUI: O nome do campo na API é "NomeEquipamento"
       const equipamentoNome = primeiroEpi.NomeEquipamento || "";
-
       const aprovadoParaLaudo = primeiroEpi.AprovadoParaLaudo || "";
       const observacaoAnaliseLaudo = primeiroEpi.ObservacaoAnaliseLaudo || "";
 
-      // 2. Tratamento por extenso da Situação
       let situacaoFormatada = "Situação Indisponível";
 
       if (situacaoBruta.toLowerCase().includes("val")) {
@@ -44,7 +39,7 @@ router.get("/api/epi/ca/:ca", async (req, res) => {
         return res.json({
           validade: validadeBruta,
           situacao: situacaoFormatada,
-          equipamento: equipamentoNome, // Agora enviará o nome correto
+          equipamento: equipamentoNome,
           aprovadoParaLaudo: aprovadoParaLaudo,
           observacaoAnaliseLaudo: observacaoAnaliseLaudo
         });
@@ -54,8 +49,8 @@ router.get("/api/epi/ca/:ca", async (req, res) => {
     return res.status(404).json({ error: "CA não encontrado ou sem informações." });
 
   } catch (err) {
-    console.error("Erro ao conectar com a API Docker:", err.message);
-    return res.status(500).json({ error: "API do Docker offline ou erro na busca." });
+    console.error("Erro ao conectar com a API externa:", err.message);
+    return res.status(500).json({ error: "API de consulta offline ou erro na busca." });
   }
 });
 
