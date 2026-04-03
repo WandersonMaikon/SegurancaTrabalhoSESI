@@ -369,7 +369,7 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        // 1. Usando LEFT JOIN: Garante que os dados carreguem mesmo se algum vínculo falhar
+        // 1. Busca Levantamento
         const [rows] = await db.query(`
             SELECT l.*, c.nome_empresa, c.cnpj, u.nome_completo as nome_avaliador
             FROM levantamento_perigo l
@@ -386,7 +386,7 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
             return res.status(403).send("Acesso negado.");
         }
 
-        // 2. Buscas para os selects (Clientes, Usuários, EPIs, EPCs, Matriz de Riscos)
+        // 2. Buscas para os selects
         let queryClientes = "SELECT id_cliente, nome_empresa FROM cliente WHERE deleted_at IS NULL AND ativo = 1";
         let paramsClientes = [];
         if (!ehAdmin) {
@@ -417,15 +417,24 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
         const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ?", [id]);
         const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ?", [id]);
         
-        // Riscos: Usando COALESCE para garantir que o risco não suma caso a matriz original seja alterada
+        // ========================================================
+        // CORREÇÃO: Buscando os riscos salvos com os nomes das propriedades (AS)
+        // que o Front-end espera (fontes, tempo, obs, codigo_esocial)
+        // ========================================================
         const [riscos] = await db.query(`
             SELECT 
-                lri.*, 
+                lri.id_risco,
+                lri.id_risco_identificado,
+                lri.fontes_geradoras AS fontes,
+                lri.tipo_tempo_exposicao AS tempo,
+                lri.observacoes AS obs,
                 COALESCE(r.codigo_interno, lri.codigo_perigo) AS codigo_interno, 
                 COALESCE(r.nome_risco, lri.descricao_perigo) AS nome_risco, 
-                COALESCE(r.tipo_risco, lri.grupo_perigo) AS tipo_risco
+                COALESCE(r.tipo_risco, lri.grupo_perigo) AS tipo_risco,
+                t24.codigo AS codigo_esocial
             FROM levantamento_risco_identificado lri
             LEFT JOIN risco r ON lri.id_risco = r.id_risco
+            LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
             WHERE lri.id_levantamento = ?
         `, [id]);
 
@@ -439,20 +448,20 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
         }
 
         // ========================================================
-        // ATENÇÃO AQUI EMBAIXO: NOME DO ARQUIVO EJS E VARIÁVEIS
+        // A MÁGICA ESTÁ AQUI: Anexando os riscos DENTRO do levantamento!
         // ========================================================
-        res.render("formularios/levantamento-perigo-editar", { // <-- Ajuste o nome aqui se o seu arquivo se chamar levantamento-perigo-form
+        levantamento.riscos = riscos;
+
+        res.render("formularios/levantamento-perigo-editar", { 
             user: userLogado,
             currentPage: 'levantamento-perigos',
             clientes, usuarios, epis, epcs, todosRiscos,
             
-            // Dados brutos para o HTML/EJS (Inputs, Checkboxes e forEach)
-            levantamento: levantamento,
+            // Dados brutos para o HTML/EJS
+            levantamento: levantamento, // Agora isso aqui tem os riscos lá dentro!
             ges: ges, 
             quimicos: quimicos,
             riscos: riscos,
-
-            // Dado JSON apenas para o script do Javascript montar os blocos de risco
             riscosJson: JSON.stringify(riscos) 
         });
 

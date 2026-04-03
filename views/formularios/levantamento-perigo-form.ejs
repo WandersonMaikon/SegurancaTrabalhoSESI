@@ -718,7 +718,8 @@
                                 </div>
 
                                 <div class="p-6 overflow-x-auto">
-                                    <div class="mt-6 p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
+                                    <div
+                                        class="mt-6 p-4 bg-zinc-50 dark:bg-zinc-800/30 rounded-lg border border-zinc-200 dark:border-zinc-700">
                                         <label for="nome_grupo_ges"
                                             class="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nome
                                             do Grupo de Exposição Similar (GES)</label>
@@ -726,7 +727,7 @@
                                             class="input w-full" placeholder="Ex: GES 01 - Produção e Manutenção">
                                     </div>
                                     <table id="tableGes" class="table-default whitespace-nowrap w-full">
-                                        
+
                                         <thead>
                                             <tr>
                                                 <th class="text-nowrap pl-6">Setor</th>
@@ -746,7 +747,7 @@
                                         Nenhum GES cadastrado. Clique em adicionar.
                                     </div>
 
-                                    
+
 
                                     <p class="text-sm text-zinc-400 mt-4">
                                         Dica: Adicione os setores e cargos para poder associar os riscos a eles na
@@ -1241,7 +1242,7 @@
                 const tbody = document.querySelector('#tableGes tbody');
                 const row = document.createElement('tr');
                 row.className = "hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors";
-                
+
                 // Sem a coluna de nome, o setor assume a primeira posição
                 row.innerHTML = `
                 <td class="pl-6 pr-2 py-3"><input type="text" class="table-input ges-setor font-medium" placeholder="Ex: Produção"></td>
@@ -1251,7 +1252,7 @@
                 <td class="pr-6 pl-2 py-3 text-center">
                     <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
                 </td>`;
-                
+
                 tbody.appendChild(row);
                 row.querySelector('input').focus();
             }
@@ -1324,10 +1325,18 @@
                 if (btnFechar) btnFechar.click();
             }
 
-            function selecionarRiscoParaTela(id_risco, codigo, nome, grupo) {
-                fecharModalRiscos();
+            function selecionarRiscoParaTela(id_risco, codigo, nome, grupo, isPreload = false) {
+                // Tenta fechar o Modal se não for preload
+                if (!isPreload) {
+                    const modalRiscosEl = document.getElementById('modalRiscos');
+                    if (modalRiscosEl) {
+                        const btnFechar = modalRiscosEl.querySelector('[data-bs-dismiss="modal"]');
+                        if (btnFechar) btnFechar.click();
+                    }
+                }
 
-                const grupoId = 'grupo_' + grupo.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
+                const grupoSafe = grupo || 'Indefinido';
+                const grupoId = 'grupo_' + grupoSafe.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
                 let containerDinamico = document.getElementById('container_riscos_dinamicos');
                 let accordionGrupo = document.getElementById(grupoId);
 
@@ -1337,17 +1346,17 @@
                     accordionGrupo.className = 'border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mt-4';
 
                     let corBorda = 'border-zinc-500';
-                    if (grupo.toLowerCase().includes('físico')) corBorda = 'border-green-500';
-                    else if (grupo.toLowerCase().includes('químico')) corBorda = 'border-red-500';
-                    else if (grupo.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
-                    else if (grupo.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
-                    else if (grupo.toLowerCase().includes('acidente')) corBorda = 'border-blue-500';
+                    if (grupoSafe.toLowerCase().includes('físico')) corBorda = 'border-green-500';
+                    else if (grupoSafe.toLowerCase().includes('químico')) corBorda = 'border-red-500';
+                    else if (grupoSafe.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
+                    else if (grupoSafe.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
+                    else if (grupoSafe.toLowerCase().includes('mecânico') || grupoSafe.toLowerCase().includes('acidente')) corBorda = 'border-sky-500';
 
                     accordionGrupo.innerHTML = `
             <button type="button" 
                 class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
                 onclick="toggleAccordion('acc_${grupoId}')">
-                 ${grupo.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+                 ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
             </button>
             <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
                 <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
@@ -1358,8 +1367,8 @@
 
                 const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
 
-                if (gridRiscos.querySelector(`[data-codigo="${codigo}"]`)) {
-                    alert("Este risco já foi adicionado ao levantamento!");
+                if (gridRiscos.querySelector(`[data-id_risco="${id_risco}"]`)) {
+                    if (!isPreload) Swal.fire('Atenção', 'Este risco já foi adicionado!', 'warning');
                     return;
                 }
 
@@ -1367,13 +1376,16 @@
                 const optionsEPC = document.getElementById('tpl-epcs').innerHTML;
 
                 const riskItem = document.createElement('div');
-                riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-800/20';
+                riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-900/50';
 
+                // ==========================================
+                // A MÁGICA: O checkbox agora tem 'checked' e o '.risk-detail' não tem mais 'hidden'!
+                // ==========================================
                 riskItem.innerHTML = `
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
             <label class="inline-flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="input-checkbox risk-checkbox" 
-                    data-id_risco="${id_risco}" data-grupo="${grupo}" data-codigo="${codigo}" data-nome="${nome}" 
+                <input type="checkbox" class="input-checkbox risk-checkbox" checked
+                    data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" 
                     onchange="toggleRiskDetail(this)">
                 <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
             </label>
@@ -1382,7 +1394,7 @@
             </button>
         </div>
         
-        <div class="risk-detail hidden grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
                 <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
@@ -1402,7 +1414,7 @@
             
             <div>
                 <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
-                <label class="flex items-center justify-center w-full px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded cursor-pointer hover:bg-slate-200 transition-colors text-sm font-semibold text-center overflow-hidden">
+                <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 rounded cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
                     <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
                     <input type="file" accept="image/*" class="hidden risk-imagem" 
                         onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
@@ -1421,7 +1433,13 @@
                     if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
                 });
 
-                riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                if (!isPreload) {
+                    riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado ao formulário',
+                        showConfirmButton: false, timer: 1500
+                    });
+                }
             }
 
             function removerRiscoDaTela(botao, grupoId) {
@@ -1553,27 +1571,6 @@
                         const tomEpc = item.querySelector('.risk-epcs').tomselect;
                         const epis = tomEpi ? tomEpi.getValue() : [];
                         const epcs = tomEpc ? tomEpc.getValue() : [];
-
-                        if (!fontes) {
-                            Swal.fire('Atenção', `Preencha "Fontes Geradoras" no risco: ${nomeRisco}`, 'warning');
-                            changeStep(3);
-                            return;
-                        }
-                        if (!tempo) {
-                            Swal.fire('Atenção', `Preencha "Tempo/Tipo Exp." no risco: ${nomeRisco}`, 'warning');
-                            changeStep(3);
-                            return;
-                        }
-                        if (epis.length === 0) {
-                            Swal.fire('Atenção', `Selecione os "EPIs Recomendados" no risco: ${nomeRisco}`, 'warning');
-                            changeStep(3);
-                            return;
-                        }
-                        if (epcs.length === 0) {
-                            Swal.fire('Atenção', `Selecione os "EPCs Existentes" no risco: ${nomeRisco}`, 'warning');
-                            changeStep(3);
-                            return;
-                        }
                     }
 
                     // ========================================================
@@ -1605,9 +1602,9 @@
 
                     const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
                         setor: tr.querySelector('.ges-setor').value,
-                        cargos: tr.querySelector('.ges-cargos').value, 
+                        cargos: tr.querySelector('.ges-cargos').value,
                         excecao: tr.querySelector('.ges-excecao').value,
-                        obs: tr.querySelector('.ges-obs').value 
+                        obs: tr.querySelector('.ges-obs').value
                     })).filter(g => g.setor || g.cargos || g.excecao || g.obs);
 
                     const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({

@@ -66,6 +66,26 @@
             padding-right: 0.25rem;
         }
     </style>
+
+    <script>
+        (function () {
+            try {
+                var theme = localStorage.getItem('theme');
+                if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+
+                var sidebarTheme = localStorage.getItem('sidebarTheme');
+                if (sidebarTheme) {
+                    document.documentElement.setAttribute('data-sidebar-theme', sidebarTheme);
+                } else if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-sidebar-theme', 'dark');
+                }
+            } catch (e) { }
+        })();
+    </script>
 </head>
 
 <body
@@ -167,16 +187,13 @@
                                 </div>
                             </div>
 
-                            <% // Função auxiliar ajustada para suportar tanto Strings quanto Objetos const
-                                checkInc=(campo, valor)=> {
+                            <% const checkInc=(campo, valor)=> {
                                 const val = levantamento[campo];
                                 if (!val) return '';
-                                // Se for objeto, converte para string para o .includes funcionar sem quebrar
                                 const strVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
                                 return strVal.includes(valor) ? 'checked' : '';
                                 };
 
-                                // Parse das estruturas auxiliares de forma segura
                                 let estrArr = [];
                                 if (levantamento.estruturas_auxiliares) {
                                 let valEstrutura = levantamento.estruturas_auxiliares;
@@ -186,18 +203,14 @@
                                 estrArr = Array.isArray(valEstrutura) ? valEstrutura : [];
                                 }
 
-                                // Parse de cobertura a prova de falhas
                                 let cobEst = '', cobTel = '';
                                 if (levantamento.tipo_cobertura) {
                                 let cobVal = levantamento.tipo_cobertura;
                                 if (typeof cobVal === 'string') {
                                 try { cobVal = JSON.parse(cobVal); } catch(e){}
                                 }
-
-                                // Extrai a string de dentro do objeto (se existir)
                                 let strCob = (typeof cobVal === 'object' && cobVal !== null) ? cobVal.selecionado :
                                 String(cobVal);
-
                                 if (strCob && typeof strCob === 'string') {
                                 const pts = strCob.split('-');
                                 cobEst = pts[0] ? pts[0].trim() : '';
@@ -205,7 +218,6 @@
                                 }
                                 }
 
-                                // Parse de divisões internas a prova de falhas
                                 let divMat = '';
                                 if (levantamento.divisoes_internas_material) {
                                 let divVal = levantamento.divisoes_internas_material;
@@ -277,7 +289,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_construcao_outro"
                                                                     name="tipo_construcao_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200"
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200"
                                                                     placeholder="Especifique">
                                                             </div>
                                                         </div>
@@ -318,7 +330,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_paredes_outro"
                                                                     name="tipo_paredes_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200"
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200"
                                                                     placeholder="Especifique">
                                                             </div>
                                                             <div
@@ -358,7 +370,8 @@
                                                                     value="Concreto desempenado" class="input-checkbox"
                                                                     onclick="handleCheckRadio(this)"
                                                                     <%=checkInc('tipo_piso', 'Concreto desempenado' )
-                                                                    %>> <span>Concreto Desemp.</span>
+                                                                    %>>
+                                                                <span>Concreto Desemp.</span>
                                                             </label>
                                                             <label
                                                                 class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
@@ -388,7 +401,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_piso_outro"
                                                                     name="tipo_piso_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -458,7 +471,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_forro_outro"
                                                                     name="tipo_forro_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -498,7 +511,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_iluminacao_outro"
                                                                     name="tipo_iluminacao_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -538,7 +551,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_ventilacao_outro"
                                                                     name="tipo_ventilacao_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -556,7 +569,8 @@
                                                                     value="1" class="input-checkbox"
                                                                     onclick="handleCheckRadio(this)"
                                                                     <%=levantamento.possui_climatizacao ? 'checked' : ''
-                                                                    %>> <span>Sim</span>
+                                                                    %>>
+                                                                <span>Sim</span>
                                                             </label>
                                                             <label
                                                                 class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
@@ -564,7 +578,8 @@
                                                                     value="0" class="input-checkbox"
                                                                     onclick="handleCheckRadio(this)"
                                                                     <%=!levantamento.possui_climatizacao ? 'checked'
-                                                                    : '' %>> <span>Não</span>
+                                                                    : '' %>>
+                                                                <span>Não</span>
                                                             </label>
                                                         </div>
                                                     </td>
@@ -612,7 +627,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_escada_outro"
                                                                     name="escadas_tipo_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -660,7 +675,7 @@
                                                                 </label>
                                                                 <input type="text" id="input_passarela_outro"
                                                                     name="passarelas_tipo_outro"
-                                                                    class="table-input w-40 transition-opacity duration-200">
+                                                                    class="table-input w-40 invisible opacity-0 transition-opacity duration-200">
                                                             </div>
                                                         </div>
                                                     </td>
@@ -705,7 +720,8 @@
                                                                     class="input-checkbox"
                                                                     onclick="handleCheckRadio(this)"
                                                                     <%=estrArr.includes('Mezaninos') ? 'checked' : ''
-                                                                    %>> <span>Sim</span>
+                                                                    %>>
+                                                                <span>Sim</span>
                                                             </label>
                                                             <label
                                                                 class="inline-flex items-center gap-2 cursor-pointer text-zinc-700 hover:text-primary transition-colors">
@@ -713,7 +729,8 @@
                                                                     class="input-checkbox"
                                                                     onclick="handleCheckRadio(this)"
                                                                     <%=!estrArr.includes('Mezaninos') ? 'checked' : ''
-                                                                    %>> <span>Não</span>
+                                                                    %>>
+                                                                <span>Não</span>
                                                             </label>
                                                         </div>
                                                     </td>
@@ -759,6 +776,7 @@
                                                         </div>
                                                     </td>
                                                 </tr>
+
                                             </tbody>
                                         </table>
                                     </div>
@@ -789,8 +807,8 @@
                                     <h5 class="text-xl">Grupo de Exposição Similar (GES)</h5>
                                     <button type="button" onclick="addGesRow()"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
-                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span> Adicionar
-                                        GES
+                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
+                                        Adicionar GES
                                     </button>
                                 </div>
 
@@ -816,7 +834,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% if (ges && ges.length> 0) { %>
+                                            <% if (typeof ges !=='undefined' && ges && ges.length> 0) { %>
                                                 <% ges.forEach(g=> { %>
                                                     <tr
                                                         class="hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors">
@@ -844,8 +862,9 @@
                                         </tbody>
                                     </table>
                                     <div id="emptyGes"
-                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 rounded-lg border border-dashed border-zinc-200"
-                                        <%=ges && ges.length> 0 ? 'style="display:none;"' : '' %>>
+                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700"
+                                        <%=(typeof ges !=='undefined' && ges && ges.length> 0) ? 'style="display:none;"'
+                                        : '' %>>
                                         Nenhum GES cadastrado. Clique em adicionar.
                                     </div>
                                 </div>
@@ -856,8 +875,8 @@
                                     <h5 class="text-xl">Produtos Químicos</h5>
                                     <button type="button" onclick="addQuimicoRow()"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4">
-                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span> Adicionar
-                                        Produto
+                                        <span class="icon-[lucide--plus] text-lg me-1 leading-none"></span>
+                                        Adicionar Produto
                                     </button>
                                 </div>
                                 <div class="p-6 overflow-x-auto">
@@ -875,7 +894,8 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <% if (quimicos && quimicos.length> 0) { %>
+                                            <% if (typeof quimicos !=='undefined' && quimicos && quimicos.length> 0) {
+                                                %>
                                                 <% quimicos.forEach(q=> { %>
                                                     <tr
                                                         class="hover-row border-b border-zinc-100 dark:border-zinc-800 transition-colors">
@@ -914,17 +934,20 @@
                                         </tbody>
                                     </table>
                                     <div id="emptyQuimico"
-                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 rounded-lg border border-dashed border-zinc-200"
-                                        <%=quimicos && quimicos.length> 0 ? 'style="display:none;"' : '' %>>
+                                        class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700"
+                                        <%=(typeof quimicos !=='undefined' && quimicos && quimicos.length> 0) ?
+                                        'style="display:none;"' : '' %>>
                                         Nenhum produto químico cadastrado.
                                     </div>
                                 </div>
                             </div>
 
                             <div class="flex justify-between mt-4">
-                                <button type="button" class="btn px-5 py-2 rounded-lg border border-zinc-200"
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
                                     onclick="changeStep(1)">Anterior</button>
-                                <button type="button" class="btn bg-primary text-white h-10 px-4"
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg bg-primary text-white hover:bg-primary-deep transition-colors shadow-lg shadow-primary/20 font-medium"
                                     onclick="changeStep(3)">Próximo <span
                                         class="icon-[lucide--arrow-right] ms-2"></span></button>
                             </div>
@@ -939,35 +962,35 @@
                                 <div
                                     class="flex gap-4 mb-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-100 dark:border-yellow-900/20 flex-wrap">
                                     <label
-                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800">
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_ambiental"
                                             class="input-checkbox text-yellow-500"
                                             <%=levantamento.ausencia_risco_ambiental ? 'checked' : '' %>> <span>Ausência
                                             Risco Físico</span>
                                     </label>
                                     <label
-                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800">
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_ergonomico"
                                             class="input-checkbox text-yellow-500"
                                             <%=levantamento.ausencia_risco_ergonomico ? 'checked' : '' %>>
                                         <span>Ausência Risco Ergonômico</span>
                                     </label>
                                     <label
-                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800">
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_mecanico"
                                             class="input-checkbox text-yellow-500"
                                             <%=levantamento.ausencia_risco_mecanico ? 'checked' : '' %>> <span>Ausência
                                             Risco Mecânico</span>
                                     </label>
                                     <label
-                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800">
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_quimico"
                                             class="input-checkbox text-yellow-500"
                                             <%=levantamento.ausencia_risco_quimico ? 'checked' : '' %>> <span>Ausência
                                             Risco Químico</span>
                                     </label>
                                     <label
-                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800">
+                                        class="inline-flex items-center gap-2 cursor-pointer text-sm font-bold text-yellow-800 dark:text-yellow-500 hover:opacity-80 transition-opacity">
                                         <input type="checkbox" name="ausencia_risco_biologico"
                                             class="input-checkbox text-yellow-500"
                                             <%=levantamento.ausencia_risco_biologico ? 'checked' : '' %>> <span>Ausência
@@ -994,46 +1017,55 @@
 
                                 <div id="container_riscos_dinamicos" class="space-y-4">
                                 </div>
-                            </div>
 
+
+                            </div>
                             <div class="flex justify-between mt-6">
-                                <button type="button" class="btn px-5 py-2 rounded-lg border border-zinc-200"
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
                                     onclick="changeStep(2)">Anterior</button>
-                                <button type="button" class="btn bg-primary text-white h-10 px-4"
-                                    onclick="changeStep(4)">Próximo <span
-                                        class="icon-[lucide--arrow-right] ms-2"></span></button>
+
+                                <button type="button"
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium"
+                                    onclick="changeStep(4)">
+                                    Próximo <span class="icon-[lucide--arrow-right] ms-2"></span>
+                                </button>
                             </div>
                         </div>
 
                         <div id="step4" class="step-content space-y-6">
-                            <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 p-6">
-                                <h5 class="text-xl mb-4 font-bold text-zinc-800">Coleta de Assinaturas</h5>
+                            <div
+                                class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
+                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Coleta de
+                                    Assinaturas</h5>
                                 <p class="text-sm text-zinc-500 mb-6">Assine abaixo para validar as informações deste
                                     levantamento.</p>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="flex flex-col items-center">
-                                        <label class="font-bold text-zinc-700 mb-2">Responsável Técnico
-                                            (Avaliador)</label>
+                                        <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável
+                                            Técnico (Avaliador)</label>
                                         <div
-                                            class="border-2 border-dashed border-zinc-300 rounded-lg overflow-hidden bg-white">
+                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
                                             <canvas id="canvasTecnico" width="400" height="200"
                                                 class="touch-none cursor-crosshair"></canvas>
                                         </div>
                                         <button type="button" id="btnLimparTecnico"
-                                            class="mt-2 text-sm text-red-500 font-semibold">
+                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
                                             <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
                                         </button>
                                     </div>
+
                                     <div class="flex flex-col items-center">
-                                        <label class="font-bold text-zinc-700 mb-2">Responsável da Empresa</label>
+                                        <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável da
+                                            Empresa</label>
                                         <div
-                                            class="border-2 border-dashed border-zinc-300 rounded-lg overflow-hidden bg-white">
+                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
                                             <canvas id="canvasEmpresa" width="400" height="200"
                                                 class="touch-none cursor-crosshair"></canvas>
                                         </div>
                                         <button type="button" id="btnLimparEmpresa"
-                                            class="mt-2 text-sm text-red-500 font-semibold">
+                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
                                             <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
                                         </button>
                                     </div>
@@ -1041,9 +1073,11 @@
                             </div>
 
                             <div class="flex justify-between mt-6">
-                                <button type="button" class="btn px-5 py-2 rounded-lg border border-zinc-200"
+                                <button type="button"
+                                    class="btn px-5 py-2 rounded-lg border border-zinc-200 hover:bg-zinc-100 transition-colors font-medium"
                                     onclick="changeStep(3)">Anterior</button>
-                                <button type="submit" id="btnSalvar" class="btn bg-primary text-white h-10 px-4">
+                                <button type="submit" id="btnSalvar"
+                                    class="btn bg-primary text-white hover:bg-primary-deep h-10 px-4 shadow-lg shadow-primary/20 transition-colors font-medium">
                                     <span class="icon-[lucide--save] me-2"></span> Atualizar Levantamento
                                 </button>
                             </div>
@@ -1056,6 +1090,7 @@
                                 </option>
                                 <% }); } %>
                         </template>
+
                         <template id="tpl-epcs">
                             <% if(typeof epcs !=='undefined' ){ epcs.forEach(function(ep) { %>
                                 <option value="<%= ep.id_epc %>">
@@ -1065,72 +1100,168 @@
                         </template>
                     </form>
                 </div>
-
-                <div class="modal fade" id="modalRiscos" tabindex="-1" aria-labelledby="modalRiscosLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered modal-xl">
-                        <div class="modal-content bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
-                            <div
-                                class="modal-header border-b border-zinc-100 dark:border-zinc-800 p-4 flex justify-between items-center">
-                                <h5 class="modal-title font-bold text-zinc-800 dark:text-zinc-100"
-                                    id="modalRiscosLabel">Selecione os Riscos para Adicionar</h5>
-                                <button type="button"
-                                    class="text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 p-1"
-                                    data-bs-dismiss="modal" aria-label="Close">
-                                    <span class="icon-[lucide--x] text-2xl"></span>
-                                </button>
-                            </div>
-                            <div class="modal-body p-6">
-                                <div class="flex flex-col md:flex-row gap-4 mb-6">
-                                    <div class="relative flex-grow">
-                                        <input type="text" id="pesquisaRiscoModal" class="input w-full !ps-9"
-                                            placeholder="Buscar por código ou nome do risco...">
-                                        <span
-                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
-                                    </div>
-                                    <select id="filtroGrupoModal"
-                                        class="input w-full md:w-64 bg-transparent cursor-pointer">
-                                        <option value="">Todos os Grupos</option>
-                                        <option value="Físicos">Físicos</option>
-                                        <option value="Químicos">Químicos</option>
-                                        <option value="Biológicos">Biológicos</option>
-                                        <option value="Ergonômicos">Ergonômicos</option>
-                                        <option value="Mecânicos">Mecânicos</option>
-                                        <option value="Acidentes">Acidentes</option>
-                                        <option value="Inespecífico">Inespecífico</option>
-                                        <option value="Outros">Outros</option>
-                                    </select>
-                                </div>
-                                <div class="overflow-x-auto">
-                                    <table id="tabelaRiscosModal" class="table-default w-full whitespace-nowrap">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-left">Código</th>
-                                                <th class="text-left">Grupo</th>
-                                                <th class="text-left w-full">Nome do Risco</th>
-                                                <th class="text-center">Ação</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <%- include('../partials/footer') %>
         </main>
 
-        <div id="dados-riscos-json" style="display: none;">
-            <%- typeof riscosJson !=='undefined' ? riscosJson : '[]' %>
+        <div class="modal fade" id="modal_cliente" role="dialog" class="fixed inset-0 z-[70]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+
+                    <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <h5 class="text-lg font-bold">Selecione a Empresa</h5>
+                        <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                            <span class="icon-[lucide--x] text-lg"></span>
+                        </button>
+                    </div>
+
+                    <div class="p-4 flex-grow overflow-hidden flex flex-col">
+                        <div class="relative mb-3">
+                            <input id="clienteSearch" type="search" class="input !ps-9 w-full"
+                                placeholder="Buscar empresa...">
+                            <span
+                                class="icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted text-zinc-400"></span>
+                        </div>
+
+                        <div class="flex-grow overflow-auto">
+                            <table id="table_cliente_modal" class="w-full text-left border-collapse">
+                                <thead class="border-b border-zinc-200 dark:border-zinc-800">
+                                    <tr>
+                                        <th class="py-2 text-sm font-semibold text-zinc-500 dark:text-zinc-400">Empresa
+                                            / CNPJ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (typeof clientes !=='undefined' ) { %>
+                                        <% clientes.forEach((c)=> { %>
+                                            <tr class="border-b border-zinc-100 dark:border-zinc-800 cursor-pointer hover-row transition-colors"
+                                                data-id="<%= c.id_cliente %>" data-nome="<%= c.nome_empresa %>">
+                                                <td class="py-3">
+                                                    <div class="font-semibold text-zinc-900 dark:text-white">
+                                                        <%= c.nome_empresa %>
+                                                    </div>
+                                                    <div class="text-xs text-zinc-400 font-normal">
+                                                        <%= c.cnpj %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="modalRiscos" role="dialog" class="fixed inset-0 z-[70]" tabindex="-1">
+            <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
+                <div
+                    class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col max-h-[90vh]">
+                    <div
+                        class="modal-header border-b border-zinc-100 dark:border-zinc-800 p-4 flex justify-between items-center">
+                        <h5 class="modal-title font-bold text-zinc-800 dark:text-zinc-100" id="modalRiscosLabel">
+                            <span class="icon-[lucide--search] text-blue-600 me-2"></span> Selecione os Riscos para
+                            Adicionar
+                        </h5>
+                        <button type="button"
+                            class="btn !p-2 text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                            data-bs-dismiss="modal" aria-label="Close">
+                            <span class="icon-[lucide--x] text-2xl"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body p-6 flex-grow overflow-hidden flex flex-col">
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <div class="relative flex-grow">
+                                <input type="text" id="pesquisaRiscoModal" class="input w-full !ps-9"
+                                    placeholder="Buscar por código ou nome do risco..." onkeyup="filtrarRiscosModal()">
+                                <span
+                                    class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
+                            </div>
+                            <select id="filtroGrupoModal" class="input w-full md:w-64 bg-transparent cursor-pointer">
+                                <option value="">Todos os Grupos</option>
+                                <option value="Físicos">Físicos</option>
+                                <option value="Químicos">Químicos</option>
+                                <option value="Biológicos">Biológicos</option>
+                                <option value="Ergonômicos">Ergonômicos</option>
+                                <option value="Mecânicos">Mecânicos</option>
+                                <option value="Acidentes">Acidentes</option>
+                                <option value="Inespecífico">Inespecífico</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="overflow-x-auto border border-zinc-100 dark:border-zinc-800 rounded-lg flex-grow">
+                            <table id="tabelaRiscosModal" class="table-default w-full whitespace-nowrap">
+                                <thead
+                                    class="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 sticky top-0 z-10">
+                                    <tr>
+                                        <th
+                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 text-left w-full">
+                                            Nome do Risco</th>
+                                        <th
+                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 text-left">
+                                            Grupo</th>
+                                        <th
+                                            class="py-2 px-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400 text-left">
+                                            eSocial</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (typeof todosRiscos !=='undefined' && todosRiscos && todosRiscos.length> 0) {
+                                        %>
+                                        <% todosRiscos.forEach(function(r) { %>
+                                            <% let badgeClass='bg-zinc-100 text-zinc-500' ; let g=r.tipo_risco ||
+                                                r.grupo || '' ; if (g==='Físicos' )
+                                                badgeClass='bg-green-500/10 text-green-500' ; else if (g==='Químicos' )
+                                                badgeClass='bg-red-500/10 text-red-500' ; else if (g==='Biológicos' )
+                                                badgeClass='bg-yellow-600/10 text-yellow-600' ; else if
+                                                (g==='Ergonômicos' ) badgeClass='bg-yellow-500/10 text-yellow-500' ;
+                                                else if (g==='Mecânicos' || g==='Acidentes' )
+                                                badgeClass='bg-sky-500/10 text-sky-500' ; else if (g==='Inespecífico' )
+                                                badgeClass='bg-purple-500/10 text-purple-500' ; else if
+                                                (g==='Associações' || g==='Outros' )
+                                                badgeClass='bg-zinc-500/10 text-zinc-500' ; else if
+                                                (g==='Ausência de Riscos' ) badgeClass='bg-slate-500/10 text-slate-500'
+                                                ; let nomeSeguro=(r.nome_risco || r.nome).replace(/'/g, "\\'" ); let
+                                                codigoSeguro=r.codigo_esocial || r.codigo_interno || r.esocial || '' ;
+                                                %>
+                                                <tr class="border-b border-zinc-100 dark:border-zinc-800 hover-row transition-colors linha-risco cursor-pointer"
+                                                    onclick="selecionarRiscoParaTela('<%= r.id_risco %>', '<%= codigoSeguro %>', '<%= nomeSeguro %>', '<%= g %>')">
+
+                                                    <td
+                                                        class="py-3 px-3 text-sm font-semibold text-zinc-900 dark:text-white col-nome whitespace-normal break-words max-w-lg">
+                                                        <%= r.nome_risco || r.nome %>
+                                                    </td>
+                                                    <td class="py-3 px-3 col-grupo">
+                                                        <span
+                                                            class="badge px-2 py-1 rounded text-xs font-semibold <%= badgeClass %>">
+                                                            <%= g %>
+                                                        </span>
+                                                    </td>
+                                                    <td class="py-3 px-3 text-sm text-zinc-600 dark:text-zinc-300">
+                                                        <%= r.esocial || r.codigo_esocial || '-' %>
+                                                    </td>
+                                                </tr>
+                                                <% }); %>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dados-riscos-salvos" style="display: none;">
+            <%- (typeof levantamento !=='undefined' && levantamento.riscos) ? (typeof levantamento.riscos==='string' ?
+                levantamento.riscos : JSON.stringify(levantamento.riscos)) : '[]' %>
         </div>
 
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -1138,23 +1269,9 @@
 
         <script>
             let padTecnico, padEmpresa;
-            let dtRiscosModal; // Variável para a tabela do modal
-
-            // ==========================================
-            // DADOS CARREGADOS DO BANCO PARA EDIÇÃO (RISCOS)
-            // ==========================================
-            let riscosSalvos = [];
-            try {
-                const divRiscos = document.getElementById('dados-riscos-json');
-                if (divRiscos && divRiscos.innerText.trim()) {
-                    riscosSalvos = JSON.parse(divRiscos.innerText);
-                }
-            } catch (e) {
-                console.error("Erro ao ler riscos:", e);
-            }
+            let dtRiscosModal;
 
             $(document).ready(function () {
-                // Inicializa Signatures
                 const canvasT = document.getElementById('canvasTecnico');
                 const canvasE = document.getElementById('canvasEmpresa');
                 padTecnico = new SignaturePad(canvasT, { backgroundColor: 'rgb(255, 255, 255)' });
@@ -1163,51 +1280,72 @@
                 document.getElementById('btnLimparTecnico').addEventListener('click', () => padTecnico.clear());
                 document.getElementById('btnLimparEmpresa').addEventListener('click', () => padEmpresa.clear());
 
-                // Carrega imagens de assinatura do banco, se existirem
                 const sigTec = `<%= levantamento.assinatura_avaliador || '' %>`;
                 if (sigTec.includes('base64')) padTecnico.fromDataURL(sigTec);
 
                 const sigEmp = `<%= levantamento.assinatura_responsavel_empresa || '' %>`;
                 if (sigEmp.includes('base64')) padEmpresa.fromDataURL(sigEmp);
 
-                // Mostrar campos "Outros" preenchidos
                 document.querySelectorAll('input.input-checkbox:checked').forEach(cb => {
                     const targetId = cb.getAttribute('data-target');
                     if (targetId) {
                         const inputEl = document.getElementById(targetId);
-                        if (inputEl) {
-                            inputEl.classList.remove('invisible', 'opacity-0');
-                        }
+                        if (inputEl) inputEl.classList.remove('invisible', 'opacity-0');
                     }
                 });
 
-                // Pré-carrega os Riscos Salvos na Interface
-                carregarRiscosSalvos();
+                // ==========================================
+                // INICIALIZA A TABELA DO MODAL DE CLIENTES
+                // ==========================================
+                const modalEl = document.getElementById('modal_cliente');
+                const dtCliente = $('#table_cliente_modal').DataTable({
+                    dom: 'rtip', paging: true, pageLength: 6, ordering: false, autoWidth: false,
+                    language: {
+                        emptyTable: "Nenhum registro encontrado", info: "Exibindo _START_ a _END_ de _TOTAL_",
+                        infoEmpty: "Nenhum registro", infoFiltered: "(filtrado de _MAX_)",
+                        zeroRecords: "Nada encontrado", paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
+                });
+
+                $('#clienteSearch').on('keyup', function () { dtCliente.search(this.value).draw(); });
+
+                if (modalEl) {
+                    modalEl.addEventListener('shown.bs.modal', function () {
+                        dtCliente.columns.adjust().draw();
+                        $('#clienteSearch').focus();
+                    });
+                }
+
+                $('#table_cliente_modal tbody').on('click', 'tr', function () {
+                    const id = $(this).attr('data-id');
+                    const nome = $(this).attr('data-nome');
+
+                    if (id) {
+                        $('#id_cliente').val(id);
+                        $('#nome_cliente').val(nome);
+                        if (document.activeElement) document.activeElement.blur();
+
+                        const btnFechar = modalEl.querySelector('[data-bs-dismiss="modal"]');
+                        if (btnFechar) btnFechar.click();
+                        else bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+
+                        setTimeout(() => {
+                            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                            document.body.classList.remove('modal-open');
+                            document.body.style.overflow = '';
+                            document.body.style.paddingRight = '';
+                        }, 400);
+                    }
+                });
 
                 // ==========================================
                 // INICIALIZA A TABELA DO MODAL DE RISCOS
                 // ==========================================
-                dtRiscosModal = new DataTable('#tabelaRiscosModal', {
-                    data: riscosSalvos, // Usando a mesma base de dados de riscos global
-                    pageLength: 5,
+                dtRiscosModal = $('#tabelaRiscosModal').DataTable({
+                    dom: 'lrtip',
+                    pageLength: 10,
                     lengthChange: false,
-                    dom: 'lrtip', // Esconde a busca padrão do datatables para usar a nossa customizada
-                    columns: [
-                        { data: 'codigo_esocial', render: function (data, type, row) { return data || row.codigo_interno || '-'; } },
-                        { data: 'tipo_risco' },
-                        { data: 'nome_risco', className: 'font-bold' },
-                        {
-                            data: null,
-                            orderable: false,
-                            className: 'text-center',
-                            render: function (data, type, row) {
-                                // Escapa as aspas simples do nome do risco para não quebrar o onclick
-                                const nomeLimpo = row.nome_risco.replace(/'/g, "\\'");
-                                const cod = row.codigo_esocial || row.codigo_interno || '';
-                                return `<button type="button" class="btn bg-primary text-white hover:bg-primary-deep px-3 py-1 text-sm font-semibold rounded-md" onclick="selecionarRiscoParaTela('${row.id_risco}', '${cod}', '${nomeLimpo}', '${row.tipo_risco}')">Adicionar</button>`;
-                            }
-                        }
-                    ],
+                    ordering: false,
                     language: {
                         emptyTable: "Nenhum risco encontrado na base de dados.",
                         info: "Mostrando _START_ a _END_ de _TOTAL_ riscos",
@@ -1215,20 +1353,88 @@
                     }
                 });
 
-                // Conecta a barra de busca customizada à tabela do modal
                 document.getElementById('pesquisaRiscoModal').addEventListener('input', function (e) {
                     dtRiscosModal.search(e.target.value).draw();
                 });
 
-                // Conecta o filtro de grupo à tabela do modal (Coluna 1)
                 document.getElementById('filtroGrupoModal').addEventListener('change', function (e) {
                     dtRiscosModal.column(1).search(e.target.value).draw();
                 });
+
+                // CARREGA OS RISCOS PREVIAMENTE SALVOS DO LEVANTAMENTO
+                carregarRiscosSalvos();
             });
 
             // ==========================================
-            // FUNÇÃO QUE LIMPA O MODAL AO ABRIR (MÁGICA!)
+            // FUNÇÃO PARA MONTAR RISCOS SALVOS NA TELA
             // ==========================================
+            function carregarRiscosSalvos() {
+                console.log("🔍 1. Iniciando o carregamento de riscos...");
+
+                let salvos = [];
+                try {
+                    const rawData = document.getElementById('dados-riscos-salvos').textContent.trim();
+                    console.log("📦 2. Dados brutos recebidos do Node.js:", rawData);
+
+                    if (rawData && rawData !== '[]') {
+                        salvos = JSON.parse(rawData);
+                        if (typeof salvos === 'string') salvos = JSON.parse(salvos); // Duplo decode por segurança
+                        console.log("✅ 3. JSON convertido com sucesso. Total de riscos:", salvos.length);
+                    } else {
+                        console.log("⚠️ 3. O banco de dados não enviou nenhum risco para essa tela.");
+                        return;
+                    }
+                } catch (e) {
+                    console.error("❌ ERRO FATAL no JSON.parse:", e);
+                    return;
+                }
+
+                if (!Array.isArray(salvos) || salvos.length === 0) return;
+
+                salvos.forEach((risco, index) => {
+                    console.log(`\n▶️ 4. Renderizando risco ${index + 1}:`, risco.nome_risco || risco.nome);
+
+                    const id = risco.id_risco;
+                    const codigo = risco.codigo_esocial || risco.codigo_interno || risco.codigo_perigo || '';
+                    const nome = risco.nome_risco || risco.descricao_perigo || 'Risco Desconhecido';
+                    const grupo = risco.tipo_risco || risco.grupo_perigo || 'Outros';
+
+                    // O 'true' informa para a função que não precisa apitar o aviso "Adicionado!"
+                    selecionarRiscoParaTela(id, codigo, nome, grupo, true);
+
+                    const items = document.querySelectorAll('.risk-item');
+                    if (items.length > 0) {
+                        const lastItem = items[items.length - 1];
+
+                        lastItem.querySelector('.risk-checkbox').checked = true;
+                        lastItem.querySelector('.risk-detail').classList.remove('hidden');
+
+                        const inFontes = lastItem.querySelector('.risk-fontes');
+                        if (inFontes) inFontes.value = risco.fontes || risco.fontes_geradoras || '';
+
+                        const inTempo = lastItem.querySelector('.risk-tempo');
+                        if (inTempo) inTempo.value = risco.tempo || risco.tipo_tempo_exposicao || '';
+
+                        const inObs = lastItem.querySelector('.risk-obs');
+                        if (inObs) inObs.value = risco.obs || risco.observacoes || '';
+
+                        const tomEpi = lastItem.querySelector('.risk-epis').tomselect;
+                        if (tomEpi && risco.epis && risco.epis.length > 0) {
+                            console.log(`   🛡️ Adicionando ${risco.epis.length} EPIs`);
+                            risco.epis.forEach(epi => tomEpi.addItem(epi));
+                        }
+
+                        const tomEpc = lastItem.querySelector('.risk-epcs').tomselect;
+                        if (tomEpc && risco.epcs && risco.epcs.length > 0) {
+                            console.log(`   🚧 Adicionando ${risco.epcs.length} EPCs`);
+                            risco.epcs.forEach(epc => tomEpc.addItem(epc));
+                        }
+                    }
+                });
+
+                console.log("\n🏁 5. Finalizado! Todos os riscos foram carregados na tela.");
+            }
+
             function limparBuscaRiscos() {
                 document.getElementById('pesquisaRiscoModal').value = '';
                 document.getElementById('filtroGrupoModal').value = '';
@@ -1238,44 +1444,7 @@
             }
 
             // ==========================================
-            // FUNÇÃO PARA MONTAR RISCOS SALVOS NA TELA
-            // ==========================================
-            function carregarRiscosSalvos() {
-                if (!riscosSalvos || riscosSalvos.length === 0) return;
-
-                // SE O SEU SISTEMA TRAZ APENAS OS RISCOS *DESTE* LEVANTAMENTO, ESTA LÓGICA RODA AQUI.
-                // COMO NÃO SEI SE `riscosSalvos` É A LISTA GLOBAL OU SÓ A LISTA DELE,
-                // O SCRIPT ABAIXO TENTA CARREGAR OS RISCOS QUE JÁ TEM FONTES/TEMPO SALVOS.
-                riscosSalvos.forEach(risco => {
-                    // Verifica se tem os campos preenchidos. Se tiver, recria na tela.
-                    if (risco.fontes_geradoras || risco.tipo_tempo_exposicao) {
-                        selecionarRiscoParaTela(risco.id_risco, (risco.codigo_esocial || risco.codigo_interno || ''), risco.nome_risco, risco.tipo_risco);
-
-                        const items = document.querySelectorAll('.risk-item');
-                        const lastItem = items[items.length - 1];
-
-                        lastItem.querySelector('.risk-checkbox').checked = true;
-                        lastItem.querySelector('.risk-detail').classList.remove('hidden');
-
-                        lastItem.querySelector('.risk-fontes').value = risco.fontes_geradoras || '';
-                        lastItem.querySelector('.risk-tempo').value = risco.tipo_tempo_exposicao || '';
-                        lastItem.querySelector('.risk-obs').value = risco.observacoes || '';
-
-                        const tomEpi = lastItem.querySelector('.risk-epis').tomselect;
-                        if (tomEpi && risco.epis) {
-                            risco.epis.forEach(epiId => tomEpi.addItem(epiId));
-                        }
-
-                        const tomEpc = lastItem.querySelector('.risk-epcs').tomselect;
-                        if (tomEpc && risco.epcs) {
-                            risco.epcs.forEach(epcId => tomEpc.addItem(epcId));
-                        }
-                    }
-                });
-            }
-
-            // ==========================================
-            // FUNÇÕES GERAIS (MANTIDAS DA TELA NOVO)
+            // FUNÇÕES GERAIS DA TELA
             // ==========================================
             function changeStep(step) {
                 document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
@@ -1302,6 +1471,7 @@
                 <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
             </td>`;
                 tbody.appendChild(row);
+                row.querySelector('input').focus();
             }
 
             function addQuimicoRow() {
@@ -1323,6 +1493,7 @@
                 <button type="button" onclick="this.closest('tr').remove()" class="text-zinc-400 hover:text-red-500 transition-colors p-1" title="Remover"><span class="icon-[lucide--trash-2]"></span></button>
             </td>`;
                 tbody.appendChild(row);
+                row.querySelector('input').focus();
             }
 
             function toggleAccordion(id) { document.getElementById(id)?.classList.toggle('hidden'); }
@@ -1357,15 +1528,16 @@
                 });
             }
 
-            function selecionarRiscoParaTela(id_risco, codigo, nome, grupo) {
-                // Tenta fechar o Modal se ele estiver aberto usando Bootstrap 5 via CDN
-                try {
-                    const myModalEl = document.getElementById('modalRiscos');
-                    const modalInstance = bootstrap.Modal.getInstance(myModalEl);
-                    if (modalInstance) modalInstance.hide();
-                } catch (e) { }
+            function selecionarRiscoParaTela(id_risco, codigo, nome, grupo, isPreload = false) {
+                // Tenta fechar o Modal se não for preload
+                if (!isPreload) {
+                    const modalRiscosEl = document.getElementById('modalRiscos');
+                    if (modalRiscosEl) {
+                        const btnFechar = modalRiscosEl.querySelector('[data-bs-dismiss="modal"]');
+                        if (btnFechar) btnFechar.click();
+                    }
+                }
 
-                // Normaliza o nome do grupo para criar os blocos e bordas (Físicos, Químicos...)
                 const grupoSafe = grupo || 'Indefinido';
                 const grupoId = 'grupo_' + grupoSafe.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
                 let containerDinamico = document.getElementById('container_riscos_dinamicos');
@@ -1384,20 +1556,22 @@
                     else if (grupoSafe.toLowerCase().includes('mecânico') || grupoSafe.toLowerCase().includes('acidente')) corBorda = 'border-sky-500';
 
                     accordionGrupo.innerHTML = `
-                <button type="button" class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 transition-colors border-l-4 ${corBorda}" onclick="toggleAccordion('acc_${grupoId}')">
-                    ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
-                </button>
-                <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
-                    <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
-                </div>`;
+            <button type="button" 
+                class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
+                onclick="toggleAccordion('acc_${grupoId}')">
+                 ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+            </button>
+            <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
+                <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
+            </div>
+            `;
                     containerDinamico.appendChild(accordionGrupo);
                 }
 
                 const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
 
-                // Evita inserir duplicado
                 if (gridRiscos.querySelector(`[data-id_risco="${id_risco}"]`)) {
-                    Swal.fire('Atenção', 'Este risco já foi adicionado!', 'warning');
+                    if (!isPreload) Swal.fire('Atenção', 'Este risco já foi adicionado!', 'warning');
                     return;
                 }
 
@@ -1407,54 +1581,149 @@
                 const riskItem = document.createElement('div');
                 riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-900/50';
 
+                // ==========================================
+                // A MÁGICA: O checkbox agora tem 'checked' e o '.risk-detail' não tem mais 'hidden'!
+                // ==========================================
                 riskItem.innerHTML = `
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-800 pb-3">
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" class="input-checkbox risk-checkbox" data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" onchange="toggleRiskDetail(this)">
-                    <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
-                </label>
-                <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-md"><span class="icon-[lucide--trash]"></span> Remover</button>
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" class="input-checkbox risk-checkbox" checked
+                    data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" 
+                    onchange="toggleRiskDetail(this)">
+                <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
+            </label>
+            <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
+                <span class="icon-[lucide--trash]"></span> Remover
+            </button>
+        </div>
+        
+        <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
+                <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
+                <input type="text" placeholder="Ex: Intermitente..." class="table-input w-full text-sm risk-tempo">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
+                <select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select>
+            </div>
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
+                <select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select>
             </div>
             
-            <div class="risk-detail hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label><input type="text" class="table-input w-full text-sm risk-fontes"></div>
-                <div><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label><input type="text" class="table-input w-full text-sm risk-tempo"></div>
-                <div><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label><select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select></div>
-                <div><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label><select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select></div>
-                <div><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem</label><input type="file" accept="image/*" class="table-input risk-imagem"></div>
-                <div class="md:col-span-2"><label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label><input type="text" class="table-input w-full text-sm risk-obs"></div>
-            </div>`;
+            <div>
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
+                <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 rounded cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
+                    <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
+                    <input type="file" accept="image/*" class="hidden risk-imagem" 
+                        onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
+                </label>
+            </div>
+            <div class="md:col-span-2">
+                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
+                <input type="text" placeholder="Observações adicionais..." class="table-input w-full text-sm risk-obs">
+            </div>
+        </div>
+        `;
 
                 gridRiscos.appendChild(riskItem);
 
-                // Inicializa o TomSelect nos novos selects criados
                 riskItem.querySelectorAll('select.select-plugin').forEach(s => {
                     if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
                 });
 
-                Swal.fire({
-                    toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado ao formulário',
-                    showConfirmButton: false, timer: 1500
-                });
+                if (!isPreload) {
+                    riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado ao formulário',
+                        showConfirmButton: false, timer: 1500
+                    });
+                }
             }
 
             function removerRiscoDaTela(botao, grupoId) {
                 const riskItem = botao.closest('.risk-item');
                 const gridRiscos = riskItem.parentNode;
                 riskItem.remove();
-                if (gridRiscos.children.length === 0) document.getElementById(grupoId).remove();
+
+                if (gridRiscos.children.length === 0) {
+                    document.getElementById(grupoId).remove();
+                }
             }
 
             // ==========================================
-            // SUBMIT DE EDIÇÃO (APONTA PARA POST AGORA)
+            // ENVIO DO FORMULÁRIO (SUBMIT)
             // ==========================================
             document.getElementById('formLevantamento').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
                 const id_levantamento = document.getElementById('id_levantamento').value;
 
-                const assinatura_avaliador = padTecnico.isEmpty() ? '' : padTecnico.toDataURL('image/png');
-                const assinatura_responsavel_empresa = padEmpresa.isEmpty() ? '' : padEmpresa.toDataURL('image/png');
+                if (!document.getElementById('id_cliente').value) {
+                    Swal.fire('Atenção', 'Selecione um cliente.', 'warning');
+                    changeStep(1);
+                    return;
+                }
+
+                const step1CamposTexto = [
+                    { name: 'responsavel_empresa_nome', label: 'Responsável pelas informações' },
+                    { name: 'responsavel_empresa_cargo', label: 'Cargo do informante' }
+                ];
+
+                for (const campo of step1CamposTexto) {
+                    const val = document.querySelector(`input[name="${campo.name}"]`).value.trim();
+                    if (!val) {
+                        Swal.fire('Atenção', `O campo "${campo.label}" em Dados & Ambiente é obrigatório.`, 'warning');
+                        changeStep(1);
+                        return;
+                    }
+                }
+
+                const gesRows = document.querySelectorAll('#tableGes tbody tr');
+                let hasValidGes = false;
+                gesRows.forEach(tr => {
+                    const v2 = tr.querySelector('.ges-setor').value.trim();
+                    const v3 = tr.querySelector('.ges-cargos').value.trim();
+                    if (v2 || v3) hasValidGes = true;
+                });
+
+                if (!hasValidGes) {
+                    Swal.fire('Atenção', 'Preencha pelo menos um setor/cargo na aba GES & Químicos.', 'warning');
+                    changeStep(2);
+                    return;
+                }
+
+                const riscosSelecionados = document.querySelectorAll('.risk-checkbox:checked');
+                for (let i = 0; i < riscosSelecionados.length; i++) {
+                    const cb = riscosSelecionados[i];
+                    const item = cb.closest('.risk-item');
+                    const nomeRisco = cb.dataset.nome;
+
+                    const fontes = item.querySelector('.risk-fontes').value.trim();
+                    const tempo = item.querySelector('.risk-tempo').value.trim();
+                    const tomEpi = item.querySelector('.risk-epis').tomselect;
+                    const tomEpc = item.querySelector('.risk-epcs').tomselect;
+                    const epis = tomEpi ? tomEpi.getValue() : [];
+                    const epcs = tomEpc ? tomEpc.getValue() : [];
+                }
+
+                if (padTecnico.isEmpty() || padEmpresa.isEmpty()) {
+                    Swal.fire({
+                        title: 'Assinaturas Pendentes',
+                        text: 'As assinaturas do Responsável Técnico e da Empresa são obrigatórias para finalizar.',
+                        icon: 'warning',
+                        confirmButtonColor: '#0AA34A'
+                    });
+                    changeStep(4);
+                    return;
+                }
+
+                const assinatura_avaliador = padTecnico.toDataURL('image/png');
+                const assinatura_responsavel_empresa = padEmpresa.toDataURL('image/png');
 
                 const getRadioVal = (n) => {
                     const c = document.querySelector(`input[name="${n}"]:checked`);
@@ -1464,13 +1733,17 @@
                 };
 
                 const gesData = Array.from(document.querySelectorAll('#tableGes tbody tr')).map(tr => ({
-                    setor: tr.querySelector('.ges-setor').value, cargos: tr.querySelector('.ges-cargos').value,
-                    excecao: tr.querySelector('.ges-excecao').value, obs: tr.querySelector('.ges-obs').value
+                    setor: tr.querySelector('.ges-setor').value,
+                    cargos: tr.querySelector('.ges-cargos').value,
+                    excecao: tr.querySelector('.ges-excecao').value,
+                    obs: tr.querySelector('.ges-obs').value
                 })).filter(g => g.setor || g.cargos || g.excecao || g.obs);
 
                 const quimData = Array.from(document.querySelectorAll('#tableQuimico tbody tr')).map(tr => ({
-                    rotulo: tr.querySelector('.quim-rotulo').value, estado: tr.querySelector('.quim-estado').value,
-                    exposicao: tr.querySelector('.quim-exposicao').value, processo: tr.querySelector('.quim-processo').value,
+                    rotulo: tr.querySelector('.quim-rotulo').value,
+                    estado: tr.querySelector('.quim-estado').value,
+                    exposicao: tr.querySelector('.quim-exposicao').value,
+                    processo: tr.querySelector('.quim-processo').value,
                     obs: tr.querySelector('.quim-obs').value
                 })).filter(q => q.rotulo || q.estado || q.exposicao || q.processo || q.obs);
 
@@ -1485,12 +1758,20 @@
                     const fileInput = item.querySelector('.risk-imagem');
 
                     riscosData.push({
-                        id_risco: cb.dataset.id_risco, grupo: cb.dataset.grupo, codigo: cb.dataset.codigo, nome: cb.dataset.nome,
-                        fontes: item.querySelector('.risk-fontes').value, tempo: item.querySelector('.risk-tempo').value, obs: item.querySelector('.risk-obs').value,
-                        epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [], epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
+                        id_risco: cb.dataset.id_risco,
+                        grupo: cb.dataset.grupo,
+                        codigo: cb.dataset.codigo,
+                        nome: cb.dataset.nome,
+                        fontes: item.querySelector('.risk-fontes').value,
+                        tempo: item.querySelector('.risk-tempo').value,
+                        obs: item.querySelector('.risk-obs').value,
+                        epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
+                        epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
                     });
 
-                    if (fileInput && fileInput.files.length > 0) formDataEnvio.append('imagem_' + indexRisco, fileInput.files[0]);
+                    if (fileInput && fileInput.files.length > 0) {
+                        formDataEnvio.append('imagem_' + indexRisco, fileInput.files[0]);
+                    }
                     indexRisco++;
                 });
 
@@ -1498,12 +1779,22 @@
                 const payload = Object.fromEntries(formData.entries());
 
                 Object.assign(payload, {
-                    tipo_construcao: getRadioVal('tipo_construcao'), tipo_piso: getRadioVal('tipo_piso'), tipo_paredes: getRadioVal('tipo_paredes'),
-                    tipo_forro: getRadioVal('tipo_forro'), tipo_iluminacao: getRadioVal('tipo_iluminacao'), tipo_ventilacao: getRadioVal('tipo_ventilacao'),
-                    escadas_tipo: getRadioVal('escadas_tipo'), passarelas_tipo: getRadioVal('passarelas_tipo'),
+                    tipo_construcao: getRadioVal('tipo_construcao'),
+                    tipo_piso: getRadioVal('tipo_piso'),
+                    tipo_paredes: getRadioVal('tipo_paredes'),
+                    tipo_forro: getRadioVal('tipo_forro'),
+                    tipo_iluminacao: getRadioVal('tipo_iluminacao'),
+                    tipo_ventilacao: getRadioVal('tipo_ventilacao'),
+                    escadas_tipo: getRadioVal('escadas_tipo'),
+                    passarelas_tipo: getRadioVal('passarelas_tipo'),
                     nome_grupo_ges: document.getElementById('nome_grupo_ges').value.trim(),
-                    tipo_cobertura: { selecionado: [payload.cobertura_tipo_estrutura, payload.cobertura_tipo_telha].filter(Boolean).join(' - ') || '-' },
-                    divisoes_internas_material: { selecionado: payload.divisoes_internas_material || '-' },
+                    tipo_cobertura: {
+                        selecionado: [payload.cobertura_tipo_estrutura, payload.cobertura_tipo_telha]
+                            .filter(Boolean).join(' - ') || '-'
+                    },
+                    divisoes_internas_material: {
+                        selecionado: payload.divisoes_internas_material || '-'
+                    },
                     estruturas_auxiliares: [
                         document.querySelector('input[name="tem_rampas"]:checked')?.value === '1' ? 'Rampas' : null,
                         document.querySelector('input[name="tem_mezaninos"]:checked')?.value === '1' ? 'Mezaninos' : null
@@ -1515,8 +1806,11 @@
                     ausencia_risco_biologico: document.querySelector('input[name="ausencia_risco_biologico"]')?.checked || false,
                     trabalho_externo: document.querySelector('input[name="trabalho_externo"]:checked')?.value === '1',
                     possui_climatizacao: document.querySelector('input[name="possui_climatizacao"]:checked')?.value === '1',
-                    ges: gesData, quimicos: quimData, riscos: riscosData,
-                    assinatura_avaliador, assinatura_responsavel_empresa
+                    ges: gesData,
+                    quimicos: quimData,
+                    riscos: riscosData,
+                    assinatura_avaliador,
+                    assinatura_responsavel_empresa
                 });
 
                 formDataEnvio.append('dados_json', JSON.stringify(payload));
@@ -1524,10 +1818,9 @@
                 const btn = document.getElementById('btnSalvar');
                 const oldHtml = btn.innerHTML;
                 btn.disabled = true;
-                btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Atualizando...';
+                btn.innerHTML = '<span class="icon-[lucide--loader-2] animate-spin me-2"></span> Salvando...';
 
                 try {
-                    // Rota corrigida para POST
                     const res = await fetch(`/levantamento-perigo/editar/${id_levantamento}`, {
                         method: 'POST',
                         body: formDataEnvio
