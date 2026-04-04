@@ -863,8 +863,8 @@
                                     </table>
                                     <div id="emptyGes"
                                         class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700"
-                                        <%=(typeof ges !=='undefined' && ges && ges.length> 0) ? 'style="display:none;"'
-                                        : '' %>>
+                                        <%- (typeof ges !=='undefined' && ges && ges.length> 0) ?
+                                        'style="display:none;"' : '' %>>
                                         Nenhum GES cadastrado. Clique em adicionar.
                                     </div>
                                 </div>
@@ -935,7 +935,7 @@
                                     </table>
                                     <div id="emptyQuimico"
                                         class="p-8 text-center text-zinc-400 italic mt-3 bg-zinc-50/50 dark:bg-zinc-800/50 rounded-lg border border-dashed border-zinc-200 dark:border-zinc-700"
-                                        <%=(typeof quimicos !=='undefined' && quimicos && quimicos.length> 0) ?
+                                        <%- (typeof quimicos !=='undefined' && quimicos && quimicos.length> 0) ?
                                         'style="display:none;"' : '' %>>
                                         Nenhum produto químico cadastrado.
                                     </div>
