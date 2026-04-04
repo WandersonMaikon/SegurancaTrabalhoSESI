@@ -119,7 +119,7 @@ router.get("/novo", verificarAutenticacao, verificarPermissao('ordens_servico', 
 // =============================================================================
 // 3. SALVAR NOVA OS (POST) - COM LOG DETALHADO
 // =============================================================================
-// CORREÇÃO: Mudado de 'ordem_servico' para 'ordens_servico'
+
 router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico', 'criar'), async (req, res) => {
     let connection;
     try {
@@ -127,8 +127,9 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        if (!data.contratante_id || !data.contrato_numero || !data.valor_total_contrato) {
-            return res.status(400).json({ success: false, message: "Preencha os dados obrigatórios." });
+        // CORREÇÃO AQUI: Retiramos o valor_total_contrato da validação obrigatória
+        if (!data.contratante_id || !data.contrato_numero) {
+            return res.status(400).json({ success: false, message: "Preencha a Empresa e o Número do Contrato." });
         }
 
         // Definição da Unidade da OS
@@ -150,8 +151,9 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
             if (cRows.length > 0) nomeClienteLog = cRows[0].nome_empresa;
         }
 
-        let valorLimpo = data.valor_total_contrato.replace("R$", "").replace(/\./g, "").replace(",", ".").trim();
-        let valorFomentoLimpo = data.valor_previsto_fomento ? data.valor_previsto_fomento.replace("R$", "").replace(/\./g, "").replace(",", ".").trim() : null;
+        // CORREÇÃO AQUI: Proteção para não dar erro de .replace() se o campo vier vazio
+        let valorLimpo = data.valor_total_contrato ? data.valor_total_contrato.toString().replace("R$", "").replace(/\./g, "").replace(",", ".").trim() : 0;
+        let valorFomentoLimpo = data.valor_previsto_fomento ? data.valor_previsto_fomento.toString().replace("R$", "").replace(/\./g, "").replace(",", ".").trim() : 0;
 
         const idOS = uuidv4();
 
@@ -168,7 +170,6 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         );
 
         // 2. Inserir Itens do Escopo
-        // Normaliza para array (caso venha 1 item só ou objeto)
         let itens = [];
         if (data.escopo) {
             if (Array.isArray(data.escopo)) itens = data.escopo;
@@ -176,8 +177,6 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         }
 
         for (const item of itens) {
-            // Verifica estrutura do item (pode variar dependendo de como o front envia arrays)
-            // Se o front envia escopo[0][servico_id], o req.body.escopo é um array de objetos.
             if (item.servico_id && item.responsavel_id) {
                 const prazoDias = item.prazo_execucao_dias ? parseInt(item.prazo_execucao_dias) : 1;
                 const qtd = item.quantidade ? parseFloat(item.quantidade) : 1;
@@ -194,7 +193,6 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
         await connection.commit();
 
         // 3. LOG DE CRIAÇÃO
-        // Registramos um log informando que a OS foi criada, para qual cliente e quantos itens.
         await registrarLog({
             id_unidade: userLogado.id_unidade || userLogado.unidade_id,
             id_usuario: userLogado.id_usuario,
@@ -202,7 +200,7 @@ router.post("/salvar", verificarAutenticacao, verificarPermissao('ordens_servico
             tabela: 'ordem_servico',
             id_registro: idOS,
             dados_novos: {
-                nome: `OS #${data.contrato_numero} - ${nomeClienteLog}`, // "Nome" genérico para aparecer bonito no título
+                nome: `OS #${data.contrato_numero} - ${nomeClienteLog}`,
                 contrato: data.contrato_numero,
                 cliente: nomeClienteLog,
                 qtd_itens: itens.length

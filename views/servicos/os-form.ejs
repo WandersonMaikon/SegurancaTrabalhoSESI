@@ -565,6 +565,25 @@
 
                     const formData = new FormData(this);
                     const payload = Object.fromEntries(formData.entries());
+                    
+                    // ========================================================
+                    // MUDANÇA AQUI: Trocando NULL por 0 para o banco aceitar!
+                    // ========================================================
+                    if (payload.valor_total_contrato && payload.valor_total_contrato.trim() !== '') {
+                        let valorLimpo = payload.valor_total_contrato.replace(/[^\d,]/g, '').replace(',', '.');
+                        payload.valor_total_contrato = parseFloat(valorLimpo) || 0;
+                    } else {
+                        payload.valor_total_contrato = 0; 
+                    }
+
+                    if (payload.valor_previsto_fomento && payload.valor_previsto_fomento.trim() !== '') {
+                        let fomentoLimpo = payload.valor_previsto_fomento.replace(/[^\d,]/g, '').replace(',', '.');
+                        payload.valor_previsto_fomento = parseFloat(fomentoLimpo) || 0;
+                    } else {
+                        payload.valor_previsto_fomento = 0;
+                    }
+                    // ========================================================
+
                     const escopo = [];
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
