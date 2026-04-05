@@ -85,7 +85,6 @@
                     <tr>
                       <th></th>
                       <th class="text-nowrap">Nome do serviço</th>
-                      <th class="text-nowrap">Unidade</th>
                       <th class="text-nowrap">Status</th>
                       <th class="text-nowrap" data-orderable="false">Ações</th>
                     </tr>
@@ -181,14 +180,9 @@
             ? '<span class="badge bg-green-500/10 text-green-500">Ativo</span>'
             : '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
 
-          const tipoHtml = !s.id_unidade
-            ? '<span class="badge bg-purple-500/10 text-purple-500 border border-purple-200">Global</span>'
-            : `<span class="badge bg-zinc-100 text-zinc-600 border border-zinc-200">${s.nome_unidade || 'Local'}</span>`;
-
           tr.innerHTML = `
                     <td></td>
                     <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
-                    <td>${tipoHtml}</td>
                     <td>${statusHtml}</td>
                     <td>
                         <div class="flex items-center gap-1 relative z-[1]">
@@ -221,7 +215,9 @@
         });
 
         document.getElementById('servicoSearch').addEventListener('input', e => { table.search(e.target.value).draw(); });
-        document.getElementById('statusFilter').addEventListener('change', function () { table.columns(3).search(this.value).draw(); });
+
+        // Ajustado para o índice 2 (Coluna Status)
+        document.getElementById('statusFilter').addEventListener('change', function () { table.columns(2).search(this.value).draw(); });
 
         // Botão Inativar (Controle de Visibilidade)
         const inativarBtn = document.getElementById("inativarBtn");
