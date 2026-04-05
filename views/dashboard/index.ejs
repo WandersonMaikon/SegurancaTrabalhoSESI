@@ -7,19 +7,13 @@
     <title>ProS - Dashboard</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
     <link rel="stylesheet" type="text/css" href="/vendor/css/daterangepicker.css" />
 </head>
 
@@ -35,84 +29,162 @@
                 <div class="px-4 lg:px-8 pt-4 pb-4 flex flex-col sm:flex-row sm:items-center">
                     <div class="flex-grow mb-3 sm:mb-0">
                         <h2 class="text-xl font-semibold text-black dark:text-white">
-                            Bem-vindo<%= (user && user.nome) ? " " + user.nome : "" %>!
-                        </h2>
-                        <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                            <%= (user && user.email) ? user.email : "" %>
+                            Bem-vindo<%= (locals.user && locals.user.nome) ? " " +
+                                locals.user.nome.split(' ')[0] : "" %>!
+                </h2>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    Confira o resumo das operações e contratos.
+                </p>
+            </div>
+            <div class="flex flex-col">
+                <small class="text-muted block mb-1">Dados do período</small>
+                <div class="inline-flex w-auto max-w-xs dark:bg-zinc-900 items-center gap-1 cursor-pointer text-sm" id="reportrange">
+                    <span class="icon-[lucide--calendar-days]"></span>
+                    <span></span><span class="icon-[lucide--chevron-down]"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="content lg:px-4 flex-grow relative">
+
+            <div class="px-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-blue-500">
+                    <div class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-blue-500/10 text-blue-500">
+                        <span class="icon-[lucide--building-2] text-2xl"></span>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-2xl font-bold text-zinc-800 dark:text-white"><%= locals.dash ? locals.dash.totalClientes : ' 0' %>
+                                </h4>
+                                <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Empresas
+                                    Cadastradas</p>
+                    </div>
+                </div>
+
+                <div
+                    class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-emerald-500">
+                    <div
+                        class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-emerald-500/10 text-emerald-500">
+                        <span class="icon-[lucide--users] text-2xl"></span>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                            <%= locals.dash ? locals.dash.totalFuncionarios : '0' %>
+                        </h4>
+                        <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Funcionários (Vidas)</p>
+                    </div>
+                </div>
+
+                <div
+                    class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-amber-500">
+                    <div
+                        class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-amber-500/10 text-amber-500">
+                        <span class="icon-[lucide--file-signature] text-2xl"></span>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                            <%= locals.dash ? locals.dash.totalContratos : '0' %>
+                        </h4>
+                        <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Contratos Vendidos (OS)
                         </p>
                     </div>
-                    <div class="flex flex-col">
-                        <small class="text-muted block mb-1">Dados do período</small>
-                        <div class="inline-flex w-auto max-w-xs dark:bg-zinc-900 items-center gap-1 cursor-pointer text-sm"
-                            id="reportrange">
-                            <i class="icon-[lucide--calendar-days]"></i>
-                            <span></span><i class="icon-[lucide--chevron-down]"></i>
+                </div>
+                </div>
+
+                <div class="px-4 grid grid-cols-1 lg:grid-cols-12 mb-4 gap-4">
+                    <div class="lg:col-span-4">
+                        <div
+                            class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden h-full flex flex-col">
+                            <div
+                                class="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800">
+                                <h5 class="text-lg font-bold text-zinc-800 dark:text-white">Perfil de Clientes</h5>
+                            </div>
+                            <div dir="ltr" class="p-4 flex-grow flex items-center justify-center">
+                                <div id="chart_perfil_clientes" class="w-full h-72"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-8">
+                        <div
+                            class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden h-full flex flex-col mb-4">
+                            <div class="p-4 pb-0 flex items-center justify-between">
+                                <div class="flex-grow">
+                                    <h5 class="text-lg font-bold text-zinc-800 dark:text-white">Faturamento de Contratos
+                                    </h5>
+                                    <p class="text-sm text-zinc-500">Valores das OS geradas nos últimos meses</p>
+                                </div>
+                            </div>
+                            <div class="p-4 flex-grow" dir="ltr">
+                                <div id="chart_faturamento" class="h-64 w-full"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="content lg:px-4 flex-grow relative">
-
-                    <div id="preloader"
-                        class="absolute inset-0 w-full h-[75vh] flex items-center justify-center z-50 hidden">
-                        <div class="size-12 bg-white shadow-xl rounded-full flex items-center justify-center">
-                            <div class="animate-spin rounded-full size-10 border-b-2 border-primary"></div>
+                <div class="px-4 grid grid-cols-1 gap-4 mb-4">
+                    <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden">
+                        <div
+                            class="flex items-center justify-between p-4 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                            <h5 class="text-lg font-bold text-zinc-800 dark:text-white">Últimos Contratos (OS)</h5>
+                            <a href="/ordem-servico"
+                                class="btn btn-sm bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300">Ver
+                                Todas</a>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="table-default w-full text-left">
+                                <thead class="bg-zinc-50 dark:bg-zinc-800/50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-sm font-semibold text-zinc-500">Contrato Nº</th>
+                                        <th class="px-4 py-3 text-sm font-semibold text-zinc-500">Cliente</th>
+                                        <th class="px-4 py-3 text-sm font-semibold text-zinc-500">Valor Total</th>
+                                        <th class="px-4 py-3 text-sm font-semibold text-zinc-500">Data</th>
+                                        <th class="px-4 py-3 text-sm font-semibold text-zinc-500">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                    <% if (locals.ultimasOS && locals.ultimasOS.length> 0) { %>
+                                        <% locals.ultimasOS.forEach(os=> { %>
+                                            <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                                <td class="px-4 py-3 font-semibold text-primary"><a
+                                                        href="/ordem-servico/ver/<%= os.id_ordem_servico %>">#<%=
+                                                            os.contrato_numero %></a></td>
+                                                <td class="px-4 py-3 text-zinc-800 dark:text-zinc-200 font-medium">
+                                                    <%= os.nome_empresa %>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <%= Number(os.valor_total_contrato).toLocaleString('pt-BR', {
+                                                        style: 'currency' , currency: 'BRL' }) %>
+                                                </td>
+                                                <td class="px-4 py-3 text-zinc-500">
+                                                    <%= new Date(os.data_abertura).toLocaleDateString('pt-BR') %>
+                                                </td>
+                                                <td class="px-4 py-3">
+                                                    <% if(os.status==='Concluída' ) { %>
+                                                        <span
+                                                            class="badge bg-green-500/10 text-green-500">Concluída</span>
+                                                        <% } else if(os.status==='Em Andamento' ) { %>
+                                                            <span class="badge bg-amber-500/10 text-amber-500">Em
+                                                                Andamento</span>
+                                                            <% } else { %>
+                                                                <span class="badge bg-blue-500/10 text-blue-500">
+                                                                    <%= os.status %>
+                                                                </span>
+                                                                <% } %>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="5"
+                                                            class="px-4 py-8 text-center text-zinc-400 italic">Nenhum
+                                                            contrato recente encontrado.</td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-                    <div class="px-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="rounded-xl p-4 bg-white dark:bg-zinc-900 shadow-card flex items-center">
-                            <div class="shrink-0 w-3/5">
-                                <p class="mb-2">Vendas semanais</p>
-                                <h4 class="text-2xl mb-1">R$ 59K</h4>
-                                <span class="text-sm">
-                                    <span class="text-green-500">+5,5%</span>
-                                    <span class="text-muted">vs período anterior</span>
-                                </span>
-                            </div>
-                            <div class="ps-3 w-2/5">
-                                <div id="chart_tiny_weekly_sales" class="h-20 w-full"></div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl p-4 bg-white dark:bg-zinc-900 shadow-card flex items-center">
-                            <div class="shrink-0 w-3/5">
-                                <p class="mb-2">Taxa de rejeição</p>
-                                <h4 class="text-2xl mb-1">47%</h4>
-                                <span class="text-sm">
-                                    <span class="text-green-500">+2,5%</span>
-                                    <span class="text-muted">vs período anterior</span>
-                                </span>
-                            </div>
-                            <div class="ps-3 w-2/5">
-                                <div id="chart_tiny_weekly_bounce_rate" class="h-20 w-full"></div>
-                            </div>
-                        </div>
-
-                        <div class="rounded-xl p-4 bg-white dark:bg-zinc-900 shadow-card flex items-center">
-                            <div class="shrink-0 w-3/5">
-                                <p class="mb-2">Economia de banda</p>
-                                <h4 class="text-2xl mb-1">82%</h4>
-                                <span class="text-sm">
-                                    <span class="text-red-500">-0,5%</span>
-                                    <span class="text-muted">vs período anterior</span>
-                                </span>
-                            </div>
-                            <div class="ps-3 w-2/5 flex justify-end">
-                                <div class="relative w-16 h-16" data-progress="82" data-show-value="true">
-                                    <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 100 100">
-                                        <circle class="text-primary-subtle" stroke-width="6" stroke="currentColor"
-                                            fill="transparent" r="45" cx="50" cy="50"></circle>
-                                        <circle class="text-primary progress-ring" stroke-width="6"
-                                            stroke="currentColor" fill="transparent" r="45" cx="50" cy="50"
-                                            stroke-linecap="round"
-                                            style="stroke-dasharray: 282.743; stroke-dashoffset: 50.8938; transition: stroke-dashoffset 1s;">
-                                        </circle>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                </div>
 
                 </div>
 
@@ -120,26 +192,38 @@
 
         </main>
 
-        <script src="/js/theme.js"></script>
-        <script src="/vendor/js/sweetalert2.all.min.js"></script>
-        <script src="/vendor/js/echarts.min.js"></script>
-        <script src="/js/dashboard-analytic.js" type="text/javascript"></script>
-        <script type="text/javascript" src="/vendor/js/jquery.min.js"></script>
-        <script type="text/javascript" src="/vendor/js/moment.min.js"></script>
-        <script type="text/javascript" src="/vendor/js/daterangepicker.js"></script>
+        <script id="dash-data" type="application/json">
+        <%- locals.dash ? JSON.stringify(locals.dash) : '{}' %>
+    </script>
 
-        <script type="text/javascript">
-            $(function () {
-                var start = moment().subtract(29, 'days');
-                var end = moment();
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/moment.min.js"></script>
+        <script src="/vendor/js/daterangepicker.js"></script>
+        <script src="/vendor/js/echarts.min.js"></script>
+
+        <script>
+            $(document).ready(function () {
+
+                // ==========================================
+                // CONFIGURAÇÃO DO CALENDÁRIO COM REFRESH
+                // ==========================================
+                const urlParams = new URLSearchParams(window.location.search);
+                var start = urlParams.get('start') ? moment(urlParams.get('start')) : moment().subtract(29, 'days');
+                var end = urlParams.get('end') ? moment(urlParams.get('end')) : moment();
 
                 function cb(start, end) {
-                    $('#reportrange span').html(start.format('MMM D, YY') + ' - ' + end.format('MMM D, YY'));
+                    $('#reportrange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
                 }
 
                 $('#reportrange').daterangepicker({
                     startDate: start,
                     endDate: end,
+                    locale: {
+                        format: 'DD/MM/YYYY', separator: ' - ', applyLabel: 'Aplicar', cancelLabel: 'Cancelar',
+                        customRangeLabel: 'Personalizado', daysOfWeek: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
+                        monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+                    },
                     ranges: {
                         'Hoje': [moment(), moment()],
                         'Ontem': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -149,36 +233,103 @@
                         'Mês passado': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                     }
                 }, cb);
-
                 cb(start, end);
-            });
-        </script>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Pega o primeiro nome do usuário
-                const userName = "<%= (user && user.nome) ? user.nome.split(' ')[0] : '' %>";
-                
-                // Mensagem amigável que definimos
-                const welcomeMessage = userName ? `Bom te ver por aqui, ${userName}!` : 'Bom te ver por aqui!';
+                // Recarrega a página ao aplicar o filtro de data
+                $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+                    const dataInicio = picker.startDate.format('YYYY-MM-DD');
+                    const dataFim = picker.endDate.format('YYYY-MM-DD');
+                    // O pathname garante que ele fique no /dashboard ou na rota atual sem quebrar
+                    window.location.href = `${window.location.pathname}?start=${dataInicio}&end=${dataFim}`;
+                });
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Seu login foi bem-sucedido!',
-                    text: welcomeMessage,
-                    position: 'center',          // Centraliza na tela (tira o comportamento de toast)
-                    backdrop: true,              // Escurece o fundo da tela
-                    showConfirmButton: false,    // Esconde o botão "OK" para forçar a saída automática
-                    showCloseButton: true,       // Mostra o "X" lá em cima caso ele queira fechar antes
-                    timer: 3000,                 // Tempo na tela (3000ms = 3 segundos)
-                    timerProgressBar: true,      // A mágica da barrinha de tempo correndo embaixo
-                    customClass: {
-                        closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1' // Mantém o botão "X" igual ao seu layout
-                    }
+                // ==========================================
+                // MONTAGEM DOS GRÁFICOS
+                // ==========================================
+                let dashData = {};
+                try {
+                    const raw = document.getElementById('dash-data').textContent;
+                    if (raw) dashData = JSON.parse(raw);
+                } catch (e) { }
+
+                const textColor = document.documentElement.classList.contains('dark') ? '#a1a1aa' : '#52525b';
+                const gridColor = document.documentElement.classList.contains('dark') ? '#27272a' : '#e4e4e7';
+
+                // GRÁFICO DE PIZZA
+                const chartPerfil = echarts.init(document.getElementById('chart_perfil_clientes'));
+                const qtdEmpresas = dashData.qtdEmpresasComuns || 0;
+                const qtdIndustrias = dashData.qtdIndustrias || 0;
+
+                const optionPerfil = {
+                    tooltip: { trigger: 'item' },
+                    legend: { top: 'bottom', textStyle: { color: textColor } },
+                    color: ['#3b82f6', '#f59e0b'],
+                    series: [
+                        {
+                            name: 'Perfil',
+                            type: 'pie',
+                            radius: ['40%', '70%'],
+                            avoidLabelOverlap: false,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: document.documentElement.classList.contains('dark') ? '#18181b' : '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{b}\n{c} ({d}%)',
+                                fontWeight: 'bold',
+                                color: textColor
+                            },
+                            labelLine: { show: true },
+                            data: [
+                                { value: qtdEmpresas, name: 'Comércio/Serviços' },
+                                { value: qtdIndustrias, name: 'Indústrias' }
+                            ]
+                        }
+                    ]
+                };
+                chartPerfil.setOption(optionPerfil);
+
+                // GRÁFICO DE BARRAS
+                const chartFaturamento = echarts.init(document.getElementById('chart_faturamento'));
+                const meses = dashData.mesesLabel || ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+                const valores = dashData.valoresFaturamento || [15000, 23000, 22400, 31000, 28000, 42000];
+
+                const optionFaturamento = {
+                    tooltip: {
+                        trigger: 'axis',
+                        valueFormatter: (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
+                    },
+                    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        data: meses,
+                        axisLabel: { color: textColor },
+                        axisLine: { lineStyle: { color: gridColor } }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: { color: textColor },
+                        splitLine: { lineStyle: { color: gridColor, type: 'dashed' } }
+                    },
+                    series: [
+                        {
+                            data: valores,
+                            type: 'bar',
+                            barWidth: '40%',
+                            itemStyle: { color: '#0AA34A', borderRadius: [4, 4, 0, 0] }
+                        }
+                    ]
+                };
+                chartFaturamento.setOption(optionFaturamento);
+
+                window.addEventListener('resize', function () {
+                    chartPerfil.resize();
+                    chartFaturamento.resize();
                 });
             });
         </script>
-
 </body>
 
 </html>
