@@ -82,15 +82,21 @@
                                         <h5 class="text-xl">Representante</h5>
                                     </div>
                                     <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div><label class="mb-2 block">Nome</label><input type="text"
-                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
-                                                value="<%= cliente.nome_representante || '-' %>" disabled></div>
-                                        <div><label class="mb-2 block">CPF</label><input type="text"
-                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
-                                                value="<%= cliente.cpf_mf || '-' %>" disabled></div>
-                                        <div><label class="mb-2 block">RG</label><input type="text"
-                                                class="input h-10 w-full max-w-2xl bg-zinc-100"
-                                                value="<%= cliente.rg_ci || '-' %>" disabled></div>
+                                        <div>
+                                            <label class="mb-2 block">Nome</label>
+                                            <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.nome_representante || '-' %>" disabled>
+                                        </div>
+                                        <div>
+                                            <label class="mb-2 block">CPF</label>
+                                            <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.cpf_mf || '-' %>" disabled>
+                                        </div>
+                                        <div>
+                                            <label class="mb-2 block">RG</label>
+                                            <input type="text" class="input h-10 w-full max-w-2xl bg-zinc-100"
+                                                value="<%= cliente.rg_ci || '-' %>" disabled>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -98,13 +104,44 @@
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Endereço</h5>
                                     </div>
-                                    <div class="p-6 grid grid-cols-1 gap-6">
-                                        <div><label class="mb-2 block">Endereço Completo</label>
-                                            <textarea class="input w-full max-w-2xl bg-zinc-100" rows="3" disabled>
-<%= cliente.logradouro %>, <%= cliente.numero %> - <%= cliente.bairro %>
-<%= cliente.cidade %> - <%= cliente.estado %>
-CEP: <%= cliente.cep %>
-                                    </textarea>
+                                    <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 max-w-4xl">
+                                        <div class="md:col-span-4">
+                                            <label class="mb-2 block text-sm font-semibold">CEP</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.cep || '-' %>" disabled>
+                                        </div>
+                                        <div class="md:col-span-8">
+                                            <label class="mb-2 block text-sm font-semibold">Logradouro (Rua,
+                                                Av.)</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.logradouro || '-' %>" disabled>
+                                        </div>
+
+                                        <div class="md:col-span-3">
+                                            <label class="mb-2 block text-sm font-semibold">Número</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.numero || '-' %>" disabled>
+                                        </div>
+                                        <div class="md:col-span-5">
+                                            <label class="mb-2 block text-sm font-semibold">Bairro</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.bairro || '-' %>" disabled>
+                                        </div>
+                                        <div class="md:col-span-4">
+                                            <label class="mb-2 block text-sm font-semibold">Complemento</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.complemento || '-' %>" disabled>
+                                        </div>
+
+                                        <div class="md:col-span-8">
+                                            <label class="mb-2 block text-sm font-semibold">Cidade</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.cidade || '-' %>" disabled>
+                                        </div>
+                                        <div class="md:col-span-4">
+                                            <label class="mb-2 block text-sm font-semibold">Estado (UF)</label>
+                                            <input type="text" class="input h-10 w-full bg-zinc-100"
+                                                value="<%= cliente.estado || '-' %>" disabled>
                                         </div>
                                     </div>
                                 </div>
