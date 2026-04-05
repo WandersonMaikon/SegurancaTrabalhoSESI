@@ -68,8 +68,8 @@
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
-                                            <option value="" selected>Todos os Status</option>
-                                            <option value="Ativo">Ativo</option>
+                                            <option value="">Todos os Status</option>
+                                            <option value="Ativo" selected>Ativo</option>
                                             <option value="Inativo">Inativo</option>
                                         </select>
                                     </div>
@@ -126,7 +126,6 @@
             try {
                 const divPerm = document.getElementById('permissoes-user');
                 const todasPermissoes = JSON.parse(divPerm.innerText);
-                // Verifica 'usuarios' ou 'usuario'
                 permUsuario = todasPermissoes['usuarios'] || todasPermissoes['usuario'] || {};
             } catch (e) { console.error(e); }
 
@@ -182,7 +181,7 @@
                     const nomeCompleto = u.nome_completo || "Sem Nome";
                     const iniciais = nomeCompleto.substring(0, 2).toUpperCase();
 
-                    // Célula "Unidade" Removida
+                    // Célula "Unidade" Removida. Total de 5 Colunas.
                     tr.innerHTML = `
                         <td></td>
                         <td>
@@ -225,14 +224,32 @@
                     order: [[1, 'asc']]
                 });
 
+                // BUSCA GLOBAL
                 document.getElementById('userSearch').addEventListener('input', e => {
                     table.search(e.target.value).draw();
                 });
 
-                // Índice atualizado para a coluna de Status (agora é a coluna 3, índice 3)
-                document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(3).search(this.value).draw();
+                // =========================================================================
+                // CORREÇÃO DO FILTRO DE STATUS (Busca Exata e Filtro Padrão)
+                // O índice da coluna de status mudou para 3 (pois removemos a unidade)
+                // =========================================================================
+                const statusFilter = document.getElementById('statusFilter');
+
+                statusFilter.addEventListener('change', function () {
+                    const val = this.value;
+                    if (val) {
+                        // Regex para busca EXATA (^Ativo$). Assim "Ativo" não puxa "Inativo".
+                        table.column(3).search('^' + val + '$', true, false).draw();
+                    } else {
+                        table.column(3).search('').draw(); // Limpa o filtro (Todos)
+                    }
                 });
+
+                // Aplica o filtro de "Ativo" automaticamente assim que a página carrega
+                if (statusFilter.value) {
+                    table.column(3).search('^' + statusFilter.value + '$', true, false).draw();
+                }
+                // =========================================================================
 
                 // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
                 document.body.addEventListener('click', function (e) {
