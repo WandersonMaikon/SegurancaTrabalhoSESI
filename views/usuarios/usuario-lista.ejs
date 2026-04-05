@@ -89,7 +89,6 @@
                                     <tr>
                                         <th></th>
                                         <th>Usuário</th>
-                                        <th>Unidade</th>
                                         <th>Perfil</th>
                                         <th>Status</th>
                                         <th data-orderable="false">Ações</th>
@@ -183,6 +182,7 @@
                     const nomeCompleto = u.nome_completo || "Sem Nome";
                     const iniciais = nomeCompleto.substring(0, 2).toUpperCase();
 
+                    // Célula "Unidade" Removida
                     tr.innerHTML = `
                         <td></td>
                         <td>
@@ -198,7 +198,6 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="whitespace-nowrap text-sm">${u.nome_unidade || '-'}</td>
                         <td>
                             <span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
                                 ${u.nome_perfil || '-'}
@@ -230,8 +229,9 @@
                     table.search(e.target.value).draw();
                 });
 
+                // Índice atualizado para a coluna de Status (agora é a coluna 3, índice 3)
                 document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(4).search(this.value).draw();
+                    table.columns(3).search(this.value).draw();
                 });
 
                 // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
@@ -273,8 +273,11 @@
                         const index = row.getAttribute('data-index');
                         if (index !== null && listaUsuarios[index]) {
                             const u = listaUsuarios[index];
-                            if (u.ativo === 0) jaInativos.push(u.nome_completo);
-                            else selectedIds.push(u.id_usuario);
+                            if (u.ativo === 0 || u.ativo === false || u.ativo === '0') {
+                                jaInativos.push(u.nome_completo);
+                            } else {
+                                selectedIds.push(u.id_usuario);
+                            }
                         }
                     });
 
