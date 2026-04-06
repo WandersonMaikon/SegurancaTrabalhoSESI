@@ -53,36 +53,39 @@
             </div>
         </div>
 
-        <%- include('../partials/footer') %>
+        <%- include(' ../partials/footer') %>
 
         </main>
 
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script type="text/javascript" src="/vendor/js/jquery.min.js"></script>
-
         <script>
+  
             document.addEventListener("DOMContentLoaded", function () {
-                // Pega o primeiro nome do usuário
-                const userName = "<%= (user && user.nome) ? user.nome.split(' ')[0] : '' %>";
-                
-                // Mensagem amigável que definimos
-                const welcomeMessage = userName ? `Bom te ver por aqui, ${userName}!` : 'Bom te ver por aqui!';
+                // Verifica se a mensagem JÁ FOI exibida nesta sessão do navegador
+                if (!sessionStorage.getItem("boasVindasExibidas")) {
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Seu login foi bem-sucedido!',
-                    text: welcomeMessage,
-                    position: 'center',          // Centraliza na tela (tira o comportamento de toast)
-                    backdrop: true,              // Escurece o fundo da tela
-                    showConfirmButton: false,    // Esconde o botão "OK" para forçar a saída automática
-                    showCloseButton: true,       // Mostra o "X" lá em cima caso ele queira fechar antes
-                    timer: 3000,                 // Tempo na tela (3000ms = 3 segundos)
-                    timerProgressBar: true,      // A mágica da barrinha de tempo correndo embaixo
-                    customClass: {
-                        closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1' // Mantém o botão "X" igual ao seu layout
-                    }
-                });
+                    const userName = "<%= (locals.user && (locals.user.nome || locals.user.nome_completo)) ? (locals.user.nome || locals.user.nome_completo).split(' ')[0] : '' %>";
+                    const welcomeMessage = userName ? `Bom te ver por aqui, ${userName}!` : 'Bom te ver por aqui!';
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Seu login foi bem-sucedido!',
+                        text: welcomeMessage,
+                        position: 'center',
+                        backdrop: true,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        customClass: {
+                            closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1'
+                        }
+                    });
+
+                    sessionStorage.setItem("boasVindasExibidas", "true");
+                }
             });
         </script>
 

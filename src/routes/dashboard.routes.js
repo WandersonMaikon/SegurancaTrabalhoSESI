@@ -27,19 +27,22 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             paramsCliente.push(`${start} 00:00:00`, `${end} 23:59:59`);
         }
 
-        // 2. BUSCANDO OS TOTAIS PARA OS CARDS SUPERIORES
         const [rowClientes] = await db.query(`SELECT COUNT(*) as total FROM cliente WHERE deleted_at IS NULL ${filtroDataCliente}`, paramsCliente);
 
-        // CORREÇÃO AQUI: Mudamos para num_colaboradores!
         let totalFunc = 0;
         try {
             const [rowFunc] = await db.query(`SELECT SUM(num_colaboradores) as total FROM cliente WHERE deleted_at IS NULL ${filtroDataCliente}`, paramsCliente);
             totalFunc = rowFunc[0].total || 0;
-        } catch (e) {
-            console.log("Aviso: Erro ao somar num_colaboradores", e.message);
-        }
+        } catch (e) { console.log("Erro num_colaboradores:", e.message); }
 
-        const [rowOS] = await db.query(`SELECT COUNT(*) as total FROM ordem_servico os WHERE os.deleted_at IS NULL ${filtroDataOS}`, paramsOS);
+        // BUSCA O TOTAL DE OS E A SOMA DO FOMENTO
+        const [rowOS] = await db.query(`
+            SELECT 
+                COUNT(*) as totalQuantidade, 
+                SUM(valor_previsto_fomento) as totalFomento 
+            FROM ordem_servico os 
+            WHERE os.deleted_at IS NULL ${filtroDataOS}
+        `, paramsOS);
 
         // 3. BUSCANDO O PERFIL DOS CLIENTES (Pizza)
         const [rowEmpresas] = await db.query(`SELECT COUNT(*) as total FROM cliente WHERE deleted_at IS NULL AND (industria = 0 OR industria IS NULL) ${filtroDataCliente}`, paramsCliente);
@@ -72,10 +75,10 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const dash = {
             totalClientes: rowClientes[0].total || 0,
             totalFuncionarios: totalFunc,
-            totalContratos: rowOS[0].total || 0,
+            totalContratos: rowOS[0].totalQuantidade || 0,
+            totalFomento: rowOS[0].totalFomento || 0, // <--- NOVO DADO
             qtdEmpresasComuns: rowEmpresas[0].total || 0,
             qtdIndustrias: rowIndustrias[0].total || 0,
-            // Envia os dados reais ou um aviso se estiver vazio no período
             mesesLabel: mesesLabel.length > 0 ? mesesLabel : ['Sem dados'],
             valoresFaturamento: valoresFaturamento.length > 0 ? valoresFaturamento : [0]
         };

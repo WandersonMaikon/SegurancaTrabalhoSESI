@@ -47,7 +47,8 @@
 
         <div class="content lg:px-4 flex-grow relative">
 
-            <div class="px-4 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div class="px-4 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
                 <div class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-blue-500">
                     <div class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-blue-500/10 text-blue-500">
                         <span class="icon-[lucide--building-2] text-2xl"></span>
@@ -55,8 +56,7 @@
                     <div class="flex-grow">
                         <h4 class="text-2xl font-bold text-zinc-800 dark:text-white"><%= locals.dash ? locals.dash.totalClientes : ' 0' %>
                                 </h4>
-                                <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Empresas
-                                    Cadastradas</p>
+                                <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Empresas</p>
                     </div>
                 </div>
 
@@ -70,7 +70,21 @@
                         <h4 class="text-2xl font-bold text-zinc-800 dark:text-white">
                             <%= locals.dash ? locals.dash.totalFuncionarios : '0' %>
                         </h4>
-                        <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Funcionários (Vidas)</p>
+                        <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Vidas Atendidas</p>
+                    </div>
+                </div>
+
+                <div
+                    class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-purple-500">
+                    <div
+                        class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-purple-500/10 text-purple-500">
+                        <span class="icon-[lucide--briefcase-business] text-2xl"></span>
+                    </div>
+                    <div class="flex-grow">
+                        <h4 class="text-2xl font-bold text-zinc-800 dark:text-white">
+                            <%= locals.dash ? locals.dash.totalContratos : '0' %>
+                        </h4>
+                        <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total de OS</p>
                     </div>
                 </div>
 
@@ -78,19 +92,21 @@
                     class="rounded-xl flex items-center gap-4 bg-white dark:bg-zinc-900 shadow-card p-4 overflow-hidden border-l-4 border-amber-500">
                     <div
                         class="shrink-0 flex items-center justify-center size-12 rounded-lg bg-amber-500/10 text-amber-500">
-                        <span class="icon-[lucide--file-signature] text-2xl"></span>
+                        <span class="icon-[lucide--hand-coins] text-2xl"></span>
                     </div>
-                    <div class="flex-grow">
-                        <h4 class="text-2xl font-bold text-zinc-800 dark:text-white">
-                            <%= locals.dash ? locals.dash.totalContratos : '0' %>
+                    <div class="flex-grow overflow-hidden">
+                        <h4 class="text-xl font-bold text-zinc-800 dark:text-white truncate"
+                            title="<%= locals.dash ? Number(locals.dash.totalFomento).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'R$ 0,00' %>">
+                            <%= locals.dash ? Number(locals.dash.totalFomento).toLocaleString('pt-BR', {
+                                style: 'currency' , currency: 'BRL' }) : 'R$ 0,00' %>
                         </h4>
-                        <p class="text-sm font-semibold text-zinc-500 uppercase tracking-wider">Contratos Vendidos (OS)
-                        </p>
+                        <p class="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Fomento</p>
                     </div>
                 </div>
                 </div>
 
                 <div class="px-4 grid grid-cols-1 lg:grid-cols-12 mb-4 gap-4">
+
                     <div class="lg:col-span-4">
                         <div
                             class="rounded-xl bg-white dark:bg-zinc-900 shadow-card overflow-hidden h-full flex flex-col">
@@ -111,7 +127,7 @@
                                 <div class="flex-grow">
                                     <h5 class="text-lg font-bold text-zinc-800 dark:text-white">Faturamento de Contratos
                                     </h5>
-                                    <p class="text-sm text-zinc-500">Valores das OS geradas nos últimos meses</p>
+                                    <p class="text-sm text-zinc-500">Valores das OS geradas no período selecionado</p>
                                 </div>
                             </div>
                             <div class="p-4 flex-grow" dir="ltr">
@@ -194,13 +210,14 @@
 
         <script id="dash-data" type="application/json">
         <%- locals.dash ? JSON.stringify(locals.dash) : '{}' %>
-    </script>
+        </script>
 
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="/vendor/js/moment.min.js"></script>
         <script src="/vendor/js/daterangepicker.js"></script>
         <script src="/vendor/js/echarts.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
             $(document).ready(function () {
@@ -209,8 +226,8 @@
                 // CONFIGURAÇÃO DO CALENDÁRIO COM REFRESH
                 // ==========================================
                 const urlParams = new URLSearchParams(window.location.search);
-                var start = urlParams.get('start') ? moment(urlParams.get('start')) : moment().subtract(29, 'days');
-                var end = urlParams.get('end') ? moment(urlParams.get('end')) : moment();
+                var start = urlParams.get('start') ? moment(urlParams.get('start')) : moment().startOf('month');
+                var end = urlParams.get('end') ? moment(urlParams.get('end')) : moment().endOf('month');
 
                 function cb(start, end) {
                     $('#reportrange span').html(start.format('DD/MM/YYYY') + ' - ' + end.format('DD/MM/YYYY'));
@@ -235,11 +252,9 @@
                 }, cb);
                 cb(start, end);
 
-                // Recarrega a página ao aplicar o filtro de data
                 $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
                     const dataInicio = picker.startDate.format('YYYY-MM-DD');
                     const dataFim = picker.endDate.format('YYYY-MM-DD');
-                    // O pathname garante que ele fique no /dashboard ou na rota atual sem quebrar
                     window.location.href = `${window.location.pathname}?start=${dataInicio}&end=${dataFim}`;
                 });
 
@@ -255,20 +270,23 @@
                 const textColor = document.documentElement.classList.contains('dark') ? '#a1a1aa' : '#52525b';
                 const gridColor = document.documentElement.classList.contains('dark') ? '#27272a' : '#e4e4e7';
 
-                // GRÁFICO DE PIZZA
+                // GRÁFICO DE PIZZA (PIZZA GRANDE, SEM TEXTO EXTRUDADO)
                 const chartPerfil = echarts.init(document.getElementById('chart_perfil_clientes'));
                 const qtdEmpresas = dashData.qtdEmpresasComuns || 0;
                 const qtdIndustrias = dashData.qtdIndustrias || 0;
 
                 const optionPerfil = {
-                    tooltip: { trigger: 'item' },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c} ({d}%)' // Tooltip exibe todas as infos quando passar o mouse
+                    },
                     legend: { top: 'bottom', textStyle: { color: textColor } },
                     color: ['#3b82f6', '#f59e0b'],
                     series: [
                         {
                             name: 'Perfil',
                             type: 'pie',
-                            radius: ['40%', '70%'],
+                            radius: ['40%', '70%'], // Voltou a ser a pizza grandona e bonita
                             avoidLabelOverlap: false,
                             itemStyle: {
                                 borderRadius: 10,
@@ -276,12 +294,21 @@
                                 borderWidth: 2
                             },
                             label: {
-                                show: true,
-                                formatter: '{b}\n{c} ({d}%)',
-                                fontWeight: 'bold',
-                                color: textColor
+                                show: false, // Esconde os textos cortados do lado de fora
+                                position: 'center'
                             },
-                            labelLine: { show: true },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '20',
+                                    fontWeight: 'bold',
+                                    color: textColor,
+                                    formatter: '{d}%' // Ao focar, mostra só a % no meio!
+                                }
+                            },
+                            labelLine: {
+                                show: false // Tira a linha preta
+                            },
                             data: [
                                 { value: qtdEmpresas, name: 'Comércio/Serviços' },
                                 { value: qtdIndustrias, name: 'Indústrias' }
@@ -293,8 +320,8 @@
 
                 // GRÁFICO DE BARRAS
                 const chartFaturamento = echarts.init(document.getElementById('chart_faturamento'));
-                const meses = dashData.mesesLabel || ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-                const valores = dashData.valoresFaturamento || [15000, 23000, 22400, 31000, 28000, 42000];
+                const meses = dashData.mesesLabel || ['Sem dados'];
+                const valores = dashData.valoresFaturamento || [0];
 
                 const optionFaturamento = {
                     tooltip: {
@@ -328,6 +355,34 @@
                     chartPerfil.resize();
                     chartFaturamento.resize();
                 });
+            });
+        </script>
+
+        <script>
+            // ALERTA DE BOAS-VINDAS
+            document.addEventListener("DOMContentLoaded", function () {
+                if (!sessionStorage.getItem("boasVindasExibidas")) {
+
+                    const userName = "<%= (locals.user && (locals.user.nome || locals.user.nome_completo)) ? (locals.user.nome || locals.user.nome_completo).split(' ')[0] : '' %>";
+                    const welcomeMessage = userName ? `Bom te ver por aqui, ${userName}!` : 'Bom te ver por aqui!';
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Seu login foi bem-sucedido!',
+                        text: welcomeMessage,
+                        position: 'center',
+                        backdrop: true,
+                        showConfirmButton: false,
+                        showCloseButton: true,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        customClass: {
+                            closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1'
+                        }
+                    });
+
+                    sessionStorage.setItem("boasVindasExibidas", "true");
+                }
             });
         </script>
 </body>
