@@ -1,36 +1,26 @@
 <div
   class="bg-zinc-50/80 backdrop-blur-sm dark:bg-zinc-950 flex shrink-0 items-center justify-between px-4 lg:px-8 h-16 z-50 sticky top-0 app-header !shadow-glass">
   <div class="shrink-0 flex items-center space-x-1">
-    <!--:Sidebar toggler:-->
     <button type="button" data-toggle="app_sidebar"
       class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800 lg:hidden">
       <span class="icon-[iconoir--menu] text-lg"></span>
     </button>
-
-
   </div>
+
   <div class="flex items-center space-x-1">
-    <!--:TLang:-->
-
-
-    <!--:Notifications:-->
     <div class="sm:relative">
       <button data-bs-auto-close="outside" type="button"
         class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
         data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
         <span class="icon-[lucide--bell] text-lg"></span>
-        <!--:Notification badge with animation:-->
-        <span class="absolute right-1 top-1 flex size-2">
-          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75"></span>
-          <span class="relative inline-flex size-2 rounded-full bg-orange-500"></span>
-        </span>
+
       </button>
       <div
         class="dropdown-menu absolute w-[94%] left-[3%] sm:w-96 abslute rtl:sm:left-0 ltr:sm:right-0 sm:left-auto top-full z-50 !p-0 mt-0.5 lg:mt-4.5 overflow-hidden">
         <div class="px-3 pt-3 flex justify-between items-center">
-          <h5 class="text-lg">Notifications</h5>
-          <button type="button" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Mark all as read"
-            class="hover:text-primary cursor-pointer">
+          <h5 class="text-lg">Notificações</h5>
+          <button type="button" data-bs-toggle="tooltip" data-bs-placement="left"
+            data-bs-title="Marcar todas como lidas" class="hover:text-primary cursor-pointer">
             <span class="icon-[lucide--mail-open]"></span>
           </button>
         </div>
@@ -44,63 +34,8 @@
                 <div class="simplebar-content-wrapper" tabindex="0" role="region" aria-label="scrollable content"
                   style="height: auto; overflow: hidden;">
                   <div class="simplebar-content" style="padding: 12px;">
-                    <!--:Notification item:-->
-                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
-                      <span class="size-8 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
-                        <span class="icon-[lucide--database] text-lg"></span>
-                      </span>
-                      <div class="flex-grow">
-                        <div class="leading-normal"><span class="h5">Critical alert:</span> Server crash detected</div>
-                        <small class="text-muted">Just now</small>
-                      </div>
-                    </a>
-                    <!--:Notification item:-->
-                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
-                      <span class="size-8 rounded-full bg-red-500 text-white flex items-center justify-center shrink-0">
-                        <img alt="" src="images/avatars/thumb-2.jpg" class="size-8 shrink-0 rounded-full">
-                      </span>
-                      <div class="flex-grow">
-                        <div class="leading-normal"><span class="h5">Emiliya</span> mentioned in you a comment</div>
-                        <small class="text-muted">1h</small>
-                      </div>
-                    </a>
-                    <!--:Notification item:-->
-                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
-                      <span
-                        class="size-8 rounded-full bg-green-500 text-white flex items-center justify-center shrink-0">
-                        <span class="icon-[lucide--check] text-lg"></span>
-                      </span>
-                      <div class="flex-grow">
-                        <div class="leading-normal">Backup completed successfully</div>
-                        <small class="text-muted">2h</small>
-                      </div>
-                    </a>
-                    <!--:Notification item:-->
-                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
-                      <span
-                        class="size-8 rounded-full bg-cyan-500 text-white flex items-center justify-center shrink-0">
-                        <span class="icon-[lucide--user] text-lg"></span>
-                      </span>
-                      <div class="flex-grow">
-                        <div class="leading-normal">Profile updated successfully</div>
-                        <small class="text-muted">3h</small>
-                      </div>
-                    </a>
-                    <!--:Notification item:-->
-                    <a href="#!" class="px-3 py-2 gap-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 flex">
-                      <span
-                        class="size-8 rounded-full bg-yellow-500 text-white flex items-center justify-center shrink-0">
-                        <img alt="" src="images/avatars/thumb-3.jpg" class="size-8 shrink-0 rounded-full">
-                      </span>
-                      <div class="flex-grow">
-                        <div class="leading-normal mb-1"><span class="h5">Nikita</span> sent you a friend request</div>
-                        <div><span
-                            class="btn relative z-[1] cursor-pointer btn-sm !text-xs !py-1 bg-green-500 hover:bg-green-600 text-white">Accept</span>
-                        </div>
-                        <small class="text-muted">2d</small>
-                      </div>
-                    </a>
-                    <!--:Notification item:-->
+
+                    <p class="text-center text-sm text-zinc-400 py-4 italic">Nenhuma notificação no momento.</p>
 
                   </div>
                 </div>
@@ -124,13 +59,12 @@
         </div>
         <div class="px-4 py-2.5 text-center border-t border-zinc-100 dark:border-zinc-800">
           <a href="#!"
-            class="inline-block border-b border-dashed text-primary font-semibold hover:text-primary-deep text-sm">View
-            All</a>
+            class="inline-block border-b border-dashed text-primary font-semibold hover:text-primary-deep text-sm">Ver
+            Todas</a>
         </div>
       </div>
     </div>
 
-    <!--:Theme color switcher:-->
     <div class="relative">
       <button type="button"
         class="cursor-pointer relative flex items-center justify-center size-8 rounded-lg hover:bg-zinc-200 hover:text-black dark:hover:text-white dark:hover:bg-zinc-800"
