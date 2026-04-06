@@ -100,14 +100,9 @@ router.post("/login", async (req, res) => {
         // Verifica se NÃO é o admin master
         if (usuario.email !== 'admin@admin.com' && usuario.nome_perfil !== 'Administrador' && usuario.nome_perfil !== 'Super Admin') {
 
-            // Ordem de prioridade para a tela inicial. 
+            // Ordem de prioridade para a tela inicial reduzida apenas ao Dashboard
             const rotasPrioridade = [
-                { chave: 'dashboard', url: '/dashboard' },
-                { chave: 'clientes', url: '/cliente' },
-                { chave: 'ordem_servico', url: '/ordem-servico' },
-                { chave: 'levantamento_perigo', url: '/levantamento-perigo' },
-                { chave: 'checklist_job_stress', url: '/checklist-stress' },
-                { chave: 'usuarios', url: '/usuario' }
+                { chave: 'dashboard', url: '/dashboard' }
             ];
 
             let rotaEncontrada = null;
