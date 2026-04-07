@@ -23,8 +23,9 @@ router.get("/", verificarAutenticacao, verificarPermissao('ordens_servico', 'ver
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
         let query = `
-            SELECT os.id_ordem_servico, os.contrato_numero, os.valor_total_contrato, os.data_abertura, os.status, 
-                   c.nome_empresa, u.nome_fantasia as nome_unidade
+            SELECT os.id_ordem_servico, os.contrato_numero, os.valor_total_contrato, 
+                   DATE_FORMAT(os.data_abertura, '%Y-%m-%dT12:00:00') as data_abertura, 
+                   os.status, c.nome_empresa, u.nome_fantasia as nome_unidade
             FROM ordem_servico os
             JOIN cliente c ON os.id_cliente = c.id_cliente
             JOIN unidade u ON os.id_unidade = u.id_unidade
