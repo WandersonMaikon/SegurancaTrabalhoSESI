@@ -25,7 +25,10 @@ router.get("/", verificarAutenticacao, verificarPermissao('ordens_servico', 'ver
         let query = `
             SELECT os.id_ordem_servico, os.contrato_numero, os.valor_total_contrato, 
                    DATE_FORMAT(os.data_abertura, '%Y-%m-%dT12:00:00') as data_abertura, 
-                   os.status, c.nome_empresa, u.nome_fantasia as nome_unidade
+                   os.status, 
+                   c.nome_empresa, 
+                   IF(CHAR_LENGTH(c.nome_empresa) > 30, CONCAT(LEFT(c.nome_empresa, 30), '...'), c.nome_empresa) AS nome_empresa_curto,
+                   u.nome_fantasia as nome_unidade
             FROM ordem_servico os
             JOIN cliente c ON os.id_cliente = c.id_cliente
             JOIN unidade u ON os.id_unidade = u.id_unidade
@@ -54,7 +57,6 @@ router.get("/", verificarAutenticacao, verificarPermissao('ordens_servico', 'ver
         res.status(500).send("Erro ao carregar Ordens de Serviço.");
     }
 });
-
 // =============================================================================
 // 2. TELA DE NOVA OS (GET)
 // =============================================================================
@@ -237,7 +239,7 @@ router.post("/inativar-multiplos", verificarAutenticacao, verificarPermissao('or
         const [osParaDeletar] = await db.query(`SELECT id_ordem_servico, contrato_numero FROM ordem_servico WHERE id_ordem_servico IN (${placeholders})`, validIds);
 
         // 2. Executa a Inativação (Soft Delete)
-        const sql = `UPDATE ordem_servico SET deleted_at = NOW() WHERE id_ordem_servico IN (${placeholders})`;
+        const sql = `UPDATE ordem_servico SET status = 'Cancelada' WHERE id_ordem_servico IN (${placeholders})`;
         const [result] = await db.query(sql, validIds);
 
         // 3. LOG EM MASSA

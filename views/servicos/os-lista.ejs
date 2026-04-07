@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="/css/style.css" />
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -58,11 +57,6 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
-                                        style="display: none;">
-                                        Inativar Selecionados
-                                    </button>
-
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
                                             <option value="" selected>Todos Status</option>
@@ -86,7 +80,6 @@
                                 <table id="table_ordens" class="table-default w-full">
                                     <thead>
                                         <tr>
-                                            <th></th>
                                             <th class="text-nowrap">Cliente</th>
                                             <th class="text-nowrap">Valor Total</th>
                                             <th class="text-nowrap">Data Abertura</th>
@@ -117,8 +110,6 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
@@ -148,20 +139,11 @@
                 canInactivate = true;
             } else {
                 // Permissão para Editar
-                if ((permOS.pode_editar == 1 || permOS.pode_editar === true) ||
-                    (permOS.tudo == 1 || permOS.tudo === true)) {
-                    canEdit = true;
-                }
+                if ((permOS.pode_editar == 1 || permOS.pode_editar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canEdit = true;
                 // Permissão para Criar
-                if ((permOS.pode_criar == 1 || permOS.pode_criar === true) ||
-                    (permOS.tudo == 1 || permOS.tudo === true)) {
-                    canCreate = true;
-                }
+                if ((permOS.pode_criar == 1 || permOS.pode_criar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canCreate = true;
                 // Permissão para Inativar
-                if ((permOS.pode_inativar == 1 || permOS.pode_inativar === true) ||
-                    (permOS.tudo == 1 || permOS.tudo === true)) {
-                    canInactivate = true;
-                }
+                if ((permOS.pode_inativar == 1 || permOS.pode_inativar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canInactivate = true;
             }
         </script>
 
@@ -190,26 +172,28 @@
                     return date.toLocaleDateString('pt-BR');
                 };
 
-                // Badge de Status
+                // Badge de Status (BLINDADO CONTRA ERROS DE DIGITAÇÃO NO BANCO)
                 const getStatusBadge = (status) => {
-                    switch (status) {
-                        case 'Aberta': return '<span class="badge bg-blue-500/10 text-blue-500">Aberta</span>';
-                        case 'Em Andamento': return '<span class="badge bg-amber-500/10 text-amber-500">Em Andamento</span>';
-                        case 'Concluída': return '<span class="badge bg-green-500/10 text-green-500">Concluída</span>';
-                        case 'Cancelada': return '<span class="badge bg-red-500/10 text-red-500">Cancelada</span>';
-                        default: return `<span class="badge bg-zinc-100 text-zinc-500">${status}</span>`;
-                    }
+                    if (!status) return `<span class="badge bg-zinc-100 text-zinc-500">-</span>`;
+
+                    const s = status.trim().toUpperCase();
+
+                    if (s === 'ABERTA') return '<span class="badge bg-blue-500/10 text-blue-500">Aberta</span>';
+                    if (s === 'EM ANDAMENTO') return '<span class="badge bg-amber-500/10 text-amber-500">Em Andamento</span>';
+                    if (s === 'CONCLUÍDA' || s === 'CONCLUIDA') return '<span class="badge bg-green-500/10 text-green-500">Concluída</span>';
+                    if (s === 'CANCELADA' || s === 'CANCELADO') return '<span class="badge bg-red-500/10 text-red-500">Cancelada</span>'; // Tratou o "O" e "A"
+
+                    return `<span class="badge bg-zinc-100 text-zinc-500">${status}</span>`;
                 };
 
                 listaOrdens.forEach((os, index) => {
                     const tr = document.createElement('tr');
-                    tr.setAttribute('data-index', index);
 
                     tr.innerHTML = `
-                        <td></td>
-                        <td class="whitespace-nowrap font-semibold text-zinc-900 dark:text-white">
-                            ${os.nome_empresa}
-                            ${os.nome_unidade ? `<br><small class="text-muted text-xs font-normal">Unidade: ${os.nome_unidade}</small>` : ''}
+                        <td class="font-semibold text-zinc-900 dark:text-white align-middle">
+                            <span title="${os.nome_empresa}" class="cursor-help">
+                                ${os.nome_empresa_curto}
+                            </span>
                         </td>
                         <td class="whitespace-nowrap">
                             ${formatCurrency(os.valor_total_contrato)}
@@ -227,6 +211,9 @@
                                 <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-amber-500 transition-colors" title="Editar">
                                     <span class="icon-[lucide--edit] text-lg"></span>
                                 </a>
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${os.id_ordem_servico}" title="Cancelar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
                             </div>
                         </td>
                     `;
@@ -241,18 +228,9 @@
                     language: {
                         emptyTable: "Nenhuma ordem de serviço encontrada",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-                        select: { rows: "" }
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
                     },
-                    columnDefs: [
-                        { orderable: false, className: 'select-checkbox', targets: 0 }
-                    ],
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child',
-                        headerCheckbox: true
-                    },
-                    order: [[3, 'desc']]
+                    order: [[2, 'desc']]
                 });
 
                 // Busca global
@@ -260,23 +238,18 @@
                     table.search(e.target.value).draw();
                 });
 
-                // Filtro de Status
+                // Filtro de Status (Usando Regex para Busca Exata e evitar conflitos)
                 document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(4).search(this.value).draw();
-                });
-
-                // Botão Inativar (Visibilidade)
-                const inativarBtn = document.getElementById("inativarBtn");
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    inativarBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
+                    const val = $.fn.dataTable.util.escapeRegex(this.value);
+                    // O parâmetro true ativa o regex, fazendo ele buscar a palavra exata na coluna
+                    table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
                 });
 
                 // =========================================================================
-                // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+                // INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
                 // =========================================================================
                 document.body.addEventListener('click', function (e) {
+
                     // LINK EDITAR
                     const linkEditar = e.target.closest('a[href^="/ordem-servico/editar/"]');
                     if (linkEditar && !canEdit) {
@@ -302,73 +275,64 @@
                             confirmButtonText: 'Entendido'
                         });
                     }
-                });
 
-                // =========================================================================
-                // 3. AÇÃO INATIVAR (Com Bloqueio e Tratamento de Erro)
-                // =========================================================================
-                inativarBtn.addEventListener('click', function () {
+                    // BOTÃO INATIVAR (LIXEIRA)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
 
-                    if (!canInactivate) {
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para inativar ordens de serviço.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                        return;
-                    }
-
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (listaOrdens[index]) selectedIds.push(listaOrdens[index].id_ordem_servico);
-                    });
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Inativar OS?',
-                        text: `Deseja inativar ${selectedIds.length} ordem(ns) de serviço?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await fetch('/ordem-servico/inativar-multiplos', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify({ ids: selectedIds })
-                                });
-
-                                if (!response.ok) {
-                                    if (response.status === 404) throw new Error('Rota não encontrada (404).');
-                                    if (response.status === 500) throw new Error('Erro interno do servidor (500).');
-                                    if (response.status === 403) {
-                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                        return;
-                                    }
-                                    throw new Error(`Erro desconhecido: ${response.status}`);
-                                }
-
-                                const data = await response.json();
-                                if (data.success) {
-                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('Erro', data.message, 'error');
-                                }
-                            } catch (error) {
-                                Swal.fire('Erro', error.message || 'Falha na comunicação', 'error');
-                            }
+                        if (!canInactivate) {
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para inativar ordens de serviço.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                            return;
                         }
-                    });
+
+                        const osId = btnInativar.getAttribute('data-id');
+
+                        Swal.fire({
+                            title: 'Inativar OS?',
+                            text: `Deseja realmente inativar esta ordem de serviço? Ela sumirá desta lista.`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    const response = await fetch('/ordem-servico/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({ ids: [osId] })
+                                    });
+
+                                    if (!response.ok) {
+                                        if (response.status === 403) {
+                                            Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                            return;
+                                        }
+                                        throw new Error(`Erro de comunicação com o servidor.`);
+                                    }
+
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (error) {
+                                    Swal.fire('Erro', error.message || 'Falha na comunicação', 'error');
+                                }
+                            }
+                        });
+                    }
                 });
             });
 
