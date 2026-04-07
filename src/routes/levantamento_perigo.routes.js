@@ -806,31 +806,54 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.lineWidth(1);
         doc.fontSize(11);
 
-        // Bloco Empresa
-        doc.rect(startX, posY, width, rowHeight).stroke();
-        doc.font('Helvetica-Bold').text('Empresa: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.nome_empresa || '-');
-        doc.font('Helvetica-Bold').text('Data: ', startX + 410, posY + 6, { continued: true }).font('Helvetica').text(dataFormatada);
-        posY += rowHeight;
+        // =========================================================
+        // Bloco Empresa (CORRIGIDO O BUG DA LARGURA DO PDFKIT)
+        // =========================================================
+        const textoEmpresa = levantamento.nome_empresa || '-';
+        
+        // 1. A Data começa no X 410. Então a Empresa tem até 390 de espaço para não bater nela.
+        const larguraMaximaTexto = 390; 
+        
+        // 2. Calculamos qual seria a altura desse texto se ele precisasse quebrar de linha
+        doc.font('Helvetica').fontSize(11);
+        const alturaTextoEmpresa = doc.heightOfString('Empresa: ' + textoEmpresa, { width: larguraMaximaTexto });
+        
+        // 3. A caixa terá no mínimo 20 (rowHeight padrão), ou mais se o texto for muito grande (+12 de margem pra respirar)
+        const alturaCaixaEmpresa = Math.max(rowHeight, alturaTextoEmpresa + 12);
 
+        // 4. Desenha o retângulo com a altura dinâmica
+        doc.rect(startX, posY, width, alturaCaixaEmpresa).stroke();
+
+        // 5. Escreve a Data isolada lá no canto (sem interferir na empresa)
+        doc.font('Helvetica-Bold').text('Data: ', startX + 410, posY + 6, { continued: true }).font('Helvetica').text(dataFormatada);
+
+        // 6. O GRANDE SEGREDO: O { width } fica na primeira chamada de texto (no 'Empresa:')
+        // Assim o PDFKit cria um "bloco invisível" de 390px e obriga o nome a quebrar de linha dentro dele!
+        doc.font('Helvetica-Bold').text('Empresa: ', startX + 5, posY + 6, { continued: true, width: larguraMaximaTexto })
+           .font('Helvetica').text(textoEmpresa);
+
+        // 7. Atualiza o Y adicionando a altura real da caixa, para a próxima linha nascer no lugar certo
+        posY += alturaCaixaEmpresa;
+
+        // =========================================================
+        // Restante do Cabeçalho
+        // =========================================================
         doc.rect(startX, posY, width, rowHeight).stroke();
         doc.font('Helvetica-Bold').text('Responsável pelo levantamento: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.nome_avaliador || '-');
         posY += rowHeight;
 
         doc.rect(startX, posY, width, rowHeight).stroke();
         doc.font('Helvetica-Bold').text('Responsável informações da empresa: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.responsavel_empresa_nome || '-');
-        doc.font('Helvetica-Bold').text('Cargo: ', startX + 350, posY + 6, { continued: true }).font('Helvetica').text(levantamento.responsavel_empresa_cargo || '-');
+        posY += rowHeight;
+
+        doc.rect(startX, posY, width, rowHeight).stroke();
+        doc.font('Helvetica-Bold').text('Cargo do responsável: ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(levantamento.responsavel_empresa_cargo || '-');
         posY += rowHeight;
 
         doc.rect(startX, posY, width, rowHeight).stroke();
         const txtExterno = levantamento.trabalho_externo ? '( X ) Sim   (   ) Não' : '(   ) Sim   ( X ) Não';
         doc.font('Helvetica-Bold').text('Existem trabalhadores executando atividades fora da empresa? ', startX + 5, posY + 6, { continued: true }).font('Helvetica').text(txtExterno);
         posY += rowHeight + 15;
-
-        // Caracterização
-        doc.rect(startX, posY, width, rowHeight).fillAndStroke('black', 'black');
-        doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Caracterização do Ambiente de Trabalho', startX, posY + 5, { width: width, align: 'center' });
-        doc.fillColor('black').fontSize(10);
-        posY += rowHeight;
 
         const ambienteRows = [
             { label: 'Construção', val: formatarCampo(levantamento.tipo_construcao) },
