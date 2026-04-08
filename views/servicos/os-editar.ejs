@@ -373,7 +373,6 @@
                     return `<button type="button" class="btn text-red-500 hover:bg-red-50 p-2 js-remove-row"><span class="icon-[lucide--trash] text-lg"></span></button>`;
                 }
 
-                // Cria uma linha vazia nova
                 function addRow() {
                     const idx = nextIndex++;
                     dtEscopo.row.add([
@@ -388,7 +387,6 @@
                     $(lastTr).attr('data-row-index', idx);
                 }
 
-                // Cria uma linha preenchida com dados do banco
                 function addPreFilledRow(item) {
                     const idx = nextIndex++;
                     dtEscopo.row.add([
@@ -403,11 +401,10 @@
                     $(lastTr).attr('data-row-index', idx);
                 }
 
-                // Carrega os itens iniciais
                 if (escopoSalvo.length > 0) {
                     escopoSalvo.forEach(item => addPreFilledRow(item));
                 } else {
-                    addRow(); // Se não tiver nada, adiciona 1 linha vazia
+                    addRow();
                 }
 
                 $('#btnAddLinha').on('click', addRow);
@@ -429,7 +426,7 @@
                     const servicoId = tr.find(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val();
                     const msg = $('#msgSemResponsavel');
 
-                    dtResponsavel.clear(); // Limpa dados anteriores
+                    dtResponsavel.clear();
 
                     if (!servicoId) {
                         setTimeout(() => {
@@ -463,21 +460,18 @@
                 }
 
                 // --- 6. EVENTOS DE CLIQUE NAS LINHAS DOS MODAIS ---
-                // SERVIÇO
                 $('#table_servico_modal tbody').on('click', 'tr', function () {
                     const id = $(this).attr('data-id');
                     const nome = $(this).attr('data-nome');
                     if (id && currentRowIndex !== null) {
                         $(`input[name="escopo[${currentRowIndex}][servico_id]"]`).val(id);
                         $(`input[name="escopo[${currentRowIndex}][servico_nome]"]`).val(nome);
-                        // Limpa responsável
                         $(`input[name="escopo[${currentRowIndex}][responsavel_id]"]`).val('');
                         $(`input[name="escopo[${currentRowIndex}][responsavel_nome]"]`).val('');
                         bootstrap.Modal.getInstance(document.getElementById('modal_servico')).hide();
                     }
                 });
 
-                // RESPONSÁVEL
                 $('#table_responsavel_modal tbody').on('click', 'tr', function () {
                     const divData = $(this).find('div[data-id]');
                     const id = divData.attr('data-id');
@@ -504,21 +498,9 @@
                     today.setHours(0, 0, 0, 0);
 
                     // ========================================================
-                    // LIMPEZA DE MOEDAS (Força NULL/0 se vazio)
-                    // ========================================================
-                    if (payload.valor_total_contrato && payload.valor_total_contrato.trim() !== '') {
-                        let valorLimpo = payload.valor_total_contrato.replace(/[^\d,]/g, '').replace(',', '.');
-                        payload.valor_total_contrato = parseFloat(valorLimpo) || 0;
-                    } else {
-                        payload.valor_total_contrato = 0;
-                    }
-
-                    if (payload.valor_previsto_fomento && payload.valor_previsto_fomento.trim() !== '') {
-                        let fomentoLimpo = payload.valor_previsto_fomento.replace(/[^\d,]/g, '').replace(',', '.');
-                        payload.valor_previsto_fomento = parseFloat(fomentoLimpo) || 0;
-                    } else {
-                        payload.valor_previsto_fomento = 0;
-                    }
+                    // CORREÇÃO: Limpeza de código maléfico removida! 
+                    // Agora enviamos a string crua que o usuário digitou e 
+                    // deixamos o back-end fazer o trabalho dele em paz.
                     // ========================================================
 
                     $('#table_escopo tbody tr').each(function () {
@@ -548,7 +530,7 @@
                     });
 
                     if (escopo.length === 0) {
-                        Swal.fire('Atenção', 'Adicione pelo menos um serviço completo.', 'warning');
+                        Swal.fire('Atenção', 'Adicione pelo menos um serviço completo no escopo.', 'warning');
                         btn.prop('disabled', false).html(originalText);
                         return;
                     }
