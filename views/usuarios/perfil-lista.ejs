@@ -305,9 +305,22 @@
         </script>
 
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
         <script>
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: false, allowEmptyOption: true });
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    controlInput: null,
+                    onInitialize: function () {
+                    }
+                });
             });
         </script>
 </body>

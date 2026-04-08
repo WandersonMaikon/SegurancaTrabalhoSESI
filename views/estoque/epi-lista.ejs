@@ -173,7 +173,13 @@
                 if ((permEpi.pode_inativar == 1 || permEpi.pode_inativar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canInactivate = true; }
             }
         </script>
-
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 // 1. Ler dados do JSON

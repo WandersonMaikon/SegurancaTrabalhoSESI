@@ -153,7 +153,13 @@
                 }
             }
         </script>
-
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 let listaClientes = [];
@@ -229,7 +235,7 @@
 
                 // Filtro Status
                 const statusFilter = document.getElementById('statusFilter');
-                
+
                 statusFilter.addEventListener('change', function () {
                     const val = $.fn.dataTable.util.escapeRegex(this.value);
                     table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
@@ -336,8 +342,8 @@
             });
 
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { 
-                    create: false, 
+                new TomSelect(select, {
+                    create: false,
                     allowEmptyOption: true,
                     controlInput: null
                 });

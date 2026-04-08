@@ -128,7 +128,13 @@
         <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
         <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
-
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
         <script>
             // Variáveis globais de usuário
             const userEmail = "<%= user.email %>";
@@ -334,7 +340,14 @@
             });
 
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: false, allowEmptyOption: true });
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    controlInput: null,
+                    onInitialize: function () {
+                        this.control.classList.add('!cursor-pointer', 'select-none');
+                    }
+                });
             });
         </script>
 </body>

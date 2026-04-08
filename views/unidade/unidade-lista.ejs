@@ -173,28 +173,13 @@
                 const table = new DataTable('#table_unidades', {
                     lengthChange: false,
                     pageLength: 10,
-                    scrollX: true,
                     dom: 'lrtip',
                     language: {
                         emptyTable: "Nenhuma unidade encontrada",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-                        select: { rows: "" }
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
                     },
-                    columnDefs: [
-                        {
-                            orderable: false,
-                            searchable: false,
-                            render: DataTable.render.select(), // IGUAL SERVIÇOS
-                            targets: 0,
-                        }
-                    ],
-                    select: {
-                        style: 'os', // IGUAL SERVIÇOS
-                        selector: 'td:first-child',
-                        headerCheckbox: false // IGUAL SERVIÇOS
-                    },
-                    order: [[1, 'asc']]
+                    order: [[0, 'asc']]
                 });
 
                 const searchInput = document.getElementById('unidadeSearch');
@@ -311,9 +296,22 @@
         </script>
 
         <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
         <script>
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: false, allowEmptyOption: true });
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    controlInput: null,
+                    onInitialize: function () {
+                    }
+                });
             });
         </script>
 </body>

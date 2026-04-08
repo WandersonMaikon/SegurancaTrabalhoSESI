@@ -158,7 +158,13 @@
         }
       }
     </script>
-
+    <style>
+      .ts-wrapper .ts-control,
+      .ts-wrapper .ts-control *,
+      .ts-wrapper .ts-control input {
+        cursor: pointer !important;
+      }
+    </style>
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         let listaServicos = [];
@@ -323,7 +329,16 @@
         });
       });
 
-      document.querySelectorAll('.js-select').forEach(s => new TomSelect(s, { create: false }));
+      document.querySelectorAll('.js-select').forEach(select => {
+        new TomSelect(select, {
+          create: false,
+          allowEmptyOption: true,
+          controlInput: null,
+          onInitialize: function () {
+            this.control.classList.add('!cursor-pointer', 'select-none');
+          }
+        });
+      });
     </script>
 </body>
 
