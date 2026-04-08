@@ -22,7 +22,9 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
         let query = `
-            SELECT c.*, u.nome_fantasia as nome_unidade
+            SELECT c.*, 
+                   IF(CHAR_LENGTH(c.nome_empresa) > 30, CONCAT(LEFT(c.nome_empresa, 30), '...'), c.nome_empresa) AS nome_empresa_curto,
+                   u.nome_fantasia as nome_unidade
             FROM cliente c
             JOIN unidade u ON c.id_unidade = u.id_unidade
             WHERE c.deleted_at IS NULL 
@@ -49,7 +51,6 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         res.status(500).send("Erro ao carregar clientes.");
     }
 });
-
 // --- FORMULÁRIO DE NOVO CLIENTE ---
 router.get("/novo", verificarAutenticacao, async (req, res) => {
     try {

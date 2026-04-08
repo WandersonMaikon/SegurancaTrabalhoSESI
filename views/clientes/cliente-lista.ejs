@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="/css/style.css" />
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -59,11 +58,6 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtn" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display: none;">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
-                                    </button>
-
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
                                             <option value="">Todos</option>
@@ -85,7 +79,6 @@
                                 <table id="table_customers" class="table-default w-full">
                                     <thead>
                                         <tr>
-                                            <th></th>
                                             <th class="text-nowrap">Nome da Empresa</th>
                                             <th class="text-nowrap">CNPJ</th>
                                             <th class="text-nowrap">Localização</th>
@@ -115,8 +108,6 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
@@ -124,7 +115,7 @@
             const userEmail = "<%= user.email %>";
             const userPerfilNome = "<%= user.nome_perfil %>";
 
-            // LER AS PERMISSÕES DA DIV OCULTA (VS Code não reclama e EJS não quebra)
+            // LER AS PERMISSÕES DA DIV OCULTA
             let permClientes = {};
             try {
                 const divPerm = document.getElementById('permissoes-clientes-json');
@@ -179,7 +170,6 @@
                 // Renderiza as linhas SOMENTE se houver dados
                 listaClientes.forEach((cliente, index) => {
                     const tr = document.createElement('tr');
-                    tr.setAttribute('data-index', index);
 
                     const statusHtml = (Number(cliente.ativo) === 1)
                         ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
@@ -189,15 +179,17 @@
                         ? `${cliente.cidade} - ${cliente.estado}`
                         : (cliente.cidade || '-');
 
+                    // Tiramos o <td></td> vazio do começo
                     tr.innerHTML = `
-                        <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                            ${cliente.nome_empresa || 'Sem Nome'}
+                        <td class="font-semibold text-zinc-900 dark:text-white align-middle">
+                            <span title="${cliente.nome_empresa}" class="cursor-help">
+                                ${cliente.nome_empresa_curto || 'Sem Nome'}
+                            </span>
                         </td>
-                        <td class="whitespace-nowrap">${cliente.cnpj || '-'}</td>
-                        <td class="whitespace-nowrap">${localizacao}</td>
-                        <td>${statusHtml}</td>
-                        <td>
+                        <td class="whitespace-nowrap align-middle">${cliente.cnpj || '-'}</td>
+                        <td class="whitespace-nowrap align-middle">${localizacao}</td>
+                        <td class="align-middle">${statusHtml}</td>
+                        <td class="align-middle">
                             <div class="flex items-center gap-1 relative z-[1]">
                                 <a href="/clientes/ver/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Visualizar">
                                     <span class="icon-[lucide--eye] text-lg"></span>
@@ -206,6 +198,10 @@
                                 <a href="/clientes/editar/${cliente.id_cliente}" class="btn !p-1.5 hover:!text-primary" title="Editar">
                                     <span class="icon-[lucide--edit] text-lg"></span>
                                 </a>
+
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${cliente.id_cliente}" title="Inativar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
                             </div>
                         </td>
                     `;
@@ -216,23 +212,14 @@
                 const table = new DataTable('#table_customers', {
                     lengthChange: false,
                     pageLength: 10,
-                    scrollX: true,
+                    // scrollX: true, <--- APAGUE ESTA LINHA!
                     dom: 'lrtip',
                     language: {
                         emptyTable: "Nenhum cliente encontrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-                        select: { rows: "" }
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
                     },
-                    columnDefs: [
-                        { orderable: false, className: 'select-checkbox', targets: 0 }
-                    ],
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child',
-                        headerCheckbox: true
-                    },
-                    order: [[1, 'asc']]
+                    order: [[0, 'asc']]
                 });
 
                 // Busca
@@ -240,23 +227,26 @@
                     table.search(e.target.value).draw();
                 });
 
-                // Botão Inativar
-                const deleteBtn = document.getElementById("deleteBtn");
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
+                // Filtro Status
+                const statusFilter = document.getElementById('statusFilter');
+                
+                statusFilter.addEventListener('change', function () {
+                    const val = $.fn.dataTable.util.escapeRegex(this.value);
+                    table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
                 });
 
-                // Filtro Status
-                document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(4).search(this.value).draw();
-                });
+                // Como o seu HTML já vem com "Ativo" selecionado por padrão,
+                // forçamos o DataTables a já começar filtrado corretamente!
+                if (statusFilter.value) {
+                    const val = $.fn.dataTable.util.escapeRegex(statusFilter.value);
+                    table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
+                }
 
                 // =========================================================================
-                // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+                // INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
                 // =========================================================================
                 document.body.addEventListener('click', function (e) {
+
                     // LINK EDITAR
                     const linkEditar = e.target.closest('a[href^="/clientes/editar/"]');
                     if (linkEditar && !canEdit) {
@@ -282,83 +272,75 @@
                             confirmButtonText: 'Entendido'
                         });
                     }
-                });
 
-                // =========================================================================
-                // 3. AÇÃO INATIVAR (Com Bloqueio)
-                // =========================================================================
-                deleteBtn.addEventListener('click', function () {
+                    // BOTÃO INATIVAR (LIXEIRA)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
 
-                    if (!canInactivate) {
+                        if (!canInactivate) {
+                            Swal.fire({
+                                title: 'Acesso Negado',
+                                text: 'Você não tem permissão para inativar clientes.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b',
+                                confirmButtonText: 'Entendido'
+                            });
+                            return;
+                        }
+
+                        const clienteId = btnInativar.getAttribute('data-id');
+
                         Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para inativar clientes.',
+                            title: 'Inativar Cliente?',
+                            text: `Tem certeza que deseja inativar este cliente?`,
                             icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                        return;
-                    }
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    // Continua mandando pra mesma rota, mas com 1 ID só
+                                    const response = await fetch('/clientes/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({ ids: [clienteId] })
+                                    });
 
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (index !== null && listaClientes[index]) {
-                            const c = listaClientes[index];
-                            selectedIds.push(c.id_cliente);
-                        }
-                    });
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Tem certeza?',
-                        text: `Você vai inativar ${selectedIds.length} cliente(s).`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await fetch('/clientes/inativar-multiplos', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify({ ids: selectedIds })
-                                });
-
-                                if (!response.ok) {
-                                    if (response.status === 404) throw new Error('Rota não encontrada (404).');
-                                    if (response.status === 500) throw new Error('Erro interno do servidor (500).');
-                                    if (response.status === 403) {
-                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                        return;
+                                    if (!response.ok) {
+                                        if (response.status === 403) {
+                                            Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                            return;
+                                        }
+                                        throw new Error(`Erro de comunicação com o servidor.`);
                                     }
-                                    throw new Error(`Erro desconhecido: ${response.status}`);
-                                }
 
-                                const data = await response.json();
-                                if (data.success) {
-                                    Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('Erro', data.message, 'error');
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (error) {
+                                    console.error(error);
+                                    Swal.fire('Erro', error.message || 'Falha na comunicação.', 'error');
                                 }
-                            } catch (error) {
-                                console.error(error);
-                                Swal.fire('Erro', error.message || 'Falha na comunicação.', 'error');
                             }
-                        }
-                    });
+                        });
+                    }
                 });
             });
 
             document.querySelectorAll('.js-select').forEach(select => {
-                new TomSelect(select, { create: false, allowEmptyOption: true });
+                new TomSelect(select, { 
+                    create: false, 
+                    allowEmptyOption: true,
+                    controlInput: null
+                });
             });
         </script>
 </body>
