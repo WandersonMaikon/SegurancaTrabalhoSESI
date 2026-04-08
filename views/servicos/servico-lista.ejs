@@ -17,7 +17,6 @@
   <link rel="stylesheet" href="/css/style.css" />
 
   <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
   <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -57,11 +56,6 @@
                 </div>
 
                 <div class="flex items-center flex-wrap justify-end gap-2">
-                  <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
-                    style="display: none;">
-                    Inativar Selecionados
-                  </button>
-
                   <div class="flex-grow w-56 sm:w-auto">
                     <select id="statusFilter" class="js-select w-full sm:w-56">
                       <option value="">Todos</option>
@@ -83,7 +77,6 @@
                 <table id="table_servicos" class="table-default w-full">
                   <thead>
                     <tr>
-                      <th></th>
                       <th class="text-nowrap">Nome do serviço</th>
                       <th class="text-nowrap">Status</th>
                       <th class="text-nowrap" data-orderable="false">Ações</th>
@@ -108,11 +101,17 @@
       <%- JSON.stringify(user.permissoes && user.permissoes['servicos'] ? user.permissoes['servicos'] : {}) %>
     </div>
 
+    <style>
+      .ts-wrapper .ts-control,
+      .ts-wrapper .ts-control *,
+      .ts-wrapper .ts-control input {
+        cursor: pointer !important;
+      }
+    </style>
+
     <script src="/js/theme.js"></script>
     <script src="/vendor/js/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-    <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
     <script src="/vendor/js/sweetalert2.all.min.js"></script>
     <script src="/vendor/js/tom-select.complete.min.js"></script>
 
@@ -141,30 +140,12 @@
         canCreate = true;
         canInactivate = true;
       } else {
-        // Permissão para Editar
-        if ((permServicos.pode_editar == 1 || permServicos.pode_editar === true) ||
-          (permServicos.tudo == 1 || permServicos.tudo === true)) {
-          canEdit = true;
-        }
-        // Permissão para Criar
-        if ((permServicos.pode_criar == 1 || permServicos.pode_criar === true) ||
-          (permServicos.tudo == 1 || permServicos.tudo === true)) {
-          canCreate = true;
-        }
-        // Permissão para Inativar
-        if ((permServicos.pode_inativar == 1 || permServicos.pode_inativar === true) ||
-          (permServicos.tudo == 1 || permServicos.tudo === true)) {
-          canInactivate = true;
-        }
+        if ((permServicos.pode_editar == 1 || permServicos.pode_editar === true) || (permServicos.tudo == 1 || permServicos.tudo === true)) canEdit = true;
+        if ((permServicos.pode_criar == 1 || permServicos.pode_criar === true) || (permServicos.tudo == 1 || permServicos.tudo === true)) canCreate = true;
+        if ((permServicos.pode_inativar == 1 || permServicos.pode_inativar === true) || (permServicos.tudo == 1 || permServicos.tudo === true)) canInactivate = true;
       }
     </script>
-    <style>
-      .ts-wrapper .ts-control,
-      .ts-wrapper .ts-control *,
-      .ts-wrapper .ts-control input {
-        cursor: pointer !important;
-      }
-    </style>
+
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         let listaServicos = [];
@@ -180,63 +161,67 @@
 
         listaServicos.forEach((s, index) => {
           const tr = document.createElement('tr');
-          tr.setAttribute('data-index', index);
 
           const statusHtml = s.ativo
             ? '<span class="badge bg-green-500/10 text-green-500">Ativo</span>'
             : '<span class="badge bg-zinc-500/10 text-zinc-500">Inativo</span>';
 
           tr.innerHTML = `
-                    <td></td>
-                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${s.nome_servico}</td>
-                    <td>${statusHtml}</td>
-                    <td>
-                        <div class="flex items-center gap-1 relative z-[1]">
-                            <a href="/servicos/ver/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Ver">
-                                <span class="icon-[lucide--eye] text-lg"></span>
-                            </a>
-                            <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
-                                <span class="icon-[lucide--edit] text-lg"></span>
-                            </a>
-                        </div>
-                    </td>
-                `;
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white align-middle">${s.nome_servico}</td>
+                        <td class="align-middle">${statusHtml}</td>
+                        <td class="align-middle">
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/servicos/ver/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Ver">
+                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                </a>
+                                <a href="/servicos/editar/${s.id_servico}" class="btn !p-1.5 hover:!text-primary" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${s.id_servico}" title="Inativar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
+                            </div>
+                        </td>
+                    `;
           tbody.appendChild(tr);
         });
 
         const table = new DataTable('#table_servicos', {
           lengthChange: false,
           pageLength: 10,
-          scrollX: true,
-          dom: 'lrtip',
+          dom: 'lrtip', // scrollX removido
           language: {
             emptyTable: "Nenhum serviço encontrado",
             info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" },
-            select: { rows: "" }
+            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
           },
-          columnDefs: [{ orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }],
-          select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
-          order: [[1, 'asc']],
+          order: [[0, 'asc']] // Checkbox sumiu, então ordena pela primeira coluna (0)
         });
 
-        document.getElementById('servicoSearch').addEventListener('input', e => { table.search(e.target.value).draw(); });
-
-        // Ajustado para o índice 2 (Coluna Status)
-        document.getElementById('statusFilter').addEventListener('change', function () { table.columns(2).search(this.value).draw(); });
-
-        // Botão Inativar (Controle de Visibilidade)
-        const inativarBtn = document.getElementById("inativarBtn");
-        table.on('select deselect', function () {
-          const count = table.rows({ selected: true }).count();
-          inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-          inativarBtn.innerText = `Inativar Selecionados (${count})`;
+        // Busca
+        document.getElementById('servicoSearch').addEventListener('input', e => {
+          table.search(e.target.value).draw();
         });
+
+        // Filtro Status (Corrigido para busca EXATA e atualizado para a coluna 1)
+        const statusFilter = document.getElementById('statusFilter');
+        statusFilter.addEventListener('change', function () {
+          const val = $.fn.dataTable.util.escapeRegex(this.value);
+          // Como apagamos o checkbox, o status é a coluna 1
+          table.columns(1).search(val ? '^' + val + '$' : '', true, false).draw();
+        });
+
+        // Dispara o filtro inicial caso o "Ativo" já esteja selecionado no HTML
+        if (statusFilter.value) {
+          const val = $.fn.dataTable.util.escapeRegex(statusFilter.value);
+          table.columns(1).search(val ? '^' + val + '$' : '', true, false).draw();
+        }
 
         // =========================================================================
-        // 2. INTERCEPTADOR DE CLIQUES (EDITAR E NOVO)
+        // INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
         // =========================================================================
         document.body.addEventListener('click', function (e) {
+
           // LINK EDITAR
           const linkEditar = e.target.closest('a[href^="/servicos/editar/"]');
           if (linkEditar && !canEdit) {
@@ -262,70 +247,66 @@
               confirmButtonText: 'Entendido'
             });
           }
-        });
 
-        // =========================================================================
-        // 3. AÇÃO INATIVAR (Com Bloqueio de Permissão)
-        // =========================================================================
-        inativarBtn.addEventListener('click', () => {
+          // BOTÃO INATIVAR (LIXEIRA)
+          const btnInativar = e.target.closest('.btn-inativar');
+          if (btnInativar) {
+            e.preventDefault();
 
-          if (!canInactivate) {
-            Swal.fire({
-              title: 'Acesso Negado',
-              text: 'Você não tem permissão para inativar serviços.',
-              icon: 'warning',
-              confirmButtonColor: '#f59e0b',
-              confirmButtonText: 'Entendido'
-            });
-            return;
-          }
-
-          const selectedRows = table.rows({ selected: true }).nodes();
-          const ids = [];
-          selectedRows.each(function (row) {
-            const index = row.getAttribute('data-index');
-            if (listaServicos[index]) ids.push(listaServicos[index].id_servico);
-          });
-
-          if (ids.length === 0) return;
-
-          Swal.fire({
-            title: 'Tem certeza?',
-            text: `Deseja inativar ${ids.length} serviço(s)?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sim, inativar',
-            cancelButtonText: 'Cancelar'
-          }).then(async (result) => {
-            if (result.isConfirmed) {
-              try {
-                const res = await fetch('/servicos/inativar-multiplos', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ ids })
-                });
-
-                // Tratamento de Erro do Fetch
-                if (!res.ok) {
-                  if (res.status === 403) {
-                    Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor.', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                    return;
-                  }
-                  throw new Error(`Erro: ${res.status}`);
-                }
-
-                const data = await res.json();
-                if (data.success) {
-                  Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
-                } else {
-                  Swal.fire('Erro', data.message, 'error');
-                }
-              } catch (err) {
-                console.error(err);
-                Swal.fire('Erro', 'Falha na comunicação com o servidor.', 'error');
-              }
+            if (!canInactivate) {
+              Swal.fire({
+                title: 'Acesso Negado',
+                text: 'Você não tem permissão para inativar serviços.',
+                icon: 'warning',
+                confirmButtonColor: '#f59e0b',
+                confirmButtonText: 'Entendido'
+              });
+              return;
             }
-          });
+
+            const servicoId = btnInativar.getAttribute('data-id');
+
+            Swal.fire({
+              title: 'Inativar Serviço?',
+              text: `Tem certeza que deseja inativar este serviço?`,
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sim, inativar',
+              cancelButtonText: 'Cancelar'
+            }).then(async (result) => {
+              if (result.isConfirmed) {
+                try {
+                  // Continua mandando pra rota múltipla, mas passando um array com 1 ID
+                  const response = await fetch('/servicos/inativar-multiplos', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ ids: [servicoId] })
+                  });
+
+                  if (!response.ok) {
+                    if (response.status === 403) {
+                      Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                      return;
+                    }
+                    throw new Error(`Erro de comunicação com o servidor.`);
+                  }
+
+                  const data = await response.json();
+                  if (data.success) {
+                    Swal.fire('Sucesso!', data.message, 'success').then(() => location.reload());
+                  } else {
+                    Swal.fire('Erro', data.message, 'error');
+                  }
+                } catch (error) {
+                  console.error(error);
+                  Swal.fire('Erro', error.message || 'Falha na comunicação.', 'error');
+                }
+              }
+            });
+          }
         });
       });
 
@@ -333,7 +314,7 @@
         new TomSelect(select, {
           create: false,
           allowEmptyOption: true,
-          controlInput: null,
+          controlInput: null, // Desliga o teclado
           onInitialize: function () {
             this.control.classList.add('!cursor-pointer', 'select-none');
           }

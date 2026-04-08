@@ -35,23 +35,25 @@
                                             <input type="text" class="input h-10 w-full bg-zinc-100"
                                                 value="<%= servico.ativo ? 'Ativo' : 'Inativo' %>" disabled>
                                         </div>
+
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium">Responsáveis</label>
-                                            <div class="bg-zinc-100 p-3 rounded border border-zinc-200 min-h-[42px]">
+                                            <div
+                                                class="bg-zinc-100 p-3 rounded border border-zinc-200 min-h-[42px] flex flex-wrap gap-2 items-center">
                                                 <% if (listaResponsaveis && listaResponsaveis.length> 0) { %>
-                                                    <ul class="list-disc list-inside">
-                                                        <% listaResponsaveis.forEach(r=> { %>
-                                                            <li>
-                                                                <%= r.nome_completo %>
-                                                            </li>
-                                                            <% }) %>
-                                                    </ul>
-                                                    <% } else { %>
-                                                        <span class="text-zinc-400 italic">Nenhum responsável
-                                                            vinculado.</span>
-                                                        <% } %>
+                                                    <% listaResponsaveis.forEach(r=> { %>
+                                                        <span
+                                                            class="inline-flex items-center px-3 py-1 rounded bg-white border border-zinc-300 text-sm text-zinc-700 shadow-sm cursor-default">
+                                                            <%= r.nome_completo %>
+                                                        </span>
+                                                        <% }) %>
+                                                            <% } else { %>
+                                                                <span class="text-zinc-400 italic">Nenhum responsável
+                                                                    vinculado.</span>
+                                                                <% } %>
                                             </div>
                                         </div>
+
                                         <div class="w-full max-w-2xl">
                                             <label class="mb-2 block font-medium">Descrição</label>
                                             <textarea class="input w-full py-2 bg-zinc-100" rows="3"
