@@ -329,12 +329,14 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
             SELECT setor, cargos, nome_trabalhador_excecao AS excecao, observacoes AS obs 
             FROM levantamento_ges 
             WHERE id_levantamento = ?
+            ORDER BY ordem ASC
         `, [id]);
 
         const [quimicos] = await db.query(`
             SELECT nome_rotulo AS rotulo, estado_fisico AS estado, tipo_exposicao AS exposicao, processo_quantidade AS processo, observacoes AS obs 
             FROM levantamento_quimico 
             WHERE id_levantamento = ?
+            ORDER BY ordem ASC
         `, [id]);
 
         const [riscos] = await db.query(`
@@ -348,6 +350,7 @@ router.get("/ver/:id", verificarAutenticacao, async (req, res) => {
             LEFT JOIN risco r ON lri.id_risco = r.id_risco
             LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
             WHERE lri.id_levantamento = ?
+            ORDER BY lri.ordem ASC
         `, [id]);
 
         for (let risco of riscos) {
