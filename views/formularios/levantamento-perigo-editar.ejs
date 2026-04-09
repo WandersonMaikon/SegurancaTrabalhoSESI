@@ -1477,7 +1477,9 @@
             <td class="pl-6 pr-2 py-3"><input type="text" class="table-input quim-rotulo font-medium" placeholder="Nome do produto"></td>
             <td class="px-2 py-3">
                 <select class="table-input quim-estado cursor-pointer bg-transparent">
-                    <option value="Líquido">Líquido</option><option value="Sólido">Sólido</option><option value="Gasoso">Gasoso</option>
+                    <option value="Líquido">Líquido</option>
+                    <option value="Sólido">Sólido</option>
+                    <option value="Gasoso">Gasoso</option>
                 </select>
             </td>
             <td class="px-2 py-3"><input type="text" class="table-input quim-exposicao" placeholder="Ex: Cutânea"></td>
@@ -1523,9 +1525,10 @@
             }
 
             // ==========================================
-            // SELECIONAR RISCO (CORRIGIDO: Sem Acordeões, Preserva Ordem Cronológica)
+            // SELECIONAR RISCO (RESTAURADO: Com Acordeões agrupadores originais)
             // ==========================================
             function selecionarRiscoParaTela(id_risco, codigo, nome, grupo, isPreload = false) {
+                // Tenta fechar o Modal se não for preload
                 if (!isPreload) {
                     const modalRiscosEl = document.getElementById('modalRiscos');
                     if (modalRiscosEl) {
@@ -1534,79 +1537,98 @@
                     }
                 }
 
+                const grupoSafe = grupo || 'Indefinido';
+                const grupoId = 'grupo_' + grupoSafe.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '_').toLowerCase();
                 let containerDinamico = document.getElementById('container_riscos_dinamicos');
+                let accordionGrupo = document.getElementById(grupoId);
 
-                // Impede duplicados
-                if (containerDinamico.querySelector(`[data-id_risco="${id_risco}"]`)) {
+                // Cria o grupo (Acordeão) se ele não existir
+                if (!accordionGrupo) {
+                    accordionGrupo = document.createElement('div');
+                    accordionGrupo.id = grupoId;
+                    accordionGrupo.className = 'border border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden mt-4';
+
+                    let corBorda = 'border-zinc-500';
+                    if (grupoSafe.toLowerCase().includes('físico')) corBorda = 'border-green-500';
+                    else if (grupoSafe.toLowerCase().includes('químico')) corBorda = 'border-red-500';
+                    else if (grupoSafe.toLowerCase().includes('biológico')) corBorda = 'border-amber-700';
+                    else if (grupoSafe.toLowerCase().includes('ergonômico')) corBorda = 'border-yellow-500';
+                    else if (grupoSafe.toLowerCase().includes('mecânico') || grupoSafe.toLowerCase().includes('acidente')) corBorda = 'border-sky-500';
+
+                    accordionGrupo.innerHTML = `
+                    <button type="button" 
+                        class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
+                        onclick="toggleAccordion('acc_${grupoId}')">
+                        ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+                    </button>
+                    <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
+                        <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
+                    </div>
+                    `;
+                    containerDinamico.appendChild(accordionGrupo);
+                }
+
+                const gridRiscos = accordionGrupo.querySelector('.grid-riscos');
+
+                // Impede riscos duplicados
+                if (gridRiscos.querySelector(`[data-id_risco="${id_risco}"]`)) {
                     if (!isPreload) Swal.fire('Atenção', 'Este risco já foi adicionado!', 'warning');
                     return;
                 }
-
-                const grupoSafe = grupo || 'Indefinido';
-                let corBorda = 'border-zinc-200';
-                const gLow = grupoSafe.toLowerCase();
-
-                if (gLow.includes('físico')) corBorda = 'border-green-500';
-                else if (gLow.includes('químico')) corBorda = 'border-red-500';
-                else if (gLow.includes('biológico')) corBorda = 'border-amber-700';
-                else if (gLow.includes('ergonômico')) corBorda = 'border-yellow-500';
-                else if (gLow.includes('mecânico') || gLow.includes('acidente')) corBorda = 'border-sky-500';
 
                 const optionsEPI = document.getElementById('tpl-epis').innerHTML;
                 const optionsEPC = document.getElementById('tpl-epcs').innerHTML;
 
                 const riskItem = document.createElement('div');
-                riskItem.className = `risk-item border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 bg-white dark:bg-zinc-900 border-l-4 ${corBorda} shadow-sm`;
+                riskItem.className = 'risk-item border border-zinc-100 dark:border-zinc-800 rounded-lg p-4 bg-zinc-50/50 dark:bg-zinc-900/50';
 
                 riskItem.innerHTML = `
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
-                    <label class="inline-flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" class="input-checkbox risk-checkbox mt-1" checked
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="input-checkbox risk-checkbox" checked
                             data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" 
                             onchange="toggleRiskDetail(this)">
-                        <div class="flex flex-col">
-                            <span class="font-bold text-zinc-800 dark:text-zinc-100 text-lg leading-tight">${nome}</span>
-                            <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider mt-1">${grupoSafe}</span>
-                        </div>
+                        <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
                     </label>
-                    <button type="button" onclick="removerRiscoDaTela(this)" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-3 sm:mt-0 px-3 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 rounded-lg">
+                    <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
                         <span class="icon-[lucide--trash]"></span> Remover
                     </button>
                 </div>
-                
-                <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-5">
+        
+                <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
                         <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
                         <input type="text" placeholder="Ex: Intermitente..." class="table-input w-full text-sm risk-tempo">
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
                         <select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select>
                     </div>
                     <div>
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">EPCs Existentes</label>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
                         <select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select>
                     </div>
+                    
                     <div>
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
-                        <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-50 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-lg cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
+                        <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 rounded cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
                             <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
                             <input type="file" accept="image/*" class="hidden risk-imagem" 
                                 onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
                         </label>
                     </div>
                     <div class="md:col-span-2">
-                        <label class="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1 block">Observações</label>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
                         <input type="text" placeholder="Observações adicionais..." class="table-input w-full text-sm risk-obs">
                     </div>
                 </div>
                 `;
 
-                containerDinamico.appendChild(riskItem);
+                gridRiscos.appendChild(riskItem);
 
                 riskItem.querySelectorAll('select.select-plugin').forEach(s => {
                     if (!s.tomselect) new TomSelect(s, { plugins: ['remove_button'] });
@@ -1615,14 +1637,24 @@
                 if (!isPreload) {
                     riskItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     Swal.fire({
-                        toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado!',
+                        toast: true, position: 'top-end', icon: 'success', title: 'Risco adicionado ao formulário',
                         showConfirmButton: false, timer: 1500
                     });
                 }
             }
 
-            function removerRiscoDaTela(botao) {
-                botao.closest('.risk-item').remove();
+            // ==========================================
+            // REMOVER RISCO DA TELA E DELETAR ACORDEÃO VAZIO
+            // ==========================================
+            function removerRiscoDaTela(botao, grupoId) {
+                const riskItem = botao.closest('.risk-item');
+                const gridRiscos = riskItem.parentNode;
+                riskItem.remove();
+
+                if (gridRiscos.children.length === 0) {
+                    const grupoEl = document.getElementById(grupoId);
+                    if(grupoEl) grupoEl.remove();
+                }
             }
 
             function limparBuscaRiscos() {

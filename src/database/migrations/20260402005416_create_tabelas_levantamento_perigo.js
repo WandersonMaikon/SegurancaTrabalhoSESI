@@ -96,6 +96,8 @@ exports.up = function(knex) {
       table.string('tipo_tempo_exposicao', 255);
       table.string('anexo_imagem', 255).nullable();
       table.text('observacoes');
+
+      table.integer('ordem').defaultTo(0);
       
       table.foreign('id_levantamento').references('id_levantamento').inTable('levantamento_perigo').onDelete('CASCADE');
       table.foreign('id_risco').references('id_risco').inTable('risco');

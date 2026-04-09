@@ -51,12 +51,16 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
+        // Adicionado o IF para encurtar o nome da empresa em 30 caracteres
         let query = `
             SELECT 
                 l.id_levantamento, 
                 l.data_levantamento, 
                 l.created_at,
+                l.nome_grupo_ges,
                 c.nome_empresa, 
+                IF(CHAR_LENGTH(c.nome_empresa) > 30, CONCAT(LEFT(c.nome_empresa, 30), '...'), c.nome_empresa) AS nome_empresa_curto,
+                c.cidade,
                 u.nome_completo as nome_responsavel
             FROM levantamento_perigo l
             JOIN cliente c ON l.id_cliente = c.id_cliente
@@ -75,10 +79,20 @@ router.get("/", verificarAutenticacao, async (req, res) => {
 
         const [levantamentos] = await db.query(query, params);
 
-        const levantamentosFormatados = levantamentos.map(l => ({
-            ...l,
-            data_formatada: new Date(l.data_levantamento).toLocaleDateString('pt-BR')
-        }));
+        const levantamentosFormatados = levantamentos.map(l => {
+            // Lógica para pegar apenas o Primeiro e Segundo nome
+            let nomeCurto = '-';
+            if (l.nome_responsavel) {
+                const partes = l.nome_responsavel.trim().split(' ');
+                nomeCurto = partes.slice(0, 2).join(' '); // Pega os dois primeiros pedaços
+            }
+
+            return {
+                ...l,
+                nome_responsavel_curto: nomeCurto,
+                data_formatada: new Date(l.data_levantamento).toLocaleDateString('pt-BR')
+            };
+        });
 
         res.render("formularios/levantamento-perigo-lista", {
             user: req.session.user,
@@ -184,7 +198,7 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
         await conn.query(sqlLevantamento, [
             id_levantamento, id_unidade, data.id_cliente, data.data_levantamento,
             data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
-            data.nome_grupo_ges || null, // Recebendo o valor
+            data.nome_grupo_ges || null, 
             toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, toJson(data.divisoes_internas_material),
             toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0,
             toJson(data.escadas_tipo), toJson(data.passarelas_tipo), JSON.stringify(data.estruturas_auxiliares || []),
@@ -198,21 +212,29 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
             data.assinatura_responsavel_empresa || null
         ]);
 
+        // ========================================================
+        // CORREÇÃO: Salvando o GES com a coluna de ORDEM
+        // ========================================================
         if (data.ges && Array.isArray(data.ges)) {
-            for (const g of data.ges) {
+            for (let i = 0; i < data.ges.length; i++) {
+                const g = data.ges[i];
                 await conn.query(`
-                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, g.setor, g.cargos, g.excecao, g.obs || null]);
+                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes, ordem)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id_levantamento, g.setor, g.cargos, g.excecao, g.obs || null, i]);
             }
         }
 
+        // ========================================================
+        // CORREÇÃO: Salvando os Químicos com a coluna de ORDEM
+        // ========================================================
         if (data.quimicos && Array.isArray(data.quimicos)) {
-            for (const q of data.quimicos) {
+            for (let i = 0; i < data.quimicos.length; i++) {
+                const q = data.quimicos[i];
                 await conn.query(`
-                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]); 
+                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes, ordem)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id_levantamento, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null, i]);
             }
         }
 
@@ -228,11 +250,11 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
                 await conn.query(`
                     INSERT INTO levantamento_risco_identificado (
                         id_risco_identificado, id_levantamento, id_risco, grupo_perigo, codigo_perigo, 
-                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem, ordem
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
                     id_risco_identificado, id_levantamento,
-                    r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem
+                    r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem, i
                 ]);
 
                 if (r.epis && Array.isArray(r.epis)) {
@@ -279,7 +301,6 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
     } finally {
         conn.release();
     }
-    
 });
 
 // --- 4. VISUALIZAR DETALHES (GET) ---
@@ -413,13 +434,12 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
             WHERE r.deleted_at IS NULL
         `);
 
-        // 3. Busca nas tabelas filhas (GES, Químicos)
-        const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ?", [id]);
-        const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ?", [id]);
-        
+        // 3. Busca nas tabelas filhas (GES, Químicos) 
+        const [ges] = await db.query("SELECT * FROM levantamento_ges WHERE id_levantamento = ? ORDER BY ordem ASC", [id]);
+        const [quimicos] = await db.query("SELECT * FROM levantamento_quimico WHERE id_levantamento = ? ORDER BY ordem ASC", [id]);
+
         // ========================================================
-        // CORREÇÃO: Buscando os riscos salvos com os nomes das propriedades (AS)
-        // que o Front-end espera (fontes, tempo, obs, codigo_esocial)
+        // Buscando os riscos salvos na ORDEM cronológica
         // ========================================================
         const [riscos] = await db.query(`
             SELECT 
@@ -436,6 +456,7 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
             LEFT JOIN risco r ON lri.id_risco = r.id_risco
             LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
             WHERE lri.id_levantamento = ?
+            ORDER BY lri.ordem ASC 
         `, [id]);
 
         // Busca EPIs e EPCs atrelados a cada risco
@@ -452,17 +473,17 @@ router.get("/editar/:id", verificarAutenticacao, async (req, res) => {
         // ========================================================
         levantamento.riscos = riscos;
 
-        res.render("formularios/levantamento-perigo-editar", { 
+        res.render("formularios/levantamento-perigo-editar", {
             user: userLogado,
             currentPage: 'levantamento-perigos',
             clientes, usuarios, epis, epcs, todosRiscos,
-            
+
             // Dados brutos para o HTML/EJS
             levantamento: levantamento, // Agora isso aqui tem os riscos lá dentro!
-            ges: ges, 
+            ges: ges,
             quimicos: quimicos,
             riscos: riscos,
-            riscosJson: JSON.stringify(riscos) 
+            riscosJson: JSON.stringify(riscos)
         });
 
     } catch (error) {
@@ -493,12 +514,12 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
             'id_cliente', 'id_responsavel_tecnico', 'trabalho_externo', 'nome_grupo_ges',
             'area_m2', 'pe_direito_m', 'ausencia_risco_ambiental', 'obs_condicoes_gerais'
         ];
-        
+
         const alteracoesRealizadas = {};
         camposParaComparar.forEach(campo => {
             let valorAntigo = dadosAntigos[campo] !== null ? dadosAntigos[campo].toString() : null;
             let valorNovo = data[campo] !== undefined && data[campo] !== null ? data[campo].toString() : null;
-            
+
             if (campo.startsWith('ausencia_') || campo === 'trabalho_externo') {
                 valorNovo = data[campo] ? "1" : "0";
             }
@@ -525,13 +546,13 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
         await conn.query(sqlUpdate, [
             data.id_cliente, data.data_levantamento, data.id_responsavel_tecnico,
             data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
-            data.nome_grupo_ges || null, toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, 
-            toJson(data.divisoes_internas_material), toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), 
-            toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0, toJson(data.escadas_tipo), toJson(data.passarelas_tipo), 
-            JSON.stringify(data.estruturas_auxiliares || []), data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0, 
+            data.nome_grupo_ges || null, toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes,
+            toJson(data.divisoes_internas_material), toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao),
+            toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0, toJson(data.escadas_tipo), toJson(data.passarelas_tipo),
+            JSON.stringify(data.estruturas_auxiliares || []), data.area_m2 || 0, data.pe_direito_m || 0, data.largura_m || 0,
             data.comprimento_m || 0, data.obs_condicoes_gerais, data.ausencia_risco_ambiental ? 1 : 0, data.ausencia_risco_ergonomico ? 1 : 0,
             data.ausencia_risco_mecanico ? 1 : 0, data.ausencia_risco_quimico ? 1 : 0, data.ausencia_risco_biologico ? 1 : 0,
-            id 
+            id
         ]);
 
         if (data.assinatura_avaliador) {
@@ -544,7 +565,7 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
         // 4. Deleção das tabelas filhas (Wipe and Replace)
         await conn.query(`DELETE FROM levantamento_ges WHERE id_levantamento = ?`, [id]);
         await conn.query(`DELETE FROM levantamento_quimico WHERE id_levantamento = ?`, [id]);
-        
+
         const [riscosAntigos] = await conn.query(`SELECT id_risco_identificado, anexo_imagem FROM levantamento_risco_identificado WHERE id_levantamento = ?`, [id]);
         if (riscosAntigos.length > 0) {
             const idsRiscos = riscosAntigos.map(r => r.id_risco_identificado);
@@ -555,20 +576,22 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
 
         // 5. Reinserção dos dados nas tabelas filhas
         if (data.ges && Array.isArray(data.ges)) {
-            for (const g of data.ges) {
+            for (let i = 0; i < data.ges.length; i++) {
+                const g = data.ges[i];
                 await conn.query(`
-                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id, g.setor, g.cargos, g.excecao, g.obs || null]);
+                    INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes, ordem)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id, g.setor, g.cargos, g.excecao, g.obs || null, i]); 
             }
         }
 
         if (data.quimicos && Array.isArray(data.quimicos)) {
-            for (const q of data.quimicos) {
+            for (let i = 0; i < data.quimicos.length; i++) {
+                const q = data.quimicos[i];
                 await conn.query(`
-                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null]);
+                    INSERT INTO levantamento_quimico (id_quimico, id_levantamento, nome_rotulo, estado_fisico, tipo_exposicao, processo_quantidade, observacoes, ordem)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                `, [uuidv4(), id, q.rotulo, q.estado, q.exposicao, q.processo, q.obs || null, i]); // <--- TROCADO PARA id
             }
         }
 
@@ -579,21 +602,22 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
 
                 const fileField = 'imagem_' + i;
                 const file = req.files ? req.files.find(f => f.fieldname === fileField) : null;
-                
-                let anexo_imagem = r.anexo_imagem_atual || null; 
+
+                let anexo_imagem = r.anexo_imagem_atual || null;
                 if (file) {
                     anexo_imagem = '/uploads/riscos/' + file.filename;
                 } else if (!anexo_imagem && i < riscosAntigos.length) {
                     anexo_imagem = riscosAntigos[i].anexo_imagem;
                 }
 
+                // A MÁGICA: Adicionamos a coluna "ordem" recebendo o "i" (0, 1, 2...)
                 await conn.query(`
                     INSERT INTO levantamento_risco_identificado (
                         id_risco_identificado, id_levantamento, id_risco, grupo_perigo, codigo_perigo, 
-                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        descricao_perigo, fontes_geradoras, tipo_tempo_exposicao, observacoes, anexo_imagem, ordem
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 `, [
-                    id_risco_identificado, id, r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem
+                    id_risco_identificado, id, r.id_risco, r.grupo, r.codigo, r.nome, r.fontes, r.tempo, r.obs, anexo_imagem, i
                 ]);
 
                 if (r.epis && Array.isArray(r.epis)) {
@@ -623,7 +647,7 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
             dados_novos: {
                 mensagem: "Levantamento editado com sucesso.",
                 nome_cliente_atual: nomeEmpresaLog,
-                alteracoes_principais: alteracoesRealizadas, 
+                alteracoes_principais: alteracoesRealizadas,
                 totais_finais: {
                     setores_cadastrados: data.ges ? data.ges.length : 0,
                     produtos_quimicos: data.quimicos ? data.quimicos.length : 0,
@@ -719,13 +743,13 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         doc.pipe(res);
 
         let pageCount = 0;
-        
+
         const drawHeader = () => {
             pageCount++;
             const startX = 40;
             const width = 515;
-            const headerY = 30; 
-            const headerH = 40; 
+            const headerY = 30;
+            const headerH = 40;
 
             doc.rect(startX, headerY, width, headerH).fill('#e4e4e7');
 
@@ -744,12 +768,12 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             } catch (err) { }
 
             doc.fillColor('black').font('Helvetica-Bold').fontSize(22)
-               .text('Levantamento de Perigos', startX, headerY + 10, { width: width, align: 'center' });
+                .text('Levantamento de Perigos', startX, headerY + 10, { width: width, align: 'center' });
 
             doc.font('Helvetica-Bold').fontSize(10)
-               .text(`Pág ${pageCount}`, startX, headerY + 8, { width: width - 10, align: 'right' });
+                .text(`Pág ${pageCount}`, startX, headerY + 8, { width: width - 10, align: 'right' });
             doc.font('Helvetica').fontSize(9)
-               .text(`Versão 6`, startX, headerY + 22, { width: width - 10, align: 'right' });
+                .text(`Versão 6`, startX, headerY + 22, { width: width - 10, align: 'right' });
         };
 
         drawHeader();
@@ -761,7 +785,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         });
 
         const startX = 40;
-        let posY = doc.y; 
+        let posY = doc.y;
         const width = 515;
         const rowHeight = 20;
 
@@ -810,14 +834,14 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         // Bloco Empresa (CORRIGIDO O BUG DA LARGURA DO PDFKIT)
         // =========================================================
         const textoEmpresa = levantamento.nome_empresa || '-';
-        
+
         // 1. A Data começa no X 410. Então a Empresa tem até 390 de espaço para não bater nela.
-        const larguraMaximaTexto = 390; 
-        
+        const larguraMaximaTexto = 390;
+
         // 2. Calculamos qual seria a altura desse texto se ele precisasse quebrar de linha
         doc.font('Helvetica').fontSize(11);
         const alturaTextoEmpresa = doc.heightOfString('Empresa: ' + textoEmpresa, { width: larguraMaximaTexto });
-        
+
         // 3. A caixa terá no mínimo 20 (rowHeight padrão), ou mais se o texto for muito grande (+12 de margem pra respirar)
         const alturaCaixaEmpresa = Math.max(rowHeight, alturaTextoEmpresa + 12);
 
@@ -830,7 +854,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         // 6. O GRANDE SEGREDO: O { width } fica na primeira chamada de texto (no 'Empresa:')
         // Assim o PDFKit cria um "bloco invisível" de 390px e obriga o nome a quebrar de linha dentro dele!
         doc.font('Helvetica-Bold').text('Empresa: ', startX + 5, posY + 6, { continued: true, width: larguraMaximaTexto })
-           .font('Helvetica').text(textoEmpresa);
+            .font('Helvetica').text(textoEmpresa);
 
         // 7. Atualiza o Y adicionando a altura real da caixa, para a próxima linha nascer no lugar certo
         posY += alturaCaixaEmpresa;
@@ -900,11 +924,11 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             { label: "Setor", width: 120 },
             { label: "Cargos", width: 145 },
             { label: "Nome trabalhador\n(exceção)", width: 120 },
-            { label: "Observações", width: 130 } 
+            { label: "Observações", width: 130 }
         ];
 
         let yCabecalhoGes = doc.y;
-        const alturaCabecalhoGes = 28; 
+        const alturaCabecalhoGes = 28;
 
         doc.rect(startX, yCabecalhoGes, width, alturaCabecalhoGes).fillAndStroke('#e4e4e7', 'black');
         doc.fillColor('black').font('Helvetica-Bold').fontSize(9);
@@ -931,7 +955,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
             let cx = startX;
             let yLinhaGes = doc.y;
-            const valores = [g.setor || '-', g.cargos || '-', g.excecao || '-', g.obs || '-']; 
+            const valores = [g.setor || '-', g.cargos || '-', g.excecao || '-', g.obs || '-'];
 
             valores.forEach((val, i) => {
                 const w = gesCols[i].width;
@@ -961,7 +985,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             { label: "EF", width: 40 },
             { label: "Tipo Exposição", width: 100 },
             { label: "Processo utilizado/Quantidade", width: 150 },
-            { label: "Observações", width: 100 } 
+            { label: "Observações", width: 100 }
         ];
 
         let yCabecalhoQuim = doc.y;
@@ -991,7 +1015,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
             let cx = startX;
             let yLinhaQuim = doc.y;
-            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-', q.obs || '-']; 
+            const valores = [q.rotulo || '-', q.estado || '-', q.exposicao || '-', q.processo || '-', q.obs || '-'];
 
             valores.forEach((val, i) => {
                 const w = quimCols[i].width;
@@ -1006,26 +1030,26 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         let yRodape = doc.y;
         doc.rect(startX, yRodape, width, 14).stroke();
         doc.font('Helvetica').fontSize(8).text('Legenda: EF - Estado Físico (S - Sólido; L - Líquido; G - Gasoso)', startX + 2, yRodape + 3);
-        
+
         // Avança EXATAMENTE a altura da legenda (14), sem margens adicionais para colar no próximo bloco!
         doc.y = yRodape + 18;
 
         // =================================================================
         // BLOCO: OBSERVAÇÕES (CHECKLIST) COLADO NO ANTERIOR
         // =================================================================
-        
+
         // Só quebra a página se o bloco inteiro de observações (que tem aprox. 90 a 100 de altura) não couber na folha atual
         if (doc.y + 100 > 800) doc.addPage();
 
         let yObs = doc.y;
-        
+
         // Título "Observações" (Preto) colado na linha de cima
         doc.rect(startX, yObs, width, 20).fillAndStroke('black', 'black');
         doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Observações', startX, yObs + 5, { width: width, align: 'center' });
         doc.fillColor('black');
 
         // Caixa Cinza do Checklist colada no título preto
-        let yChecklist = yObs + 20; 
+        let yChecklist = yObs + 20;
         doc.font('Helvetica').fontSize(9);
 
         const obs1 = '1    Checar as descrições de atividade encaminhadas pela empresa e anotar as divergências encontradas que possam impactar na exposição.';
@@ -1118,12 +1142,12 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         const getCorGP = (grupoBanco) => {
             if (!grupoBanco) return 'black';
             const g = grupoBanco.toLowerCase();
-            if (g.includes('físico')) return '#22c55e'; 
-            if (g.includes('químico')) return '#ef4444'; 
-            if (g.includes('biológico')) return '#ca8a04'; 
-            if (g.includes('ergonômico')) return '#eab308'; 
-            if (g.includes('mecânico') || g.includes('acidente')) return '#0ea5e9'; 
-            if (g.includes('inespecífico')) return '#a855f7'; 
+            if (g.includes('físico')) return '#22c55e';
+            if (g.includes('químico')) return '#ef4444';
+            if (g.includes('biológico')) return '#ca8a04';
+            if (g.includes('ergonômico')) return '#eab308';
+            if (g.includes('mecânico') || g.includes('acidente')) return '#0ea5e9';
+            if (g.includes('inespecífico')) return '#a855f7';
             return 'black';
         };
 
@@ -1142,8 +1166,8 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 }
 
                 const gpStr = getSiglaGP(r.grupo);
-                const corTextoGP = getCorGP(r.grupo); 
-                
+                const corTextoGP = getCorGP(r.grupo);
+
                 const perigoStr = r.nome_risco || '-';
                 const fontesStr = r.fontes || '-';
                 const tempoStr = r.tempo || '-';
@@ -1165,7 +1189,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
                 let yLinhaDet = doc.y;
 
                 const valoresLinha = [
-                    { str: gpStr, align: 'center', cor: corTextoGP }, 
+                    { str: gpStr, align: 'center', cor: corTextoGP },
                     { str: perigoStr, align: 'left', cor: 'black' },
                     { str: fontesStr, align: 'left', cor: 'black' },
                     { str: tempoStr, align: 'left', cor: 'black' },
@@ -1176,16 +1200,16 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
                 valoresLinha.forEach((val, i) => {
                     const w = detCols[i].width;
-                    
+
                     doc.lineWidth(1).strokeColor('black').rect(cx, yLinhaDet, w, maxH).stroke();
 
                     doc.fillColor(val.cor);
-                    
-                    if (i === 0) doc.font('Helvetica-Bold'); 
+
+                    if (i === 0) doc.font('Helvetica-Bold');
                     else doc.font('Helvetica');
 
                     doc.text(val.str, cx + 2, yLinhaDet + 5, { width: w - 4, align: val.align });
-                    
+
                     cx += w;
                 });
 

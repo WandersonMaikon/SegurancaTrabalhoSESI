@@ -85,6 +85,8 @@
                                             <th></th>
                                             <th class="text-nowrap">Data</th>
                                             <th class="text-nowrap">Cliente</th>
+                                            <th class="text-nowrap">Cidade</th>
+                                            <th class="text-nowrap">Grupo GES</th>
                                             <th class="text-nowrap">Responsável Técnico</th>
                                             <th class="text-nowrap text-end" data-orderable="false">Ações</th>
                                         </tr>
@@ -139,23 +141,33 @@
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-id', item.id_levantamento);
 
+                    const inicial = (item.nome_responsavel_curto || 'U').substring(0, 1);
+
                     tr.innerHTML = `
                     <td></td> 
-                    <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100" data-order="${item.data_levantamento}">
+                    <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100 align-middle" data-order="${item.data_levantamento}">
                         ${item.data_formatada}
                     </td>
-                    <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300">
-                        ${item.nome_empresa || '-'}
+                    <td class="text-zinc-600 dark:text-zinc-300 align-middle">
+                        <span title="${item.nome_empresa}" class="cursor-pointer select-none">
+                            ${item.nome_empresa_curto || item.nome_empresa || '-'}
+                        </span>
                     </td>
-                    <td class="whitespace-nowrap">
+                    <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300 align-middle">
+                        ${item.cidade || '-'}
+                    </td>
+                    <td class="whitespace-nowrap text-zinc-600 dark:text-zinc-300 font-semibold align-middle">
+                        ${item.nome_grupo_ges || '-'}
+                    </td>
+                    <td class="whitespace-nowrap align-middle">
                         <div class="flex items-center gap-2">
                             <span class="size-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                                ${(item.nome_responsavel || 'U').substring(0, 1)}
+                                ${inicial}
                             </span>
-                            <span>${item.nome_responsavel || '-'}</span>
+                            <span>${item.nome_responsavel_curto || '-'}</span>
                         </div>
                     </td>
-                    <td class="text-end">
+                    <td class="text-end align-middle">
                          <a href="/levantamento-perigo/ver/${item.id_levantamento}" 
                             class="btn !p-1.5 hover:!text-primary" title="Visualizar Detalhes">
                             <span class="icon-[lucide--eye] text-lg"></span>
@@ -172,12 +184,10 @@
                 const table = new DataTable('#table_levantamentos', {
                     lengthChange: false,
                     pageLength: 10,
-                    scrollX: true,
                     dom: 'lrtip',
                     columnDefs: [
                         { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
                     ],
-                    // A MÁGICA ACONTECE AQUI: style 'single' e headerCheckbox false
                     select: {
                         style: 'single',
                         selector: 'td:first-child',
@@ -195,14 +205,11 @@
 
                 const btnImprimirSel = document.getElementById("btnImprimirSel");
 
-                // Controle de exibição do botão
                 table.on('select deselect', function () {
                     const count = table.rows({ selected: true }).count();
-                    // Como é 'single', o count vai ser no máximo 1
                     btnImprimirSel.style.display = count === 1 ? "inline-flex" : "none";
                 });
 
-                // Ação de clique para imprimir
                 btnImprimirSel.addEventListener('click', function () {
                     const selectedRow = table.row({ selected: true }).node();
 
@@ -210,7 +217,7 @@
                         const id = selectedRow.getAttribute('data-id');
                         if (id) {
                             window.open(`/levantamento-perigo/imprimir/${id}`, '_blank');
-                            table.rows().deselect(); // Desmarca a linha após o clique
+                            table.rows().deselect();
                         }
                     }
                 });

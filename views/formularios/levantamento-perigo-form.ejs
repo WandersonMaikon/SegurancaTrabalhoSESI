@@ -1353,15 +1353,15 @@
                     else if (grupoSafe.toLowerCase().includes('mecânico') || grupoSafe.toLowerCase().includes('acidente')) corBorda = 'border-sky-500';
 
                     accordionGrupo.innerHTML = `
-            <button type="button" 
-                class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
-                onclick="toggleAccordion('acc_${grupoId}')">
-                 ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
-            </button>
-            <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
-                <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
-            </div>
-            `;
+                    <button type="button" 
+                        class="w-full text-left p-4 bg-zinc-50 dark:bg-zinc-800 font-bold flex justify-between items-center text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors border-l-4 ${corBorda}"
+                        onclick="toggleAccordion('acc_${grupoId}')">
+                        ${grupoSafe.toUpperCase()} <span class="icon-[lucide--chevron-down]"></span>
+                    </button>
+                    <div id="acc_${grupoId}" class="p-4 bg-white dark:bg-zinc-900 block">
+                        <div class="grid grid-cols-1 gap-4 grid-riscos"></div>
+                    </div>
+                    `;
                     containerDinamico.appendChild(accordionGrupo);
                 }
 
@@ -1382,50 +1382,50 @@
                 // A MÁGICA: O checkbox agora tem 'checked' e o '.risk-detail' não tem mais 'hidden'!
                 // ==========================================
                 riskItem.innerHTML = `
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
-            <label class="inline-flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" class="input-checkbox risk-checkbox" checked
-                    data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" 
-                    onchange="toggleRiskDetail(this)">
-                <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
-            </label>
-            <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
-                <span class="icon-[lucide--trash]"></span> Remover
-            </button>
-        </div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-3">
+                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" class="input-checkbox risk-checkbox" checked
+                            data-id_risco="${id_risco}" data-grupo="${grupoSafe}" data-codigo="${codigo}" data-nome="${nome}" 
+                            onchange="toggleRiskDetail(this)">
+                        <span class="font-bold text-zinc-700 dark:text-zinc-200 text-lg">${nome}</span>
+                    </label>
+                    <button type="button" onclick="removerRiscoDaTela(this, '${grupoId}')" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors mt-2 sm:mt-0 px-3 py-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md">
+                        <span class="icon-[lucide--trash]"></span> Remover
+                    </button>
+                </div>
         
-        <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
-                <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
-            </div>
-            <div>
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
-                <input type="text" placeholder="Ex: Intermitente..." class="table-input w-full text-sm risk-tempo">
-            </div>
-            <div>
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
-                <select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select>
-            </div>
-            <div>
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
-                <select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select>
-            </div>
-            
-            <div>
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
-                <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 rounded cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
-                    <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
-                    <input type="file" accept="image/*" class="hidden risk-imagem" 
-                        onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
-                </label>
-            </div>
-            <div class="md:col-span-2">
-                <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
-                <input type="text" placeholder="Observações adicionais..." class="table-input w-full text-sm risk-obs">
-            </div>
-        </div>
-        `;
+                <div class="risk-detail grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Fontes Geradoras</label>
+                        <input type="text" placeholder="Ex: Máquina de solda..." class="table-input w-full text-sm risk-fontes">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Tempo/Tipo Exp.</label>
+                        <input type="text" placeholder="Ex: Intermitente..." class="table-input w-full text-sm risk-tempo">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPIs Recomendados</label>
+                        <select class="risk-epis w-full table-input select-plugin" multiple>${optionsEPI}</select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">EPCs Existentes</label>
+                        <select class="risk-epcs w-full table-input select-plugin" multiple>${optionsEPC}</select>
+                    </div>
+                    
+                    <div>
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Anexar Imagem (Opcional)</label>
+                        <label class="flex items-center justify-center w-full px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-300 dark:border-zinc-700 rounded cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors text-sm font-semibold text-center overflow-hidden">
+                            <span class="file-name-text truncate pointer-events-none">📸 Selecionar arquivo...</span>
+                            <input type="file" accept="image/*" class="hidden risk-imagem" 
+                                onchange="this.previousElementSibling.textContent = this.files.length > 0 ? '✅ ' + this.files[0].name : '📸 Selecionar arquivo...'">
+                        </label>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-xs font-bold text-muted uppercase tracking-wider mb-1 block">Observações</label>
+                        <input type="text" placeholder="Observações adicionais..." class="table-input w-full text-sm risk-obs">
+                    </div>
+                </div>
+                `;
 
                 gridRiscos.appendChild(riskItem);
 
