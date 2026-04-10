@@ -66,6 +66,7 @@ exports.up = function(knex) {
       table.text('cargos');
       table.string('nome_trabalhador_excecao', 255);
       table.text('observacoes');
+      table.integer('ordem').defaultTo(0);
       
       table.foreign('id_levantamento').references('id_levantamento').inTable('levantamento_perigo').onDelete('CASCADE');
     })
@@ -79,6 +80,7 @@ exports.up = function(knex) {
       table.string('tipo_exposicao', 255);
       table.string('processo_quantidade', 255);
       table.text('observacoes');
+      table.integer('ordem').defaultTo(0);
       
       table.foreign('id_levantamento').references('id_levantamento').inTable('levantamento_perigo').onDelete('CASCADE');
     })

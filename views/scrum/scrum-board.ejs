@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Quadro Scrum</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="content lg:px-4 flex-grow flex flex-col pt-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 mb-4 gap-4 px-4">
+                        <div class="md:col-span-5">
+                            <h4 class="text-xl">Quadro de Tarefas</h4>
+                            <p class="text-muted">Gerenciamento de execução da OS</p>
+                        </div>
+                    </div>
+
+                    <div class="px-4 mb-4">
+                        <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-4">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+                                <div class="md:col-span-6">
+                                    <label class="mb-2 block">Empresa contratante</label>
+                                    <div class="relative w-full">
+                                        <input type="text"
+                                            class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed text-zinc-500 font-semibold"
+                                            value="<%= os.nome_empresa %>" readonly>
+                                        <span
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 icon-[lucide--lock] text-muted"></span>
+                                    </div>
+                                </div>
+
+                                <div class="md:col-span-6">
+                                    <label class="mb-2 block">CONTRATO Nº</label>
+                                    <div class="relative w-full">
+                                        <input type="text"
+                                            class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed text-zinc-500 font-semibold"
+                                            value="<%= os.contrato_numero %>" readonly>
+                                        <span
+                                            class="absolute right-3 top-1/2 -translate-y-1/2 icon-[lucide--lock] text-muted"></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex w-full flex-grow p-px space-x-4 flex-nowrap overflow-x-auto px-4 overflow-y-hidden mb-4"
+                        id="scrum-board">
+
+                        <% const colunas=[ { id: 'Pendente' , titulo: 'A Fazer (Pendente)' , bg: 'bg-zinc-500/10' ,
+                            text: 'text-zinc-600 dark:text-zinc-300' }, { id: 'Em Execução' , titulo: 'Em Progresso' ,
+                            bg: 'bg-sky-500/10' , text: 'text-sky-500' }, { id: 'Feito' , titulo: 'Concluído' ,
+                            bg: 'bg-green-500/10' , text: 'text-green-500' } ]; %>
+
+                            <% colunas.forEach(function(coluna) { %>
+                                <div
+                                    class="w-[300px] min-w-[300px] me-4 drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+
+                                    <div class="flex items-center justify-between px-4 pt-4 mb-2">
+                                        <h3 class="text-lg font-bold">
+                                            <%= coluna.titulo %>
+                                        </h3>
+                                        <span class="badge <%= coluna.bg %> <%= coluna.text %> font-bold">
+                                            <%= tarefas[coluna.id].length %>
+                                        </span>
+                                    </div>
+
+                                    <ul class="child-list min-h-full flex flex-col space-y-3 p-4"
+                                        data-status="<%= coluna.id %>">
+
+                                        <% tarefas[coluna.id].forEach(function(tarefa) { %>
+                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab border border-zinc-200 dark:border-zinc-700"
+                                                data-id="<%= tarefa.id_item %>">
+
+                                                <h5
+                                                    class="mb-2 text-base font-semibold leading-tight text-zinc-800 dark:text-zinc-100">
+                                                    <%= tarefa.nome_servico %>
+                                                </h5>
+
+                                                <% let badgePriColor="bg-sky-500/10 text-sky-500" ; let
+                                                    badgePriText="Baixa prioridade" ; if (tarefa.dias_restantes <=20) {
+                                                    badgePriColor="bg-red-500/10 text-red-500" ;
+                                                    badgePriText="Alta prioridade" ; } else if (tarefa.dias_restantes
+                                                    <=30) { badgePriColor="bg-amber-500/10 text-amber-500" ;
+                                                    badgePriText="Média prioridade" ; } %>
+                                                    <span class="badge <%= badgePriColor %> mb-3 font-semibold">
+                                                        <%= badgePriText %>
+                                                    </span>
+
+                                                    <div
+                                                        class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
+                                                        <div class="flex items-center shrink-0"
+                                                            title="Responsável: <%= tarefa.nome_completo %>">
+                                                            <div
+                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative flex items-center justify-center bg-primary text-white text-xs font-bold uppercase">
+                                                                <%= tarefa.nome_completo ?
+                                                                    tarefa.nome_completo.charAt(0) : 'U' %>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="inline-flex text-xs items-center text-muted font-medium bg-white dark:bg-zinc-900 px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-700">
+                                                            <span class="icon-[lucide--clock] me-1"></span>
+
+                                                            <% if (coluna.id==='Feito' ) { %>
+                                                                <span class="text-green-500 font-bold">Concluído</span>
+                                                                <% } else if (tarefa.dias_restantes < 0) { %>
+                                                                    <span class="text-red-500 font-bold">Atrasado <%=
+                                                                            Math.abs(tarefa.dias_restantes) %>d</span>
+                                                                    <% } else if (tarefa.dias_restantes===0) { %>
+                                                                        <span class="text-amber-500 font-bold">Vence
+                                                                            hoje!</span>
+                                                                        <% } else { %>
+                                                                            <span>Faltam <%= tarefa.dias_restantes %>
+                                                                                    d</span>
+                                                                            <% } %>
+
+                                                        </div>
+                                                    </div>
+                                            </li>
+                                            <% }) %>
+
+                                    </ul>
+                                </div>
+                                <% }) %>
+
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+
+                function atualizarTarefaNoBanco(id_item, novo_status) {
+                    fetch('/scrum/atualizar-tarefa', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id_item, novo_status })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.querySelectorAll('.child-list').forEach(list => {
+                                    const totalBadge = list.parentElement.querySelector('.badge');
+                                    totalBadge.textContent = list.children.length;
+                                });
+                                window.location.reload();
+                            } else {
+                                Swal.fire('Erro!', 'Ocorreu um erro ao atualizar o banco de dados.', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Erro na requisição:', err);
+                            Swal.fire('Erro!', 'Falha de comunicação com o servidor.', 'error');
+                        });
+                }
+
+                document.querySelectorAll('.child-list').forEach(childList => {
+                    Sortable.create(childList, {
+                        group: 'nested-tasks',
+                        animation: 150,
+                        ghostClass: 'opacity-50',
+                        draggable: '.child-task',
+
+                        onEnd: function (evt) {
+                            const itemArrastado = evt.item;
+                            const colunaOrigem = evt.from;
+                            const colunaDestino = evt.to;
+
+                            const statusOrigem = colunaOrigem.getAttribute('data-status');
+                            const statusDestino = colunaDestino.getAttribute('data-status');
+                            const id_item = itemArrastado.getAttribute('data-id');
+
+                            if (statusOrigem === statusDestino) return;
+
+                            if (statusDestino === 'Pendente') {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Ação não permitida',
+                                    text: 'Uma tarefa que já foi iniciada não pode voltar para "Pendente".'
+                                });
+                                colunaOrigem.appendChild(itemArrastado);
+                                return;
+                            }
+
+                            if (statusOrigem === 'Pendente' && statusDestino === 'Em Execução') {
+                                Swal.fire({
+                                    title: 'Iniciar Tarefa?',
+                                    text: "Ao mover para 'Em Progresso', você não poderá voltar esta tarefa para 'Pendente'. Deseja confirmar o início?",
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#0ea5e9',
+                                    cancelButtonColor: '#ef4444',
+                                    confirmButtonText: 'Sim, iniciar!',
+                                    cancelButtonText: 'Cancelar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        atualizarTarefaNoBanco(id_item, statusDestino);
+                                    } else {
+                                        colunaOrigem.appendChild(itemArrastado);
+                                    }
+                                });
+                                return;
+                            }
+
+                            atualizarTarefaNoBanco(id_item, statusDestino);
+                        }
+                    });
+                });
+            });
+        </script>
+</body>
+
+</html>

@@ -216,7 +216,10 @@
 
                 // 4. INICIALIZAR DATATABLE
                 const table = new DataTable('#table_usuarios', {
-                    lengthChange: false, pageLength: 10, scrollX: true, dom: 'lrtip',
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: false,
+                    dom: 'lrtip',
                     columnDefs: [
                         { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
                     ],

@@ -56,11 +56,13 @@ const riscoRoutes = require('./routes/risco.routes');
 const epiRoutes = require('./routes/epi.routes');
 const epcRoutes = require('./routes/epc.routes');
 const unidadeRoutes = require('./routes/unidade.routes');
+const scrumRoutes = require('./routes/scrum.routes');
 const levantamentoPerigoRoutes = require('./routes/levantamento_perigo.routes');
 const verificarAutenticacao = require("./middlewares/auth.middleware");
 const verificarPermissao = require("./middlewares/permission.middleware");
 
 app.use('/', authRoutes);
+app.use('/scrum', scrumRoutes);
 app.use('/checklist-stress', checklistStressRoutes);
 app.use('/normas', nrRoutes);
 app.use('/dashboard', dashboardRoutes);
@@ -85,10 +87,6 @@ app.get("/inicio", verificarAutenticacao, (req, res) => {
 
 app.get("/relatorio", verificarAutenticacao, (req, res) => {
     res.render("relatorio", { currentPage: 'relatorio' });
-});
-
-app.get("/scrum-board", verificarAutenticacao, (req, res) => {
-    res.render("scrum-board", { currentPage: 'scrum-board' });
 });
 
 // ============================================================
