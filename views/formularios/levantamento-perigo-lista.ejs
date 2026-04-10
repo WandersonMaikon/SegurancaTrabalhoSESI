@@ -145,7 +145,7 @@
 
                     tr.innerHTML = `
                     <td></td> 
-                    <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100 align-middle" data-order="${item.data_levantamento}">
+                    <td class="whitespace-nowrap font-medium text-zinc-900 dark:text-zinc-100 align-middle" data-order="${item.created_at}">
                         ${item.data_formatada}
                     </td>
                     <td class="text-zinc-600 dark:text-zinc-300 align-middle">
@@ -193,7 +193,7 @@
                         selector: 'td:first-child',
                         headerCheckbox: false
                     },
-                    order: [[1, 'desc']],
+                    order: [],
                     language: {
                         emptyTable: "Nenhum levantamento encontrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
