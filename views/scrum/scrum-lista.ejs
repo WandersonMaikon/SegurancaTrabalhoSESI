@@ -51,22 +51,21 @@
                                     <label class="flex items-center cursor-pointer gap-2">
                                         <input type="checkbox" class="input-checkbox filter-checkbox" value="Aberta"
                                             checked>
-                                        <span class="text-zinc-700 dark:text-zinc-300">Aberta</span>
+                                        <span class="font-medium text-blue-500">Aberta</span>
                                     </label>
                                     <label class="flex items-center cursor-pointer gap-2">
                                         <input type="checkbox" class="input-checkbox filter-checkbox"
                                             value="Em Andamento" checked>
-                                        <span class="text-zinc-700 dark:text-zinc-300">Em Andamento</span>
+                                        <span class="font-medium text-amber-500">Em Andamento</span>
                                     </label>
                                     <label class="flex items-center cursor-pointer gap-2">
                                         <input type="checkbox" class="input-checkbox filter-checkbox" value="Concluída">
-                                        <span class="text-zinc-700 dark:text-zinc-300">Concluída</span>
+                                        <span class="font-medium text-green-500">Concluída</span>
                                     </label>
                                     <hr class="border-zinc-200 dark:border-zinc-700 my-1">
-                                    <label
-                                        class="flex items-center cursor-pointer gap-2 text-red-500 font-semibold hover:text-red-600">
+                                    <label class="flex items-center cursor-pointer gap-2">
                                         <input type="checkbox" class="input-checkbox filter-checkbox" value="Atrasado">
-                                        <span>Apenas Atrasados</span>
+                                        <span class="font-bold text-red-500 hover:text-red-600">Apenas Atrasados</span>
                                     </label>
                                 </div>
                             </div>
@@ -88,18 +87,20 @@
                             <% } %>
 
                                 <% projetos.forEach(function(projeto) { %>
-                                    <% let badgeClass="bg-zinc-500/10 text-zinc-600 dark:text-zinc-300" ; let
-                                        badgeText=projeto.status || "Aberta" ; let
-                                        progressTrack="bg-zinc-200 dark:bg-zinc-700" ; let progressFill="bg-zinc-500" ;
-                                        if (badgeText==='Aberta' ) {
-                                        badgeClass="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                                        ; progressTrack="bg-zinc-200 dark:bg-zinc-700" ; progressFill="bg-zinc-500" ; }
-                                        else if (badgeText==='Em Andamento' ) {
-                                        badgeClass="bg-sky-500/10 text-sky-500 border border-sky-500/20" ;
-                                        progressTrack="bg-sky-500/20" ; progressFill="bg-sky-500" ; } else if
+                                    <% let badgeClass="bg-zinc-500/10 text-zinc-500" ; let badgeText=projeto.status
+                                        || "Aberta" ; let progressTrack="bg-zinc-200 dark:bg-zinc-700" ; let
+                                        progressFill="bg-zinc-500" ; if (badgeText==='Aberta' ) {
+                                        badgeClass="bg-blue-500/10 text-blue-500 border border-blue-500/20" ;
+                                        progressTrack="bg-blue-500/20" ; progressFill="bg-blue-500" ; } else if
+                                        (badgeText==='Em Andamento' ) {
+                                        badgeClass="bg-amber-500/10 text-amber-500 border border-amber-500/20" ;
+                                        progressTrack="bg-amber-500/20" ; progressFill="bg-amber-500" ; } else if
                                         (badgeText==='Concluída' ) {
                                         badgeClass="bg-green-500/10 text-green-500 border border-green-500/20" ;
-                                        progressTrack="bg-green-500/20" ; progressFill="bg-green-500" ; } let
+                                        progressTrack="bg-green-500/20" ; progressFill="bg-green-500" ; } else if
+                                        (badgeText==='Cancelada' ) {
+                                        badgeClass="bg-red-500/10 text-red-500 border border-red-500/20" ;
+                                        progressTrack="bg-red-500/20" ; progressFill="bg-red-500" ; } let
                                         badgePriColor="bg-sky-500/10 text-sky-500" ; let badgePriText="Baixa prioridade"
                                         ; if (projeto.dias_restantes <=20) { badgePriColor="bg-red-500/10 text-red-500"
                                         ; badgePriText="Alta prioridade" ; } else if (projeto.dias_restantes <=30) {
@@ -150,18 +151,10 @@
                                                         <% if (badgeText==='Concluída' || projeto.progresso===100) { %>
                                                             <span class="text-sm font-bold text-green-500">Projeto
                                                                 Finalizado</span>
-                                                            <% } else if (projeto.dias_restantes < 0) { %>
-                                                                <span
-                                                                    class="text-sm text-zinc-600 dark:text-zinc-300 truncate"
-                                                                    title="<%= nomeTarefa %>">
-                                                                    <span
-                                                                        class="font-semibold text-zinc-800 dark:text-zinc-100">
-                                                                        <%= nomeTarefaCurto %>
-                                                                    </span> <span
-                                                                        class="font-bold text-red-500">atrasado <%=
-                                                                            Math.abs(projeto.dias_restantes) %>d!</span>
-                                                                </span>
-                                                                <% } else if (projeto.dias_restantes===0) { %>
+                                                            <% } else if (badgeText==='Cancelada' ) { %>
+                                                                <span class="text-sm font-bold text-red-500">OS
+                                                                    Cancelada</span>
+                                                                <% } else if (projeto.dias_restantes < 0) { %>
                                                                     <span
                                                                         class="text-sm text-zinc-600 dark:text-zinc-300 truncate"
                                                                         title="<%= nomeTarefa %>">
@@ -169,22 +162,22 @@
                                                                             class="font-semibold text-zinc-800 dark:text-zinc-100">
                                                                             <%= nomeTarefaCurto %>
                                                                         </span> <span
-                                                                            class="font-bold text-amber-500">vence
-                                                                            hoje!</span>
+                                                                            class="font-bold text-red-500">atrasado <%=
+                                                                                Math.abs(projeto.dias_restantes) %>
+                                                                                d!</span>
                                                                     </span>
-                                                                    <% } else if (projeto.dias_restantes <=5) { %>
+                                                                    <% } else if (projeto.dias_restantes===0) { %>
                                                                         <span
                                                                             class="text-sm text-zinc-600 dark:text-zinc-300 truncate"
                                                                             title="<%= nomeTarefa %>">
                                                                             <span
                                                                                 class="font-semibold text-zinc-800 dark:text-zinc-100">
                                                                                 <%= nomeTarefaCurto %>
-                                                                            </span> em <span
-                                                                                class="font-bold text-red-500">
-                                                                                <%= projeto.dias_restantes %> dias
-                                                                            </span>
+                                                                            </span> <span
+                                                                                class="font-bold text-amber-500">vence
+                                                                                hoje!</span>
                                                                         </span>
-                                                                        <% } else { %>
+                                                                        <% } else if (projeto.dias_restantes <=5) { %>
                                                                             <span
                                                                                 class="text-sm text-zinc-600 dark:text-zinc-300 truncate"
                                                                                 title="<%= nomeTarefa %>">
@@ -192,11 +185,24 @@
                                                                                     class="font-semibold text-zinc-800 dark:text-zinc-100">
                                                                                     <%= nomeTarefaCurto %>
                                                                                 </span> em <span
-                                                                                    class="font-bold text-primary">
+                                                                                    class="font-bold text-red-500">
                                                                                     <%= projeto.dias_restantes %> dias
                                                                                 </span>
                                                                             </span>
-                                                                            <% } %>
+                                                                            <% } else { %>
+                                                                                <span
+                                                                                    class="text-sm text-zinc-600 dark:text-zinc-300 truncate"
+                                                                                    title="<%= nomeTarefa %>">
+                                                                                    <span
+                                                                                        class="font-semibold text-zinc-800 dark:text-zinc-100">
+                                                                                        <%= nomeTarefaCurto %>
+                                                                                    </span> em <span
+                                                                                        class="font-bold text-primary">
+                                                                                        <%= projeto.dias_restantes %>
+                                                                                            dias
+                                                                                    </span>
+                                                                                </span>
+                                                                                <% } %>
                                                     </div>
 
                                                     <div class="mt-auto">
@@ -269,8 +275,6 @@
 
                 function aplicarFiltros() {
                     const termo = inputPesquisa ? inputPesquisa.value.toLowerCase() : '';
-
-                    // Pega os status checados (ignorando o checkbox de Atrasado)
                     const statusSelecionados = Array.from(document.querySelectorAll('.filter-checkbox:not([value="Atrasado"]):checked')).map(cb => cb.value);
                     const soAtrasados = document.querySelector('.filter-checkbox[value="Atrasado"]').checked;
 
@@ -279,16 +283,10 @@
                         const statusCard = card.getAttribute('data-status');
                         const estaAtrasado = card.getAttribute('data-atrasado') === 'true';
 
-                        // 1. Passa na pesquisa de texto?
                         const matchTexto = textoCard.includes(termo);
-
-                        // 2. Passa no filtro de Status?
                         const matchStatus = statusSelecionados.includes(statusCard);
-
-                        // 3. Passa no filtro de Atrasado? (Se tiver marcado, só mostra os true)
                         const matchAtraso = soAtrasados ? estaAtrasado : true;
 
-                        // Se passou nos 3 testes, ele mostra
                         if (matchTexto && matchStatus && matchAtraso) {
                             card.style.display = '';
                         } else {
@@ -297,11 +295,9 @@
                     });
                 }
 
-                // Ativa o gatilho quando digita ou quando clica nos checkboxes
                 if (inputPesquisa) inputPesquisa.addEventListener('input', aplicarFiltros);
                 checkboxes.forEach(cb => cb.addEventListener('change', aplicarFiltros));
 
-                // Aplica os filtros logo que a tela carrega (já que Aberta e Em andamento vêm marcados)
                 aplicarFiltros();
             });
         </script>
