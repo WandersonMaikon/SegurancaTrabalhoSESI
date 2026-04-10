@@ -1036,40 +1036,47 @@
                         <div id="step4" class="step-content space-y-6">
                             <div
                                 class="rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800 p-6">
-                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Coleta de
-                                    Assinaturas</h5>
-                                <p class="text-sm text-zinc-500 mb-6">Assine abaixo para validar as informações deste
-                                    levantamento.</p>
+                                <h5 class="text-xl mb-4 font-bold text-zinc-800 dark:text-zinc-100">Assinaturas
+                                    Registradas</h5>
+                                <p class="text-sm text-zinc-500 mb-6">As assinaturas deste levantamento estão validadas
+                                    e bloqueadas para edição.</p>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <div class="flex flex-col items-center">
                                         <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável
                                             Técnico (Avaliador)</label>
                                         <div
-                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
-                                            <canvas id="canvasTecnico" width="400" height="200"
-                                                class="touch-none cursor-crosshair"></canvas>
+                                            class="border-2 border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white flex items-center justify-center w-[400px] h-[200px]">
+                                            <% if (levantamento.assinatura_avaliador) { %>
+                                                <img src="<%= levantamento.assinatura_avaliador %>"
+                                                    alt="Assinatura Avaliador"
+                                                    class="max-w-full max-h-full object-contain pointer-events-none">
+                                                <% } else { %>
+                                                    <span class="text-zinc-400 italic">Sem assinatura</span>
+                                                    <% } %>
                                         </div>
-                                        <button type="button" id="btnLimparTecnico"
-                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
-                                            <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
-                                        </button>
                                     </div>
 
                                     <div class="flex flex-col items-center">
                                         <label class="font-bold text-zinc-700 dark:text-zinc-300 mb-2">Responsável da
                                             Empresa</label>
                                         <div
-                                            class="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg overflow-hidden bg-white">
-                                            <canvas id="canvasEmpresa" width="400" height="200"
-                                                class="touch-none cursor-crosshair"></canvas>
+                                            class="border-2 border-zinc-200 dark:border-zinc-800 rounded-lg overflow-hidden bg-white flex items-center justify-center w-[400px] h-[200px]">
+                                            <% if (levantamento.assinatura_responsavel_empresa) { %>
+                                                <img src="<%= levantamento.assinatura_responsavel_empresa %>"
+                                                    alt="Assinatura Empresa"
+                                                    class="max-w-full max-h-full object-contain pointer-events-none">
+                                                <% } else { %>
+                                                    <span class="text-zinc-400 italic">Sem assinatura</span>
+                                                    <% } %>
                                         </div>
-                                        <button type="button" id="btnLimparEmpresa"
-                                            class="mt-2 text-sm text-red-500 hover:text-red-700 font-semibold transition-colors">
-                                            <span class="icon-[lucide--eraser]"></span> Limpar Assinatura
-                                        </button>
                                     </div>
                                 </div>
+
+                                <input type="hidden" id="assinatura_avaliador_hidden"
+                                    value="<%= levantamento.assinatura_avaliador || '' %>">
+                                <input type="hidden" id="assinatura_empresa_hidden"
+                                    value="<%= levantamento.assinatura_responsavel_empresa || '' %>">
                             </div>
 
                             <div class="flex justify-between mt-6">
@@ -1268,23 +1275,9 @@
         <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 
         <script>
-            let padTecnico, padEmpresa;
             let dtRiscosModal;
 
             $(document).ready(function () {
-                const canvasT = document.getElementById('canvasTecnico');
-                const canvasE = document.getElementById('canvasEmpresa');
-                padTecnico = new SignaturePad(canvasT, { backgroundColor: 'rgb(255, 255, 255)' });
-                padEmpresa = new SignaturePad(canvasE, { backgroundColor: 'rgb(255, 255, 255)' });
-
-                document.getElementById('btnLimparTecnico').addEventListener('click', () => padTecnico.clear());
-                document.getElementById('btnLimparEmpresa').addEventListener('click', () => padEmpresa.clear());
-
-                const sigTec = `<%= levantamento.assinatura_avaliador || '' %>`;
-                if (sigTec.includes('base64')) padTecnico.fromDataURL(sigTec);
-
-                const sigEmp = `<%= levantamento.assinatura_responsavel_empresa || '' %>`;
-                if (sigEmp.includes('base64')) padEmpresa.fromDataURL(sigEmp);
 
                 document.querySelectorAll('input.input-checkbox:checked').forEach(cb => {
                     const targetId = cb.getAttribute('data-target');
@@ -1653,7 +1646,7 @@
 
                 if (gridRiscos.children.length === 0) {
                     const grupoEl = document.getElementById(grupoId);
-                    if(grupoEl) grupoEl.remove();
+                    if (grupoEl) grupoEl.remove();
                 }
             }
 
@@ -1721,19 +1714,19 @@
                     const epcs = tomEpc ? tomEpc.getValue() : [];
                 }
 
-                if (padTecnico.isEmpty() || padEmpresa.isEmpty()) {
+                const assinatura_avaliador = document.getElementById('assinatura_avaliador_hidden').value;
+                const assinatura_responsavel_empresa = document.getElementById('assinatura_empresa_hidden').value;
+
+                if (!assinatura_avaliador || !assinatura_responsavel_empresa) {
                     Swal.fire({
-                        title: 'Assinaturas Pendentes',
-                        text: 'As assinaturas do Responsável Técnico e da Empresa são obrigatórias para finalizar.',
+                        title: 'Assinaturas Ausentes',
+                        text: 'Este levantamento não possui as assinaturas registradas.',
                         icon: 'warning',
                         confirmButtonColor: '#0AA34A'
                     });
                     changeStep(4);
                     return;
                 }
-
-                const assinatura_avaliador = padTecnico.toDataURL('image/png');
-                const assinatura_responsavel_empresa = padEmpresa.toDataURL('image/png');
 
                 const getRadioVal = (n) => {
                     const c = document.querySelector(`input[name="${n}"]:checked`);
