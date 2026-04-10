@@ -1808,6 +1808,7 @@
                     const sEpi = item.querySelector('.risk-epis');
                     const sEpc = item.querySelector('.risk-epcs');
                     const fileInput = item.querySelector('.risk-imagem');
+                    const imgAntiga = item.querySelector('.risk-imagem-antiga');
 
                     riscosData.push({
                         id_risco: cb.dataset.id_risco,
@@ -1817,11 +1818,15 @@
                         fontes: item.querySelector('.risk-fontes').value,
                         tempo: item.querySelector('.risk-tempo').value,
                         obs: item.querySelector('.risk-obs').value,
+                        // MANDAMOS A IMAGEM ANTIGA COM TODOS OS NOMES POSSÍVEIS PRO BACKEND NÃO SE PERDER:
+                        imagem: imgAntiga ? imgAntiga.value : '',
+                        caminho_imagem: imgAntiga ? imgAntiga.value : '',
+                        imagem_antiga: imgAntiga ? imgAntiga.value : '',
                         epis: sEpi.tomselect ? sEpi.tomselect.getValue() : [],
                         epcs: sEpc.tomselect ? sEpc.tomselect.getValue() : []
                     });
 
-                    // Se tiver arquivo, comprime com qualidade excelente antes de anexar!
+                    // Se houver arquivo novo selecionado, comprime e anexa!
                     if (fileInput && fileInput.files.length > 0) {
                         const arquivoOriginal = fileInput.files[0];
                         const arquivoComprimido = await comprimirImagem(arquivoOriginal);
