@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="/css/style.css" />
 
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -61,10 +60,6 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
-                                        style="display: none;">
-                                        Inativar Selecionados
-                                    </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
@@ -87,7 +82,6 @@
                             <table id="table_usuarios" class="table-default w-full">
                                 <thead>
                                     <tr>
-                                        <th></th>
                                         <th>Usuário</th>
                                         <th>Perfil</th>
                                         <th>Status</th>
@@ -113,8 +107,6 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
@@ -181,9 +173,7 @@
                     const nomeCompleto = u.nome_completo || "Sem Nome";
                     const iniciais = nomeCompleto.substring(0, 2).toUpperCase();
 
-                    // Célula "Unidade" Removida. Total de 5 Colunas.
                     tr.innerHTML = `
-                        <td></td>
                         <td>
                             <div class="flex items-center">
                                 <div class="flex flex-nowrap items-center gap-2.5">
@@ -208,6 +198,9 @@
                                 <a href="/usuario/editar/${u.id_usuario}" class="btn !p-1.5 hover:!text-primary" title="Editar">
                                     <span class="icon-[lucide--edit] text-lg"></span>
                                 </a>
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${u.id_usuario}" data-status="${u.ativo}" data-nome="${nomeCompleto}" title="Inativar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
                             </div>
                         </td>
                     `;
@@ -220,11 +213,12 @@
                     pageLength: 10,
                     scrollX: false,
                     dom: 'lrtip',
-                    columnDefs: [
-                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 }
-                    ],
-                    select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
-                    order: [[1, 'asc']]
+                    order: [[0, 'asc']], 
+                    language: {
+                        emptyTable: "Nenhum usuário encontrado",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
+                    }
                 });
 
                 // BUSCA GLOBAL
@@ -234,7 +228,7 @@
 
                 // =========================================================================
                 // CORREÇÃO DO FILTRO DE STATUS (Busca Exata e Filtro Padrão)
-                // O índice da coluna de status mudou para 3 (pois removemos a unidade)
+                // O índice da coluna de status mudou para 2 (pois removemos os checkboxes)
                 // =========================================================================
                 const statusFilter = document.getElementById('statusFilter');
 
@@ -242,19 +236,19 @@
                     const val = this.value;
                     if (val) {
                         // Regex para busca EXATA (^Ativo$). Assim "Ativo" não puxa "Inativo".
-                        table.column(3).search('^' + val + '$', true, false).draw();
+                        table.column(2).search('^' + val + '$', true, false).draw();
                     } else {
-                        table.column(3).search('').draw(); // Limpa o filtro (Todos)
+                        table.column(2).search('').draw(); // Limpa o filtro (Todos)
                     }
                 });
 
                 // Aplica o filtro de "Ativo" automaticamente assim que a página carrega
                 if (statusFilter.value) {
-                    table.column(3).search('^' + statusFilter.value + '$', true, false).draw();
+                    table.column(2).search('^' + statusFilter.value + '$', true, false).draw();
                 }
                 // =========================================================================
 
-                // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
+                // 5. INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
                 document.body.addEventListener('click', function (e) {
                     // Editar
                     const linkEditar = e.target.closest('a[href^="/usuario/editar/"]');
@@ -262,81 +256,76 @@
                         e.preventDefault();
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para editar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
+
                     // Novo
                     const linkNovo = e.target.closest('a[href="/usuario/novo"]');
                     if (linkNovo && !canCreate) {
                         e.preventDefault();
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos usuários.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
-                });
 
-                // 6. INATIVAR
-                const inativarBtn = document.getElementById("inativarBtn");
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    inativarBtn.style.display = count > 0 ? "inline-flex" : "none";
-                    inativarBtn.innerHTML = `Inativar Selecionados (${count})`;
-                });
+                    // Inativar (Lixeira individual)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
 
-                inativarBtn.addEventListener('click', function () {
-                    // Bloqueio no botão
-                    if (!canInactivate) {
-                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                        return;
-                    }
+                        const userId = btnInativar.getAttribute('data-id');
+                        const userStatus = btnInativar.getAttribute('data-status');
+                        const userName = btnInativar.getAttribute('data-nome');
 
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-                    const jaInativos = [];
-
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (index !== null && listaUsuarios[index]) {
-                            const u = listaUsuarios[index];
-                            if (u.ativo === 0 || u.ativo === false || u.ativo === '0') {
-                                jaInativos.push(u.nome_completo);
-                            } else {
-                                selectedIds.push(u.id_usuario);
-                            }
+                        // Verifica se já está inativo
+                        if (userStatus === '0' || userStatus === 'false') {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: `O usuário ${userName} já encontra-se inativo.`,
+                                icon: 'info',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                            return;
                         }
-                    });
 
-                    if (jaInativos.length > 0) {
-                        Swal.fire({ icon: 'warning', title: 'Ação Bloqueada', html: `Os seguintes usuários <b>já estão inativos</b>:<br><br>${jaInativos.join('<br>')}<br><br>Desmarque-os para continuar.` });
-                        return;
-                    }
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Tem certeza?', text: `Deseja inativar ${selectedIds.length} usuário(s)?`, icon: 'warning',
-                        showCancelButton: true, confirmButtonText: 'Sim, inativar', cancelButtonText: 'Cancelar',
-                        confirmButtonColor: '#ef4444', cancelButtonColor: '#3f3f46'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await fetch('/usuario/inativar-multiplos', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                                    body: JSON.stringify({ ids: selectedIds })
-                                });
-
-                                if (response.status === 403) {
-                                    Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                    return;
-                                }
-
-                                const data = await response.json();
-                                if (data.success) {
-                                    Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
-                                } else {
-                                    Swal.fire('Erro', data.message, 'error');
-                                }
-                            } catch (err) {
-                                Swal.fire('Erro no Servidor', err.message, 'error');
-                            }
+                        // Verifica Permissão
+                        if (!canInactivate) {
+                            Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar usuários.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                            return;
                         }
-                    });
+
+                        Swal.fire({
+                            title: 'Tem certeza?',
+                            text: `Deseja inativar o usuário ${userName}?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#3f3f46'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    // Utilizando a rota de múltiplos enviando apenas o ID selecionado
+                                    const response = await fetch('/usuario/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                        body: JSON.stringify({ ids: [userId] })
+                                    });
+
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (err) {
+                                    Swal.fire('Erro no Servidor', err.message, 'error');
+                                }
+                            }
+                        });
+                    }
                 });
             });
         </script>
