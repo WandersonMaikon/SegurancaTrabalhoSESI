@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Visão Gerencial</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div
+                    class="px-4 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Visão Gerencial</h2>
+                        <ol class="flex gap-1 items-center text-sm mt-1">
+                            <li class="flex items-center"><a href="/dashboard"
+                                    class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Home</a></li>
+                            <li class="flex items-center opacity-30 leading-none"><span
+                                    class="icon-[lucide--chevron-right] rtl:rotate-180"></span></li>
+                            <li class="flex items-center"><span class="pointer-events-none">Gestão</span></li>
+                            <li class="flex items-center opacity-30 leading-none"><span
+                                    class="icon-[lucide--chevron-right] rtl:rotate-180"></span></li>
+                            <li class="flex items-center"><span
+                                    class="text-primary font-semibold pointer-events-none">Monitoramento de
+                                    Contratos</span></li>
+                        </ol>
+                    </div>
+
+                    <div class="flex gap-4 w-full md:w-auto">
+                        <div
+                            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 text-center shadow-sm flex-1 md:flex-none">
+                            <span class="block text-xs text-zinc-400 uppercase tracking-wider font-bold">Em
+                                Andamento</span>
+                            <span class="text-xl font-bold text-sky-500">
+                                <%= indicadores.emAndamento || 0 %>
+                            </span>
+                        </div>
+                        <div
+                            class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-4 py-2 text-center shadow-sm flex-1 md:flex-none">
+                            <span
+                                class="block text-xs text-zinc-400 uppercase tracking-wider font-bold">Atrasados</span>
+                            <span class="text-xl font-bold text-red-500">
+                                <%= indicadores.atrasados || 0 %>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content lg:px-4 flex-grow">
+
+                    <div class="px-4 mb-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                        <div class="relative max-w-sm w-full">
+                            <input type="search" id="inputPesquisaProjetos"
+                                class="input !ps-9 w-full bg-white dark:bg-zinc-900"
+                                placeholder="Buscar por cliente ou contrato...">
+                            <span
+                                class="iconify icon-[lucide--search] absolute start-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"></span>
+                        </div>
+                    </div>
+
+                    <div class="px-4">
+                        <div class="flex flex-col gap-4 mb-4" id="task-board">
+
+                            <% var blocos=[ { titulo: 'Abertos' , statusAlvo: 'Aberta' , corBg: 'bg-blue-500' ,
+                                corTexto: 'text-blue-500' }, { titulo: 'Em Andamento' , statusAlvo: 'Em Andamento' ,
+                                corBg: 'bg-sky-500' , corTexto: 'text-sky-500' }, { titulo: 'Concluídos' ,
+                                statusAlvo: 'Concluída' , corBg: 'bg-green-500' , corTexto: 'text-green-500' } ]; %>
+
+                                <% blocos.forEach(function(bloco) { %>
+                                    <% // Filtro Blindado: Impossível quebrar ou dar erro de formatação var
+                                        projBloco=[]; if (projetos && projetos.length> 0) {
+                                        for(var i=0; i < projetos.length; i++) { var
+                                            stProj=String(projetos[i].status_os).trim().toLowerCase(); var
+                                            stAlvo=String(bloco.statusAlvo).trim().toLowerCase(); if (stProj===stAlvo) {
+                                            projBloco.push(projetos[i]); } } } %>
+
+                                            <div
+                                                class="parent-task overflow-hidden rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                                                <div
+                                                    class="flex items-center justify-between p-4 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                                                    <div class="flex items-center">
+                                                        <h3 class="text-lg font-bold text-zinc-800 dark:text-white">
+                                                            <%= bloco.titulo %>
+                                                        </h3>
+                                                        <span
+                                                            class="ml-3 badge <%= bloco.corBg %>/10 <%= bloco.corTexto %> rounded-full px-2.5 py-0.5 font-bold">
+                                                            <%= projBloco.length %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="overflow-x-auto">
+                                                    <table class="table-default whitespace-nowrap w-full">
+                                                        <tbody class="child-list">
+                                                            <% if (projBloco.length> 0) { %>
+                                                                <% projBloco.forEach(function(projeto) { %>
+
+                                                                    <% var prioText="Normal" ; var
+                                                                        prioClass="bg-sky-500/10 text-sky-500" ; var
+                                                                        dataFimFormatada="--/--/----" ; var
+                                                                        isAtrasado=false; if (projeto.data_limite_geral)
+                                                                        { var dFimObj=new
+                                                                        Date(projeto.data_limite_geral);
+                                                                        dataFimFormatada=String(dFimObj.getDate()).padStart(2, '0'
+                                                                        ) + '/' + String(dFimObj.getMonth() +
+                                                                        1).padStart(2, '0' ) + '/' +
+                                                                        dFimObj.getFullYear(); var hoje=new Date();
+                                                                        hoje.setHours(0,0,0,0); var dFimSemHora=new
+                                                                        Date(dFimObj); dFimSemHora.setHours(0,0,0,0);
+                                                                        var diffTime=dFimSemHora.getTime() -
+                                                                        hoje.getTime(); var
+                                                                        diasRestantes=Math.ceil(diffTime / (1000 * 60 *
+                                                                        60 * 24)); if (projeto.status_os==='Concluída' )
+                                                                        { prioText="Finalizado" ;
+                                                                        prioClass="bg-green-500/10 text-green-500" ; }
+                                                                        else if (diasRestantes < 0 ||
+                                                                        projeto.is_atrasado) { isAtrasado=true;
+                                                                        prioText="Crítico" ;
+                                                                        prioClass="bg-red-500/10 text-red-500 border border-red-500/20"
+                                                                        ; } else if (diasRestantes <=15) {
+                                                                        prioText="Alta" ;
+                                                                        prioClass="bg-orange-500/10 text-orange-500" ; }
+                                                                        else if (diasRestantes <=30) { prioText="Média"
+                                                                        ; prioClass="bg-amber-500/10 text-amber-500" ; }
+                                                                        } %>
+
+                                                                        <tr
+                                                                            class="child-task projeto-row hover:bg-zinc-50 dark:hover:bg-zinc-800/30 transition-colors border-b border-zinc-100 dark:border-zinc-800 last:border-0 <%= isAtrasado ? 'bg-red-50/30 dark:bg-red-900/5' : '' %>">
+
+                                                                            <td class="!pe-0 pl-4 w-10 text-center">
+                                                                                <% if (isAtrasado) { %>
+                                                                                    <span
+                                                                                        class="icon-[lucide--alert-triangle] text-xl text-red-500 animate-pulse"></span>
+                                                                                    <% } else if
+                                                                                        (projeto.status_os==='Concluída'
+                                                                                        ) { %>
+                                                                                        <span
+                                                                                            class="icon-[lucide--circle-check] text-xl text-green-500"></span>
+                                                                                        <% } else { %>
+                                                                                            <span
+                                                                                                class="icon-[lucide--building-2] text-xl text-zinc-400"></span>
+                                                                                            <% } %>
+                                                                            </td>
+
+                                                                            <td class="min-w-[200px] py-4">
+                                                                                <h6
+                                                                                    class="task-title font-bold text-zinc-800 dark:text-zinc-100 text-wrap search-nome">
+                                                                                    <%= projeto.empresa %>
+                                                                                </h6>
+                                                                                <span
+                                                                                    class="text-xs text-zinc-500 font-mono search-contrato">
+                                                                                    <%= projeto.contrato %>
+                                                                                </span>
+                                                                            </td>
+
+                                                                            <td class="w-48 py-4">
+                                                                                <div class="flex items-center gap-3">
+                                                                                    <div
+                                                                                        class="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                                                                        <div class="h-full <%= bloco.corBg %> rounded-full"
+                                                                                            style="width: <%= projeto.progresso %>%">
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <span
+                                                                                        class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                                                                                        <%= projeto.progresso %>%
+                                                                                    </span>
+                                                                                </div>
+                                                                            </td>
+
+                                                                            <td class="w-32 py-4">
+                                                                                <span class="badge <%= prioClass %>">
+                                                                                    <%= prioText %>
+                                                                                </span>
+                                                                            </td>
+
+                                                                            <td class="task-date w-40 py-4">
+                                                                                <% if (isAtrasado) { %>
+                                                                                    <span
+                                                                                        class="text-red-500 font-bold flex items-center gap-1"><span
+                                                                                            class="icon-[lucide--clock-alert]"></span>
+                                                                                        <%= dataFimFormatada %>
+                                                                                    </span>
+                                                                                    <% } else { %>
+                                                                                        <span
+                                                                                            class="text-zinc-500 flex items-center gap-1"><span
+                                                                                                class="icon-[lucide--calendar]"></span>
+                                                                                            <%= dataFimFormatada %>
+                                                                                        </span>
+                                                                                        <% } %>
+                                                                            </td>
+
+                                                                            <td class="text-right pr-4 py-4">
+                                                                                <a href="/scrum/quadro/<%= projeto.id %>"
+                                                                                    class="btn btn-sm bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-primary hover:text-white hover:border-primary transition-colors shadow-sm">
+                                                                                    Ver Tarefas
+                                                                                </a>
+                                                                            </td>
+                                                                        </tr>
+
+                                                                        <% }); %>
+                                                                            <% } else { %>
+                                                                                <tr>
+                                                                                    <td colspan="6"
+                                                                                        class="text-center py-6 text-zinc-400 italic text-sm">
+                                                                                        Nenhum contrato com status "<%=
+                                                                                            bloco.titulo %>" no momento.
+                                                                                    </td>
+                                                                                </tr>
+                                                                                <% } %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <% }); %>
+
+                        </div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const inputPesquisa = document.getElementById('inputPesquisaProjetos');
+                const rows = document.querySelectorAll('.projeto-row');
+
+                function aplicarFiltro() {
+                    const termo = inputPesquisa.value.toLowerCase();
+
+                    rows.forEach(row => {
+                        const nome = row.querySelector('.search-nome').innerText.toLowerCase();
+                        const contrato = row.querySelector('.search-contrato').innerText.toLowerCase();
+
+                        if (nome.includes(termo) || contrato.includes(termo)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                }
+
+                if (inputPesquisa) {
+                    inputPesquisa.addEventListener('input', aplicarFiltro);
+                }
+            });
+        </script>
+</body>
+
+</html>

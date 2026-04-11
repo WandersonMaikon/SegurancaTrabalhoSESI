@@ -35,26 +35,30 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             totalFunc = rowFunc[0].total || 0;
         } catch (e) { console.log("Erro num_colaboradores:", e.message); }
 
-        // BUSCA O TOTAL DE OS E A SOMA DO FOMENTO
+        // 2. BUSCA O TOTAL DE OS E A SOMA DO FOMENTO (Ignorando Canceladas)
         const [rowOS] = await db.query(`
             SELECT 
                 COUNT(*) as totalQuantidade, 
                 SUM(valor_previsto_fomento) as totalFomento 
             FROM ordem_servico os 
-            WHERE os.deleted_at IS NULL ${filtroDataOS}
+            WHERE os.deleted_at IS NULL 
+            AND os.status != 'Cancelada' 
+            ${filtroDataOS}
         `, paramsOS);
 
         // 3. BUSCANDO O PERFIL DOS CLIENTES (Pizza)
         const [rowEmpresas] = await db.query(`SELECT COUNT(*) as total FROM cliente WHERE deleted_at IS NULL AND (industria = 0 OR industria IS NULL) ${filtroDataCliente}`, paramsCliente);
         const [rowIndustrias] = await db.query(`SELECT COUNT(*) as total FROM cliente WHERE deleted_at IS NULL AND industria = 1 ${filtroDataCliente}`, paramsCliente);
 
-        // 4. MÁGICA: GRÁFICO DE BARRAS COM DADOS REAIS AGRUPADOS POR MÊS E FILTRADOS!
+        // 4. MÁGICA: GRÁFICO DE BARRAS (Faturamento, Ignorando OS Canceladas)
         const [faturamentoRows] = await db.query(`
             SELECT 
                 DATE_FORMAT(os.data_abertura, '%m/%Y') as mes,
                 SUM(os.valor_total_contrato) as total
             FROM ordem_servico os
-            WHERE os.deleted_at IS NULL ${filtroDataOS}
+            WHERE os.deleted_at IS NULL 
+            AND os.status != 'Cancelada' 
+            ${filtroDataOS}
             GROUP BY YEAR(os.data_abertura), MONTH(os.data_abertura), DATE_FORMAT(os.data_abertura, '%m/%Y')
             ORDER BY YEAR(os.data_abertura) ASC, MONTH(os.data_abertura) ASC
         `, paramsOS);
@@ -62,12 +66,14 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const mesesLabel = faturamentoRows.map(r => r.mes);
         const valoresFaturamento = faturamentoRows.map(r => r.total);
 
-        // 5. BUSCANDO AS ÚLTIMAS 5 OS
+        // 5. BUSCANDO AS ÚLTIMAS 5 OS (Ignorando as Canceladas na Tabela)
         const [ultimasOS] = await db.query(`
             SELECT os.*, c.nome_empresa 
             FROM ordem_servico os 
             JOIN cliente c ON os.id_cliente = c.id_cliente 
-            WHERE os.deleted_at IS NULL ${filtroDataOS}
+            WHERE os.deleted_at IS NULL 
+            AND os.status != 'Cancelada' 
+            ${filtroDataOS}
             ORDER BY os.data_abertura DESC LIMIT 5
         `, paramsOS);
 
@@ -76,7 +82,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             totalClientes: rowClientes[0].total || 0,
             totalFuncionarios: totalFunc,
             totalContratos: rowOS[0].totalQuantidade || 0,
-            totalFomento: rowOS[0].totalFomento || 0, // <--- NOVO DADO
+            totalFomento: rowOS[0].totalFomento || 0,
             qtdEmpresasComuns: rowEmpresas[0].total || 0,
             qtdIndustrias: rowIndustrias[0].total || 0,
             mesesLabel: mesesLabel.length > 0 ? mesesLabel : ['Sem dados'],
