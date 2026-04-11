@@ -1,360 +1,385 @@
-    <!DOCTYPE html>
-    <html lang="pt-BR" class="h-full">
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>ProS - Ordem de Serviço</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Ordem de Serviço</title>
 
-        <link rel="icon" href="/images/favicon.png" type="image/png">
-        <link rel="stylesheet" href="/vendor/css/simplebar.css">
-        <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com/">
-        <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
-            rel="stylesheet">
-        <link rel="stylesheet" href="/css/style.css" />
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
 
-        <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-        <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
-    </head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
 
-    <body
-        class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
 
-        <%- include('../partials/sidebar') %>
+    <%- include('../partials/sidebar') %>
 
-            <main class="flex-1 lg:ms-64 flex flex-col app-content">
-                <%- include('../partials/header') %>
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
 
-                    <div class="px-4 lg:px-8 py-4">
-                        <h2 class="text-xl mb-2">Ordens de Serviço</h2>
-                        <ol class="flex gap-1 items-center text-sm">
-                            <li class="flex items-center">
-                                <a href="/dashboard"
-                                    class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
-                            </li>
-                            <li class="flex items-center opacity-30 leading-none">
-                                <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
-                            </li>
-                            <li class="flex items-center"><span class="pointer-events-none">OS</span></li>
-                        </ol>
-                    </div>
+                <div class="px-4 lg:px-8 py-4">
+                    <h2 class="text-xl mb-2">Ordens de Serviço</h2>
+                    <ol class="flex gap-1 items-center text-sm">
+                        <li class="flex items-center">
+                            <a href="/dashboard"
+                                class="text-zinc-400 hover:text-zinc-700 dark:hover:text-white">Dashboard</a>
+                        </li>
+                        <li class="flex items-center opacity-30 leading-none">
+                            <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
+                        </li>
+                        <li class="flex items-center"><span class="pointer-events-none">OS</span></li>
+                    </ol>
+                </div>
 
-                    <div class="content flex-grow lg:px-4">
-                        <div class="grid grid-cols-1 px-4">
-                            <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
+                <div class="content flex-grow lg:px-4">
+                    <div class="grid grid-cols-1 px-4">
+                        <div class="rounded-xl bg-white dark:bg-zinc-900 shadow-card mb-4">
 
-                                <div
-                                    class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
-                                    <div class="flex-grow">
-                                        <div class="relative">
-                                            <input type="search" class="input !ps-9" name="osSearch" id="osSearch"
-                                                placeholder="Buscar OS (Cliente, Contrato...)">
-                                            <span
-                                                class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center flex-wrap justify-end gap-2">
-                                        <div class="flex-grow w-56 sm:w-auto">
-                                            <select id="statusFilter" class="js-select w-full sm:w-56">
-                                                <option value="" selected>Todos Status</option>
-                                                <option value="Aberta">Aberta</option>
-                                                <option value="Em Andamento">Em Andamento</option>
-                                                <option value="Concluída">Concluída</option>
-                                                <option value="Cancelada">Cancelada</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="flex items-center gap-2">
-                                            <a href="/ordem-servico/novo"
-                                                class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
-                                                <span class="icon-[lucide--plus] text-lg me-1"></span> Nova OS
-                                            </a>
-                                        </div>
+                            <div
+                                class="flex flex-wrap gap-2 items-center p-4 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div class="flex-grow">
+                                    <div class="relative">
+                                        <input type="search" class="input !ps-9" name="osSearch" id="osSearch"
+                                            placeholder="Buscar OS (Cliente, Contrato...)">
+                                        <span
+                                            class="iconify icon-[lucide--search] pointer-events-none absolute start-0 top-0 h-full flex items-center justify-center ms-3 text-muted"></span>
                                     </div>
                                 </div>
 
-                                <div class="overflow-x-auto">
-                                    <table id="table_ordens" class="table-default w-full">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-nowrap">Cliente</th>
-                                                <th class="text-nowrap">Valor Total</th>
-                                                <th class="text-nowrap">Data Abertura</th>
-                                                <th class="text-nowrap">Status</th>
-                                                <th class="text-nowrap" data-orderable="false">Ações</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="tableBody"></tbody>
-                                    </table>
-                                </div>
+                                <div class="flex items-center flex-wrap justify-end gap-2">
+                                    <div class="flex-grow w-56 sm:w-auto">
+                                        <select id="statusFilter" class="js-select w-full sm:w-56">
+                                            <option value="" selected>Todos Status</option>
+                                            <option value="Aberta">Aberta</option>
+                                            <option value="Em Andamento">Em Andamento</option>
+                                            <option value="Concluída">Concluída</option>
+                                            <option value="Cancelada">Cancelada</option>
+                                        </select>
+                                    </div>
 
+                                    <div class="flex items-center gap-2">
+                                        <a href="/ordem-servico/novo"
+                                            class="btn bg-primary shrink-0 text-white hover:bg-primary-deep">
+                                            <span class="icon-[lucide--plus] text-lg me-1"></span> Nova OS
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
+
+                            <div class="overflow-x-auto">
+                                <table id="table_ordens" class="table-default w-full">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-nowrap">Cliente</th>
+                                            <th class="text-nowrap">Valor Total</th>
+                                            <th class="text-nowrap">Data Abertura</th>
+                                            <th class="text-nowrap">Status</th>
+                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableBody"></tbody>
+                                </table>
+                            </div>
+
                         </div>
                     </div>
+                </div>
 
-                    <%- include('../partials/footer') %>
-            </main>
+                <%- include('../partials/footer') %>
+        </main>
 
-            <div id="dados-ordens-json" style="display: none;">
-                <%= ordensJson %>
-            </div>
+        <div id="dados-ordens-json" style="display: none;">
+            <%= ordensJson %>
+        </div>
 
-            <div id="permissoes-os-json" style="display: none;">
-                <%- JSON.stringify(user.permissoes && user.permissoes['ordens_servico'] ? user.permissoes['ordens_servico']
-                    : {}) %>
-            </div>
+        <div id="permissoes-os-json" style="display: none;">
+            <%- JSON.stringify(user.permissoes && user.permissoes['ordens_servico'] ? user.permissoes['ordens_servico']
+                : {}) %>
+        </div>
 
-            <script src="/js/theme.js"></script>
-            <script src="/vendor/js/jquery.min.js"></script>
-            <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-            <script src="/vendor/js/sweetalert2.all.min.js"></script>
-            <script src="/vendor/js/tom-select.complete.min.js"></script>
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
 
-            <script>
-                const userEmail = "<%= user.email %>";
-                const userPerfilNome = "<%= user.nome_perfil %>";
+        <script>
+            const userEmail = "<%= user.email %>";
+            const userPerfilNome = "<%= user.nome_perfil %>";
 
-                // LER AS PERMISSÕES DA DIV OCULTA
-                let permOS = {};
+            // LER AS PERMISSÕES DA DIV OCULTA
+            let permOS = {};
+            try {
+                const divPerm = document.getElementById('permissoes-os-json');
+                if (divPerm && divPerm.innerText) {
+                    permOS = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) {
+                console.error("Erro ao ler permissões:", e);
+            }
+
+            let canEdit = false;
+            let canCreate = false;
+            let canInactivate = false;
+
+            // Admin Bypass
+            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
+                canEdit = true;
+                canCreate = true;
+                canInactivate = true;
+            } else {
+                // Permissão para Editar
+                if ((permOS.pode_editar == 1 || permOS.pode_editar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canEdit = true;
+                // Permissão para Criar
+                if ((permOS.pode_criar == 1 || permOS.pode_criar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canCreate = true;
+                // Permissão para Inativar
+                if ((permOS.pode_inativar == 1 || permOS.pode_inativar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canInactivate = true;
+            }
+        </script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let listaOrdens = [];
                 try {
-                    const divPerm = document.getElementById('permissoes-os-json');
-                    if (divPerm && divPerm.innerText) {
-                        permOS = JSON.parse(divPerm.innerText);
+                    const divJson = document.getElementById('dados-ordens-json');
+                    if (divJson && divJson.innerText.trim()) {
+                        listaOrdens = JSON.parse(divJson.innerText);
                     }
-                } catch (e) {
-                    console.error("Erro ao ler permissões:", e);
-                }
+                } catch (e) { console.error(e); }
 
-                let canEdit = false;
-                let canCreate = false;
-                let canInactivate = false;
+                const tbody = document.getElementById('tableBody');
+                tbody.innerHTML = '';
 
-                // Admin Bypass
-                if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
-                    canEdit = true;
-                    canCreate = true;
-                    canInactivate = true;
-                } else {
-                    // Permissão para Editar
-                    if ((permOS.pode_editar == 1 || permOS.pode_editar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canEdit = true;
-                    // Permissão para Criar
-                    if ((permOS.pode_criar == 1 || permOS.pode_criar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canCreate = true;
-                    // Permissão para Inativar
-                    if ((permOS.pode_inativar == 1 || permOS.pode_inativar === true) || (permOS.tudo == 1 || permOS.tudo === true)) canInactivate = true;
-                }
-            </script>
+                // Formatador de Moeda
+                const formatCurrency = (value) => {
+                    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+                };
 
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    let listaOrdens = [];
-                    try {
-                        const divJson = document.getElementById('dados-ordens-json');
-                        if (divJson && divJson.innerText.trim()) {
-                            listaOrdens = JSON.parse(divJson.innerText);
+                // Formatador de Data
+                const formatDate = (dateString) => {
+                    if (!dateString) return '-';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('pt-BR');
+                };
+
+                // Badge de Status (BLINDADO CONTRA ERROS DE DIGITAÇÃO NO BANCO)
+                const getStatusBadge = (status) => {
+                    if (!status) return `<span class="badge bg-zinc-100 text-zinc-500">-</span>`;
+
+                    const s = status.trim().toUpperCase();
+
+                    if (s === 'ABERTA') return '<span class="badge bg-blue-500/10 text-blue-500">Aberta</span>';
+                    if (s === 'EM ANDAMENTO') return '<span class="badge bg-amber-500/10 text-amber-500">Em Andamento</span>';
+                    if (s === 'CONCLUÍDA' || s === 'CONCLUIDA') return '<span class="badge bg-green-500/10 text-green-500">Concluída</span>';
+                    if (s === 'CANCELADA' || s === 'CANCELADO') return '<span class="badge bg-red-500/10 text-red-500">Cancelada</span>'; // Tratou o "O" e "A"
+
+                    return `<span class="badge bg-zinc-100 text-zinc-500">${status}</span>`;
+                };
+
+                listaOrdens.forEach((os, index) => {
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                        <td class="font-semibold text-zinc-900 dark:text-white align-middle">
+                            <span title="${os.nome_empresa}" class="cursor-help">
+                                ${os.nome_empresa_curto}
+                            </span>
+                        </td>
+                        <td class="whitespace-nowrap">
+                            ${formatCurrency(os.valor_total_contrato)}
+                        </td>
+                        <td class="whitespace-nowrap">
+                            ${formatDate(os.data_abertura)}
+                            <br><small class="text-muted text-xs">Contrato: ${os.contrato_numero}</small>
+                        </td>
+                        <td>${getStatusBadge(os.status)}</td>
+                        <td>
+                            <div class="flex items-center gap-1 relative z-[1]">
+                                <a href="/ordem-servico/ver/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Visualizar">
+                                    <span class="icon-[lucide--eye] text-lg"></span>
+                                </a>
+                                <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-amber-500 transition-colors" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
+                                </a>
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${os.id_ordem_servico}" data-status="${os.status}" title="Cancelar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                const table = new DataTable('#table_ordens', {
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: true,
+                    dom: 'lrtip',
+                    language: {
+                        emptyTable: "Nenhuma ordem de serviço encontrada",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
+                    },
+                    order: [[2, 'desc']]
+                });
+
+                // Busca global
+                document.getElementById('osSearch').addEventListener('input', e => {
+                    table.search(e.target.value).draw();
+                });
+
+                // Filtro de Status (Usando Regex para Busca Exata e evitar conflitos)
+                document.getElementById('statusFilter').addEventListener('change', function () {
+                    const val = $.fn.dataTable.util.escapeRegex(this.value);
+                    // O parâmetro true ativa o regex, fazendo ele buscar a palavra exata na coluna
+                    table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+
+                // =========================================================================
+                // INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
+                // =========================================================================
+                document.body.addEventListener('click', function (e) {
+
+                    // LINK EDITAR
+                    const linkEditar = e.target.closest('a[href^="/ordem-servico/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para editar ordens de serviço.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // LINK NOVO
+                    const linkNovo = e.target.closest('a[href="/ordem-servico/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({
+                            title: 'Acesso Negado',
+                            text: 'Você não tem permissão para criar novas ordens de serviço.',
+                            icon: 'warning',
+                            confirmButtonColor: '#f59e0b',
+                            confirmButtonText: 'Entendido'
+                        });
+                    }
+
+                    // BOTÃO INATIVAR (LIXEIRA)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
+
+                        // RECUPERA O STATUS GRAVADO NO BOTÃO
+                        const osStatus = btnInativar.getAttribute('data-status');
+
+                        // REGRA 1: NÃO DEIXAR CANCELAR SE JÁ ESTIVER CONCLUÍDO
+                        if (osStatus === 'Concluída' || osStatus === 'Concluida') {
+                            Swal.fire({
+                                title: 'Ação não permitida',
+                                text: 'Esta ordem de serviço já foi concluída e não pode ser cancelada.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f59e0b'
+                            });
+                            return; // Interrompe a execução aqui
                         }
-                    } catch (e) { console.error(e); }
 
-                    const tbody = document.getElementById('tableBody');
-                    tbody.innerHTML = '';
+                        // REGRA 2: AVISAR SE JÁ ESTIVER CANCELADA
+                        if (osStatus === 'Cancelada' || osStatus === 'Cancelado') {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: 'Esta ordem de serviço já encontra-se cancelada.',
+                                icon: 'info',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                            return; // Interrompe a execução aqui
+                        }
 
-                    // Formatador de Moeda
-                    const formatCurrency = (value) => {
-                        return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-                    };
-
-                    // Formatador de Data
-                    const formatDate = (dateString) => {
-                        if (!dateString) return '-';
-                        const date = new Date(dateString);
-                        return date.toLocaleDateString('pt-BR');
-                    };
-
-                    // Badge de Status (BLINDADO CONTRA ERROS DE DIGITAÇÃO NO BANCO)
-                    const getStatusBadge = (status) => {
-                        if (!status) return `<span class="badge bg-zinc-100 text-zinc-500">-</span>`;
-
-                        const s = status.trim().toUpperCase();
-
-                        if (s === 'ABERTA') return '<span class="badge bg-blue-500/10 text-blue-500">Aberta</span>';
-                        if (s === 'EM ANDAMENTO') return '<span class="badge bg-amber-500/10 text-amber-500">Em Andamento</span>';
-                        if (s === 'CONCLUÍDA' || s === 'CONCLUIDA') return '<span class="badge bg-green-500/10 text-green-500">Concluída</span>';
-                        if (s === 'CANCELADA' || s === 'CANCELADO') return '<span class="badge bg-red-500/10 text-red-500">Cancelada</span>'; // Tratou o "O" e "A"
-
-                        return `<span class="badge bg-zinc-100 text-zinc-500">${status}</span>`;
-                    };
-
-                    listaOrdens.forEach((os, index) => {
-                        const tr = document.createElement('tr');
-
-                        tr.innerHTML = `
-                            <td class="font-semibold text-zinc-900 dark:text-white align-middle">
-                                <span title="${os.nome_empresa}" class="cursor-help">
-                                    ${os.nome_empresa_curto}
-                                </span>
-                            </td>
-                            <td class="whitespace-nowrap">
-                                ${formatCurrency(os.valor_total_contrato)}
-                            </td>
-                            <td class="whitespace-nowrap">
-                                ${formatDate(os.data_abertura)}
-                                <br><small class="text-muted text-xs">Contrato: ${os.contrato_numero}</small>
-                            </td>
-                            <td>${getStatusBadge(os.status)}</td>
-                            <td>
-                                <div class="flex items-center gap-1 relative z-[1]">
-                                    <a href="/ordem-servico/ver/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Visualizar">
-                                        <span class="icon-[lucide--eye] text-lg"></span>
-                                    </a>
-                                    <a href="/ordem-servico/editar/${os.id_ordem_servico}" class="btn !p-1.5 text-zinc-500 hover:text-amber-500 transition-colors" title="Editar">
-                                        <span class="icon-[lucide--edit] text-lg"></span>
-                                    </a>
-                                    <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${os.id_ordem_servico}" title="Cancelar">
-                                        <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
-                                    </button>
-                                </div>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-
-                    const table = new DataTable('#table_ordens', {
-                        lengthChange: false,
-                        pageLength: 10,
-                        scrollX: true,
-                        dom: 'lrtip',
-                        language: {
-                            emptyTable: "Nenhuma ordem de serviço encontrada",
-                            info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                            paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
-                        },
-                        order: [[2, 'desc']]
-                    });
-
-                    // Busca global
-                    document.getElementById('osSearch').addEventListener('input', e => {
-                        table.search(e.target.value).draw();
-                    });
-
-                    // Filtro de Status (Usando Regex para Busca Exata e evitar conflitos)
-                    document.getElementById('statusFilter').addEventListener('change', function () {
-                        const val = $.fn.dataTable.util.escapeRegex(this.value);
-                        // O parâmetro true ativa o regex, fazendo ele buscar a palavra exata na coluna
-                        table.columns(3).search(val ? '^' + val + '$' : '', true, false).draw();
-                    });
-
-                    // =========================================================================
-                    // INTERCEPTADOR DE CLIQUES (EDITAR, NOVO E INATIVAR)
-                    // =========================================================================
-                    document.body.addEventListener('click', function (e) {
-
-                        // LINK EDITAR
-                        const linkEditar = e.target.closest('a[href^="/ordem-servico/editar/"]');
-                        if (linkEditar && !canEdit) {
-                            e.preventDefault();
+                        if (!canInactivate) {
                             Swal.fire({
                                 title: 'Acesso Negado',
-                                text: 'Você não tem permissão para editar ordens de serviço.',
+                                text: 'Você não tem permissão para inativar ordens de serviço.',
                                 icon: 'warning',
                                 confirmButtonColor: '#f59e0b',
                                 confirmButtonText: 'Entendido'
                             });
+                            return;
                         }
 
-                        // LINK NOVO
-                        const linkNovo = e.target.closest('a[href="/ordem-servico/novo"]');
-                        if (linkNovo && !canCreate) {
-                            e.preventDefault();
-                            Swal.fire({
-                                title: 'Acesso Negado',
-                                text: 'Você não tem permissão para criar novas ordens de serviço.',
-                                icon: 'warning',
-                                confirmButtonColor: '#f59e0b',
-                                confirmButtonText: 'Entendido'
-                            });
-                        }
+                        const osId = btnInativar.getAttribute('data-id');
 
-                        // BOTÃO INATIVAR (LIXEIRA)
-                        const btnInativar = e.target.closest('.btn-inativar');
-                        if (btnInativar) {
-                            e.preventDefault();
+                        Swal.fire({
+                            title: 'Inativar OS?',
+                            text: `Deseja realmente inativar esta ordem de serviço? Ela sumirá desta lista.`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    const response = await fetch('/ordem-servico/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json'
+                                        },
+                                        body: JSON.stringify({ ids: [osId] })
+                                    });
 
-                            if (!canInactivate) {
-                                Swal.fire({
-                                    title: 'Acesso Negado',
-                                    text: 'Você não tem permissão para inativar ordens de serviço.',
-                                    icon: 'warning',
-                                    confirmButtonColor: '#f59e0b',
-                                    confirmButtonText: 'Entendido'
-                                });
-                                return;
-                            }
-
-                            const osId = btnInativar.getAttribute('data-id');
-
-                            Swal.fire({
-                                title: 'Inativar OS?',
-                                text: `Deseja realmente inativar esta ordem de serviço? Ela sumirá desta lista.`,
-                                icon: 'warning',
-                                showCancelButton: true,
-                                confirmButtonText: 'Sim, inativar',
-                                cancelButtonText: 'Cancelar'
-                            }).then(async (result) => {
-                                if (result.isConfirmed) {
-                                    try {
-                                        const response = await fetch('/ordem-servico/inativar-multiplos', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'Accept': 'application/json'
-                                            },
-                                            body: JSON.stringify({ ids: [osId] })
-                                        });
-
-                                        if (!response.ok) {
-                                            if (response.status === 403) {
-                                                Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                                return;
-                                            }
-                                            throw new Error(`Erro de comunicação com o servidor.`);
+                                    if (!response.ok) {
+                                        if (response.status === 403) {
+                                            Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                            return;
                                         }
-
-                                        const data = await response.json();
-                                        if (data.success) {
-                                            Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
-                                        } else {
-                                            Swal.fire('Erro', data.message, 'error');
-                                        }
-                                    } catch (error) {
-                                        Swal.fire('Erro', error.message || 'Falha na comunicação', 'error');
+                                        throw new Error(`Erro de comunicação com o servidor.`);
                                     }
+
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (error) {
+                                    Swal.fire('Erro', error.message || 'Falha na comunicação', 'error');
                                 }
-                            });
-                        }
-                    });
+                            }
+                        });
+                    }
                 });
-            </script>
+            });
+        </script>
 
-            <style>
-                .ts-wrapper .ts-control,
-                .ts-wrapper .ts-control *,
-                .ts-wrapper .ts-control input {
-                    cursor: pointer !important;
-                }
-            </style>
-            <script>
-                document.querySelectorAll('.js-select').forEach(select => {
-                    new TomSelect(select, {
-                        create: false,
-                        allowEmptyOption: true,
-                        controlInput: null,
-                        onInitialize: function () {
-                        }
-                    });
+        <style>
+            .ts-wrapper .ts-control,
+            .ts-wrapper .ts-control *,
+            .ts-wrapper .ts-control input {
+                cursor: pointer !important;
+            }
+        </style>
+        <script>
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    controlInput: null,
+                    onInitialize: function () {
+                    }
                 });
-            </script>
-    </body>
+            });
+        </script>
+</body>
 
-    </html>
+</html>
