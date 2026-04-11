@@ -16,7 +16,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -66,10 +65,6 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtnRiscos" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display:none;">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
-                                    </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="tipoFilter" class="js-select w-full sm:w-56">
@@ -82,7 +77,7 @@
                                             <option value="Inespecífico">Inespecífico</option>
                                             <option value="Associações">Associações</option>
                                             <option value="Outros">Outros</option>
-                                            <option value="Ausência de Risco">Ausência de Riscos</option>
+                                            <option value="Ausência de Riscos">Ausência de Riscos</option>
                                         </select>
                                     </div>
 
@@ -100,7 +95,6 @@
                                 <table id="table_riscos" class="table-default w-full">
                                     <thead>
                                         <tr>
-                                            <th></th>
                                             <th class="text-nowrap">Tipo</th>
                                             <th class="text-nowrap">Nome do risco</th>
                                             <th class="text-nowrap">Código eSocial</th>
@@ -121,13 +115,15 @@
 
         <div id="riscos-data" class="hidden"><%- riscosJson %></div>
 
+        <div id="permissoes-user" style="display: none;">
+            <%- JSON.stringify(user.permissoes || {}) %>
+        </div>
+
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
         <style>
             .ts-wrapper .ts-control,
@@ -137,6 +133,41 @@
             }
         </style>
         <script>
+            // Variáveis globais de usuário
+            const userEmail = "<%= user.email %>";
+            const userPerfil = "<%= user.nome_perfil %>";
+
+            // 1. LER PERMISSÕES DO JSON OCULTO
+            let permissoesUsuario = {};
+            try {
+                const divPerm = document.getElementById('permissoes-user');
+                if (divPerm && divPerm.innerText.trim()) {
+                    permissoesUsuario = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) { console.error("Erro ao ler permissões", e); }
+
+            // 2. DEFINIR AS FLAGS (Pode Criar? Pode Editar?)
+            let canCreate = false;
+            let canEdit = false;
+            let canInactivate = false;
+
+            // Lógica de Super Admin
+            if (userEmail === 'admin@admin.com' || userPerfil === 'Administrador' || userPerfil === 'Super Admin') {
+                canCreate = true;
+                canEdit = true;
+                canInactivate = true;
+            } else {
+                const permRisco = permissoesUsuario['riscos'] || permissoesUsuario['risco'] || {};
+
+                if (permRisco.criar == 1 || permRisco.criar === true) canCreate = true;
+                if (permRisco.editar == 1 || permRisco.editar === true) canEdit = true;
+                if (permRisco.inativar == 1 || permRisco.inativar === true) canInactivate = true;
+
+                if (permRisco.tudo == 1 || permRisco.tudo === true) {
+                    canCreate = true; canEdit = true; canInactivate = true;
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', () => {
 
                 // ============================================================
@@ -157,7 +188,89 @@
                 }
 
                 // ============================================================
-                // 2. CONSTRUÇÃO DA TABELA (Renderização Ultra-Rápida)
+                // 2. INTERCEPTADOR DE CLIQUES E RENDERIZAÇÃO
+                // ============================================================
+                document.body.addEventListener('click', function (e) {
+
+                    // A) Clicou em "Criar Novo"?
+                    const linkNovo = e.target.closest('a[href="/risco/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos riscos.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                    }
+
+                    // B) Clicou em "Editar"?
+                    const linkEditar = e.target.closest('a[href^="/risco/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para editar este risco.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                    }
+
+                    // C) Clicou em "Inativar" (Lixeira individual)?
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
+
+                        const riscoId = btnInativar.getAttribute('data-id');
+                        const riscoStatus = btnInativar.getAttribute('data-status');
+                        const riscoNome = btnInativar.getAttribute('data-nome');
+
+                        // Bloqueia se já estiver inativo
+                        if (riscoStatus === '0' || riscoStatus === 'false') {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: `O risco "${riscoNome}" já encontra-se inativo.`,
+                                icon: 'info',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                            return;
+                        }
+
+                        // Verifica Permissão
+                        if (!canInactivate) {
+                            Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar riscos.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: 'Tem certeza?',
+                            text: `Deseja inativar o risco "${riscoNome}"?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#3f3f46'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    const response = await fetch('/risco/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                        body: JSON.stringify({ ids: [riscoId] })
+                                    });
+
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (err) {
+                                    Swal.fire('Erro no Servidor', err.message, 'error');
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // ============================================================
+                // 3. CONSTRUÇÃO DA TABELA DATATABLES
                 // ============================================================
                 let listaRiscos = [];
                 try {
@@ -186,12 +299,6 @@
                     data: listaRiscos,
                     columns: [
                         {
-                            data: null,
-                            defaultContent: '',
-                            orderable: false,
-                            className: 'select-checkbox'
-                        },
-                        {
                             data: 'tipo_risco',
                             className: 'whitespace-nowrap',
                             render: function (data) {
@@ -218,106 +325,50 @@
                                     <a href="/risco/editar/${row.id_risco}" class="btn !p-1.5 hover:!text-primary" title="Editar">
                                         <span class="icon-[lucide--edit] text-lg"></span>
                                     </a>
+                                    <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${row.id_risco}" data-status="${row.ativo}" data-nome="${row.nome_risco}" title="Inativar">
+                                        <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                    </button>
                                 </div>
-                            `;
+                                `;
                             }
                         }
                     ],
                     createdRow: function (row, data, dataIndex) {
                         $(row).attr('data-index', dataIndex);
+
+                        // Opacidade visual para riscos inativos na tabela (Opcional, mas fica legal!)
+                        if (data.ativo == 0 || data.ativo == false) {
+                            $(row).addClass('opacity-50');
+                        }
                     },
                     lengthChange: false,
-                    pageLength: 9,
+                    pageLength: 10,
                     scrollX: false,
                     dom: 'lrtip',
                     language: {
                         emptyTable: "Nenhum risco cadastrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "«", last: "»", next: "›", previous: "‹" },
-                        select: { rows: "" }
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                     },
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child',
-                        headerCheckbox: true
-                    },
-                    order: [[2, 'asc']]
+                    order: [[1, 'asc']] // Ordena pelo Nome do Risco (Coluna 1 agora)
                 });
 
                 // Busca e Filtros
                 document.getElementById('riscoSearch').addEventListener('input', e => table.search(e.target.value).draw());
-                document.getElementById('tipoFilter').addEventListener('change', function () { table.columns(1).search(this.value).draw(); });
 
-                // ============================================================
-                // 3. LÓGICA DE INATIVAR COM TRATAMENTO DE ERRO 403
-                // ============================================================
-                const deleteBtn = document.getElementById('deleteBtnRiscos');
-
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = count > 0 ? 'inline-flex' : 'none';
-                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
+                // Filtro Exato no TomSelect (A coluna "Tipo" agora é a 0)
+                document.getElementById('tipoFilter').addEventListener('change', function () {
+                    const val = this.value;
+                    if (val) {
+                        table.columns(0).search('^' + val + '$', true, false).draw();
+                    } else {
+                        table.columns(0).search('').draw();
+                    }
                 });
 
-                deleteBtn.addEventListener('click', () => {
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (listaRiscos[index]) selectedIds.push(listaRiscos[index].id_risco);
-                    });
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Inativar Riscos?',
-                        text: `Deseja inativar ${selectedIds.length} risco(s)?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#3f3f46',
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await fetch('/risco/inativar-multiplos', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json'
-                                    },
-                                    body: JSON.stringify({ ids: selectedIds })
-                                });
-
-                                if (response.status === 403) {
-                                    Swal.fire({
-                                        title: 'Acesso Negado',
-                                        text: 'Você não tem permissão para inativar registros.',
-                                        icon: 'warning',
-                                        confirmButtonColor: '#f59e0b'
-                                    });
-                                    return;
-                                }
-
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('Erro', data.message, 'error');
-                                }
-                            } catch (error) {
-                                console.error(error);
-                                Swal.fire('Erro', 'Falha na comunicação com o servidor', 'error');
-                            }
-                        }
-                    });
-                });
             });
 
-            // Inicializa TomSelect do Filtro
+            // Inicializa o TomSelect
             document.querySelectorAll('.js-select').forEach(select => {
                 new TomSelect(select, {
                     create: false,

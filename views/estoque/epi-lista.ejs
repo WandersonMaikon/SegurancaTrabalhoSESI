@@ -7,20 +7,15 @@
     <title>ProS - EPI</title>
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
     <link rel="stylesheet" href="/css/style.css" />
-
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -70,10 +65,14 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="deleteBtnEpi" class="btn bg-red-500 text-white hover:bg-red-600"
-                                        style="display:none;">
-                                        <span class="icon-[lucide--trash] text-lg me-1"></span> Inativar
-                                    </button>
+
+                                    <div class="flex-grow w-56 sm:w-auto">
+                                        <select id="statusFilter" class="js-select w-full sm:w-56">
+                                            <option value="">Todos os Status</option>
+                                            <option value="Ativo" selected>Ativo</option>
+                                            <option value="Inativo">Inativo</option>
+                                        </select>
+                                    </div>
 
                                     <div class="flex items-center gap-2">
                                         <a href="/epi/novo"
@@ -89,21 +88,17 @@
                                 <table id="table_epi" class="table-default w-full">
                                     <thead>
                                         <tr>
-                                            <th></th>
-
                                             <th class="text-nowrap">
                                                 <div class="flex items-center">Nome</div>
                                             </th>
-
                                             <th class="text-nowrap">
                                                 <div class="flex items-center">CA</div>
                                             </th>
-
                                             <th class="text-nowrap">
                                                 <div class="flex items-center">Validade (Banco)</div>
                                             </th>
-
-                                            <th class="text-nowrap" data-orderable="false">Ações</th>
+                                            <th class="text-nowrap text-center">Status</th>
+                                            <th class="text-nowrap text-end" data-orderable="false">Ações</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tableBody"></tbody>
@@ -129,50 +124,16 @@
 
         <div id="epi-data" class="hidden"><%- episJson %></div>
 
-        <div id="permissoes-epi-json" style="display: none;">
-            <%- JSON.stringify(user.permissoes && user.permissoes['epis'] ? user.permissoes['epis'] : {}) %>
+        <div id="permissoes-user" style="display: none;">
+            <%- JSON.stringify(user.permissoes || {}) %>
         </div>
 
         <script src="/js/theme.js"></script>
-
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
-
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
 
-        <script>
-            const userEmail = "<%= user.email %>";
-            const userPerfilNome = "<%= user.nome_perfil %>";
-
-            // Ler permissões
-            let permEpi = {};
-            try {
-                const divPerm = document.getElementById('permissoes-epi-json');
-                if (divPerm && divPerm.innerText) {
-                    permEpi = JSON.parse(divPerm.innerText);
-                }
-            } catch (e) {
-                console.error("Erro ao ler permissões de EPI:", e);
-            }
-
-            let canEdit = false;
-            let canCreate = false;
-            let canInactivate = false;
-
-            // Admin Bypass
-            if (userEmail === 'admin@admin.com' || userPerfilNome === 'Administrador' || userPerfilNome === 'Super Admin') {
-                canEdit = true;
-                canCreate = true;
-                canInactivate = true;
-            } else {
-                if ((permEpi.pode_editar == 1 || permEpi.pode_editar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canEdit = true; }
-                if ((permEpi.pode_criar == 1 || permEpi.pode_criar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canCreate = true; }
-                if ((permEpi.pode_inativar == 1 || permEpi.pode_inativar === true) || (permEpi.tudo == 1 || permEpi.tudo === true)) { canInactivate = true; }
-            }
-        </script>
         <style>
             .ts-wrapper .ts-control,
             .ts-wrapper .ts-control *,
@@ -180,9 +141,122 @@
                 cursor: pointer !important;
             }
         </style>
+
         <script>
+            // Variáveis globais de usuário
+            const userEmail = "<%= user.email %>";
+            const userPerfil = "<%= user.nome_perfil %>";
+
+            // 1. LER PERMISSÕES DO JSON OCULTO
+            let permissoesUsuario = {};
+            try {
+                const divPerm = document.getElementById('permissoes-user');
+                if (divPerm && divPerm.innerText.trim()) {
+                    permissoesUsuario = JSON.parse(divPerm.innerText);
+                }
+            } catch (e) { console.error("Erro ao ler permissões", e); }
+
+            // 2. DEFINIR AS FLAGS
+            let canCreate = false;
+            let canEdit = false;
+            let canInactivate = false;
+
+            if (userEmail === 'admin@admin.com' || userPerfil === 'Administrador' || userPerfil === 'Super Admin') {
+                canCreate = true;
+                canEdit = true;
+                canInactivate = true;
+            } else {
+                const permEpi = permissoesUsuario['epis'] || permissoesUsuario['epi'] || {};
+
+                if (permEpi.criar == 1 || permEpi.criar === true) canCreate = true;
+                if (permEpi.editar == 1 || permEpi.editar === true) canEdit = true;
+                if (permEpi.inativar == 1 || permEpi.inativar === true) canInactivate = true;
+
+                if (permEpi.tudo == 1 || permEpi.tudo === true) {
+                    canCreate = true; canEdit = true; canInactivate = true;
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', () => {
-                // 1. Ler dados do JSON
+
+                // =================================================================
+                // 3. INTERCEPTADOR DE CLIQUES (BLOQUEIO FRONT-END) E EXCLUSÃO
+                // =================================================================
+                document.body.addEventListener('click', function (e) {
+
+                    // Novo
+                    const linkNovo = e.target.closest('a[href="/epi/novo"]');
+                    if (linkNovo && !canCreate) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos EPIs.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                    }
+
+                    // Editar
+                    const linkEditar = e.target.closest('a[href^="/epi/editar/"]');
+                    if (linkEditar && !canEdit) {
+                        e.preventDefault();
+                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para editar este EPI.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                    }
+
+                    // Inativar (Lixeira individual)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
+
+                        const epiId = btnInativar.getAttribute('data-id');
+                        const epiStatus = btnInativar.getAttribute('data-status');
+                        const epiNome = btnInativar.getAttribute('data-nome');
+
+                        if (epiStatus === '0' || epiStatus === 'false') {
+                            Swal.fire({ title: 'Aviso', text: `O EPI "${epiNome}" já encontra-se inativo.`, icon: 'info', confirmButtonColor: '#3b82f6' });
+                            return;
+                        }
+
+                        if (!canInactivate) {
+                            Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar EPIs.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: 'Tem certeza?',
+                            text: `Deseja inativar o EPI "${epiNome}"?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#3f3f46'
+                        }).then(async (result) => {
+                            if (result.isConfirmed) {
+                                try {
+                                    const response = await fetch('/epi/inativar-multiplos', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                        body: JSON.stringify({ ids: [epiId] })
+                                    });
+
+                                    if (response.status === 403) {
+                                        Swal.fire({ title: 'Acesso Negado', text: 'Permissão negada pelo servidor (403).', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                        return;
+                                    }
+
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                                    } else {
+                                        Swal.fire('Erro', data.message, 'error');
+                                    }
+                                } catch (err) {
+                                    Swal.fire('Erro no Servidor', 'Falha na comunicação.', 'error');
+                                }
+                            }
+                        });
+                    }
+                });
+
+                // ============================================================
+                // 4. RENDERIZAR TABELA
+                // ============================================================
                 let listaEpis = [];
                 try {
                     const divJson = document.getElementById('epi-data');
@@ -194,7 +268,6 @@
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = '';
 
-                // Função para formatar data (YYYY-MM-DD -> DD/MM/YYYY)
                 const formatDate = (dateString) => {
                     if (!dateString) return '-';
                     const dataPart = dateString.split('T')[0];
@@ -202,180 +275,87 @@
                     return `${dia}/${mes}/${ano}`;
                 };
 
-                // 2. Popular Tabela
                 listaEpis.forEach((epi, index) => {
                     const tr = document.createElement('tr');
                     tr.setAttribute('data-index', index);
 
-                    let escopoBadge = '';
+                    const statusHtml = (Number(epi.ativo) === 1)
+                        ? '<span class="badge bg-green-500/10 text-green-500 status-badge">Ativo</span>'
+                        : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
+                    // Linha reestruturada sem a coluna de checkbox
                     tr.innerHTML = `
-                        <td></td>
-                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">
-                            ${epi.nome_equipamento}
-                            ${escopoBadge}
-                        </td>
+                        <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${epi.nome_equipamento || epi.nome || '-'}</td>
                         <td class="whitespace-nowrap">
                             <div class="flex items-center gap-2">
-                                <span class="ca-value">${epi.ca}</span>
-                                <button type="button" 
-                                    class="btn !p-1.5 hover:!text-primary btn-consultar-ca"
-                                    data-ca="${epi.ca}" 
-                                    title="Verificar validade atual na API">
+                                <span class="ca-value font-mono">${epi.ca || '-'}</span>
+                                ${epi.ca ? `
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:!text-primary btn-consultar-ca" data-ca="${epi.ca}" title="Verificar validade atual na API">
                                     <span class="icon-[lucide--refresh-cw] text-lg"></span>
                                 </button>
+                                ` : ''}
                             </div>
                         </td>
                         <td class="whitespace-nowrap validade-cell">
                             <span class="validade-text">${formatDate(epi.validade_ca)}</span>
-                            <span class="status-api text-xs ms-1"></span>
+                            <span class="status-api text-xs ms-1 font-bold"></span>
                         </td>
-                        <td>
-                            <div class="flex items-center gap-1 relative z-[1]">
-                                <a href="/epi/ver/${epi.id_epi}" class="btn !p-1.5 hover:!text-sky-500" title="Ver Detalhes">
-                                    <span class="icon-[lucide--eye] text-lg"></span>
+                        <td class="text-center">${statusHtml}</td>
+                        <td class="text-end pr-6">
+                            <div class="flex items-center justify-end gap-1 relative z-[1]">
+                                <a href="/epi/editar/${epi.id_epi}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors" title="Editar">
+                                    <span class="icon-[lucide--edit] text-lg"></span>
                                 </a>
+                                <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${epi.id_epi}" data-status="${epi.ativo}" data-nome="${epi.nome_equipamento || epi.nome}" title="Inativar">
+                                    <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                </button>
                             </div>
                         </td>
                     `;
+
+                    // Opacidade se inativo
+                    if (epi.ativo == 0 || epi.ativo == false) tr.classList.add('opacity-50');
+
                     tbody.appendChild(tr);
                 });
 
-                // 3. Inicializar DataTables
                 const table = new DataTable('#table_epi', {
                     lengthChange: false,
-                    pageLength: 9,
+                    pageLength: 10,
                     scrollX: false,
                     dom: 'lrtip',
                     columnDefs: [
-                        {
-                            orderable: false,
-                            className: 'select-checkbox',
-                            targets: 0,
-                        },
                         { orderable: false, targets: 4 } // Ações
                     ],
-                    select: {
-                        style: 'multi',
-                        selector: 'td:first-child',
-                        headerCheckbox: true
-                    },
-                    order: [[1, 'asc']], // Nome
+                    order: [[0, 'asc']], // Ordena pelo Nome (Coluna 0)
                     language: {
                         emptyTable: "Nenhum EPI cadastrado",
                         info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
-                        paginate: { first: "«", last: "»", next: "›", previous: "‹" },
-                        select: { rows: "" }
+                        paginate: { first: "«", last: "»", next: "›", previous: "‹" }
                     }
                 });
 
-                // 4. Busca
-                const searchInput = document.getElementById('epiSearch');
-                searchInput.addEventListener('input', e => {
-                    table.search(e.target.value).draw();
-                });
+                // Pesquisa Global
+                document.getElementById('epiSearch').addEventListener('input', e => table.search(e.target.value).draw());
 
-                // 5. Inativar (Delete) - Controle de Visibilidade
-                const deleteBtn = document.getElementById('deleteBtnEpi');
-
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    deleteBtn.style.display = count > 0 ? 'inline-flex' : 'none';
-                    deleteBtn.innerHTML = `<span class="icon-[lucide--trash] text-lg me-1"></span> Inativar (${count})`;
-                });
-
-                // =========================================================================
-                // 6. INTERCEPTADOR DE CLIQUES (NOVO / EDITAR)
-                // =========================================================================
-                document.body.addEventListener('click', function (e) {
-                    // Proteção do botão NOVO
-                    const linkNovo = e.target.closest('a[href="/epi/novo"]');
-                    if (linkNovo && !canCreate) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para criar novos EPIs.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                    }
-
-                    // Se no futuro voltar a ter botão editar direto na lista (hoje é VER)
-                    // Deixamos o código pronto caso mude a rota de /ver/ para /editar/
-                    const linkEditar = e.target.closest('a[href^="/epi/editar/"]');
-                    if (linkEditar && !canEdit) {
-                        e.preventDefault();
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para editar EPIs.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
+                // Filtro Exato no Status (Coluna 3)
+                const statusFilter = document.getElementById('statusFilter');
+                statusFilter.addEventListener('change', function () {
+                    const val = this.value;
+                    if (val) {
+                        table.column(3).search('^' + val + '$', true, false).draw();
+                    } else {
+                        table.column(3).search('').draw();
                     }
                 });
 
+                if (statusFilter.value) {
+                    table.column(3).search('^' + statusFilter.value + '$', true, false).draw();
+                }
+
                 // =========================================================================
-                // 7. AÇÃO INATIVAR (Com Bloqueio)
+                // 5. API CONSULTA DE C.A.
                 // =========================================================================
-                deleteBtn.addEventListener('click', () => {
-                    // Verifica permissão antes de tudo
-                    if (!canInactivate) {
-                        Swal.fire({
-                            title: 'Acesso Negado',
-                            text: 'Você não tem permissão para inativar EPIs.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f59e0b',
-                            confirmButtonText: 'Entendido'
-                        });
-                        return;
-                    }
-
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (listaEpis[index]) {
-                            selectedIds.push(listaEpis[index].id_epi);
-                        }
-                    });
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Inativar EPIs?',
-                        text: `Deseja inativar ${selectedIds.length} item(ns)?`,
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#ef4444',
-                        cancelButtonColor: '#3f3f46',
-                        confirmButtonText: 'Sim, inativar',
-                        cancelButtonText: 'Cancelar'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await fetch('/epi/inativar-multiplos', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ ids: selectedIds })
-                                });
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    Swal.fire('Sucesso', data.message, 'success').then(() => location.reload());
-                                } else {
-                                    Swal.fire('Erro', data.message, 'error');
-                                }
-                            } catch (error) {
-                                Swal.fire('Erro', 'Falha na comunicação com o servidor', 'error');
-                            }
-                        }
-                    });
-                });
-
-                // 8. Lógica de Consultar CA na Lista (API)
                 document.querySelector('#table_epi').addEventListener('click', async (e) => {
                     const btn = e.target.closest('.btn-consultar-ca');
                     if (!btn) return;
@@ -385,7 +365,7 @@
                     const spanStatus = tdValidade.querySelector('.status-api');
 
                     btn.disabled = true;
-                    btn.classList.add('opacity-50');
+                    btn.classList.add('opacity-50', 'animate-spin');
                     spanStatus.textContent = ' Checando...';
                     spanStatus.className = 'status-api text-xs ms-1 text-sky-500';
 
@@ -424,13 +404,23 @@
                         spanStatus.className = 'status-api text-xs ms-1 text-red-500';
                     } finally {
                         btn.disabled = false;
-                        btn.classList.remove('opacity-50');
+                        btn.classList.remove('opacity-50', 'animate-spin');
                     }
                 });
 
             });
-        </script>
 
+            document.querySelectorAll('.js-select').forEach(select => {
+                new TomSelect(select, {
+                    create: false,
+                    allowEmptyOption: true,
+                    controlInput: null,
+                    onInitialize: function () {
+                        this.control.classList.add('!cursor-pointer', 'select-none');
+                    }
+                });
+            });
+        </script>
 </body>
 
 </html>

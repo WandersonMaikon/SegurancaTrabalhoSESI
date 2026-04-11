@@ -16,7 +16,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.3.3/css/dataTables.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/select/3.0.1/css/select.dataTables.css">
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -65,10 +64,6 @@
                                 </div>
 
                                 <div class="flex items-center flex-wrap justify-end gap-2">
-                                    <button id="inativarBtn" class="btn bg-amber-500 text-white hover:bg-amber-600"
-                                        style="display: none;">
-                                        Inativar
-                                    </button>
 
                                     <div class="flex-grow w-56 sm:w-auto">
                                         <select id="statusFilter" class="js-select w-full sm:w-56">
@@ -91,7 +86,6 @@
                             <table id="table_perfis" class="table-default w-full">
                                 <thead>
                                     <tr>
-                                        <th></th>
                                         <th class="text-nowrap">
                                             <div class="flex items-center">Nome do Perfil</div>
                                         </th>
@@ -99,10 +93,10 @@
                                             <div class="flex items-center">Descrição</div>
                                         </th>
                                         <th class="text-nowrap text-center">
-                                            <div class="flex items-center">Usuários Ativos</div>
+                                            <div class="flex items-center justify-center">Usuários Ativos</div>
                                         </th>
                                         <th class="text-nowrap text-center">
-                                            <div class="flex items-center">Status</div>
+                                            <div class="flex items-center justify-center">Status</div>
                                         </th>
                                         <th class="text-nowrap text-end" data-orderable="false">Ações</th>
                                     </tr>
@@ -127,8 +121,6 @@
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
         <script src="https://cdn.datatables.net/2.3.3/js/dataTables.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/dataTables.select.js"></script>
-        <script src="https://cdn.datatables.net/select/3.0.1/js/select.dataTables.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
         <script>
@@ -186,7 +178,7 @@
                 // 3. POPULAR TABELA
                 const tbody = document.getElementById('tableBody');
                 if (listaPerfis.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="text-center p-4">Nenhum perfil encontrado.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center p-4">Nenhum perfil encontrado.</td></tr>';
                 } else {
                     listaPerfis.forEach((p, index) => {
                         const tr = document.createElement('tr');
@@ -196,16 +188,18 @@
                             : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
                         tr.innerHTML = `
-                            <td></td>
                             <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${p.nome_perfil}</td>
                             <td><span class="text-sm text-zinc-500 truncate max-w-[220px] block">${p.descricao || 'Sem descrição'}</span></td>
                             <td class="text-center"><span class="badge bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">${p.total_usuarios} usuários</span></td>
                             <td class="text-center">${statusHtml}</td>
                             <td class="text-end">
-                                <div class="flex items-center gap-1 relative z-[1]">
-                                    <a href="/perfil/editar/${p.id_perfil}" class="btn !p-1.5 hover:!text-primary btn-editar-link" title="Editar">
+                                <div class="flex items-center  gap-1 relative z-[1]">
+                                    <a href="/perfil/editar/${p.id_perfil}" class="btn !p-1.5 text-zinc-500 hover:text-primary transition-colors btn-editar-link" title="Editar">
                                         <span class="icon-[lucide--edit] text-lg"></span>
                                     </a>
+                                    <button type="button" class="btn !p-1.5 text-zinc-500 hover:text-red-500 transition-colors btn-inativar" data-id="${p.id_perfil}" data-status="${p.ativo}" data-nome="${p.nome_perfil}" title="Inativar">
+                                        <span class="icon-[lucide--trash] text-lg pointer-events-none"></span>
+                                    </button>
                                 </div>
                             </td>
                         `;
@@ -215,19 +209,34 @@
 
                 // 4. DATATABLE
                 const table = new DataTable('#table_perfis', {
-                    lengthChange: false, pageLength: 9, scrollX: true, dom: 'lrtip',
+                    lengthChange: false,
+                    pageLength: 10,
+                    scrollX: false,
+                    dom: 'lrtip',
                     columnDefs: [
-                        { orderable: false, searchable: false, render: DataTable.render.select(), targets: 0 },
-                        { targets: [3, 4, 5], className: "text-center" }
+                        { targets: [2, 3], className: "text-center" }
                     ],
-                    select: { style: 'os', selector: 'td:first-child', headerCheckbox: false },
-                    order: [[1, 'asc']],
+                    order: [[0, 'asc']],
+                    language: {
+                        emptyTable: "Nenhum perfil encontrado.",
+                        info: "Mostrando _START_ até _END_ de _TOTAL_ registros",
+                        paginate: { first: "Primeiro", last: "Último", next: "Próximo", previous: "Anterior" }
+                    }
                 });
 
                 document.getElementById('perfilSearch').addEventListener('input', e => table.search(e.target.value).draw());
-                document.getElementById('statusFilter').addEventListener('change', function () { table.columns(4).search(this.value).draw(); });
 
-                // 5. INTERCEPTADOR DE CLIQUES (BLOQUEIO VISUAL)
+                // Correção do Filtro (O índice do Status agora é 3)
+                document.getElementById('statusFilter').addEventListener('change', function () {
+                    const val = this.value;
+                    if (val) {
+                        table.column(3).search('^' + val + '$', true, false).draw();
+                    } else {
+                        table.column(3).search('').draw();
+                    }
+                });
+
+                // 5. INTERCEPTADOR DE CLIQUES (EDITAR, NOVO, INATIVAR)
                 document.body.addEventListener('click', function (e) {
                     // Editar
                     const linkEditar = e.target.closest('a[href^="/perfil/editar/"]');
@@ -235,71 +244,69 @@
                         e.preventDefault();
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para acessar a tela de edição.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
+
                     // Novo
                     const linkNovo = e.target.closest('a[href="/perfil/novo"]');
                     if (linkNovo && !canCreate) {
                         e.preventDefault();
                         Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para criar novos perfis.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
                     }
-                });
 
-                // 6. INATIVAR MÚLTIPLOS
-                const inativarBtn = document.getElementById("inativarBtn");
-                table.on('select deselect', function () {
-                    const count = table.rows({ selected: true }).count();
-                    inativarBtn.style.display = count > 0 ? "inline-block" : "none";
-                    if (count > 0) inativarBtn.textContent = `Inativar (${count})`;
-                });
+                    // Inativar (Lixeira individual)
+                    const btnInativar = e.target.closest('.btn-inativar');
+                    if (btnInativar) {
+                        e.preventDefault();
 
-                inativarBtn.addEventListener('click', function () {
-                    // Bloqueio no botão
-                    if (!canInactivate) {
-                        Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
-                        return;
-                    }
+                        const perfilId = btnInativar.getAttribute('data-id');
+                        const perfilStatus = btnInativar.getAttribute('data-status');
+                        const perfilNome = btnInativar.getAttribute('data-nome');
 
-                    const selectedRows = table.rows({ selected: true }).nodes();
-                    const selectedIds = [];
-                    const perfisJaInativos = [];
-
-                    selectedRows.each(function (row) {
-                        const index = row.getAttribute('data-index');
-                        if (index !== null && listaPerfis[index]) {
-                            const p = listaPerfis[index];
-                            if (Number(p.ativo) === 0) perfisJaInativos.push(p.nome_perfil);
-                            else selectedIds.push(p.id_perfil);
-                        }
-                    });
-
-                    if (perfisJaInativos.length > 0) {
-                        Swal.fire({ icon: 'warning', title: 'Ação Bloqueada', html: `O(s) perfil(is) abaixo <b>já está(ão) inativo(s)</b>:<br><br><b>${perfisJaInativos.join('<br>')}</b><br><br>Por favor, desmarque para continuar.` });
-                        return;
-                    }
-
-                    if (selectedIds.length === 0) return;
-
-                    Swal.fire({
-                        title: 'Tem certeza?', text: `Você está prestes a inativar ${selectedIds.length} perfil(is).`, icon: 'warning',
-                        showCancelButton: true, confirmButtonText: 'Sim, inativar', cancelButtonText: 'Cancelar', confirmButtonColor: '#ef4444', cancelButtonColor: '#3f3f46'
-                    }).then(async (result) => {
-                        if (!result.isConfirmed) return;
-                        try {
-                            const response = await fetch('/perfil/inativar-multiplos', {
-                                method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                                body: JSON.stringify({ ids: selectedIds })
+                        // Bloqueia se já estiver inativo
+                        if (perfilStatus === '0' || perfilStatus === 'false') {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: `O perfil "${perfilNome}" já encontra-se inativo.`,
+                                icon: 'info',
+                                confirmButtonColor: '#3b82f6'
                             });
+                            return;
+                        }
 
-                            // Bloqueio Backend
-                            if (response.status === 403) {
-                                Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b' });
-                                return;
-                            }
+                        // Verifica permissão
+                        if (!canInactivate) {
+                            Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b', confirmButtonText: 'Entendido' });
+                            return;
+                        }
 
-                            const data = await response.json();
-                            if (data.success) Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
-                            else Swal.fire('Erro', data.message, 'error');
-                        } catch (error) { Swal.fire('Erro', 'Erro de conexão.', 'error'); }
-                    });
+                        Swal.fire({
+                            title: 'Tem certeza?',
+                            text: `Deseja inativar o perfil "${perfilNome}"?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: 'Sim, inativar',
+                            cancelButtonText: 'Cancelar',
+                            confirmButtonColor: '#ef4444',
+                            cancelButtonColor: '#3f3f46'
+                        }).then(async (result) => {
+                            if (!result.isConfirmed) return;
+                            try {
+                                const response = await fetch('/perfil/inativar-multiplos', {
+                                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                                    body: JSON.stringify({ ids: [perfilId] })
+                                });
+
+                                // Bloqueio Backend
+                                if (response.status === 403) {
+                                    Swal.fire({ title: 'Acesso Negado', text: 'Você não tem permissão para inativar perfis.', icon: 'warning', confirmButtonColor: '#f59e0b' });
+                                    return;
+                                }
+
+                                const data = await response.json();
+                                if (data.success) Swal.fire('Sucesso', data.message, 'success').then(() => window.location.reload());
+                                else Swal.fire('Erro', data.message, 'error');
+                            } catch (error) { Swal.fire('Erro', 'Erro de conexão.', 'error'); }
+                        });
+                    }
                 });
             });
         </script>
