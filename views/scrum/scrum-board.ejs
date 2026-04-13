@@ -28,7 +28,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-12 mb-4 gap-4 px-4">
                         <div class="md:col-span-5">
-                            <h4 class="text-xl">Quadro de Tarefas</h4>
+                            <h4 class="text-xl font-bold">Quadro de Tarefas</h4>
                             <p class="text-muted">Gerenciamento de execução da OS</p>
                         </div>
                     </div>
@@ -38,7 +38,8 @@
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
 
                                 <div class="md:col-span-6">
-                                    <label class="mb-2 block">Empresa contratante</label>
+                                    <label class="mb-2 block text-sm font-bold text-zinc-700">Empresa
+                                        contratante</label>
                                     <div class="relative w-full">
                                         <input type="text"
                                             class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed text-zinc-500 font-semibold"
@@ -49,7 +50,7 @@
                                 </div>
 
                                 <div class="md:col-span-6">
-                                    <label class="mb-2 block">CONTRATO Nº</label>
+                                    <label class="mb-2 block text-sm font-bold text-zinc-700">CONTRATO Nº</label>
                                     <div class="relative w-full">
                                         <input type="text"
                                             class="input h-10 w-full bg-zinc-100 dark:bg-zinc-800 cursor-not-allowed text-zinc-500 font-semibold"
@@ -73,7 +74,7 @@
 
                             <% colunas.forEach(function(coluna) { %>
                                 <div
-                                    class="w-[300px] min-w-[300px] me-4 drag-handle cursor-grab parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card">
+                                    class="w-[300px] min-w-[300px] me-4 parent-task group flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-200 dark:border-zinc-800">
 
                                     <div class="flex items-center justify-between px-4 pt-4 mb-2">
                                         <h3 class="text-lg font-bold">
@@ -86,9 +87,9 @@
 
                                     <ul class="child-list min-h-full flex flex-col space-y-3 p-4"
                                         data-status="<%= coluna.id %>">
-
                                         <% tarefas[coluna.id].forEach(function(tarefa) { %>
-                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab border border-zinc-200 dark:border-zinc-700"
+
+                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab border border-zinc-200 dark:border-zinc-700 transition-all"
                                                 data-id="<%= tarefa.id_item %>">
 
                                                 <h5
@@ -102,37 +103,61 @@
                                                     badgePriText="Alta prioridade" ; } else if (tarefa.dias_restantes
                                                     <=30) { badgePriColor="bg-amber-500/10 text-amber-500" ;
                                                     badgePriText="Média prioridade" ; } %>
-                                                    <span class="badge <%= badgePriColor %> mb-3 font-semibold">
+                                                    <span class="badge <%= badgePriColor %> mb-3 font-semibold text-xs">
                                                         <%= badgePriText %>
                                                     </span>
 
                                                     <div
-                                                        class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
+                                                        class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-2">
                                                         <div class="flex items-center shrink-0"
                                                             title="Responsável: <%= tarefa.nome_completo %>">
                                                             <div
-                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative flex items-center justify-center bg-primary text-white text-xs font-bold uppercase">
+                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative flex items-center justify-center bg-primary text-white text-xs font-bold uppercase shadow-sm">
                                                                 <%= tarefa.nome_completo ?
                                                                     tarefa.nome_completo.charAt(0) : 'U' %>
                                                             </div>
                                                         </div>
+
                                                         <div
-                                                            class="inline-flex text-xs items-center text-muted font-medium bg-white dark:bg-zinc-900 px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-700">
-                                                            <span class="icon-[lucide--clock] me-1"></span>
+                                                            class="inline-flex text-[11px] shrink-0 items-center justify-center text-muted font-bold bg-white dark:bg-zinc-900 px-2 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm min-w-[90px] h-[26px] whitespace-nowrap">
+                                                            <% let idColuna=String(coluna.id).trim(); %>
 
-                                                            <% if (coluna.id==='Feito' ) { %>
-                                                                <span class="text-green-500 font-bold">Concluído</span>
-                                                                <% } else if (tarefa.dias_restantes < 0) { %>
-                                                                    <span class="text-red-500 font-bold">Atrasado <%=
-                                                                            Math.abs(tarefa.dias_restantes) %>d</span>
-                                                                    <% } else if (tarefa.dias_restantes===0) { %>
-                                                                        <span class="text-amber-500 font-bold">Vence
-                                                                            hoje!</span>
-                                                                        <% } else { %>
-                                                                            <span>Faltam <%= tarefa.dias_restantes %>
-                                                                                    d</span>
-                                                                            <% } %>
+                                                                <% if (idColuna==='Feito' ) { %>
+                                                                    <% let dataFim='--/--' ; let
+                                                                        campoData=tarefa.data_conclusao ||
+                                                                        tarefa.updated_at; if (campoData) { let d=new
+                                                                        Date(campoData); let
+                                                                        meses=['janeiro', 'fevereiro' , 'março'
+                                                                        , 'abril' , 'maio' , 'junho' , 'julho'
+                                                                        , 'agosto' , 'setembro' , 'outubro' , 'novembro'
+                                                                        , 'dezembro' ];
+                                                                        dataFim=String(d.getDate()).padStart(2, '0' )
+                                                                        + ' de ' + meses[d.getMonth()]; } %>
+                                                                        <span
+                                                                            class="icon-[lucide--check-circle] me-1 text-green-500"></span>
+                                                                        <span class="text-green-500 capitalize">Fim: <%=
+                                                                                dataFim %></span>
 
+                                                                        <% } else if (tarefa.dias_restantes < 0) { %>
+                                                                            <span
+                                                                                class="icon-[lucide--clock] me-1 text-red-500"></span>
+                                                                            <span
+                                                                                class="text-red-500 uppercase">Atrasado</span>
+
+                                                                            <% } else if (tarefa.dias_restantes===0) {
+                                                                                %>
+                                                                                <span
+                                                                                    class="icon-[lucide--clock] me-1 text-amber-500"></span>
+                                                                                <span
+                                                                                    class="text-amber-500 uppercase">Hoje</span>
+
+                                                                                <% } else { %>
+                                                                                    <span
+                                                                                        class="icon-[lucide--clock] me-1 text-zinc-400"></span>
+                                                                                    <span class="text-zinc-500">Faltam
+                                                                                        <%= tarefa.dias_restantes %>
+                                                                                            d</span>
+                                                                                    <% } %>
                                                         </div>
                                                     </div>
                                             </li>
@@ -170,6 +195,7 @@
                                     const totalBadge = list.parentElement.querySelector('.badge');
                                     totalBadge.textContent = list.children.length;
                                 });
+                                // Como agora a data muda, o reload garante que o card ganhe a data "Fim: XX de XXX"
                                 window.location.reload();
                             } else {
                                 Swal.fire('Erro!', 'Ocorreu um erro ao atualizar o banco de dados.', 'error');

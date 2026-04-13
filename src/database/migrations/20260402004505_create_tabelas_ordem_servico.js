@@ -36,6 +36,8 @@ exports.up = function(knex) {
       table.enum('status_item', ['Pendente', 'Em Execução', 'Feito']).defaultTo('Pendente');
       table.integer('prazo_execucao_dias').notNullable();
 
+      table.datetime('data_conclusao').nullable(); 
+
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
       table.datetime('deleted_at').nullable();

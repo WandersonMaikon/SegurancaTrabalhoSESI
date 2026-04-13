@@ -19,7 +19,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
         let sql = `
-            SELECT 
+            SELECT
                 os.id_ordem_servico AS id_contrato,
                 os.contrato_numero AS numero_contrato,
                 os.status,
@@ -30,13 +30,13 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                 
                 COALESCE(
                     DATEDIFF(
-                        MIN(CASE WHEN osi.status_item != 'Feito' THEN DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY) ELSE NULL END), 
+                        MIN(CASE WHEN osi.status_item != 'Feito' THEN DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY) ELSE NULL END),
                         CURRENT_DATE()
-                    ), 
+                    ),
                     DATEDIFF(
-                        MAX(DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY)), 
+                        MAX(DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY)),
                         CURRENT_DATE()
-                    ), 
+                    ),
                     0
                 ) AS dias_restantes,
 
@@ -46,14 +46,13 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                         ORDER BY DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY) ASC
                         SEPARATOR '|||'
                     ),
-                    '|||', 
+                    '|||',
                     1
                 ) AS proxima_tarefa
 
             FROM ordem_servico os
             JOIN cliente c ON os.id_cliente = c.id_cliente
             LEFT JOIN ordem_servico_item osi ON os.id_ordem_servico = osi.id_ordem_servico
-            -- AQUI ESTAVA FALTANDO ESSA LINHA PARA O BANCO ACHAR O NOME DO SERVIÇO:
             LEFT JOIN servico s ON osi.id_servico = s.id_servico
             WHERE os.deleted_at IS NULL AND os.status != 'Cancelada'
         `;
@@ -65,15 +64,15 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             params.push(userLogado.id_unidade || userLogado.unidade_id);
 
             sql += ` AND os.id_ordem_servico IN (
-                        SELECT id_ordem_servico 
-                        FROM ordem_servico_item 
+                        SELECT id_ordem_servico
+                        FROM ordem_servico_item
                         WHERE id_responsavel_execucao = ?
                      ) `;
             params.push(userLogado.id_usuario);
         }
 
         // Ordenação inteligente: Concluídas pro final, atrasadas pro topo!
-        sql += ` GROUP BY os.id_ordem_servico, os.contrato_numero, os.status, c.nome_empresa, os.data_abertura 
+        sql += ` GROUP BY os.id_ordem_servico, os.contrato_numero, os.status, c.nome_empresa, os.data_abertura
                  ORDER BY (CASE WHEN os.status = 'Concluída' THEN 1 ELSE 0 END), dias_restantes ASC`;
 
         const [projetos] = await db.query(sql, params);
@@ -109,9 +108,10 @@ router.get("/quadro/:id", verificarAutenticacao, async (req, res) => {
         if (osRows.length === 0) return res.status(404).send("Projeto não encontrado.");
         const os = osRows[0];
 
+        // 1. Buscando a coluna data_conclusao no SQL
         let sqlItens = `
-            SELECT 
-                osi.id_item, osi.status_item, osi.prazo_execucao_dias, s.nome_servico, u.nome_completo,
+            SELECT
+                osi.id_item, osi.status_item, osi.prazo_execucao_dias, osi.data_conclusao, s.nome_servico, u.nome_completo,
                 COALESCE(DATEDIFF(DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY), CURRENT_DATE()), 0) AS dias_restantes
             FROM ordem_servico_item osi
             JOIN servico s ON osi.id_servico = s.id_servico
@@ -127,6 +127,18 @@ router.get("/quadro/:id", verificarAutenticacao, async (req, res) => {
         }
 
         const [itens] = await db.query(sqlItens, paramsItens);
+
+        // 2. Tratando a data por extenso AQUI NO BACK-END
+        itens.forEach(item => {
+            if (item.status_item === 'Feito') {
+                item.data_formatada = '--/--'; // Fallback de segurança
+                if (item.data_conclusao) {
+                    const d = new Date(item.data_conclusao);
+                    const meses = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+                    item.data_formatada = String(d.getDate()).padStart(2, '0') + ' de ' + meses[d.getMonth()];
+                }
+            }
+        });
 
         const tarefas = {
             'Pendente': itens.filter(i => i.status_item === 'Pendente'),
@@ -154,10 +166,18 @@ router.post("/atualizar-tarefa", verificarAutenticacao, async (req, res) => {
     try {
         const { id_item, novo_status } = req.body;
 
-        await db.query(
-            "UPDATE ordem_servico_item SET status_item = ? WHERE id_item = ?",
-            [novo_status, id_item]
-        );
+        // 3. Atualizando o banco e gravando o NOW()
+        if (novo_status === 'Feito') {
+            await db.query(
+                "UPDATE ordem_servico_item SET status_item = ?, data_conclusao = NOW() WHERE id_item = ?",
+                [novo_status, id_item]
+            );
+        } else {
+            await db.query(
+                "UPDATE ordem_servico_item SET status_item = ?, data_conclusao = NULL WHERE id_item = ?",
+                [novo_status, id_item]
+            );
+        }
 
         const [itemRows] = await db.query(
             "SELECT id_ordem_servico FROM ordem_servico_item WHERE id_item = ?",
@@ -175,10 +195,10 @@ router.post("/atualizar-tarefa", verificarAutenticacao, async (req, res) => {
             }
 
             const [totalRows] = await db.query(`
-                SELECT 
+                SELECT
                     COUNT(id_item) AS total_tarefas,
                     SUM(IF(status_item = 'Feito', 1, 0)) AS tarefas_feitas
-                FROM ordem_servico_item 
+                FROM ordem_servico_item
                 WHERE id_ordem_servico = ?
             `, [idOS]);
 

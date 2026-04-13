@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Quadro Scrum Gerencial</title>
+
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+            <%- include('../partials/header') %>
+
+                <div class="content lg:px-4 flex-grow flex flex-col pt-4">
+
+                    <div class="mb-6 px-4 w-full block">
+                        <h2 class="text-2xl font-bold text-zinc-900 dark:text-white leading-tight">
+                            <%= infoOS.nome_empresa %>
+                        </h2>
+                        <p class="text-muted text-sm mt-1">
+                            Acompanhamento do Contrato OS: <span class="font-bold text-zinc-700 dark:text-zinc-200">
+                                <%= infoOS.contrato_numero %>
+                            </span>
+                        </p>
+                    </div>
+
+                    <div
+                        class="px-4 mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center bg-white dark:bg-zinc-900 p-4 rounded-2xl shadow-card border border-zinc-200 dark:border-zinc-800">
+                        <div class="w-full sm:w-1/2">
+                            <label class="text-xs font-bold text-zinc-500 uppercase mb-1 block">Pesquisar Tarefa</label>
+                            <div class="relative">
+                                <input type="search" id="inputPesquisa"
+                                    class="input !ps-9 w-full bg-zinc-50 dark:bg-zinc-800 h-10"
+                                    placeholder="Buscar por serviço...">
+                                <span
+                                    class="iconify icon-[lucide--search] absolute start-3 top-1/2 -translate-y-1/2 text-muted"></span>
+                            </div>
+                        </div>
+
+                        <div class="w-full sm:w-1/2 z-50">
+                            <label class="text-xs font-bold text-zinc-500 uppercase mb-1 block">Filtrar por
+                                Responsável</label>
+                            <select id="filtroUsuario" class="js-select w-full">
+                                <option value="" selected>Todos os Responsáveis</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex w-full flex-grow p-px space-x-4 flex-nowrap overflow-x-auto px-4 overflow-y-hidden mb-4"
+                        id="scrum-board">
+
+                        <% const colunas=[ { id: 'Pendente' , titulo: 'A Fazer (Pendente)' , bg: 'bg-zinc-500/10' ,
+                            text: 'text-zinc-600 dark:text-zinc-300' }, { id: 'Em Execução' , titulo: 'Em Progresso' ,
+                            bg: 'bg-sky-500/10' , text: 'text-sky-500' }, { id: 'Feito' , titulo: 'Concluído' ,
+                            bg: 'bg-green-500/10' , text: 'text-green-500' } ]; %>
+
+                            <% colunas.forEach(function(coluna) { %>
+                                <div
+                                    class="w-[300px] min-w-[300px] me-4 flex flex-col mb-4 rounded-xl bg-white dark:bg-zinc-900 shadow-card border border-zinc-100 dark:border-zinc-800">
+
+                                    <div class="flex items-center justify-between px-4 pt-4 mb-2">
+                                        <h3 class="text-lg font-bold">
+                                            <%= coluna.titulo %>
+                                        </h3>
+                                        <span class="badge <%= coluna.bg %> <%= coluna.text %> font-bold total-badge">
+                                            <%= tarefas[coluna.id].length %>
+                                        </span>
+                                    </div>
+
+                                    <ul class="child-list min-h-full flex flex-col space-y-3 p-4"
+                                        data-status="<%= coluna.id %>">
+                                        <% tarefas[coluna.id].forEach(function(tarefa) { %>
+                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 child-task shrink-0 transition-all shadow-sm"
+                                                data-user="<%= tarefa.nome_completo || 'Sem Atribuição' %>">
+
+                                                <h5
+                                                    class="mb-2 text-base font-semibold leading-tight text-zinc-800 dark:text-zinc-100 search-tarefa">
+                                                    <%= tarefa.nome_servico %>
+                                                </h5>
+
+                                                <% let badgePriColor="bg-sky-500/10 text-sky-500" ; let
+                                                    badgePriText="Baixa prioridade" ; if (tarefa.dias_restantes <=20) {
+                                                    badgePriColor="bg-red-500/10 text-red-500" ;
+                                                    badgePriText="Alta prioridade" ; } else if (tarefa.dias_restantes
+                                                    <=30) { badgePriColor="bg-amber-500/10 text-amber-500" ;
+                                                    badgePriText="Média prioridade" ; } %>
+                                                    <span class="badge <%= badgePriColor %> mb-3 font-semibold text-xs">
+                                                        <%= badgePriText %>
+                                                    </span>
+
+                                                    <div
+                                                        class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-2">
+
+                                                        <div class="flex items-center gap-2 shrink-0 truncate">
+                                                            <div
+                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full flex items-center justify-center bg-primary text-white text-xs font-bold uppercase shadow-sm">
+                                                                <%= tarefa.nome_completo ?
+                                                                    tarefa.nome_completo.charAt(0) : 'U' %>
+                                                            </div>
+                                                            <% let partes=(tarefa.nome_completo || 'Não Atribuído'
+                                                                ).trim().split(' ');
+                                                let nomeSobrenome = partes.length > 1 ? partes[0] + ' ' + partes[1] : partes[0];
+                                            %>
+                                            <span class="text-xs font-medium text-zinc-600 dark:text-zinc-400 truncate max-w-[90px]">
+                                                <%= nomeSobrenome %>
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="inline-flex text-[11px] shrink-0 items-center justify-center text-muted font-bold bg-white dark:bg-zinc-900 px-2 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm min-w-[90px] h-[26px] whitespace-nowrap">
+                                            <% 
+                                                let idColuna = String(coluna.id).trim(); 
+                                                let dataFim = ' --/--'; if (idColuna==='Feito' ) { let
+                                                                campoData=tarefa.data_conclusao || tarefa.updated_at; if
+                                                                (campoData) { let d=new Date(campoData); let
+                                                                meses=['janeiro', 'fevereiro' , 'março' , 'abril'
+                                                                , 'maio' , 'junho' , 'julho' , 'agosto' , 'setembro'
+                                                                , 'outubro' , 'novembro' , 'dezembro' ];
+                                                                dataFim=String(d.getDate()).padStart(2, '0' ) + ' de ' +
+                                                                meses[d.getMonth()]; } } %>
+
+                                                                <% if (idColuna==='Feito' ) { %>
+                                                                    <span
+                                                                        class="icon-[lucide--check-circle] me-1 text-green-500"></span>
+                                                                    <span class="text-green-500 capitalize">Feito: <%=
+                                                                            dataFim %></span>
+                                                                    <% } else if (tarefa.dias_restantes < 0) { %>
+                                                                        <span
+                                                                            class="icon-[lucide--clock] me-1 text-red-500"></span>
+                                                                        <span
+                                                                            class="text-red-500 uppercase">Atrasado</span>
+                                                                        <% } else if (tarefa.dias_restantes===0) { %>
+                                                                            <span
+                                                                                class="icon-[lucide--clock] me-1 text-amber-500"></span>
+                                                                            <span
+                                                                                class="text-amber-500 uppercase">Hoje</span>
+                                                                            <% } else { %>
+                                                                                <span
+                                                                                    class="icon-[lucide--clock] me-1 text-zinc-400"></span>
+                                                                                <span class="text-zinc-500">Faltam <%=
+                                                                                        tarefa.dias_restantes %>d</span>
+                                                                                <% } %>
+                                                        </div>
+
+                                                    </div>
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </div>
+                                <% }) %>
+
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/tom-select.complete.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const inputPesquisa = document.getElementById('inputPesquisa');
+                const selectUsuario = document.getElementById('filtroUsuario');
+                const todasTarefas = document.querySelectorAll('.child-task');
+
+                const usuariosUnicos = new Set();
+                todasTarefas.forEach(t => {
+                    const u = t.getAttribute('data-user');
+                    if (u && u !== 'Sem Atribuição') usuariosUnicos.add(u);
+                });
+
+                Array.from(usuariosUnicos).sort().forEach(nome => {
+                    const opt = document.createElement('option');
+                    opt.value = nome;
+                    opt.textContent = nome;
+                    selectUsuario.appendChild(opt);
+                });
+
+                new TomSelect(selectUsuario, { create: false, allowEmptyOption: true });
+
+                function aplicarFiltros() {
+                    const termo = inputPesquisa.value.toLowerCase();
+                    const usuarioSelecionado = selectUsuario.value;
+
+                    todasTarefas.forEach(card => {
+                        const tituloTarefa = card.querySelector('.search-tarefa').innerText.toLowerCase();
+                        const responsavelCard = card.getAttribute('data-user');
+
+                        const matchTexto = tituloTarefa.includes(termo);
+                        const matchUsuario = usuarioSelecionado === "" || responsavelCard === usuarioSelecionado;
+
+                        if (matchTexto && matchUsuario) {
+                            card.style.display = 'block';
+                            card.classList.add('visivel');
+                        } else {
+                            card.style.display = 'none';
+                            card.classList.remove('visivel');
+                        }
+                    });
+
+                    document.querySelectorAll('.child-list').forEach(coluna => {
+                        const tarefasVisiveis = coluna.querySelectorAll('.child-task.visivel').length;
+                        const totalBadge = coluna.parentElement.querySelector('.total-badge');
+                        totalBadge.textContent = tarefasVisiveis;
+                    });
+                }
+
+                inputPesquisa.addEventListener('input', aplicarFiltros);
+                selectUsuario.addEventListener('change', aplicarFiltros);
+                aplicarFiltros();
+            });
+        </script>
+</body>
+
+</html>

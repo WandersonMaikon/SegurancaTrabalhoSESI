@@ -150,4 +150,90 @@ router.get("/", verificarAutenticacao, async (req, res) => {
     }
 });
 
+// =============================================================================
+// QUADRO SCRUM ESPECÍFICO DE UMA OS (Modo Gerencial / Somente Leitura)
+// =============================================================================
+router.get("/quadro-geral/:id", verificarAutenticacao, async (req, res) => {
+    try {
+        const userLogado = req.session.user;
+        const id_os = req.params.id; // Pegando o ID que veio no link!
+
+        const ehAdmin = verificarSeEhAdmin(userLogado);
+        if (!ehAdmin) {
+            return res.redirect('/dashboard');
+        }
+
+        // Query que traz as tarefas APENAS dessa OS específica
+        const sql = `
+            SELECT 
+                osi.id_item,
+                osi.status_item,
+                osi.prazo_execucao_dias,
+                osi.updated_at,
+                s.nome_servico,
+                u.nome_completo,
+                os.contrato_numero,
+                os.data_abertura,
+                c.nome_empresa
+            FROM ordem_servico_item osi
+            JOIN ordem_servico os ON osi.id_ordem_servico = os.id_ordem_servico
+            JOIN cliente c ON os.id_cliente = c.id_cliente
+            LEFT JOIN servico s ON osi.id_servico = s.id_servico
+            LEFT JOIN usuario u ON osi.id_responsavel_execucao = u.id_usuario
+            WHERE os.deleted_at IS NULL 
+            AND os.id_ordem_servico = ?
+        `;
+
+        const [rows] = await db.query(sql, [id_os]);
+
+        const tarefas = {
+            'Pendente': [],
+            'Em Execução': [],
+            'Feito': []
+        };
+
+        // Pegando os dados da Empresa/OS para mostrar no título da tela
+        let infoOS = { nome_empresa: 'Empresa Desconhecida', contrato_numero: 'S/N' };
+        if (rows.length > 0) {
+            infoOS.nome_empresa = rows[0].nome_empresa;
+            infoOS.contrato_numero = rows[0].contrato_numero;
+        }
+
+        const hoje = new Date();
+        hoje.setHours(0, 0, 0, 0);
+
+        rows.forEach(row => {
+            const dataLimite = new Date(row.data_abertura);
+            dataLimite.setDate(dataLimite.getDate() + row.prazo_execucao_dias);
+            dataLimite.setHours(0, 0, 0, 0);
+
+            const diffTime = dataLimite.getTime() - hoje.getTime();
+            row.dias_restantes = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const status = row.status_item || 'Pendente';
+            if (tarefas[status]) {
+                tarefas[status].push(row);
+            } else {
+                tarefas['Pendente'].push(row);
+            }
+        });
+
+        // Ordena pela prioridade
+        for (let status in tarefas) {
+            tarefas[status].sort((a, b) => a.dias_restantes - b.dias_restantes);
+        }
+
+        res.render("scrum/quadro-geral", {
+            user: userLogado,
+            currentPage: 'visao-gerencial',
+            tarefas: tarefas,
+            infoOS: infoOS // Mandando o nome da empresa pro título
+        });
+
+    } catch (error) {
+        console.error("Erro ao carregar Quadro Gerencial da OS:", error);
+        res.status(500).send("Erro interno ao carregar o quadro.");
+    }
+});
+
 module.exports = router;
