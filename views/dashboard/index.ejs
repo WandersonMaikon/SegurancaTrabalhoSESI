@@ -345,7 +345,21 @@
                             data: valores,
                             type: 'bar',
                             barWidth: '40%',
-                            itemStyle: { color: '#0AA34A', borderRadius: [4, 4, 0, 0] }
+                            itemStyle: { color: '#0AA34A', borderRadius: [4, 4, 0, 0] },
+
+                            // MÁGICA ACONTECE AQUI: Adicionando o Label Fixo
+                            label: {
+                                show: true,               
+                                position: 'inside',       
+                                color: '#ffffff',        
+                                fontWeight: 'bold',
+                                formatter: function (params) {
+                                    return new Intl.NumberFormat('pt-BR', {
+                                        style: 'currency',
+                                        currency: 'BRL'
+                                    }).format(params.value);
+                                }
+                            }
                         }
                     ]
                 };
