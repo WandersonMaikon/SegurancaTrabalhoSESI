@@ -192,7 +192,8 @@ async function seedDatabase() {
             { nome: 'EPCs', chave: 'epcs' },
             { nome: 'Gestão de Unidades', chave: 'unidades' },
             { nome: 'Levantamento de Perigos', chave: 'levantamento_perigos' },
-            { nome: 'Checklist Trabalhador', chave: 'checklist_stress' }
+            { nome: 'Checklist Trabalhador', chave: 'checklist_stress' },
+            { nome: 'Normas NR', chave: 'normas_nr' },
         ];
 
         for (const mod of listaModulos) {

@@ -35,8 +35,7 @@
           </a>
           <% } %>
 
-            <% if (user && (user.email==='admin@admin.com' || user.nome_perfil==='Administrador' ||
-              user.nome_perfil==='Super Admin' )) { %>
+            <% if (typeof can==='function' && can('visao_gerencial', 'ver' )) { %>
               <a href="/visao-gerencial" class="sidebar-link <%= currentPage === 'visao-gerencial' ? 'active' : '' %>">
                 <span class="sidebar-icon text-amber-500 !opacity-100">
                   <span class="icon-[lucide--monitor-play]"></span>
@@ -129,7 +128,7 @@
                                       </div>
                                       <% } %>
 
-                                        <% if (typeof can==='function' && can('normas', 'ver' )) { %>
+                                        <% if (typeof can==='function' && can('normas_nr', 'ver' )) { %>
                                           <a href="/normas"
                                             class="sidebar-link <%= currentPage === 'normas-nr' ? 'active' : '' %>">
                                             <span class="sidebar-icon"><span

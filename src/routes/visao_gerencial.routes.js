@@ -11,6 +11,8 @@ const verificarSeEhAdmin = (user) => {
     return false;
 };
 
+
+
 // =============================================================================
 // VISÃO GERENCIAL DOS CONTRATOS (GET /)
 // =============================================================================
@@ -19,8 +21,10 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        // Bloqueio: Se não for admin, chuta de volta pro dashboard
-        if (!ehAdmin) {
+        // Bloqueio inteligente: Verifica se é Admin de nascença OU se ganhou a permissão no painel
+        const temPermissao = typeof res.locals.can === 'function' ? res.locals.can('visao_gerencial', 'ver') : false;
+
+        if (!ehAdmin && !temPermissao) {
             return res.redirect('/dashboard');
         }
 
@@ -159,7 +163,9 @@ router.get("/quadro-geral/:id", verificarAutenticacao, async (req, res) => {
         const id_os = req.params.id; // Pegando o ID que veio no link!
 
         const ehAdmin = verificarSeEhAdmin(userLogado);
-        if (!ehAdmin) {
+        const temPermissao = typeof res.locals.can === 'function' ? res.locals.can('visao_gerencial', 'ver') : false;
+
+        if (!ehAdmin && !temPermissao) {
             return res.redirect('/dashboard');
         }
 
@@ -170,6 +176,7 @@ router.get("/quadro-geral/:id", verificarAutenticacao, async (req, res) => {
                 osi.status_item,
                 osi.prazo_execucao_dias,
                 osi.updated_at,
+                osi.data_conclusao,
                 s.nome_servico,
                 u.nome_completo,
                 os.contrato_numero,
