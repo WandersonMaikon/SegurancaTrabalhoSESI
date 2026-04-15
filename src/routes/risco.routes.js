@@ -14,7 +14,6 @@ const verificarSeEhAdmin = (user) => {
 };
 
 // --- LISTAR RISCOS ---
-// Note: Listagem geralmente usa permissão 'ver'. Se quiser restringir, adicione verificarPermissao('riscos', 'pode_ver')
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
@@ -56,13 +55,11 @@ router.get("/", verificarAutenticacao, async (req, res) => {
 });
 
 // --- TELA DE NOVO RISCO ---
-// CORREÇÃO: 'riscos' no plural
 router.get("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_criar'), (req, res) => {
     res.render("estoque/risco-form", { user: req.session.user, currentPage: 'risco-novo' });
 });
 
 // --- TELA DE EDITAR RISCO ---
-// CORREÇÃO: 'riscos' no plural
 router.get("/editar/:id", verificarAutenticacao, verificarPermissao('riscos', 'pode_editar'), async (req, res) => {
     try {
         const { id } = req.params;
@@ -81,10 +78,6 @@ router.get("/editar/:id", verificarAutenticacao, verificarPermissao('riscos', 'p
         if (rows.length === 0) return res.status(404).send("Risco não encontrado.");
 
         const risco = rows[0];
-
-        if (risco.id_unidade === null && !ehAdmin) {
-            return res.status(403).send("<h1>Acesso Negado</h1><p>Risco Global. Apenas administradores podem editar.</p><a href='/risco'>Voltar</a>");
-        }
 
         if (risco.id_unidade && risco.id_unidade !== userLogado.id_unidade && !ehAdmin) {
             return res.status(403).send("Acesso negado a este registro.");
@@ -115,7 +108,6 @@ router.get("/buscar-esocial/:codigo", verificarAutenticacao, async (req, res) =>
 });
 
 // --- SALVAR NOVO RISCO ---
-// CORREÇÃO: 'riscos' no plural
 router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_criar'), async (req, res) => {
     try {
         const { id_tabela_24, nome_risco, tipo_risco } = req.body;
@@ -149,7 +141,6 @@ router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_c
 });
 
 // --- EDITAR RISCO ---
-// CORREÇÃO: 'riscos' no plural
 router.post("/editar", verificarAutenticacao, verificarPermissao('riscos', 'pode_editar'), async (req, res) => {
     try {
         const { id_risco, nome_risco, tipo_risco, id_tabela_24 } = req.body;
@@ -160,8 +151,9 @@ router.post("/editar", verificarAutenticacao, verificarPermissao('riscos', 'pode
         if (rows.length === 0) return res.status(404).json({ success: false, message: "Risco não encontrado." });
         const riscoAtual = rows[0];
 
-        if (riscoAtual.id_unidade === null && !ehAdmin) return res.status(403).json({ success: false, message: "Você não tem permissão para editar riscos globais." });
-        if (riscoAtual.id_unidade && riscoAtual.id_unidade !== userLogado.id_unidade && !ehAdmin) return res.status(403).json({ success: false, message: "Acesso negado." });
+
+        if (riscoAtual.id_unidade && riscoAtual.id_unidade !== userLogado.id_unidade && !ehAdmin) 
+            return res.status(403).json({ success: false, message: "Acesso negado." });
 
         const idTabela = id_tabela_24 ? id_tabela_24 : null;
 
