@@ -200,19 +200,61 @@
 
                                                                                 <td
                                                                                     class="task-date w-36 text-center py-4">
-                                                                                    <% if (isAtrasado) { %>
-                                                                                        <span
-                                                                                            class="text-red-500 font-bold flex items-center justify-center gap-1"><span
-                                                                                                class="icon-[lucide--clock-alert]"></span>
-                                                                                            <%= dataFimFormatada %>
-                                                                                        </span>
-                                                                                        <% } else { %>
-                                                                                            <span
-                                                                                                class="text-zinc-500 flex items-center justify-center gap-1"><span
-                                                                                                    class="icon-[lucide--calendar]"></span>
-                                                                                                <%= dataFimFormatada %>
-                                                                                            </span>
-                                                                                            <% } %>
+                                                                                    <div
+                                                                                        class="flex flex-col items-center justify-center">
+
+                                                                                        <% if
+                                                                                            (projeto.status_os==='Concluída'
+                                                                                            ) { %>
+                                                                                            <% let
+                                                                                                dataConclusaoBr="--/--/----"
+                                                                                                ; if
+                                                                                                (projeto.data_conclusao_final)
+                                                                                                { let dC=new
+                                                                                                Date(projeto.data_conclusao_final);
+                                                                                                dataConclusaoBr=String(dC.getDate()).padStart(2, '0'
+                                                                                                ) + '/' +
+                                                                                                String(dC.getMonth() +
+                                                                                                1).padStart(2, '0' )
+                                                                                                + '/' +
+                                                                                                dC.getFullYear(); } %>
+                                                                                                <span
+                                                                                                    class="text-[9px] font-bold text-zinc-400 mb-0.5 tracking-wider">Concluído em</span>
+                                                                                                <span
+                                                                                                    class="text-green-500 font-bold flex items-center justify-center gap-1 text-[13px]">
+                                                                                                    <span
+                                                                                                        class="icon-[lucide--check-circle]"></span>
+                                                                                                    <%= dataConclusaoBr
+                                                                                                        %>
+                                                                                                </span>
+
+                                                                                                <% } else { %>
+                                                                                                    <span
+                                                                                                        class="text-[9px] uppercase font-bold text-zinc-400 mb-0.5 tracking-wider">Próx.
+                                                                                                        Vencimento</span>
+
+                                                                                                    <% if (isAtrasado) {
+                                                                                                        %>
+                                                                                                        <span
+                                                                                                            class="text-red-500 font-bold flex items-center justify-center gap-1 text-[13px]">
+                                                                                                            <span
+                                                                                                                class="icon-[lucide--clock-alert]"></span>
+                                                                                                            <%= dataFimFormatada
+                                                                                                                %>
+                                                                                                        </span>
+                                                                                                        <% } else { %>
+                                                                                                            <span
+                                                                                                                class="text-zinc-700 dark:text-zinc-200 font-bold flex items-center justify-center gap-1 text-[13px]">
+                                                                                                                <span
+                                                                                                                    class="icon-[lucide--calendar]"></span>
+                                                                                                                <%= dataFimFormatada
+                                                                                                                    %>
+                                                                                                            </span>
+                                                                                                            <% } %>
+
+                                                                                                                <% } %>
+
+                                                                                    </div>
                                                                                 </td>
 
                                                                                 <td class="w-36 text-right pr-6 py-4">

@@ -227,26 +227,29 @@
                             const statusDestino = colunaDestino.getAttribute('data-status');
                             const id_item = itemArrastado.getAttribute('data-id');
 
+                            // Se soltou na mesma coluna, não faz nada
                             if (statusOrigem === statusDestino) return;
 
+                            // REGRA 1: Proibir voltar para Pendente
                             if (statusDestino === 'Pendente') {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Ação não permitida',
                                     text: 'Uma tarefa que já foi iniciada não pode voltar para "Pendente".'
                                 });
-                                colunaOrigem.appendChild(itemArrastado);
+                                colunaOrigem.appendChild(itemArrastado); // Devolve pro lugar
                                 return;
                             }
 
+                            // REGRA 2: Pendente -> Em Execução (Iniciar Tarefa)
                             if (statusOrigem === 'Pendente' && statusDestino === 'Em Execução') {
                                 Swal.fire({
                                     title: 'Iniciar Tarefa?',
                                     text: "Ao mover para 'Em Progresso', você não poderá voltar esta tarefa para 'Pendente'. Deseja confirmar o início?",
                                     icon: 'question',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#0ea5e9',
-                                    cancelButtonColor: '#ef4444',
+                                    confirmButtonColor: '#0ea5e9', // Azul
+                                    cancelButtonColor: '#ef4444', // Vermelho
                                     confirmButtonText: 'Sim, iniciar!',
                                     cancelButtonText: 'Cancelar'
                                 }).then((result) => {
@@ -259,6 +262,49 @@
                                 return;
                             }
 
+                            // REGRA 3: Em Execução -> Feito (Concluir Tarefa)
+                            if (statusOrigem === 'Em Execução' && statusDestino === 'Feito') {
+                                Swal.fire({
+                                    title: 'Concluir Tarefa?',
+                                    text: "A data de hoje será registrada como a conclusão desta atividade. Confirma a entrega?",
+                                    icon: 'success',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#22c55e', // Verde
+                                    cancelButtonColor: '#71717a', // Cinza
+                                    confirmButtonText: 'Sim, concluir!',
+                                    cancelButtonText: 'Cancelar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        atualizarTarefaNoBanco(id_item, statusDestino);
+                                    } else {
+                                        colunaOrigem.appendChild(itemArrastado);
+                                    }
+                                });
+                                return;
+                            }
+
+                            // REGRA 4: Feito -> Em Execução (Reabrir Tarefa)
+                            if (statusOrigem === 'Feito' && statusDestino === 'Em Execução') {
+                                Swal.fire({
+                                    title: 'Atenção: Reabrir Tarefa',
+                                    text: "Ao voltar esta tarefa para 'Em Progresso', a data de conclusão registrada será apagada. Tem certeza que deseja reabrir?",
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#f59e0b', 
+                                    cancelButtonColor: '#71717a', 
+                                    confirmButtonText: 'Sim, reabrir!',
+                                    cancelButtonText: 'Cancelar'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        atualizarTarefaNoBanco(id_item, statusDestino);
+                                    } else {
+                                        colunaOrigem.appendChild(itemArrastado);
+                                    }
+                                });
+                                return;
+                            }
+
+                            // Fallback genérico caso crie outras colunas no futuro
                             atualizarTarefaNoBanco(id_item, statusDestino);
                         }
                     });

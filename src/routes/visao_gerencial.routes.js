@@ -40,6 +40,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                 osi.id_item,
                 osi.status_item,
                 osi.prazo_execucao_dias,
+                osi.data_conclusao, -- <-- ADICIONADO AQUI
                 s.nome_servico,
                 u.nome_completo AS responsavel
             FROM ordem_servico os
@@ -71,7 +72,8 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                     tarefas: [],
                     total_tarefas: 0,
                     tarefas_feitas: 0,
-                    data_limite_geral: null, // <-- ADICIONADO PARA O HTML LER A PRIORIDADE
+                    data_limite_geral: null,
+                    data_conclusao_final: null, // <-- ADICIONADO AQUI
                     is_atrasado: false
                 };
             }
@@ -98,8 +100,23 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                 if (atrasado) proj.is_atrasado = true;
 
                 // <-- A MÁGICA DA DATA FINAL GERAL DO PROJETO AQUI -->
-                if (!proj.data_limite_geral || limiteItem > proj.data_limite_geral) {
-                    proj.data_limite_geral = limiteItem;
+                if (row.status_item !== 'Feito') {
+                    if (!proj.data_limite_geral || limiteItem < proj.data_limite_geral) {
+                        proj.data_limite_geral = limiteItem;
+                    }
+                } else {
+                    // Fallback: se por acaso todas as tarefas estiverem Feitas, guarda a maior data
+                    if (!proj.data_fallback || limiteItem > proj.data_fallback) {
+                        proj.data_fallback = limiteItem;
+                    }
+                }
+
+                // <-- CAPTURANDO A ÚLTIMA DATA DE CONCLUSÃO -->
+                if (row.status_item === 'Feito' && row.data_conclusao) {
+                    const dtConclusao = new Date(row.data_conclusao);
+                    if (!proj.data_conclusao_final || dtConclusao > proj.data_conclusao_final) {
+                        proj.data_conclusao_final = dtConclusao;
+                    }
                 }
 
                 // Conta os dias de atraso pra mandar pro front
@@ -124,20 +141,27 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         // Converte o objeto em array e calcula as porcentagens e totais
         const projetos = Object.values(projetosMap).map(p => {
             p.progresso = p.total_tarefas > 0 ? Math.round((p.tarefas_feitas / p.total_tarefas) * 100) : 0;
-
             if (p.status_os === 'Em Andamento') totalEmAndamento++;
             if (p.is_atrasado && p.status_os !== 'Concluída') totalAtrasados++;
 
+            // Se todas as tarefas estiverem concluídas, usa a data de fallback
+            if (!p.data_limite_geral && p.data_fallback) {
+                p.data_limite_geral = p.data_fallback;
+            }
             return p;
         });
 
-        // Ordena para jogar os que têm tarefas atrasadas lá pro topo da tela
+        // Ordenação inteligente: Atrasados -> Próximos de Vencer -> Mais distantes -> Concluídos
         projetos.sort((a, b) => {
             if (a.status_os === 'Concluída' && b.status_os !== 'Concluída') return 1;
             if (b.status_os === 'Concluída' && a.status_os !== 'Concluída') return -1;
             if (a.is_atrasado && !b.is_atrasado) return -1;
             if (b.is_atrasado && !a.is_atrasado) return 1;
-            return 0; // Se empatar, deixa como veio do banco
+
+            // Nova regra de ordenação: Pela data que está mais próxima de explodir!
+            const dataA = a.data_limite_geral ? new Date(a.data_limite_geral).getTime() : Infinity;
+            const dataB = b.data_limite_geral ? new Date(b.data_limite_geral).getTime() : Infinity;
+            return dataA - dataB;
         });
 
         // Renderiza a tela enviando os dados
