@@ -189,8 +189,12 @@
 
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
-
+        <script id="perm-data" type="application/json">
+            <%- JSON.stringify(locals.user.permissoes['perfis'] || {}) %>
+        </script>
         <script>
+
+
             // ============================================================
             // 1. RECUPERAÇÃO SEGURA DE DADOS E PERMISSÕES
             // ============================================================
@@ -200,8 +204,8 @@
             const userPerfil = "<%= user.nome_perfil %>";
 
             // Permissões específicas do módulo 'perfis'. 
-            // Usamos <%- %> com JSON.stringify para passar o objeto ou vazio {}
-            const permPerfil = "<% - JSON.stringify(user.permissoes['perfis'] || {}) %>";
+            const rawPerms = document.getElementById('perm-data').textContent;
+            const permPerfil = rawPerms ? JSON.parse(rawPerms) : {};
 
             let canEdit = false;
 
