@@ -139,13 +139,11 @@
                                                                     <% } else if (tarefa.dias_restantes < 0) { %>
                                                                         <span
                                                                             class="icon-[lucide--clock] me-1 text-red-500"></span>
-                                                                        <span
-                                                                            class="text-red-500">Atrasado</span>
+                                                                        <span class="text-red-500">Atrasado</span>
                                                                         <% } else if (tarefa.dias_restantes===0) { %>
                                                                             <span
                                                                                 class="icon-[lucide--clock] me-1 text-amber-500"></span>
-                                                                            <span
-                                                                                class="text-amber-500">Hoje</span>
+                                                                            <span class="text-amber-500">Hoje</span>
                                                                             <% } else { %>
                                                                                 <span
                                                                                     class="icon-[lucide--clock] me-1 text-zinc-400"></span>
@@ -162,6 +160,13 @@
                                 <% }) %>
 
                     </div>
+                </div>
+                <div class="flex justify-end px-4 mb-6">
+                    <a href="/visao-gerencial"
+                        class="btn border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 h-11 px-6">
+                        <span class="icon-[lucide--arrow-left] text-lg me-1"></span> Voltar
+                    </a>
+                </div>
                 </div>
 
                 <%- include('../partials/footer') %>
