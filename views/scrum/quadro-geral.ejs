@@ -106,7 +106,7 @@
 
                                                         <div class="flex items-center gap-2 shrink-0 truncate">
                                                             <div
-                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full flex items-center justify-center bg-primary text-white text-xs font-bold uppercase shadow-sm">
+                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full flex items-center justify-center bg-primary text-white text-xs font-bold shadow-sm">
                                                                 <%= tarefa.nome_completo ?
                                                                     tarefa.nome_completo.charAt(0) : 'U' %>
                                                             </div>
@@ -140,12 +140,12 @@
                                                                         <span
                                                                             class="icon-[lucide--clock] me-1 text-red-500"></span>
                                                                         <span
-                                                                            class="text-red-500 uppercase">Atrasado</span>
+                                                                            class="text-red-500">Atrasado</span>
                                                                         <% } else if (tarefa.dias_restantes===0) { %>
                                                                             <span
                                                                                 class="icon-[lucide--clock] me-1 text-amber-500"></span>
                                                                             <span
-                                                                                class="text-amber-500 uppercase">Hoje</span>
+                                                                                class="text-amber-500">Hoje</span>
                                                                             <% } else { %>
                                                                                 <span
                                                                                     class="icon-[lucide--clock] me-1 text-zinc-400"></span>
