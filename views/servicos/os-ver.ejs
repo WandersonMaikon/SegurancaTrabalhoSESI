@@ -57,8 +57,18 @@
                         <div class="md:col-span-12 space-y-6">
 
                             <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                <div
+                                    class="p-6 border-b border-zinc-500/10 dark:border-zinc-800 flex items-center justify-between gap-4 flex-wrap">
                                     <h5 class="text-xl">Dados Gerais</h5>
+                                    <div
+                                        class="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-950 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
+                                        <span class="icon-[lucide--calendar] text-zinc-400"></span>
+                                        <span class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Data de
+                                            Abertura:</span>
+                                        <span class="text-sm font-bold text-zinc-700 dark:text-zinc-200">
+                                            <%= new Date(os.data_abertura).toLocaleDateString('pt-BR') %>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -81,12 +91,17 @@
                                             value="<%= os.nome_empresa %> - <%= os.cnpj %>" readonly>
                                     </div>
 
-                                    <div>
-                                        <label class="mb-2 block text-zinc-400 text-sm">DATA DE ABERTURA</label>
-                                        <input type="text" class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950"
-                                            value="<%= new Date(os.data_abertura).toLocaleDateString('pt-BR') %>"
-                                            readonly>
-                                    </div>
+                                    <% if (os.industria==1 || os.industria==true || (os.valor_previsto_fomento &&
+                                        parseFloat(os.valor_previsto_fomento)> 0)) { %>
+                                        <div>
+                                            <label class="mb-2 block text-zinc-400 text-sm">VALOR PREVISTO DE
+                                                FOMENTO</label>
+                                            <input type="text"
+                                                class="input h-10 w-full bg-zinc-50 dark:bg-zinc-950 font-medium text-amber-600 dark:text-amber-500"
+                                                value="<%= new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(os.valor_previsto_fomento || 0) %>"
+                                                readonly>
+                                        </div>
+                                        <% } %>
                                 </div>
                             </div>
 
