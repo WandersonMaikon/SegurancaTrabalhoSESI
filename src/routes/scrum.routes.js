@@ -18,14 +18,24 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
+        // A MÁGICA AQUI: O INNER JOIN filtra as tarefas e a matemática
+        // EXCLUSIVAMENTE para o usuário logado, ignorando o resto da equipe!
         let sql = `
             SELECT
                 os.id_ordem_servico AS id_contrato,
                 os.contrato_numero AS numero_contrato,
-                os.status,
                 c.nome_empresa,
                 COUNT(osi.id_item) AS total_tarefas,
-                COUNT(DISTINCT osi.id_responsavel_execucao) AS membros,
+                1 AS membros,
+                
+                -- STATUS INDIVIDUALIZADO: Ignora o status global e foca no usuário
+                CASE 
+                    WHEN os.status = 'Cancelada' THEN 'Cancelada'
+                    WHEN COUNT(osi.id_item) > 0 AND SUM(IF(osi.status_item = 'Feito', 1, 0)) = COUNT(osi.id_item) THEN 'Concluída'
+                    WHEN SUM(IF(osi.status_item = 'Feito', 1, 0)) > 0 THEN 'Em Andamento'
+                    ELSE 'Aberta'
+                END AS status,
+
                 COALESCE(ROUND((SUM(IF(osi.status_item = 'Feito', 1, 0)) / NULLIF(COUNT(osi.id_item), 0)) * 100), 0) AS progresso,
                 
                 COALESCE(
@@ -52,28 +62,23 @@ router.get("/", verificarAutenticacao, async (req, res) => {
 
             FROM ordem_servico os
             JOIN cliente c ON os.id_cliente = c.id_cliente
-            LEFT JOIN ordem_servico_item osi ON os.id_ordem_servico = osi.id_ordem_servico
+            -- O segredo tá aqui: Amarramos a tabela de itens direto no ID do usuário logado
+            JOIN ordem_servico_item osi ON os.id_ordem_servico = osi.id_ordem_servico AND osi.id_responsavel_execucao = ?
             LEFT JOIN servico s ON osi.id_servico = s.id_servico
             WHERE os.deleted_at IS NULL AND os.status != 'Cancelada'
         `;
 
-        const params = [];
+        const params = [userLogado.id_usuario];
 
         if (!ehAdmin) {
             sql += ` AND os.id_unidade = ? `;
             params.push(userLogado.id_unidade || userLogado.unidade_id);
-
-            sql += ` AND os.id_ordem_servico IN (
-                        SELECT id_ordem_servico
-                        FROM ordem_servico_item
-                        WHERE id_responsavel_execucao = ?
-                     ) `;
-            params.push(userLogado.id_usuario);
         }
 
-        // Ordenação inteligente: Concluídas pro final, atrasadas pro topo!
+        // Ordenação inteligente: Joga seus projetos concluídos pro final da página,
+        // e organiza os abertos por quem vence primeiro!
         sql += ` GROUP BY os.id_ordem_servico, os.contrato_numero, os.status, c.nome_empresa, os.data_abertura
-                 ORDER BY (CASE WHEN os.status = 'Concluída' THEN 1 ELSE 0 END), dias_restantes ASC`;
+                 ORDER BY (CASE WHEN SUM(IF(osi.status_item = 'Feito', 1, 0)) = COUNT(osi.id_item) THEN 1 ELSE 0 END), dias_restantes ASC`;
 
         const [projetos] = await db.query(sql, params);
 
