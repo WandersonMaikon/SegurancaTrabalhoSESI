@@ -5,26 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ProS - Nova Unidade</title>
+    <title>ProS - Editar Unidade</title>
     <link rel="icon" href="/images/favicon.png" type="image/png">
-
-    <!-- Simplebar -->
     <link rel="stylesheet" href="/vendor/css/simplebar.css">
-
-    <!-- Sweet Alert CSS (Adicionado) -->
     <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com/">
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
         rel="stylesheet">
-
-    <!-- Main Style -->
     <link rel="stylesheet" href="/css/style.css" />
-
-    <!-- Page styles -->
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
 </head>
 
@@ -33,14 +23,12 @@
 
     <%- include('../partials/sidebar') %>
 
-        <!-- Main -->
         <main class="flex-1 lg:ms-64 flex flex-col app-content">
 
             <%- include('../partials/header') %>
 
-                <!-- Page header -->
                 <div class="px-4 lg:px-10 py-6">
-                    <h2 class="text-2xl mb-2">Cadastrar Unidade</h2>
+                    <h2 class="text-2xl mb-2">Editar Unidade</h2>
 
                     <ol class="flex gap-1 items-center text-sm">
                         <li class="flex items-center">
@@ -50,52 +38,48 @@
                         <li class="flex items-center opacity-30 leading-none">
                             <span class="icon-[lucide--chevron-right] rtl:rotate-180"></span>
                         </li>
-
-                        <li class="flex items-center"><span class="pointer-events-none">Cadastrar</span></li>
+                        <li class="flex items-center"><span class="pointer-events-none">Editar</span></li>
                     </ol>
                 </div>
-                <!-- Page content -->
+
                 <div class="content flex-grow px-4 lg:px-10 pb-10">
 
-                    <!-- ID adicionado para o JavaScript pegar -->
-                    <form id="formUnidade" class="w-full">
+                    <form id="formUnidadeEditar" class="w-full">
+                        <input type="hidden" id="id_unidade" value="<%= unidade.id_unidade %>">
 
                         <div class="grid grid-cols-1 gap-6">
 
-                            <!-- Coluna principal -->
                             <div class="md:col-span-8 space-y-6">
 
-                                <!-- Card: Dados Principais -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Dados da Unidade</h5>
                                     </div>
 
                                     <div class="p-6 grid grid-cols-1 gap-6">
-
                                         <div>
                                             <label class="mb-2 block">Nome Fantasia <span
                                                     class="text-red-500">*</span></label>
                                             <input id="nome_fantasia" name="nome_fantasia" type="text"
-                                                class="input h-10 w-full" placeholder="Ex: Matriz São Paulo">
+                                                class="input h-10 w-full" placeholder="Ex: Matriz São Paulo"
+                                                value="<%= unidade.nome_fantasia %>" required>
                                         </div>
 
                                         <div>
                                             <label class="mb-2 block">Razão Social</label>
                                             <input name="razao_social" type="text" class="input h-10 w-full"
-                                                placeholder="Razão Social da Empresa">
+                                                placeholder="Razão Social da Empresa"
+                                                value="<%= unidade.razao_social || '' %>">
                                         </div>
 
                                         <div>
                                             <label class="mb-2 block">CNPJ <span class="text-red-500">*</span></label>
                                             <input id="cnpj" name="cnpj" type="text" class="input h-10 w-full max-w-2xl"
-                                                placeholder="00.000.000/0000-00">
+                                                placeholder="00.000.000/0000-00" value="<%= unidade.cnpj %>" required>
                                         </div>
-
                                     </div>
                                 </div>
 
-                                <!-- Card: Localização -->
                                 <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
                                     <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
                                         <h5 class="text-xl">Localização</h5>
@@ -104,18 +88,15 @@
                                     <div class="p-6 grid grid-cols-1 gap-6">
                                         <div>
                                             <label class="mb-2 block">CEP</label>
-
                                             <div class="relative w-full max-w-2xl">
                                                 <input id="cep" name="cep" type="text" class="input h-10 w-full !pe-11"
-                                                    placeholder="00000-000">
-
+                                                    placeholder="00000-000" value="<%= unidade.cep || '' %>">
                                                 <button id="btnBuscarCep" type="button"
                                                     class="absolute right-2 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                                                     title="Buscar CEP" aria-label="Buscar CEP">
                                                     <span class="icon-[lucide--search] text-lg"></span>
                                                 </button>
                                             </div>
-
                                             <p id="cepMsg" class="text-sm text-zinc-400 mt-2 hidden"></p>
                                         </div>
 
@@ -123,21 +104,18 @@
                                             <div>
                                                 <label class="mb-2 block">Cidade</label>
                                                 <input id="cidade" name="cidade" type="text" class="input h-10 w-full"
-                                                    placeholder="Cidade">
+                                                    placeholder="Cidade" value="<%= unidade.cidade || '' %>">
                                             </div>
 
                                             <div>
                                                 <label class="mb-2 block">Estado (UF)</label>
                                                 <input id="estado" name="estado" type="text" class="input h-10 w-full"
-                                                    placeholder="UF" maxlength="2">
+                                                    placeholder="UF" maxlength="2" value="<%= unidade.estado || '' %>">
                                             </div>
                                         </div>
 
                                         <div>
                                             <label class="mb-2 block">Logradouro (Opcional)</label>
-                                            <input id="logradouro" name="logradouro" type="text"
-                                                class="input h-10 w-full" placeholder="Rua, avenida...">
-
                                             <input id="logradouro" name="logradouro" type="text"
                                                 class="input h-10 w-full" placeholder="Rua, avenida..."
                                                 value="<%= unidade.logradouro || '' %>">
@@ -145,24 +123,21 @@
                                     </div>
                                 </div>
 
-                                <!-- Page footer (ações do form) -->
                                 <div
                                     class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
                                     <a href="/unidade"
                                         class="btn border border-red-500 text-red-500 hover:bg-red-500 hover:text-white h-11 px-6 flex items-center justify-center">
-                                        <span class="icon-[lucide--trash] text-lg me-1 leading-none"></span>
-                                        Cancelar
+                                        <span class="icon-[lucide--x] text-lg me-1 leading-none"></span> Cancelar
                                     </a>
 
-                                    <button type="submit"
+                                    <button type="submit" id="btnSalvar"
                                         class="btn bg-primary text-white hover:bg-primary-deep h-11 px-6">
-                                        <span class="icon-[lucide--upload] text-lg me-1 leading-none"></span>
-                                        Salvar Unidade
+                                        <span class="icon-[lucide--save] text-lg me-1 leading-none"></span> Salvar
+                                        Alterações
                                     </button>
                                 </div>
 
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -170,14 +145,10 @@
                 <%- include('../partials/footer') %>
         </main>
 
-        <!-- Scripts -->
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/tom-select.complete.min.js"></script>
-
-        <!-- Sweet Alert JS (Adicionado) -->
         <script src="/vendor/js/sweetalert2.all.min.js"></script>
 
-        <!-- Script de Máscaras e CEP (Mantido) -->
         <script>
             (function () {
                 const $ = (id) => document.getElementById(id);
@@ -200,6 +171,10 @@
 
                 function applyMask(inputEl, formatter) {
                     if (!inputEl) return;
+
+                    // Força a máscara no carregamento (pra dados vindos do banco)
+                    if (inputEl.value) inputEl.value = formatter(inputEl.value);
+
                     inputEl.addEventListener("input", () => {
                         const formatted = formatter(inputEl.value);
                         if (inputEl.value !== formatted) inputEl.value = formatted;
@@ -261,12 +236,12 @@
             })();
         </script>
 
-        <!-- Script de Submissão com SweetAlert (NOVO) -->
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const form = document.getElementById('formUnidade');
+                const form = document.getElementById('formUnidadeEditar');
+                const btnSalvar = document.getElementById('btnSalvar');
+                const idUnidade = document.getElementById('id_unidade').value;
 
-                // Opções base do SweetAlert conforme seu template
                 const baseOptions = {
                     showConfirmButton: true,
                     showCloseButton: true,
@@ -275,16 +250,15 @@
                         closeButton: '!text-xl !top-0 !end-0 !mt-1 !me-1',
                         confirmButton: 'btn bg-primary text-white hover:bg-primary-deep px-6 py-2 rounded-lg'
                     },
-                    buttonsStyling: false // Importante para usar suas classes CSS no botão
+                    buttonsStyling: false
                 };
 
                 form.addEventListener('submit', async function (e) {
-                    e.preventDefault(); // Impede o recarregamento da página
+                    e.preventDefault();
 
                     const nomeFantasia = document.getElementById('nome_fantasia').value;
                     const cnpj = document.getElementById('cnpj').value;
 
-                    // 1. Validação Front-end (Alerta Amarelo)
                     if (!nomeFantasia || !cnpj) {
                         Swal.fire({
                             ...baseOptions,
@@ -295,13 +269,17 @@
                         return;
                     }
 
-                    // Prepara os dados
+                    // Troca o estado do botão
+                    const originalText = btnSalvar.innerHTML;
+                    btnSalvar.disabled = true;
+                    btnSalvar.innerHTML = 'Salvando...';
+
                     const formData = new FormData(form);
                     const data = Object.fromEntries(formData.entries());
 
                     try {
-                        // Envia para o servidor
-                        const response = await fetch('/unidade/salvar', {
+                        // A MÁGICA DA EDIÇÃO AQUI: Mandamos pro URL /editar/ID_DA_UNIDADE
+                        const response = await fetch(`/unidade/editar/${idUnidade}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -312,27 +290,26 @@
                         const result = await response.json();
 
                         if (response.ok) {
-                            // 2. Sucesso (Alerta Verde)
                             Swal.fire({
                                 ...baseOptions,
                                 icon: "success",
                                 title: "Sucesso!",
-                                text: "Unidade cadastrada com sucesso.",
+                                text: "Unidade atualizada com sucesso.",
                                 confirmButtonText: "OK"
-                            }).then((result) => {
-                                // Redireciona após clicar em OK
-                                if (result.isConfirmed || result.isDismissed) {
+                            }).then((res) => {
+                                if (res.isConfirmed || res.isDismissed) {
                                     window.location.href = '/unidade';
                                 }
                             });
                         } else {
-                            // 3. Erro do Servidor (Alerta Vermelho)
                             Swal.fire({
                                 ...baseOptions,
                                 icon: "error",
                                 title: "Erro!",
-                                text: result.message || "Ocorreu um erro ao salvar."
+                                text: result.message || "Ocorreu um erro ao atualizar."
                             });
+                            btnSalvar.disabled = false;
+                            btnSalvar.innerHTML = originalText;
                         }
 
                     } catch (error) {
@@ -343,6 +320,8 @@
                             title: "Erro de Conexão",
                             text: "Não foi possível conectar ao servidor."
                         });
+                        btnSalvar.disabled = false;
+                        btnSalvar.innerHTML = originalText;
                     }
                 });
             });

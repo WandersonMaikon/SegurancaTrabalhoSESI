@@ -86,7 +86,6 @@
                             <table id="table_unidades" class="table-default">
                                 <thead>
                                     <tr>
-                                        <th></th>
                                         <th class="text-nowrap">Nome Fantasia</th>
                                         <th class="text-nowrap">Razão Social</th>
                                         <th class="text-nowrap">CNPJ</th>
@@ -151,20 +150,19 @@
                             : '<span class="badge bg-zinc-500/10 text-zinc-500 status-badge">Inativo</span>';
 
                         tr.innerHTML = `
-                    <td></td>
-                    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${unidade.nome_fantasia || ''}</td>
-                    <td class="whitespace-nowrap">${unidade.razao_social || '-'}</td>
-                    <td class="whitespace-nowrap">${unidade.cnpj || ''}</td>
-                    <td class="whitespace-nowrap">${unidade.cidade || ''} - ${unidade.estado || ''}</td>
-                    <td>${statusHtml}</td>
-                    <td>
-                        <div class="flex items-center justify-end gap-1 relative z-[1]">
-                            <a href="/unidade/editar/${unidade.id_unidade}" class="btn !p-1.5 hover:!text-primary">
-                                <span class="icon-[lucide--edit] text-lg"></span>
-                            </a>
-                        </div>
-                    </td>
-                `;
+    <td class="font-semibold text-zinc-900 whitespace-nowrap dark:text-white">${unidade.nome_fantasia || ''}</td>
+    <td class="whitespace-nowrap">${unidade.razao_social || '-'}</td>
+    <td class="whitespace-nowrap">${unidade.cnpj || ''}</td>
+    <td class="whitespace-nowrap">${unidade.cidade || ''} - ${unidade.estado || ''}</td>
+    <td>${statusHtml}</td>
+    <td>
+        <div class="flex items-center gap-1 relative z-[1]">
+            <a href="/unidade/editar/${unidade.id_unidade}" class="btn !p-1.5 hover:!text-primary">
+                <span class="icon-[lucide--edit] text-lg"></span>
+            </a>
+        </div>
+    </td>
+`;
                         tbody.appendChild(tr);
                     });
                 }
@@ -196,7 +194,7 @@
                 });
 
                 document.getElementById('statusFilter').addEventListener('change', function () {
-                    table.columns(5).search(this.value).draw();
+                    table.columns(4).search(this.value).draw(); // <-- MUDOU PARA 4
                 });
 
                 // 4. AÇÃO DE INATIVAR (COM VERIFICAÇÃO DE STATUS)
