@@ -1223,10 +1223,67 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
             doc.fillColor('black').font('Helvetica-Oblique').fontSize(9).text('Nenhum risco identificado no levantamento.', startX + 5, doc.y + 5);
             doc.y += 20;
         }
+        // =================================================================
+        // BLOCO: DECLARAÇÃO DE ESCUTA DOS TRABALHADORES
+        // =================================================================
+        doc.moveDown(2);
+        
+        // Verifica se cabe na página antes de começar a desenhar
+        if (doc.y + 150 > 800) doc.addPage();
 
+        let yDecl = doc.y;
+
+        // Título da Declaração
+        doc.rect(startX, yDecl, width, 20).fillAndStroke('black', 'black');
+        doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Participação dos Trabalhadores', startX, yDecl + 5, { width: width, align: 'center' });
+        doc.fillColor('black');
+
+        let yTextoDecl = yDecl + 20;
+        doc.font('Helvetica').fontSize(9);
+
+        // Os parágrafos que você enviou
+        const p1 = 'Durante as inspeções de campo, os trabalhadores foram ouvidos quanto à sua percepção sobre os riscos ocupacionais em suas atividades e ambientes de trabalho, conforme previsto na NR 01, item 1.5.3.3, alínea b.';
+        const p2 = 'Quando constatada a existência de CIPA, as informações foram complementadas pelas manifestações da CIPA.';
+        const p3 = 'Neste momento, também foram fornecidas noções básicas sobre o Gerenciamento de Riscos Ocupacionais, reforçando a importância da participação dos trabalhadores na identificação de situações de risco e na construção de um ambiente de trabalho mais seguro.';
+        const p4 = 'As contribuições coletadas durante a escuta foram registradas em Folhas de Campo e serão consideradas no processo de identificação de perigos, avaliação preliminar de perigos e riscos e na avaliação do nível de risco, bem como na proposição de medidas de prevenção.';
+
+        const txtDeclOpts = { width: width - 10, align: 'justify' };
+
+        // Calcula a altura de cada parágrafo
+        const hp1 = doc.heightOfString(p1, txtDeclOpts);
+        const hp2 = doc.heightOfString(p2, txtDeclOpts);
+        const hp3 = doc.heightOfString(p3, txtDeclOpts);
+        const hp4 = doc.heightOfString(p4, txtDeclOpts);
+
+        const espacoDecl = 10; // Espaço entre parágrafos
+        const paddingDecl = 10; // Margem interna da caixa
+        const alturaCaixaDecl = paddingDecl * 2 + hp1 + hp2 + hp3 + hp4 + (espacoDecl * 3);
+
+        // Desenha a caixa (fundo branco, borda preta)
+        doc.rect(startX, yTextoDecl, width, alturaCaixaDecl).fillAndStroke('white', 'black');
+        doc.fillColor('black');
+
+        // Escreve os parágrafos
+        let currYDecl = yTextoDecl + paddingDecl;
+        
+        doc.text(p1, startX + 5, currYDecl, txtDeclOpts);
+        currYDecl += hp1 + espacoDecl;
+
+        doc.text(p2, startX + 5, currYDecl, txtDeclOpts);
+        currYDecl += hp2 + espacoDecl;
+
+        doc.text(p3, startX + 5, currYDecl, txtDeclOpts);
+        currYDecl += hp3 + espacoDecl;
+
+        doc.text(p4, startX + 5, currYDecl, txtDeclOpts);
+
+        // Atualiza a posição 'Y' global para o próximo bloco (Registro Final) não sobrepor
+        doc.y = yTextoDecl + alturaCaixaDecl;
+        
         // =================================================================
         // ASSINATURAS - REGISTRO FINAL
         // =================================================================
+        
         doc.moveDown(2);
 
         if (doc.y > 650) doc.addPage();
