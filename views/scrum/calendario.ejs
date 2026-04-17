@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProS - Calendário de Atividades</title>
+    <link rel="icon" href="/images/favicon.png" type="image/png">
+
+    <link rel="stylesheet" href="/vendor/css/simplebar.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/vendor/css/sweetalert2.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="/css/style.css" />
+
+    <style>
+        /* Ajustes finos para o calendário combinar com o dark mode do seu tema */
+        .fc-theme-standard td,
+        .fc-theme-standard th,
+        .fc-theme-standard .fc-scrollgrid {
+            border-color: var(--tw-border-opacity) !important;
+        }
+
+        .dark .fc-theme-standard td,
+        .dark .fc-theme-standard th,
+        .dark .fc-theme-standard .fc-scrollgrid {
+            border-color: #27272a !important;
+            /* zinc-800 */
+        }
+
+        .dark .fc-col-header-cell-cushion,
+        .dark .fc-daygrid-day-number {
+            color: #d4d4d8 !important;
+            /* zinc-300 */
+        }
+
+        .dark .fc-button-primary {
+            background-color: #18181b !important;
+            border-color: #27272a !important;
+        }
+
+        .dark .fc-button-primary:not(:disabled).fc-button-active,
+        .dark .fc-button-primary:not(:disabled):active {
+            background-color: var(--color-primary) !important;
+            border-color: var(--color-primary) !important;
+        }
+
+        .fc-event {
+            cursor: pointer;
+            border: none !important;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body
+    class="font-theme flex flex-col h-full text-base font-normal bg-zinc-50 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-300">
+
+    <%- include('../partials/sidebar') %>
+
+        <main class="flex-1 lg:ms-64 flex flex-col app-content">
+
+            <%- include('../partials/header') %>
+
+                <div class="px-4 lg:px-8 pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between">
+                    <div class="flex-grow mb-3 sm:mb-0">
+                        <h2 class="text-2xl font-bold mb-0.5 text-black dark:text-white">Calendário de Atividades</h2>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Acompanhe e planeje as datas de execução dos
+                            seus serviços.</p>
+                    </div>
+
+                    <ol class="flex gap-1 items-center text-sm shrink-0">
+                        <li class="flex items-center"><a href="/dashboard"
+                                class="text-zinc-400 hover:text-primary">Dashboard</a></li>
+                        <li class="flex items-center opacity-30 leading-none"><span
+                                class="icon-[lucide--chevron-right] rtl:rotate-180"></span></li>
+                        <li class="flex items-center"><span
+                                class="pointer-events-none font-semibold text-zinc-800 dark:text-white">Calendário</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="content mb-6 flex-grow relative px-4 lg:px-8">
+                    <div
+                        class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card p-6 border border-zinc-100 dark:border-zinc-800/50">
+                        <div id="calendar" class="mx-auto"></div>
+                    </div>
+                </div>
+
+                <%- include('../partials/footer') %>
+        </main>
+
+        <div id="tarefas-data" class="hidden"><%- tarefasJson %></div>
+
+        <script src="/js/theme.js"></script>
+        <script src="/vendor/js/jquery.min.js"></script>
+        <script src="/vendor/js/sweetalert2.all.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/pt-br.global.min.js"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const calendarEl = document.getElementById('calendar');
+
+                // 1. Pega as tarefas do cofre invisível
+                let tarefas = [];
+                try {
+                    const raw = document.getElementById('tarefas-data').innerText;
+                    if (raw) tarefas = JSON.parse(raw);
+                } catch (e) {
+                    console.error("Erro ao carregar tarefas:", e);
+                }
+
+                // 2. Converte as tarefas do seu banco para o formato que o Calendário entende
+                const eventosCalendario = tarefas.map(t => {
+                    // Define a cor baseado no status (para ficar fácil de bater o olho)
+                    let corFundo = '#3b82f6'; // Azul = Pendente
+                    if (t.status_item === 'Feito') corFundo = '#22c55e'; // Verde = Concluído
+                    else if (t.status_item === 'Em Andamento') corFundo = '#f59e0b'; // Laranja = Em Andamento
+
+                    // Pega apenas a parte da data (YYYY-MM-DD) cortando a hora
+                    const dataFormatada = t.data_limite ? t.data_limite.split('T')[0] : null;
+
+                    return {
+                        id: t.id_item,
+                        title: `${t.nome_empresa} - ${t.nome_servico}`,
+                        start: dataFormatada,
+                        color: corFundo,
+                        // Guarda o objeto inteiro dentro da propriedade extendedProps para usarmos ao clicar!
+                        extendedProps: {
+                            ...t
+                        }
+                    };
+                });
+
+                // 3. Renderiza o Calendário
+                const calendar = new FullCalendar.Calendar(calendarEl, {
+                    locale: 'pt-br', // Deixa os dias da semana e meses em português
+                    initialView: 'dayGridMonth',
+                    height: 'auto',
+                    editable: true, // Permite arrastar o card (Ainda precisamos salvar no banco)
+                    droppable: true,
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listWeek' // Adicionado opções de visualização
+                    },
+                    // ADICIONE ESTE BLOCO AQUI PARA FORÇAR A TRADUÇÃO DOS BOTÕES
+                    buttonText: {
+                        today: 'Hoje',
+                        month: 'Mês',
+                        week: 'Semana',
+                        list: 'Lista'
+                    },
+                    allDayText: 'Dia todo',
+                    events: eventosCalendario,
+
+                    // 4. O QUE ACONTECE QUANDO CLICA NA TAREFA?
+                    eventClick: function (info) {
+                        const tarefa = info.event.extendedProps;
+
+                        Swal.fire({
+                            title: 'Detalhes da Tarefa',
+                            html: `
+                            <div class="text-left mt-4 text-sm space-y-3">
+                                <p><b>Cliente:</b> ${tarefa.nome_empresa}</p>
+                                <p><b>Serviço:</b> ${tarefa.nome_servico}</p>
+                                <p><b>Contrato:</b> ${tarefa.contrato_numero}</p>
+                                <p><b>Status:</b> <span class="badge bg-zinc-100 text-zinc-800 border border-zinc-200">${tarefa.status_item}</span></p>
+                                <hr class="border-zinc-200 dark:border-zinc-700">
+                                <p class="text-muted text-xs">Aqui no futuro nós vamos colocar os campos para você escolher a data real do planejamento e atualizar no banco!</p>
+                            </div>
+                        `,
+                            showCancelButton: true,
+                            confirmButtonText: 'Acessar Quadro',
+                            cancelButtonText: 'Fechar',
+                            customClass: {
+                                confirmButton: 'btn bg-primary text-white hover:bg-primary-deep px-6 py-2 rounded-lg',
+                                cancelButton: 'btn bg-zinc-200 text-zinc-800 hover:bg-zinc-300 px-6 py-2 rounded-lg ms-2'
+                            },
+                            buttonsStyling: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Se clicar no botão azul, manda o cara direto pro quadro Scrum dessa empresa!
+                                window.location.href = `/scrum/quadro/${tarefa.id_contrato}`;
+                            }
+                        });
+                    }
+                });
+
+                calendar.render();
+            });
+        </script>
+</body>
+
+</html>

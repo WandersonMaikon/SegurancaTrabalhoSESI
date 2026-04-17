@@ -11,15 +11,13 @@ const verificarSeEhAdmin = (user) => {
 };
 
 // =============================================================================
-// 1. TELA DA LISTA (GET /) - Onde ficam os Cards dos Contratos
+// 1. TELA DA LISTA (GET /) 
 // =============================================================================
 router.get("/", verificarAutenticacao, async (req, res) => {
     try {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        // A MÁGICA AQUI: O INNER JOIN filtra as tarefas e a matemática
-        // EXCLUSIVAMENTE para o usuário logado, ignorando o resto da equipe!
         let sql = `
             SELECT
                 os.id_ordem_servico AS id_contrato,
@@ -75,8 +73,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             params.push(userLogado.id_unidade || userLogado.unidade_id);
         }
 
-        // Ordenação inteligente: Joga seus projetos concluídos pro final da página,
-        // e organiza os abertos por quem vence primeiro!
+        // Ordenação
         sql += ` GROUP BY os.id_ordem_servico, os.contrato_numero, os.status, c.nome_empresa, os.data_abertura
                  ORDER BY (CASE WHEN SUM(IF(osi.status_item = 'Feito', 1, 0)) = COUNT(osi.id_item) THEN 1 ELSE 0 END), dias_restantes ASC`;
 

@@ -89,8 +89,12 @@
                                         data-status="<%= coluna.id %>">
                                         <% tarefas[coluna.id].forEach(function(tarefa) { %>
 
-                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-grab border border-zinc-200 dark:border-zinc-700 transition-all"
-                                                data-id="<%= tarefa.id_item %>">
+                                            <li class="p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800 hover:shadow-xl child-task drag-handle shrink-0 cursor-pointer border border-zinc-200 dark:border-zinc-700 transition-all"
+                                                data-id="<%= tarefa.id_item %>"
+                                                data-servico="<%= tarefa.nome_servico %>"
+                                                data-prazo="<%= tarefa.dias_restantes %>"
+                                                data-dataplanejada="<%= tarefa.data_planejada || '' %>"
+                                                data-horaplanejada="<%= tarefa.hora_planejada || '' %>">
 
                                                 <h5
                                                     class="mb-2 text-base font-semibold leading-tight text-zinc-800 dark:text-zinc-100">
@@ -103,6 +107,7 @@
                                                     badgePriText="Alta prioridade" ; } else if (tarefa.dias_restantes
                                                     <=30) { badgePriColor="bg-amber-500/10 text-amber-500" ;
                                                     badgePriText="Média prioridade" ; } %>
+
                                                     <span class="badge <%= badgePriColor %> mb-3 font-semibold text-xs">
                                                         <%= badgePriText %>
                                                     </span>
@@ -137,8 +142,7 @@
                                                                             class="icon-[lucide--check-circle] me-1 text-green-500"></span>
                                                                         <span
                                                                             class="text-green-500 font-bold capitalize text-[10px]">Fim:
-                                                                            <%= dataFim %>
-                                                                        </span>
+                                                                            <%= dataFim %></span>
 
                                                                         <% } else if (tarefa.dias_restantes < 0) { %>
                                                                             <span
@@ -159,14 +163,12 @@
                                                                                     <span
                                                                                         class="text-zinc-600 dark:text-zinc-300 font-bold text-[10px]">Faltam
                                                                                         <%= tarefa.dias_restantes %>
-                                                                                            d
-                                                                                    </span>
+                                                                                            d</span>
                                                                                     <% } %>
                                                         </div>
                                                     </div>
                                             </li>
                                             <% }) %>
-
                                     </ul>
                                 </div>
                                 <% }) %>
@@ -174,18 +176,171 @@
                     </div>
                 </div>
 
+                <div id="modal_programacao" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4">
+
+                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="fecharModalProgramacao()"></div>
+
+                    <div
+                        class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-xl shadow-2xl flex flex-col border border-zinc-200 dark:border-zinc-800">
+
+                        <div
+                            class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/20 rounded-t-xl">
+                            <h5 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                                <span class="icon-[lucide--calendar-clock] text-primary"></span>
+                                Programar Atividade
+                            </h5>
+                            <button type="button" class="btn !p-2 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                                onclick="fecharModalProgramacao()" aria-label="Fechar">
+                                <span class="icon-[lucide--x] text-lg"></span>
+                            </button>
+                        </div>
+
+                        <div class="p-6">
+                            <div
+                                class="mb-6 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                                <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Serviço a ser realizado</p>
+                                <p id="mod_nome_servico"
+                                    class="font-semibold text-zinc-800 dark:text-zinc-200 mb-3 text-lg leading-tight">
+                                </p>
+
+                                <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Prazo Restante</p>
+                                <p id="mod_prazo_servico" class="text-sm font-medium"></p>
+                            </div>
+
+                            <form id="formProgramacao">
+                                <input type="hidden" id="prog_id_item">
+
+                                <div class="grid grid-cols-2 gap-4 mb-6">
+                                    <div>
+                                        <label
+                                            class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Data
+                                            Prevista <span class="text-red-500">*</span></label>
+                                        <input type="date" id="prog_data"
+                                            class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Hora
+                                            Prevista</label>
+                                        <input type="time" id="prog_hora"
+                                            class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary">
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
+                                    <button type="button" onclick="fecharModalProgramacao()"
+                                        class="btn border border-zinc-200 dark:border-zinc-700 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" id="btnSalvarProg"
+                                        class="btn bg-primary text-white hover:bg-primary-deep shadow-lg shadow-primary/20">
+                                        <span class="icon-[lucide--save] me-2"></span> Salvar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 <%- include('../partials/footer') %>
         </main>
 
         <script src="/js/theme.js"></script>
         <script src="/vendor/js/jquery.min.js"></script>
-
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
+            // Função global de fechamento chamada pelo botão "X" e fundo escuro
+            window.fecharModalProgramacao = function () {
+                const modal = document.getElementById('modal_programacao');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
             document.addEventListener('DOMContentLoaded', () => {
 
+                // 1. RASTREADOR DE CLIQUE INQUEBRÁVEL
+                document.getElementById('scrum-board').addEventListener('click', function (e) {
+                    const cardClicado = e.target.closest('.child-task');
+
+                    if (!cardClicado) return;
+
+                    const idItem = cardClicado.getAttribute('data-id');
+                    const nomeServico = cardClicado.getAttribute('data-servico');
+                    const prazo = parseInt(cardClicado.getAttribute('data-prazo'));
+                    const dataPlan = cardClicado.getAttribute('data-dataplanejada');
+                    const horaPlan = cardClicado.getAttribute('data-horaplanejada');
+
+                    document.getElementById('prog_id_item').value = idItem;
+                    document.getElementById('mod_nome_servico').innerText = nomeServico;
+
+                    const prazoEl = document.getElementById('mod_prazo_servico');
+                    if (prazo < 0) {
+                        prazoEl.innerHTML = `<span class="text-red-500">Atrasado em ${Math.abs(prazo)} dias</span>`;
+                    } else if (prazo === 0) {
+                        prazoEl.innerHTML = `<span class="text-amber-500">Vence Hoje!</span>`;
+                    } else {
+                        prazoEl.innerHTML = `<span class="text-zinc-600 dark:text-zinc-400">Faltam ${prazo} dias</span>`;
+                    }
+
+                    document.getElementById('prog_data').value = dataPlan ? dataPlan.split('T')[0] : '';
+                    document.getElementById('prog_hora').value = horaPlan || '';
+
+                    // Garante que as classes do Tailwind renderizem a caixa
+                    const modal = document.getElementById('modal_programacao');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                });
+
+                // 2. SUBMIT DO FORMULÁRIO DE PROGRAMAÇÃO
+                document.getElementById('formProgramacao').addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const btn = document.getElementById('btnSalvarProg');
+                    const originalText = btn.innerHTML;
+                    btn.disabled = true;
+                    btn.innerHTML = 'Salvando...';
+
+                    const payload = {
+                        id_item: document.getElementById('prog_id_item').value,
+                        data_planejada: document.getElementById('prog_data').value,
+                        hora_planejada: document.getElementById('prog_hora').value
+                    };
+
+                    try {
+                        const response = await fetch('/scrum/programar-tarefa', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            window.fecharModalProgramacao();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Programado!',
+                                text: 'A data da sua atividade foi agendada.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Erro', data.message || 'Erro ao salvar.', 'error');
+                            btn.disabled = false;
+                            btn.innerHTML = originalText;
+                        }
+                    } catch (error) {
+                        Swal.fire('Erro', 'Não foi possível conectar ao servidor.', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = originalText;
+                    }
+                });
+
+                // 3. FUNÇÕES ORIGINAIS DO SORTABLE.JS (DRAG N DROP)
                 function atualizarTarefaNoBanco(id_item, novo_status) {
                     fetch('/scrum/atualizar-tarefa', {
                         method: 'POST',
@@ -199,7 +354,6 @@
                                     const totalBadge = list.parentElement.querySelector('.badge');
                                     totalBadge.textContent = list.children.length;
                                 });
-                                // Como agora a data muda, o reload garante que o card ganhe a data "Fim: XX de XXX"
                                 window.location.reload();
                             } else {
                                 Swal.fire('Erro!', 'Ocorreu um erro ao atualizar o banco de dados.', 'error');
@@ -227,29 +381,26 @@
                             const statusDestino = colunaDestino.getAttribute('data-status');
                             const id_item = itemArrastado.getAttribute('data-id');
 
-                            // Se soltou na mesma coluna, não faz nada
                             if (statusOrigem === statusDestino) return;
 
-                            // REGRA 1: Proibir voltar para Pendente
                             if (statusDestino === 'Pendente') {
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Ação não permitida',
                                     text: 'Uma tarefa que já foi iniciada não pode voltar para "Pendente".'
                                 });
-                                colunaOrigem.appendChild(itemArrastado); // Devolve pro lugar
+                                colunaOrigem.appendChild(itemArrastado);
                                 return;
                             }
 
-                            // REGRA 2: Pendente -> Em Execução (Iniciar Tarefa)
                             if (statusOrigem === 'Pendente' && statusDestino === 'Em Execução') {
                                 Swal.fire({
                                     title: 'Iniciar Tarefa?',
                                     text: "Ao mover para 'Em Progresso', você não poderá voltar esta tarefa para 'Pendente'. Deseja confirmar o início?",
                                     icon: 'question',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#0ea5e9', // Azul
-                                    cancelButtonColor: '#ef4444', // Vermelho
+                                    confirmButtonColor: '#0ea5e9',
+                                    cancelButtonColor: '#ef4444',
                                     confirmButtonText: 'Sim, iniciar!',
                                     cancelButtonText: 'Cancelar'
                                 }).then((result) => {
@@ -262,15 +413,14 @@
                                 return;
                             }
 
-                            // REGRA 3: Em Execução -> Feito (Concluir Tarefa)
                             if (statusOrigem === 'Em Execução' && statusDestino === 'Feito') {
                                 Swal.fire({
                                     title: 'Concluir Tarefa?',
                                     text: "A data de hoje será registrada como a conclusão desta atividade. Confirma a entrega?",
                                     icon: 'success',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#22c55e', // Verde
-                                    cancelButtonColor: '#71717a', // Cinza
+                                    confirmButtonColor: '#22c55e',
+                                    cancelButtonColor: '#71717a',
                                     confirmButtonText: 'Sim, concluir!',
                                     cancelButtonText: 'Cancelar'
                                 }).then((result) => {
@@ -283,15 +433,14 @@
                                 return;
                             }
 
-                            // REGRA 4: Feito -> Em Execução (Reabrir Tarefa)
                             if (statusOrigem === 'Feito' && statusDestino === 'Em Execução') {
                                 Swal.fire({
                                     title: 'Atenção: Reabrir Tarefa',
                                     text: "Ao voltar esta tarefa para 'Em Progresso', a data de conclusão registrada será apagada. Tem certeza que deseja reabrir?",
                                     icon: 'warning',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#f59e0b', 
-                                    cancelButtonColor: '#71717a', 
+                                    confirmButtonColor: '#f59e0b',
+                                    cancelButtonColor: '#71717a',
                                     confirmButtonText: 'Sim, reabrir!',
                                     cancelButtonText: 'Cancelar'
                                 }).then((result) => {
@@ -304,7 +453,6 @@
                                 return;
                             }
 
-                            // Fallback genérico caso crie outras colunas no futuro
                             atualizarTarefaNoBanco(id_item, statusDestino);
                         }
                     });
