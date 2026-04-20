@@ -157,7 +157,6 @@ router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_c
 });
 
 // --- EDITAR RISCO ---
-// --- EDITAR RISCO ---
 router.post("/editar", verificarAutenticacao, verificarPermissao('riscos', 'pode_editar'), async (req, res) => {
     try {
         // PEGANDO TODOS OS CAMPOS NOVOS

@@ -198,7 +198,7 @@ router.post("/salvar", verificarAutenticacao, upload.any(), async (req, res) => 
         await conn.query(sqlLevantamento, [
             id_levantamento, id_unidade, data.id_cliente, data.data_levantamento,
             data.id_responsavel_tecnico, data.responsavel_empresa_nome, data.responsavel_empresa_cargo, data.trabalho_externo ? 1 : 0,
-            data.nome_grupo_ges || null, 
+            data.nome_grupo_ges || null,
             toJson(data.tipo_construcao), toJson(data.tipo_piso), toJson(data.tipo_paredes), data.cor_paredes, toJson(data.divisoes_internas_material),
             toJson(data.tipo_cobertura), toJson(data.tipo_forro), toJson(data.tipo_iluminacao), toJson(data.tipo_ventilacao), data.possui_climatizacao ? 1 : 0,
             toJson(data.escadas_tipo), toJson(data.passarelas_tipo), JSON.stringify(data.estruturas_auxiliares || []),
@@ -584,7 +584,7 @@ router.post("/editar/:id", verificarAutenticacao, upload.any(), async (req, res)
                 await conn.query(`
                     INSERT INTO levantamento_ges (id_ges, id_levantamento, setor, cargos, nome_trabalhador_excecao, observacoes, ordem)
                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                `, [uuidv4(), id, g.setor, g.cargos, g.excecao, g.obs || null, i]); 
+                `, [uuidv4(), id, g.setor, g.cargos, g.excecao, g.obs || null, i]);
             }
         }
 
@@ -704,17 +704,20 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         `, [id]);
 
         const [riscos] = await db.query(`
-            SELECT 
-                lri.id_risco_identificado, lri.id_risco, lri.grupo_perigo AS grupo, 
-                lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome_risco, 
-                lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo, 
-                lri.observacoes AS obs, lri.anexo_imagem AS caminho_imagem,
-                t24.codigo AS codigo_esocial
-            FROM levantamento_risco_identificado lri
-            LEFT JOIN risco r ON lri.id_risco = r.id_risco
-            LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
-            WHERE lri.id_levantamento = ?
-        `, [id]);
+    SELECT
+        lri.id_risco_identificado, lri.id_risco, lri.grupo_perigo AS grupo,
+        lri.codigo_perigo AS codigo, lri.descricao_perigo AS nome_risco,
+        lri.fontes_geradoras AS fontes, lri.tipo_tempo_exposicao AS tempo,
+        lri.observacoes AS obs, lri.anexo_imagem AS caminho_imagem,
+        t24.codigo AS codigo_esocial,
+        r.vias_absorcao, r.lt_nr15, r.tlv_twa_stel_acgih,
+        r.exames_ocupacionais, r.eliminacao_substituicao,
+        r.medidas_engenharia, r.medidas_administrativas, r.epi_especificado
+        FROM levantamento_risco_identificado lri
+        LEFT JOIN risco r ON lri.id_risco = r.id_risco
+        LEFT JOIN tabela_24_esocial t24 ON r.id_tabela_24 = t24.id_tabela_24
+        WHERE lri.id_levantamento = ?
+    `, [id]);
 
         for (let risco of riscos) {
             const [epis] = await db.query(`
@@ -1227,7 +1230,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         // BLOCO: DECLARAÇÃO DE ESCUTA DOS TRABALHADORES
         // =================================================================
         doc.moveDown(2);
-        
+
         // Verifica se cabe na página antes de começar a desenhar
         if (doc.y + 150 > 800) doc.addPage();
 
@@ -1265,7 +1268,7 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         // Escreve os parágrafos
         let currYDecl = yTextoDecl + paddingDecl;
-        
+
         doc.text(p1, startX + 5, currYDecl, txtDeclOpts);
         currYDecl += hp1 + espacoDecl;
 
@@ -1277,15 +1280,15 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
 
         doc.text(p4, startX + 5, currYDecl, txtDeclOpts);
 
-        // Atualiza a posição 'Y' global para o próximo bloco (Registro Final) não sobrepor
+        // [Fim do bloco de Participação dos Trabalhadores]
         doc.y = yTextoDecl + alturaCaixaDecl;
-        
+
         // =================================================================
-        // ASSINATURAS - REGISTRO FINAL
+        // 1. REGISTRO FINAL (ASSINATURAS) - FLUXO DINÂMICO
         // =================================================================
-        
         doc.moveDown(2);
 
+        // Quebra apenas se o bloco de assinaturas realmente não couber (aprox. 150px)
         if (doc.y > 650) doc.addPage();
 
         let yReg = doc.y;
@@ -1302,30 +1305,115 @@ router.get("/imprimir/:id", verificarAutenticacao, async (req, res) => {
         const leftCenterX = startX + (width / 4);
         const rightCenterX = startX + (width * 0.75);
 
+        // Lado Esquerdo: Responsável Empresa
         if (levantamento.assinatura_responsavel_empresa && levantamento.assinatura_responsavel_empresa.includes('base64')) {
-            const base64DataEmpresa = levantamento.assinatura_responsavel_empresa.split(';base64,').pop();
-            const imgBufferEmpresa = Buffer.from(base64DataEmpresa, 'base64');
-            doc.image(imgBufferEmpresa, leftCenterX - 75, yLine - 65, { width: 150, align: 'center' });
+            try {
+                const base64DataEmpresa = levantamento.assinatura_responsavel_empresa.split(';base64,').pop();
+                const imgBufferEmpresa = Buffer.from(base64DataEmpresa, 'base64');
+                doc.image(imgBufferEmpresa, leftCenterX - 75, yLine - 65, { width: 150, align: 'center' });
+            } catch (e) { }
         }
         doc.font('Helvetica').fontSize(10);
         doc.text('__________________________________________', leftCenterX - 110, yLine, { width: 220, align: 'center' });
         doc.font('Helvetica-Bold').fontSize(9).text(levantamento.responsavel_empresa_nome || 'Resp. da Empresa', leftCenterX - 110, yLine + 12, { width: 220, align: 'center' });
         doc.font('Helvetica').fontSize(8).text('Assinatura do Responsável pelas informações da empresa', leftCenterX - 110, yLine + 22, { width: 220, align: 'center' });
 
+        // Lado Direito: Avaliador
         if (levantamento.assinatura_avaliador && levantamento.assinatura_avaliador.includes('base64')) {
-            const base64Data = levantamento.assinatura_avaliador.split(';base64,').pop();
-            const imgBuffer = Buffer.from(base64Data, 'base64');
-            doc.image(imgBuffer, rightCenterX - 75, yLine - 65, { width: 150, align: 'center' });
+            try {
+                const base64Data = levantamento.assinatura_avaliador.split(';base64,').pop();
+                const imgBuffer = Buffer.from(base64Data, 'base64');
+                doc.image(imgBuffer, rightCenterX - 75, yLine - 65, { width: 150, align: 'center' });
+            } catch (e) { }
         }
         doc.font('Helvetica').fontSize(10);
         doc.text('__________________________________________', rightCenterX - 110, yLine, { width: 220, align: 'center' });
         doc.font('Helvetica-Bold').fontSize(9).text(levantamento.nome_avaliador || 'Responsável Técnico', rightCenterX - 110, yLine + 12, { width: 220, align: 'center' });
         doc.font('Helvetica').fontSize(8).text('Assinatura do Avaliador', rightCenterX - 110, yLine + 22, { width: 220, align: 'center' });
 
+
+        // =================================================================
+        // 2. CARACTERIZAÇÃO DOS RISCOS - PÁGINA NOVA OBRIGATÓRIA
+        // =================================================================
+        doc.addPage();
+
+        doc.rect(startX, doc.y, width, 20).fillAndStroke('black', 'black');
+        doc.fillColor('white').font('Helvetica-Bold').fontSize(12).text('Caracterização dos Riscos', startX, doc.y + 5, { width: width, align: 'center' });
+        doc.fillColor('black');
+        doc.y += 25;
+
+        if (riscos.length > 0) {
+            riscos.forEach(r => {
+                if (doc.y > 700) doc.addPage();
+
+                doc.font('Helvetica-Bold').fontSize(10).text(`Perigo / Risco: ${r.nome_risco || '-'}`, startX, doc.y);
+                doc.y += 15;
+
+                const drawCharRow = (cols) => {
+                    let maxH_val = 0;
+                    doc.font('Helvetica').fontSize(8);
+                    cols.forEach(c => {
+                        const valText = String(c.val || '-');
+                        const h = doc.heightOfString(valText, { width: c.w - 4 });
+                        if (h > maxH_val) maxH_val = h;
+                    });
+
+                    const headerH = 14;
+                    const totalH = maxH_val + headerH + 10;
+
+                    if (doc.y + totalH > 800) doc.addPage();
+
+                    let subCx = startX;
+                    let subCy = doc.y;
+
+                    cols.forEach(c => {
+                        const valText = String(c.val || '-');
+
+                        // Fundo cinza e borda do título da célula
+                        doc.lineWidth(0.5).strokeColor('#4b5563');
+                        doc.rect(subCx, subCy, c.w, headerH).fillAndStroke('#f4f4f5', '#4b5563');
+
+                        doc.fillColor('black').font('Helvetica-Bold').fontSize(7)
+                            .text(c.label, subCx + 2, subCy + 3, { width: c.w - 4, align: 'center' });
+
+                        // Borda e conteúdo do valor da célula
+                        doc.rect(subCx, subCy + headerH, c.w, totalH - headerH).stroke('#4b5563');
+                        doc.fillColor('black').font('Helvetica').fontSize(8)
+                            .text(valText, subCx + 2, subCy + headerH + 4, { width: c.w - 4, align: 'left' });
+
+                        subCx += c.w;
+                    });
+                    doc.y = subCy + totalH;
+                };
+
+                const charColsRow1 = [
+                    { label: "Vias de Absorção", val: r.vias_absorcao, w: 128 },
+                    { label: "LT (NR-15)", val: r.lt_nr15, w: 128 },
+                    { label: "TLV / TWA / STEL (ACGIH)", val: r.tlv_twa_stel_acgih, w: 128 },
+                    { label: "Exames Ocupacionais", val: r.exames_ocupacionais, w: 131 }
+                ];
+
+                const charColsRow2 = [
+                    { label: "Eliminação / Substituição", val: r.eliminacao_substituicao, w: 128 },
+                    { label: "Medidas de Engenharia", val: r.medidas_engenharia, w: 128 },
+                    { label: "Medidas Administrativas", val: r.medidas_administrativas, w: 128 },
+                    { label: "EPI Especificado", val: r.epi_especificado, w: 131 }
+                ];
+
+                drawCharRow(charColsRow1);
+                drawCharRow(charColsRow2);
+
+                doc.y += 15;
+            });
+        } else {
+            doc.font('Helvetica-Oblique').fontSize(9).text('Nenhum detalhamento de risco disponível.', startX + 5, doc.y);
+            doc.y += 20;
+        }
+
         doc.end();
 
     } catch (error) {
-        console.error("Erro ao gerar impressão PDFKit:", error);
+        console.error("Erro ao gerar PDF:", error);
         res.status(500).send("Erro interno ao gerar o PDF.");
     }
 });
