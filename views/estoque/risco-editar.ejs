@@ -15,6 +15,24 @@
         rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/vendor/css/tom-select.min.css">
+
+    <style>
+        .animation-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 
 <body
@@ -58,99 +76,176 @@
                         </div>
                     </div>
 
+                    <nav
+                        class="nav-horizontal nav-underline gap-4 flex flex-nowrap mb-6 overflow-x-auto pb-1 border-b border-zinc-200 dark:border-zinc-700">
+                        <a href="#" class="nav-link active whitespace-nowrap text-primary"
+                            onclick="changeStep(1); return false;" data-step="1" id="nav-step-1">
+                            <span class="icon-[lucide--file-text] text-lg"></span> 1. Dados Básicos
+                        </a>
+                        <a href="#"
+                            class="nav-link whitespace-nowrap text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
+                            onclick="changeStep(2); return false;" data-step="2" id="nav-step-2">
+                            <span class="icon-[lucide--flask-conical] text-lg"></span> 2. Informações Técnicas
+                        </a>
+                    </nav>
+
                     <form id="formRisco" class="w-full">
                         <input type="hidden" name="id_risco" value="<%= risco.id_risco %>">
                         <input type="hidden" id="id_tabela_24" name="id_tabela_24"
                             value="<%= risco.id_tabela_24 || '' %>">
 
-                        <div class="grid grid-cols-1 gap-6">
-                            <div class="md:col-span-8 space-y-6">
-
-                                <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
-                                    <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
-                                        <h5 class="text-xl">Dados do risco</h5>
-                                        <p class="text-sm text-zinc-400 mt-1">
-                                            Edite o nome do risco, tipo e a associação (opcional) ao eSocial.
-                                        </p>
-                                    </div>
-
-                                    <div class="p-6 grid grid-cols-1 gap-6">
-
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Nome do risco <span
-                                                    class="text-red-500">*</span></label>
-                                            <input id="nome_risco" name="nome_risco" type="text"
-                                                class="input h-11 w-full"
-                                                placeholder="Digite o nome de controle interno..." required
-                                                maxlength="255" value="<%= risco.nome_risco %>">
-                                            <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
-                                        </div>
-
-                                        <div class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium">Tipo de risco <span
-                                                    class="text-red-500">*</span></label>
-                                            <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required
-                                                data-selected="<%= risco.tipo_risco %>">
-                                                <option value="" disabled>Selecione...</option>
-                                                <option value="Físicos">Físicos</option>
-                                                <option value="Químicos">Químicos</option>
-                                                <option value="Biológicos">Biológicos</option>
-                                                <option value="Ergonômicos">Ergonômicos</option>
-                                                <option value="Mecânicos">Mecânicos</option>
-                                                <option value="Inespecífico">Inespecífico</option>
-                                                <option value="Associações">Associações</option>
-                                                <option value="Outros">Outros</option>
-                                                <option value="Ausência de Riscos">Ausência de Riscos</option>
-                                            </select>
-                                        </div>
-
-                                        <div
-                                            class="w-full max-w-2xl mt-4 border-t border-zinc-200 dark:border-zinc-800 pt-6">
-                                            <label class="mb-2 block font-medium">Código eSocial tabela 24 <span
-                                                    class="text-zinc-400 font-normal text-sm ml-1">(Opcional)</span></label>
-                                            <div class="relative">
-                                                <input id="codigo_esocial" name="codigo_esocial_visual" type="text"
-                                                    class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.001"
-                                                    inputmode="numeric" autocomplete="off"
-                                                    value="<%= risco.codigo_esocial_visual || '' %>">
-
-                                                <button id="btnConsultarCodigo" type="button"
-                                                    class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
-                                                    <span class="icon-[lucide--search] text-lg me-2"></span>
-                                                    Consultar
-                                                </button>
-                                            </div>
-                                            <p id="codigoMsg" class="text-sm mt-2 hidden"></p>
-                                        </div>
-
-                                        <div id="container_descricao_esocial" class="w-full max-w-2xl">
-                                            <label class="mb-2 block font-medium text-zinc-500">Descrição oficial
-                                                (eSocial)</label>
-                                            <textarea id="descricao_esocial"
-                                                class="input w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed py-2"
-                                                rows="3" readonly
-                                                placeholder="A descrição oficial do eSocial aparecerá aqui se um código for vinculado..."></textarea>
-                                        </div>
-
-                                    </div>
+                        <div id="step-1" class="step-content block animation-fade-in">
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                    <h5 class="text-xl">Dados de Identificação</h5>
+                                    <p class="text-sm text-zinc-400 mt-1">Edite o nome do risco, tipo e a associação
+                                        (opcional) ao eSocial.</p>
                                 </div>
 
-                                <div
-                                    class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
-                                    <a href="/risco"
-                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 text-center pt-2">
-                                        Voltar
-                                    </a>
+                                <div class="p-6 grid grid-cols-1 gap-6">
+                                    <div class="w-full max-w-2xl">
+                                        <label class="mb-2 block font-medium">Nome do risco <span
+                                                class="text-red-500">*</span></label>
+                                        <input id="nome_risco" name="nome_risco" type="text" class="input h-11 w-full"
+                                            placeholder="Digite o nome de controle interno..." required maxlength="255"
+                                            value="<%= risco.nome_risco %>">
+                                        <p class="text-xs text-zinc-400 mt-1">Limitado a 9 palavras.</p>
+                                    </div>
 
-                                    <button type="submit" id="btnSalvar"
-                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
-                                        <span class="icon-[lucide--save] text-lg me-2"></span>
-                                        Salvar Alterações
-                                    </button>
+                                    <div class="w-full max-w-2xl">
+                                        <label class="mb-2 block font-medium">Tipo de risco <span
+                                                class="text-red-500">*</span></label>
+                                        <select id="tipo_risco" name="tipo_risco" class="js-select w-full" required
+                                            data-selected="<%= risco.tipo_risco %>">
+                                            <option value="" disabled>Selecione...</option>
+                                            <option value="Físicos">Físicos</option>
+                                            <option value="Químicos">Químicos</option>
+                                            <option value="Biológicos">Biológicos</option>
+                                            <option value="Ergonômicos">Ergonômicos</option>
+                                            <option value="Mecânicos">Mecânicos</option>
+                                            <option value="Inespecífico">Inespecífico</option>
+                                            <option value="Associações">Associações</option>
+                                            <option value="Outros">Outros</option>
+                                            <option value="Ausência de Riscos">Ausência de Riscos</option>
+                                        </select>
+                                    </div>
+
+                                    <div
+                                        class="w-full max-w-2xl mt-4 border-t border-zinc-200 dark:border-zinc-800 pt-6">
+                                        <label class="mb-2 block font-medium">Código eSocial tabela 24 <span
+                                                class="text-zinc-400 font-normal text-sm ml-1">(Opcional)</span></label>
+                                        <div class="relative">
+                                            <input id="codigo_esocial" name="codigo_esocial_visual" type="text"
+                                                class="input h-11 w-full !pe-32" placeholder="Ex.: 02.01.001"
+                                                inputmode="numeric" autocomplete="off"
+                                                value="<%= risco.codigo_esocial_visual || '' %>">
+                                            <button id="btnConsultarCodigo" type="button"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 h-8 px-4 bg-zinc-100 dark:bg-zinc-800 rounded-md flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors">
+                                                <span class="icon-[lucide--search] text-lg me-2"></span> Consultar
+                                            </button>
+                                        </div>
+                                        <p id="codigoMsg" class="text-sm mt-2 hidden"></p>
+                                    </div>
+
+                                    <div id="container_descricao_esocial" class="w-full max-w-2xl">
+                                        <label class="mb-2 block font-medium text-zinc-500">Descrição oficial
+                                            (eSocial)</label>
+                                        <textarea id="descricao_esocial"
+                                            class="input w-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed py-2"
+                                            rows="3" readonly
+                                            placeholder="A descrição oficial do eSocial aparecerá aqui se um código for vinculado..."></textarea>
+                                    </div>
                                 </div>
+                            </div>
 
+                            <div class="flex justify-end pt-6">
+                                <button type="button" onclick="changeStep(2)"
+                                    class="btn bg-zinc-800 text-white hover:bg-zinc-700 h-11 px-8">
+                                    Próximo Passo <span class="icon-[lucide--arrow-right] ml-2"></span>
+                                </button>
                             </div>
                         </div>
+
+                        <div id="step-2" class="step-content hidden animation-fade-in">
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900 shadow-card">
+                                <div class="p-6 border-b border-zinc-500/10 dark:border-zinc-800">
+                                    <h5 class="text-xl">Informações Técnicas de SST</h5>
+                                    <p class="text-sm text-zinc-400 mt-1">Detalhes de exposição, limites de tolerância e
+                                        medidas de controle.</p>
+                                </div>
+
+                                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="mb-2 block font-medium">Vias de Absorção</label>
+                                        <input type="text" name="vias_absorcao" class="input h-11 w-full"
+                                            placeholder="Ex: Respiratória, Cutânea..."
+                                            value="<%= risco.vias_absorcao || '' %>">
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-2 block font-medium">Limite de Tolerância (NR-15)</label>
+                                        <input type="text" name="lt_nr15" class="input h-11 w-full"
+                                            placeholder="Ex: 78 ppm" value="<%= risco.lt_nr15 || '' %>">
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-2 block font-medium">TLV-TWA / STEL (ACGIH)</label>
+                                        <input type="text" name="tlv_twa_stel_acgih" class="input h-11 w-full"
+                                            placeholder="Ex: 50 ppm" value="<%= risco.tlv_twa_stel_acgih || '' %>">
+                                    </div>
+
+                                    <div>
+                                        <label class="mb-2 block font-medium">Exames Ocupacionais (NR-7)</label>
+                                        <input type="text" name="exames_ocupacionais" class="input h-11 w-full"
+                                            placeholder="Ex: Ácido metil-hipúrico na urina..."
+                                            value="<%= risco.exames_ocupacionais || '' %>">
+                                    </div>
+
+                                    <div class="md:col-span-2 border-t border-zinc-200 dark:border-zinc-800 pt-6 mt-2">
+                                        <label class="mb-2 block font-medium">Eliminação e Substituição</label>
+                                        <textarea name="eliminacao_substituicao" class="input w-full py-2" rows="2"
+                                            placeholder="Descreva medidas de eliminação..."><%= risco.eliminacao_substituicao || '' %></textarea>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="mb-2 block font-medium">Medidas de Engenharia (EPC)</label>
+                                        <textarea name="medidas_engenharia" class="input w-full py-2" rows="2"
+                                            placeholder="Ex: Ventilação exaustora, enclausuramento..."><%= risco.medidas_engenharia || '' %></textarea>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="mb-2 block font-medium">Medidas Administrativas</label>
+                                        <textarea name="medidas_administrativas" class="input w-full py-2" rows="2"
+                                            placeholder="Ex: Rodízio de funções, treinamento..."><%= risco.medidas_administrativas || '' %></textarea>
+                                    </div>
+
+                                    <div class="md:col-span-2">
+                                        <label class="mb-2 block font-medium">EPI Especificado</label>
+                                        <textarea name="epi_especificado" class="input w-full py-2" rows="2"
+                                            placeholder="Ex: Luva nitrílica, respirador PFF2..."><%= risco.epi_especificado || '' %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between pt-6">
+                                <button type="button" onclick="changeStep(1)"
+                                    class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6">
+                                    <span class="icon-[lucide--arrow-left] mr-2"></span> Voltar
+                                </button>
+
+                                <div class="flex gap-3 mt-4 sm:mt-0">
+                                    <a href="/risco"
+                                        class="btn border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 h-11 px-6 flex items-center justify-center">
+                                        Cancelar
+                                    </a>
+                                    <button type="submit" id="btnSalvar"
+                                        class="btn bg-primary text-white hover:bg-primary-deep h-11 px-8">
+                                        <span class="icon-[lucide--save] text-lg me-2"></span> Salvar Alterações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </form>
                 </div>
 
@@ -163,25 +258,50 @@
 
         <script>
             const canEdit = "<%= (user.permissoes['riscos'] && (user.permissoes['riscos'].tudo || user.permissoes['riscos'].pode_editar)) ? 'true' : 'false' %>";
-        </script>
 
-        <script>
-            // Inicializa TomSelect
+            // --- CONTROLE DOS STEPS (ABAS) ---
+            function changeStep(stepNumber) {
+                document.querySelectorAll('.step-content').forEach(content => {
+                    content.classList.add('hidden');
+                    content.classList.remove('block');
+                });
+
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active', 'text-primary');
+                    link.classList.add('text-zinc-400');
+                });
+
+                const stepToShow = document.getElementById(`step-${stepNumber}`);
+                if (stepToShow) {
+                    stepToShow.classList.remove('hidden');
+                    stepToShow.classList.add('block');
+                }
+
+                const navToHighlight = document.getElementById(`nav-step-${stepNumber}`);
+                if (navToHighlight) {
+                    navToHighlight.classList.remove('text-zinc-400');
+                    navToHighlight.classList.add('active', 'text-primary');
+                }
+            }
+
+            // --- INICIALIZAÇÕES ---
             let tomSelectTipo;
             document.querySelectorAll('.js-select').forEach(select => {
                 tomSelectTipo = new TomSelect(select, { create: false, allowEmptyOption: true });
-
-                // --- SELECIONAR O VALOR QUE VEIO DO BACKEND ---
                 const selectedVal = select.getAttribute('data-selected');
 
-                // Tratamento especial: O BD pode estar com "Físicos" mas a option value é "Físico" 
-                // Garantimos a seleção baseada no value do select
                 if (selectedVal) {
-                    const matchValue = selectedVal.endsWith('s') && selectedVal !== 'Outros' && selectedVal !== 'Ausência de Riscos' ? selectedVal.slice(0, -1) : selectedVal;
-                    tomSelectTipo.setValue(matchValue || selectedVal);
+
+                    let valueToSelect = selectedVal;
+                    const singulares = ["Físico", "Químico", "Biológico", "Ergonômico", "Mecânico"];
+
+                    if (singulares.includes(selectedVal)) {
+                        valueToSelect = selectedVal + "s";
+                    }
+
+                    tomSelectTipo.setValue(valueToSelect);
                 }
 
-                // Monitora a mudança no select para validar o formulário
                 tomSelectTipo.on('change', function () {
                     if (canEdit === 'true') verificarFormularioParaSalvar();
                 });
@@ -193,7 +313,6 @@
             const elIdTabela = document.getElementById("id_tabela_24");
             const elDescricaoEsocial = document.getElementById("descricao_esocial");
             const elMsg = document.getElementById("codigoMsg");
-
             const btnConsultar = document.getElementById("btnConsultarCodigo");
             const btnSalvar = document.getElementById("btnSalvar");
             const alertNoPermission = document.getElementById("alertNoPermission");
@@ -203,7 +322,8 @@
                 alertNoPermission.classList.remove('hidden');
                 const inputs = formRisco.querySelectorAll('input, select, button, textarea');
                 inputs.forEach(el => {
-                    if (el.id !== 'btnConsultarCodigo') { // Permite ver a mensagem
+                    // Bloqueia todos os inputs, incluindo os da aba 2
+                    if (el.id !== 'btnConsultarCodigo' && el.type !== 'button') {
                         el.disabled = true;
                         el.classList.add('cursor-not-allowed', 'opacity-60');
                     }
@@ -213,7 +333,7 @@
                 btnConsultar.disabled = true;
             }
 
-            // --- FUNÇÃO DE VALIDAÇÃO GERAL (Liberar Botão de Salvar) ---
+            // --- VALIDAÇÃO DO BOTÃO SALVAR ---
             function verificarFormularioParaSalvar() {
                 if (canEdit !== 'true') return;
 
@@ -229,7 +349,7 @@
                 }
             }
 
-            // --- AUTO-BUSCAR DESCRIÇÃO ESOCIAL AO CARREGAR A PÁGINA ---
+            // --- AUTO-BUSCAR DESCRIÇÃO ESOCIAL ---
             window.addEventListener('DOMContentLoaded', async () => {
                 const codigo = elCodigo.value;
                 if (codigo && elIdTabela.value) {
@@ -247,27 +367,21 @@
                 verificarFormularioParaSalvar();
             });
 
-            // --- FUNÇÃO AUXILIAR: LIMITAR PALAVRAS ---
             function limitarPalavras(texto, max) {
                 if (!texto) return "";
                 const palavras = texto.trim().split(/\s+/);
-                if (palavras.length > max) {
-                    return palavras.slice(0, max).join(" ");
-                }
+                if (palavras.length > max) return palavras.slice(0, max).join(" ");
                 return texto;
             }
 
-            // --- EVENTOS NOME DO RISCO ---
             elNome.addEventListener("input", function () {
                 const textoAtual = this.value;
                 const textoLimitado = limitarPalavras(textoAtual, 9);
-                if (textoAtual !== textoLimitado) {
-                    this.value = textoLimitado;
-                }
+                if (textoAtual !== textoLimitado) this.value = textoLimitado;
                 verificarFormularioParaSalvar();
             });
 
-            // --- FUNÇÕES DE CONTROLE DE MENSAGENS E CAMPOS ---
+            // --- ESOCIAL API ---
             function clearEsocialLink() {
                 elDescricaoEsocial.value = "";
                 elIdTabela.value = "";
@@ -283,19 +397,15 @@
                 else elMsg.classList.add("hidden");
             }
 
-            // --- MÁSCARA INTELIGENTE DO CÓDIGO ---
             elCodigo.addEventListener("input", function () {
                 let v = this.value.replace(/\D/g, "");
                 if (v.length > 8) v = v.slice(0, 8);
                 if (v.length > 4) v = v.replace(/^(\d{2})(\d{2})(\d{0,4})/, "$1.$2.$3");
                 else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,2})/, "$1.$2");
                 this.value = v;
-
-                // Se modificar, desvincula
                 clearEsocialLink();
             });
 
-            // --- CONSULTA ---
             async function runConsulta() {
                 if (canEdit !== 'true') return;
 
@@ -313,7 +423,6 @@
 
                     if (json.success) {
                         const dados = json.data;
-
                         elDescricaoEsocial.value = dados.descricao;
                         elIdTabela.value = dados.id_tabela_24;
 
@@ -321,16 +430,16 @@
                             tomSelectTipo.setValue(dados.grupo);
                         }
 
-                        setMsg("success", "Código Tabela 24 vinculado com sucesso!");
+                        setMsg("success", "Código vinculado com sucesso!");
                         verificarFormularioParaSalvar();
                     } else {
                         clearEsocialLink();
-                        setMsg("error", "Código não encontrado na Tabela 24.");
+                        setMsg("error", "Código não encontrado.");
                     }
                 } catch (error) {
                     console.error(error);
                     clearEsocialLink();
-                    setMsg("error", "Erro ao comunicar com o servidor.");
+                    setMsg("error", "Erro de conexão.");
                 } finally {
                     btnConsultar.disabled = false;
                     btnConsultar.innerHTML = `<span class="icon-[lucide--search] text-lg me-2"></span> Consultar`;
@@ -345,13 +454,12 @@
                 }
             });
 
-            // --- ENVIO COM SWEETALERT (ROTA DE EDIÇÃO) ---
+            // --- SUBMIT DO FORMULÁRIO (VIA AJAX) ---
             if (formRisco) {
                 formRisco.addEventListener('submit', async function (e) {
                     e.preventDefault();
 
                     if (canEdit !== 'true') return;
-
                     if (tomSelectTipo) tomSelectTipo.enable();
 
                     const textoOriginal = btnSalvar.innerHTML;

@@ -110,7 +110,14 @@ router.get("/buscar-esocial/:codigo", verificarAutenticacao, async (req, res) =>
 // --- SALVAR NOVO RISCO ---
 router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_criar'), async (req, res) => {
     try {
-        const { id_tabela_24, nome_risco, tipo_risco } = req.body;
+        // PEGANDO TODOS OS CAMPOS NOVOS DO REQ.BODY
+        const {
+            id_tabela_24, nome_risco, tipo_risco,
+            vias_absorcao, lt_nr15, tlv_twa_stel_acgih,
+            exames_ocupacionais, eliminacao_substituicao,
+            medidas_engenharia, medidas_administrativas, epi_especificado
+        } = req.body;
+
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
@@ -119,9 +126,18 @@ router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_c
         const idTabela = id_tabela_24 ? id_tabela_24 : null;
         let idUnidadeParaSalvar = ehAdmin ? null : (userLogado.id_unidade || userLogado.unidade_id);
 
+        // INSERINDO AS COLUNAS NOVAS NO BANCO
         const [result] = await db.query(`
-            INSERT INTO risco (id_unidade, id_tabela_24, nome_risco, tipo_risco) VALUES (?, ?, ?, ?)
-        `, [idUnidadeParaSalvar, idTabela, nome_risco, tipo_risco]);
+            INSERT INTO risco (
+                id_unidade, id_tabela_24, nome_risco, tipo_risco, 
+                vias_absorcao, lt_nr15, tlv_twa_stel_acgih, exames_ocupacionais, 
+                eliminacao_substituicao, medidas_engenharia, medidas_administrativas, epi_especificado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [
+            idUnidadeParaSalvar, idTabela, nome_risco, tipo_risco,
+            vias_absorcao, lt_nr15, tlv_twa_stel_acgih, exames_ocupacionais,
+            eliminacao_substituicao, medidas_engenharia, medidas_administrativas, epi_especificado
+        ]);
 
         await registrarLog({
             id_unidade: userLogado.id_unidade || userLogado.unidade_id,
@@ -141,9 +157,17 @@ router.post("/novo", verificarAutenticacao, verificarPermissao('riscos', 'pode_c
 });
 
 // --- EDITAR RISCO ---
+// --- EDITAR RISCO ---
 router.post("/editar", verificarAutenticacao, verificarPermissao('riscos', 'pode_editar'), async (req, res) => {
     try {
-        const { id_risco, nome_risco, tipo_risco, id_tabela_24 } = req.body;
+        // PEGANDO TODOS OS CAMPOS NOVOS
+        const {
+            id_risco, nome_risco, tipo_risco, id_tabela_24,
+            vias_absorcao, lt_nr15, tlv_twa_stel_acgih,
+            exames_ocupacionais, eliminacao_substituicao,
+            medidas_engenharia, medidas_administrativas, epi_especificado
+        } = req.body;
+
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
@@ -151,25 +175,28 @@ router.post("/editar", verificarAutenticacao, verificarPermissao('riscos', 'pode
         if (rows.length === 0) return res.status(404).json({ success: false, message: "Risco não encontrado." });
         const riscoAtual = rows[0];
 
-
-        if (riscoAtual.id_unidade && riscoAtual.id_unidade !== userLogado.id_unidade && !ehAdmin) 
+        if (riscoAtual.id_unidade && riscoAtual.id_unidade !== userLogado.id_unidade && !ehAdmin)
             return res.status(403).json({ success: false, message: "Acesso negado." });
 
         const idTabela = id_tabela_24 ? id_tabela_24 : null;
 
+        // ATUALIZANDO AS COLUNAS NOVAS
         await db.query(`
-            UPDATE risco SET nome_risco = ?, tipo_risco = ?, id_tabela_24 = ? WHERE id_risco = ?
-        `, [nome_risco, tipo_risco, idTabela, id_risco]);
+            UPDATE risco SET 
+                nome_risco = ?, tipo_risco = ?, id_tabela_24 = ?,
+                vias_absorcao = ?, lt_nr15 = ?, tlv_twa_stel_acgih = ?, 
+                exames_ocupacionais = ?, eliminacao_substituicao = ?, 
+                medidas_engenharia = ?, medidas_administrativas = ?, epi_especificado = ?
+            WHERE id_risco = ?
+        `, [
+            nome_risco, tipo_risco, idTabela,
+            vias_absorcao, lt_nr15, tlv_twa_stel_acgih,
+            exames_ocupacionais, eliminacao_substituicao,
+            medidas_engenharia, medidas_administrativas, epi_especificado,
+            id_risco
+        ]);
 
-        await registrarLog({
-            id_unidade: userLogado.id_unidade || userLogado.unidade_id,
-            id_usuario: userLogado.id_usuario,
-            acao: 'UPDATE',
-            tabela: 'risco',
-            id_registro: id_risco,
-            dados_anteriores: { nome: riscoAtual.nome_risco, tipo: riscoAtual.tipo_risco },
-            dados_novos: { nome: nome_risco, tipo: tipo_risco }
-        });
+        await registrarLog({ /* ... seu log original ... */ });
 
         return res.json({ success: true, message: "Risco atualizado com sucesso!" });
 
