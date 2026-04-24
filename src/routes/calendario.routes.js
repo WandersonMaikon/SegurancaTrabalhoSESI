@@ -18,7 +18,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
         const userLogado = req.session.user;
         const ehAdmin = verificarSeEhAdmin(userLogado);
 
-        // Vamos buscar os ITENS (tarefas) diretamente, para plotar no calendário
+        // Vamos buscar os ITENS (tarefas) diretamente, mas SÓ os que foram programados!
         let sql = `
             SELECT 
                 osi.id_item,
@@ -29,19 +29,16 @@ router.get("/", verificarAutenticacao, async (req, res) => {
                 osi.status_item,
                 osi.prazo_execucao_dias,
                 os.data_abertura,
-                
-                -- Calcula a data limite exata em que a tarefa vence
+                osi.data_planejada,
+                osi.hora_planejada,
                 DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY) AS data_limite
-                
-                -- DICA: Se você for criar uma coluna no banco pra salvar o dia que o usuário 
-                -- "planejou" fazer (clicando no calendário), você adiciona ela aqui:
-                -- , osi.data_planejada 
-
             FROM ordem_servico_item osi
             JOIN ordem_servico os ON osi.id_ordem_servico = os.id_ordem_servico
             JOIN cliente c ON os.id_cliente = c.id_cliente
             JOIN servico s ON osi.id_servico = s.id_servico
-            WHERE os.deleted_at IS NULL AND os.status != 'Cancelada'
+            WHERE os.deleted_at IS NULL 
+              AND os.status != 'Cancelada'
+              AND osi.data_planejada IS NOT NULL
         `;
 
         const params = [];
@@ -62,7 +59,7 @@ router.get("/", verificarAutenticacao, async (req, res) => {
             user: userLogado,
             currentPage: 'calendario',
             tarefas: tarefas,
-            tarefasJson: JSON.stringify(tarefas) 
+            tarefasJson: JSON.stringify(tarefas)
         });
 
     } catch (error) {

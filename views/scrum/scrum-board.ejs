@@ -101,72 +101,118 @@
                                                     <%= tarefa.nome_servico %>
                                                 </h5>
 
-                                                <% let badgePriColor="bg-sky-500/10 text-sky-500" ; let
-                                                    badgePriText="Baixa prioridade" ; if (tarefa.dias_restantes <=20) {
-                                                    badgePriColor="bg-red-500/10 text-red-500" ;
-                                                    badgePriText="Alta prioridade" ; } else if (tarefa.dias_restantes
-                                                    <=30) { badgePriColor="bg-amber-500/10 text-amber-500" ;
-                                                    badgePriText="Média prioridade" ; } %>
+                                                <div class="flex flex-wrap items-center gap-2 mb-3">
 
-                                                    <span class="badge <%= badgePriColor %> mb-3 font-semibold text-xs">
-                                                        <%= badgePriText %>
+                                                        <% 
+                                                        let badgePriColor="bg-sky-500/10 text-sky-500";
+                                                        let badgePriText="Baixa prioridade"; 
+                                                        
+                                                        if (tarefa.dias_restantes <= 20) { 
+                                                            badgePriColor="bg-red-500/10 text-red-500";
+                                                            badgePriText="Alta prioridade" ; } 
+                                                        
+                                                        else if (tarefa.dias_restantes <=30) {
+                                                            badgePriColor="bg-amber-500/10 text-amber-500" ;
+                                                            badgePriText="Média prioridade" ; } 
+                                                        %>
+                                                        <span
+                                                            class="badge <%= badgePriColor %> font-semibold text-[10px]">
+                                                            <%= badgePriText %>
+                                                        </span>
+                                                        <% 
+                                                        let textProg = "Não programada";
+                                                        let colorProg = "bg-zinc-200/50 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400";
+                                                        let iconProg = "icon-[lucide--calendar-x]";
+                                                        let badgeReagendado = ""; 
+                                                        
+                                                        if (tarefa.data_planejada) {
+                                                            let d = new Date(tarefa.data_planejada);
+                                                            let fData = String(d.getUTCDate()).padStart(2, '0') + '/' + 
+                                                                        String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + 
+                                                                        d.getUTCFullYear();
+                                                            
+                                                            let fHora = '';
+                                                            if (tarefa.hora_planejada) {
+                                                                let hArr = String(tarefa.hora_planejada).split(':');
+                                                                fHora = ` às ${hArr[0]}:${hArr[1]}`;
+                                                            }
+                                                            
+                                                            textProg = `Prog: ${fData}${fHora}`;
+                                                            
+                                                            // COR PADRÃO (Azulzinho indicando agendado normal)
+                                                            colorProg = "bg-primary/10 text-primary"; 
+                                                            iconProg = "icon-[lucide--calendar-check]";
+
+                                                            // muda o visual para alertar o gestor!
+                                                            if (tarefa.reagendado) {
+                                                                colorProg = "bg-amber-500/10 text-amber-600 dark:text-amber-500 border border-amber-200 dark:border-amber-900/50";
+                                                                iconProg = "icon-[lucide--calendar-clock]";
+                                                                badgeReagendado = `<span class="ml-1 text-[9px] uppercase font-bold opacity-70">(Reagendado)</span>`;
+                                                            }
+                                                        }
+                                                    %>
+                                                    <span class="badge <%= colorProg %> font-semibold text-[10px] flex items-center gap-1">
+                                                        <span class="<%= iconProg %> text-xs"></span> 
+                                                        <span><%= textProg %> <%- badgeReagendado %></span>
                                                     </span>
 
-                                                    <div
-                                                        class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-2">
-                                                        <div class="flex items-center shrink-0"
-                                                            title="Responsável: <%= tarefa.nome_completo %>">
-                                                            <div
-                                                                class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative flex items-center justify-center bg-primary text-white text-xs font-bold uppercase shadow-sm">
-                                                                <%= tarefa.nome_completo ?
-                                                                    tarefa.nome_completo.charAt(0) : 'U' %>
-                                                            </div>
-                                                        </div>
+                                                </div>
 
+                                                <div
+                                                    class="pt-3 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-2">
+                                                    <div class="flex items-center shrink-0"
+                                                        title="Responsável: <%= tarefa.nome_completo %>">
                                                         <div
-                                                            class="inline-flex shrink-0 items-center justify-center bg-white dark:bg-zinc-900 px-2 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm min-w-[90px] h-[26px] whitespace-nowrap">
-                                                            <% let idColuna=String(coluna.id).trim(); %>
-
-                                                                <% if (idColuna==='Feito' ) { %>
-                                                                    <% let dataFim='--/--' ; let
-                                                                        campoData=tarefa.data_conclusao ||
-                                                                        tarefa.updated_at; if (campoData) { let d=new
-                                                                        Date(campoData); let
-                                                                        meses=['janeiro', 'fevereiro' , 'março'
-                                                                        , 'abril' , 'maio' , 'junho' , 'julho'
-                                                                        , 'agosto' , 'setembro' , 'outubro' , 'novembro'
-                                                                        , 'dezembro' ];
-                                                                        dataFim=String(d.getDate()).padStart(2, '0' )
-                                                                        + ' de ' + meses[d.getMonth()]; } %>
-                                                                        <span
-                                                                            class="icon-[lucide--check-circle] me-1 text-green-500"></span>
-                                                                        <span
-                                                                            class="text-green-500 font-bold capitalize text-[10px]">Fim:
-                                                                            <%= dataFim %></span>
-
-                                                                        <% } else if (tarefa.dias_restantes < 0) { %>
-                                                                            <span
-                                                                                class="icon-[lucide--clock] me-1 text-red-500"></span>
-                                                                            <span
-                                                                                class="text-red-500 font-bold uppercase text-[10px]">Atrasado</span>
-
-                                                                            <% } else if (tarefa.dias_restantes===0) {
-                                                                                %>
-                                                                                <span
-                                                                                    class="icon-[lucide--clock] me-1 text-amber-500"></span>
-                                                                                <span
-                                                                                    class="text-amber-500 font-bold uppercase text-[10px]">Hoje</span>
-
-                                                                                <% } else { %>
-                                                                                    <span
-                                                                                        class="icon-[lucide--clock] me-1 text-zinc-400"></span>
-                                                                                    <span
-                                                                                        class="text-zinc-600 dark:text-zinc-300 font-bold text-[10px]">Faltam
-                                                                                        <%= tarefa.dias_restantes %>
-                                                                                            d</span>
-                                                                                    <% } %>
+                                                            class="size-8 border-2 border-zinc-50 dark:border-zinc-800 rounded-full relative flex items-center justify-center bg-primary text-white text-xs font-bold uppercase shadow-sm">
+                                                            <%= tarefa.nome_completo ? tarefa.nome_completo.charAt(0)
+                                                                : 'U' %>
                                                         </div>
                                                     </div>
+
+                                                    <div
+                                                        class="inline-flex shrink-0 items-center justify-center bg-white dark:bg-zinc-900 px-2 py-1.5 rounded-md border border-zinc-200 dark:border-zinc-700 shadow-sm min-w-[90px] h-[26px] whitespace-nowrap">
+                                                        <% let idColuna=String(coluna.id).trim(); %>
+
+                                                            <% if (idColuna==='Feito' ) { %>
+                                                                <% let dataFim='--/--' ; let
+                                                                    campoData=tarefa.data_conclusao ||
+                                                                    tarefa.updated_at; if (campoData) { let d=new
+                                                                    Date(campoData); let meses=['janeiro', 'fevereiro'
+                                                                    , 'março' , 'abril' , 'maio' , 'junho' , 'julho'
+                                                                    , 'agosto' , 'setembro' , 'outubro' , 'novembro'
+                                                                    , 'dezembro' ];
+                                                                    dataFim=String(d.getDate()).padStart(2, '0' )
+                                                                    + ' de ' + meses[d.getMonth()]; } %>
+                                                                    <span
+                                                                        class="icon-[lucide--check-circle] me-1 text-green-500"></span>
+                                                                    <span
+                                                                        class="text-green-500 font-bold capitalize text-[10px]">Fim:
+                                                                        <%= dataFim %>
+                                                                    </span>
+
+                                                                    <% } else if (tarefa.dias_restantes < 0) { %>
+                                                                        <span
+                                                                            class="icon-[lucide--clock] me-1 text-red-500"></span>
+                                                                        <span
+                                                                            class="text-red-500 font-bold uppercase text-[10px]">Atrasado</span>
+
+                                                                        <% } else if (tarefa.dias_restantes===0) { %>
+                                                                            <span
+                                                                                class="icon-[lucide--clock] me-1 text-amber-500"></span>
+                                                                            <span
+                                                                                class="text-amber-500 font-bold uppercase text-[10px]">Hoje</span>
+
+                                                                            <% } else { %>
+                                                                                <span
+                                                                                    class="icon-[lucide--clock] me-1 text-zinc-400"></span>
+                                                                                <span
+                                                                                    class="text-zinc-600 dark:text-zinc-300 font-bold text-[10px]">Faltam
+                                                                                    <%= tarefa.dias_restantes %>
+                                                                                        d
+                                                                                </span>
+                                                                                <% } %>
+                                                    </div>
+                                                </div>
                                             </li>
                                             <% }) %>
                                     </ul>
@@ -176,69 +222,69 @@
                     </div>
                 </div>
 
-                <div id="modal_programacao" class="fixed inset-0 z-[9999] hidden items-center justify-center p-4">
-
-                    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="fecharModalProgramacao()"></div>
-
-                    <div
-                        class="relative w-full max-w-lg bg-white dark:bg-zinc-900 rounded-xl shadow-2xl flex flex-col border border-zinc-200 dark:border-zinc-800">
-
+                <div id="modal_programacao" role="dialog" class="modal fade fixed inset-0 z-[9999]" tabindex="-1">
+                    <div class="modal-dialog pointer-events-none w-full h-full flex items-center justify-center p-4">
                         <div
-                            class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between bg-zinc-50/50 dark:bg-zinc-800/20 rounded-t-xl">
-                            <h5 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                                <span class="icon-[lucide--calendar-clock] text-primary"></span>
-                                Programar Atividade
-                            </h5>
-                            <button type="button" class="btn !p-2 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                                onclick="fecharModalProgramacao()" aria-label="Fechar">
-                                <span class="icon-[lucide--x] text-lg"></span>
-                            </button>
-                        </div>
+                            class="modal-content pointer-events-auto w-full max-w-[40rem] bg-white dark:bg-zinc-900 rounded-xl flex flex-col max-h-[90vh] shadow-2xl border border-zinc-200 dark:border-zinc-800">
 
-                        <div class="p-6">
                             <div
-                                class="mb-6 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                                <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Serviço a ser realizado</p>
-                                <p id="mod_nome_servico"
-                                    class="font-semibold text-zinc-800 dark:text-zinc-200 mb-3 text-lg leading-tight">
-                                </p>
-
-                                <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Prazo Restante</p>
-                                <p id="mod_prazo_servico" class="text-sm font-medium"></p>
+                                class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                                <h5 class="text-lg flex items-center gap-2">
+                                    <span class="icon-[lucide--calendar-clock] text-primary"></span>
+                                    Programar Atividade
+                                </h5>
+                                <button type="button" class="btn !p-2" data-bs-dismiss="modal" aria-label="Fechar">
+                                    <span class="icon-[lucide--x] text-lg text-zinc-500"></span>
+                                </button>
                             </div>
 
-                            <form id="formProgramacao">
-                                <input type="hidden" id="prog_id_item">
+                            <div class="p-6 flex-grow overflow-y-auto flex flex-col">
+                                <div
+                                    class="mb-6 p-4 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
+                                    <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Serviço a ser realizado
+                                    </p>
+                                    <p id="mod_nome_servico"
+                                        class="font-semibold text-zinc-800 dark:text-zinc-200 mb-3 text-lg leading-tight">
+                                    </p>
 
-                                <div class="grid grid-cols-2 gap-4 mb-6">
-                                    <div>
-                                        <label
-                                            class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Data
-                                            Prevista <span class="text-red-500">*</span></label>
-                                        <input type="date" id="prog_data"
-                                            class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary"
-                                            required>
-                                    </div>
-                                    <div>
-                                        <label
-                                            class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Hora
-                                            Prevista</label>
-                                        <input type="time" id="prog_hora"
-                                            class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary">
-                                    </div>
+                                    <p class="text-xs text-zinc-500 uppercase font-bold mb-1">Prazo Restante</p>
+                                    <p id="mod_prazo_servico" class="text-sm font-medium"></p>
                                 </div>
 
-                                <div class="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800">
-                                    <button type="button" onclick="fecharModalProgramacao()"
-                                        class="btn border border-zinc-200 dark:border-zinc-700 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
-                                        Cancelar
-                                    </button>
-                                    <button type="submit" id="btnSalvarProg"
-                                        class="btn bg-primary text-white hover:bg-primary-deep shadow-lg shadow-primary/20">
-                                        <span class="icon-[lucide--save] me-2"></span> Salvar
-                                    </button>
-                                </div>
-                            </form>
+                                <form id="formProgramacao" class="flex-grow flex flex-col">
+                                    <input type="hidden" id="prog_id_item">
+
+                                    <div class="grid grid-cols-2 gap-4 mb-6">
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Data
+                                                Prevista <span class="text-red-500">*</span></label>
+                                            <input type="date" id="prog_data"
+                                                class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary"
+                                                required>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="mb-2 block text-sm font-bold text-zinc-700 dark:text-zinc-300">Hora
+                                                Prevista</label>
+                                            <input type="time" id="prog_hora"
+                                                class="input h-11 w-full bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-700 focus:border-primary">
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="flex justify-end gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-800 mt-auto">
+                                        <button type="button" data-bs-dismiss="modal"
+                                            class="btn border border-zinc-200 dark:border-zinc-700 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                            Cancelar
+                                        </button>
+                                        <button type="submit" id="btnSalvarProg"
+                                            class="btn bg-primary text-white hover:bg-primary-deep shadow-lg shadow-primary/20">
+                                            <span class="icon-[lucide--save] me-2"></span> Salvar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -251,12 +297,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
         <script>
-            // Função global de fechamento chamada pelo botão "X" e fundo escuro
-            window.fecharModalProgramacao = function () {
-                const modal = document.getElementById('modal_programacao');
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            };
+
 
             document.addEventListener('DOMContentLoaded', () => {
 
@@ -287,10 +328,9 @@
                     document.getElementById('prog_data').value = dataPlan ? dataPlan.split('T')[0] : '';
                     document.getElementById('prog_hora').value = horaPlan || '';
 
-                    // Garante que as classes do Tailwind renderizem a caixa
-                    const modal = document.getElementById('modal_programacao');
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
+                    // Abre o modal usando o motor do Bootstrap (com animação)
+                    const modalProg = bootstrap.Modal.getOrCreateInstance(document.getElementById('modal_programacao'));
+                    modalProg.show();
                 });
 
                 // 2. SUBMIT DO FORMULÁRIO DE PROGRAMAÇÃO
@@ -318,7 +358,11 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            window.fecharModalProgramacao();
+                            const modalEl = document.getElementById('modal_programacao');
+                            const modalInst = bootstrap.Modal.getInstance(modalEl);
+                            if (modalInst) {
+                                modalInst.hide();
+                            }
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Programado!',
@@ -383,6 +427,7 @@
 
                             if (statusOrigem === statusDestino) return;
 
+                            // Bloqueia voltar de Em Execução/Feito para Pendente
                             if (statusDestino === 'Pendente') {
                                 Swal.fire({
                                     icon: 'error',
@@ -393,7 +438,28 @@
                                 return;
                             }
 
+                            // =================================================================
+                            // TRANSIÇÃO: Pendente -> Em Execução (COM VALIDAÇÃO DE DATA)
+                            // =================================================================
                             if (statusOrigem === 'Pendente' && statusDestino === 'Em Execução') {
+
+                                // 1. Pega a data planejada que está salva no HTML do card
+                                const dataPlan = itemArrastado.getAttribute('data-dataplanejada');
+
+                                // 2. Valida se a data existe
+                                if (!dataPlan || dataPlan.trim() === '' || dataPlan === 'null') {
+                                    Swal.fire({
+                                        icon: 'warning',
+                                        title: 'Ação Bloqueada',
+                                        text: 'Você precisa programar uma data para esta tarefa antes de iniciá-la. Clique no card para agendar!',
+                                        confirmButtonColor: '#0ea5e9'
+                                    });
+                                    // Devolve o card pra coluna de origem ("Pendente")
+                                    colunaOrigem.appendChild(itemArrastado);
+                                    return;
+                                }
+
+                                // 3. Se tiver data, segue o fluxo normal pedindo confirmação
                                 Swal.fire({
                                     title: 'Iniciar Tarefa?',
                                     text: "Ao mover para 'Em Progresso', você não poderá voltar esta tarefa para 'Pendente'. Deseja confirmar o início?",
@@ -413,6 +479,9 @@
                                 return;
                             }
 
+                            // =================================================================
+                            // TRANSIÇÃO: Em Execução -> Feito
+                            // =================================================================
                             if (statusOrigem === 'Em Execução' && statusDestino === 'Feito') {
                                 Swal.fire({
                                     title: 'Concluir Tarefa?',
@@ -433,6 +502,9 @@
                                 return;
                             }
 
+                            // =================================================================
+                            // TRANSIÇÃO: Feito -> Em Execução
+                            // =================================================================
                             if (statusOrigem === 'Feito' && statusDestino === 'Em Execução') {
                                 Swal.fire({
                                     title: 'Atenção: Reabrir Tarefa',
@@ -453,6 +525,7 @@
                                 return;
                             }
 
+                            // Caso caia em alguma outra transição (fallback)
                             atualizarTarefaNoBanco(id_item, statusDestino);
                         }
                     });

@@ -123,20 +123,34 @@
 
                 // 2. Converte as tarefas do seu banco para o formato que o Calendário entende
                 const eventosCalendario = tarefas.map(t => {
-                    // Define a cor baseado no status (para ficar fácil de bater o olho)
                     let corFundo = '#3b82f6'; // Azul = Pendente
                     if (t.status_item === 'Feito') corFundo = '#22c55e'; // Verde = Concluído
-                    else if (t.status_item === 'Em Andamento') corFundo = '#f59e0b'; // Laranja = Em Andamento
+                    else if (t.status_item === 'Em Execução') corFundo = '#f59e0b'; // Laranja = Em Andamento
 
-                    // Pega apenas a parte da data (YYYY-MM-DD) cortando a hora
-                    const dataFormatada = t.data_limite ? t.data_limite.split('T')[0] : null;
+                    // PRIORIDADE: Se tiver data_planejada, usa ela. Senão, usa a data_limite.
+                    let dataBase = t.data_planejada ? t.data_planejada : t.data_limite;
+                    
+                    // Tratamento para evitar erro de fuso horário (pegar apenas YYYY-MM-DD)
+                    let dataString = dataBase.split('T')[0];
+                    
+                    // MONTAGEM DO START: Se tiver hora, junta com a data para ordenar no calendário
+                    let startISO = dataString;
+                    let prefixoHora = '';
+
+                    if (t.hora_planejada) {
+                        // Formato final: YYYY-MM-DDTHH:mm:ss
+                        startISO = `${dataString}T${t.hora_planejada}`;
+                        prefixoHora = t.hora_planejada.substring(0, 5) + ' - ';
+                    }
 
                     return {
                         id: t.id_item,
-                        title: `${t.nome_empresa} - ${t.nome_servico}`,
-                        start: dataFormatada,
+                        // Adicionamos a hora no título para facilitar a leitura visual
+                        title: `${prefixoHora}${t.nome_empresa} (${t.nome_servico})`,
+                        start: startISO,
                         color: corFundo,
-                        // Guarda o objeto inteiro dentro da propriedade extendedProps para usarmos ao clicar!
+                        // Se não tiver hora, o FullCalendar trata como "Dia Todo"
+                        allDay: t.hora_planejada ? false : true, 
                         extendedProps: {
                             ...t
                         }
@@ -145,17 +159,19 @@
 
                 // 3. Renderiza o Calendário
                 const calendar = new FullCalendar.Calendar(calendarEl, {
-                    locale: 'pt-br', // Deixa os dias da semana e meses em português
+                    locale: 'pt-br',
                     initialView: 'dayGridMonth',
                     height: 'auto',
-                    editable: true, // Permite arrastar o card (Ainda precisamos salvar no banco)
+                    editable: true,
                     droppable: true,
+                    
+                    displayEventTime: false, // 🔥 ADICIONE ESTA LINHA AQUI! Isso esconde a hora automática dele.
+                    
                     headerToolbar: {
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,listWeek' // Adicionado opções de visualização
+                        right: 'dayGridMonth,timeGridWeek,listWeek'
                     },
-                    // ADICIONE ESTE BLOCO AQUI PARA FORÇAR A TRADUÇÃO DOS BOTÕES
                     buttonText: {
                         today: 'Hoje',
                         month: 'Mês',

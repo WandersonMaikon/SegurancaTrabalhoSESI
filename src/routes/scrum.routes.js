@@ -110,10 +110,12 @@ router.get("/quadro/:id", verificarAutenticacao, async (req, res) => {
         if (osRows.length === 0) return res.status(404).send("Projeto não encontrado.");
         const os = osRows[0];
 
-        // 1. Buscando a coluna data_conclusao no SQL
+        // 🔥 ATUALIZADO AQUI: Incluindo data_planejada e hora_planejada no SELECT
         let sqlItens = `
             SELECT
-                osi.id_item, osi.status_item, osi.prazo_execucao_dias, osi.data_conclusao, s.nome_servico, u.nome_completo,
+                osi.id_item, osi.status_item, osi.prazo_execucao_dias, osi.data_conclusao, 
+                osi.data_planejada, osi.hora_planejada, osi.reagendado,
+                s.nome_servico, u.nome_completo,
                 COALESCE(DATEDIFF(DATE_ADD(os.data_abertura, INTERVAL osi.prazo_execucao_dias DAY), CURRENT_DATE()), 0) AS dias_restantes
             FROM ordem_servico_item osi
             JOIN servico s ON osi.id_servico = s.id_servico
@@ -130,7 +132,7 @@ router.get("/quadro/:id", verificarAutenticacao, async (req, res) => {
 
         const [itens] = await db.query(sqlItens, paramsItens);
 
-        // 2. Tratando a data por extenso AQUI NO BACK-END
+        // Tratando a data por extenso AQUI NO BACK-END (Conclusão)
         itens.forEach(item => {
             if (item.status_item === 'Feito') {
                 item.data_formatada = '--/--'; // Fallback de segurança
@@ -168,7 +170,7 @@ router.post("/atualizar-tarefa", verificarAutenticacao, async (req, res) => {
     try {
         const { id_item, novo_status } = req.body;
 
-        // 3. Atualizando o banco e gravando o NOW()
+        // Atualizando o banco e gravando o NOW()
         if (novo_status === 'Feito') {
             await db.query(
                 "UPDATE ordem_servico_item SET status_item = ?, data_conclusao = NOW() WHERE id_item = ?",
@@ -225,6 +227,47 @@ router.post("/atualizar-tarefa", verificarAutenticacao, async (req, res) => {
     } catch (error) {
         console.error("Erro ao atualizar tarefa e automações da OS:", error);
         res.status(500).json({ success: false });
+    }
+});
+
+
+// =============================================================================
+// 4. PROGRAMAR ATIVIDADE (NOVO POST AJAX)
+// =============================================================================
+router.post("/programar-tarefa", verificarAutenticacao, async (req, res) => {
+    try {
+        const { id_item, data_planejada, hora_planejada } = req.body;
+
+        if (!id_item || !data_planejada) {
+            return res.status(400).json({ success: false, message: "A data prevista é obrigatória." });
+        }
+
+        const horaTratada = hora_planejada ? hora_planejada : null;
+
+        // 1. Verifica se a tarefa JÁ TINHA uma data planejada antes de atualizar
+        const [itemAtual] = await db.query(
+            "SELECT data_planejada FROM ordem_servico_item WHERE id_item = ?",
+            [id_item]
+        );
+
+        let foiReagendado = false;
+
+        if (itemAtual.length > 0 && itemAtual[0].data_planejada !== null) {
+             
+            // Se ele abriu o modal de uma tarefa com data e salvou, é um reagendamento.
+            foiReagendado = true;
+        }
+
+        // 2. Salva a nova data, a nova hora e o status de reagendamento!
+        await db.query(
+            "UPDATE ordem_servico_item SET data_planejada = ?, hora_planejada = ?, reagendado = ? WHERE id_item = ?",
+            [data_planejada, horaTratada, foiReagendado, id_item]
+        );
+
+        res.json({ success: true, message: "Programação salva com sucesso!" });
+    } catch (error) {
+        console.error("Erro ao salvar programação da tarefa:", error);
+        res.status(500).json({ success: false, message: "Erro interno no servidor." });
     }
 });
 
