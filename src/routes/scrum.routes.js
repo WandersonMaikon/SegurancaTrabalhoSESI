@@ -232,7 +232,7 @@ router.post("/atualizar-tarefa", verificarAutenticacao, async (req, res) => {
 
 
 // =============================================================================
-// 4. PROGRAMAR ATIVIDADE (NOVO POST AJAX)
+// 4. PROGRAMAR ATIVIDADE 
 // =============================================================================
 router.post("/programar-tarefa", verificarAutenticacao, async (req, res) => {
     try {
@@ -244,7 +244,45 @@ router.post("/programar-tarefa", verificarAutenticacao, async (req, res) => {
 
         const horaTratada = hora_planejada ? hora_planejada : null;
 
-        // 1. Verifica se a tarefa JÁ TINHA uma data planejada antes de atualizar
+        // =====================================================================
+        // 1. VALIDAÇÃO DE CONFLITO DE AGENDA (Não deixa marcar 2 na mesma hora)
+        // =====================================================================
+        if (horaTratada) {
+            // Acha quem é o dono desse card
+            const [itemAlvo] = await db.query(
+                "SELECT id_responsavel_execucao FROM ordem_servico_item WHERE id_item = ?", 
+                [id_item]
+            );
+
+            if (itemAlvo.length > 0) {
+                const idResponsavel = itemAlvo[0].id_responsavel_execucao;
+
+                // Checa se o peão já tem serviço nessa mesma data e hora
+                const [conflito] = await db.query(
+                    `SELECT id_item 
+                     FROM ordem_servico_item 
+                     WHERE id_responsavel_execucao = ? 
+                       AND data_planejada = ? 
+                       AND hora_planejada = ? 
+                       AND id_item != ? 
+                       AND status_item != 'Feito'`,
+                    [idResponsavel, data_planejada, horaTratada, id_item]
+                );
+
+                if (conflito.length > 0) {
+                    // Opa, bateu horário! Devolve erro pro SweetAlert no front
+                    return res.status(400).json({ 
+                        success: false, 
+                        message: "Você já possui uma atividade programada para este mesmo dia e horário." 
+                    });
+                }
+            }
+        }
+
+        // =====================================================================
+        // 2. VERIFICAÇÃO DE REAGENDAMENTO
+        // =====================================================================
+        // Verifica se a tarefa JÁ TINHA uma data planejada antes de atualizar
         const [itemAtual] = await db.query(
             "SELECT data_planejada FROM ordem_servico_item WHERE id_item = ?",
             [id_item]
@@ -253,12 +291,13 @@ router.post("/programar-tarefa", verificarAutenticacao, async (req, res) => {
         let foiReagendado = false;
 
         if (itemAtual.length > 0 && itemAtual[0].data_planejada !== null) {
-             
             // Se ele abriu o modal de uma tarefa com data e salvou, é um reagendamento.
             foiReagendado = true;
         }
 
-        // 2. Salva a nova data, a nova hora e o status de reagendamento!
+        // =====================================================================
+        // 3. SALVAR TUDO NO BANCO
+        // =====================================================================
         await db.query(
             "UPDATE ordem_servico_item SET data_planejada = ?, hora_planejada = ?, reagendado = ? WHERE id_item = ?",
             [data_planejada, horaTratada, foiReagendado, id_item]
